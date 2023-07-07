@@ -417,7 +417,7 @@ class Appli(GUI):
         super().__init__()
 
 
-def spectra_launch(fname_json=None):
+def fitspy_launcher(fname_json=None):
     """ Launch the appli """
 
     root = Tk()
@@ -430,4 +430,4 @@ def spectra_launch(fname_json=None):
 
 
 if __name__ == '__main__':
-    spectra_launch()
+    fitspy_launcher()

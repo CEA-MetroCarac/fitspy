@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="fitspy",
-    version='1.0.0',
+    version='2023.07',
     license='GPLv3',
     setup_requires=['setuptools_scm'],
     include_package_data=True,
@@ -33,4 +33,11 @@ setup(
         'Operating System :: MacOS :: MacOS X',
         'Environment :: Console',
     ],
+
+    entry_points={
+        'gui_scripts': [
+            'fitspy = app.gui:fitspy_launcher',
+        ]
+    }
+
 )
