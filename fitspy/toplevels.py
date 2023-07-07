@@ -127,7 +127,7 @@ class TabView:
         if new_model_name != old_model_name:
             ampli = spectrum.models[i].param_hints['ampli']['value']
             x0 = spectrum.models[i].param_hints['x0']['value']
-            spectrum.models[i] = spectrum.create_model(new_model_name, i,
+            spectrum.models[i] = spectrum.create_model(new_model_name, i + 1,
                                                        ampli=ampli, x0=x0)
             self.spectrum.result_fit = None
             self.plot()  # pylint:disable=not-callable
