@@ -340,8 +340,8 @@ class Callbacks:
                 y0 = model.eval(model.make_params(), x=x0, der=0)
                 xy = (x0, min(y0, self.ax.get_ylim()[1]))
 
-                text = f"prefix: {model.prefix}\n"
                 names = model.param_names
+                text = ""
                 for name in names:
                     param = spectrum.result_fit.params[name]
                     text += f"{name[4:]}: {param.value:.4g}"
