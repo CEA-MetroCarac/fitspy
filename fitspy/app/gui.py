@@ -13,7 +13,11 @@ from io import BytesIO
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.backends.backend_tkagg import NavigationToolbar2Tk
-import win32clipboard
+
+try:
+    import win32clipboard
+except:
+    pass
 
 from fitspy.utils import closest_index, save_to_json, load_from_json
 from fitspy.spectra import MODELS, BKG_MODELS
