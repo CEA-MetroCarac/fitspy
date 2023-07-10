@@ -1,4 +1,4 @@
-  ![](doc/_static/fitspy.png)
+![](https://cea-metrocarac.github.io/fitspy/fitspy.png)
 
 # Fitspy
 
@@ -8,7 +8,7 @@ Its GUI aims to be as simple and intuitive as possible.
 
 Processed spectra may be independent of each other or may result from 2D-maps acquisitions.
 <p align="center" width="100%">
-    <img align="center" width="30%" src=doc/_static/2d-map.png> <br>
+    <img align="center" width="30%" src=https://cea-metrocarac.github.io/fitspy/2d-map.png> <br>
     <em>Example of a fitspy 2D-map frame interacting with the main GUI</em> 
 
 </p>
