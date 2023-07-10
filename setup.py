@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="fitspy",
-    version='2023.07',
+    version='2023.1',
     license='GPLv3',
     setup_requires=['setuptools_scm'],
     include_package_data=True,
@@ -14,8 +14,7 @@ setup(
         "matplotlib",
         "scipy",
         "lmfit",
-        "json",
-        "win32clipboard; platform_system == 'Windows'",
+        "pywin32; platform_system == 'Windows'",
     ],
     packages=find_packages(),
 
@@ -24,7 +23,8 @@ setup(
     url="https://github.com/CEA-MetroCarac/fitspy",
     author_email="patrick.quemere@cea.fr",
     author="Patrick Quéméré",
-    keywords="Fitspy, fit, spectra, spectrum, map, 1D, 2D, decomposition, Gaussian, Lorentzian, Pseudovoigt, GUI",
+    keywords="Fitspy, fit, spectra, spectrum, map, 1D, 2D, decomposition, "
+             "Gaussian, Lorentzian, Pseudovoigt, GUI",
     classifiers=[
         'Programming Language :: Python :: 3.7',
         'License :: OSI Approved :: GPL-3.0 license',
@@ -36,7 +36,7 @@ setup(
 
     entry_points={
         'gui_scripts': [
-            'fitspy = app.gui:fitspy_launcher',
+            'fitspy = fitspy.app.gui:fitspy_launcher',
         ]
     }
 
