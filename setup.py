@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 setup(
     name="fitspy",
     version='2023.1',
-    license='GPLv3',
+    license='GPL v3',
     setup_requires=['setuptools_scm'],
     include_package_data=True,
     zip_safe=False,
@@ -27,7 +27,7 @@ setup(
              "Gaussian, Lorentzian, Pseudovoigt, GUI",
     classifiers=[
         'Programming Language :: Python :: 3.7',
-        'License :: OSI Approved :: GPL-3.0 license',
+        'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
         'Operating System :: Microsoft :: Windows',
         'Operating System :: POSIX :: Linux',
         'Operating System :: MacOS :: MacOS X',
