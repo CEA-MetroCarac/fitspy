@@ -17,7 +17,7 @@ affiliations:
  - name: Univ. Grenoble Alpes, CEA, Leti, F-38000 Grenoble, France
    index: 1
 date: 11 July 2023
-bibliography: paper.bib
+bibliography: .github/workflows/paper.bib
 ---
 
 # Summary
