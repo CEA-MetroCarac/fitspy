@@ -43,7 +43,7 @@ These 2 last aspects, among others, severely limit the transmission of results a
 restrict the use and re-use of models to other series of analogeous spectra.
 
 On the other hand, in the world of Open Source and in particular in the world of Python programming, 
-libraries such as lmfit offer everything that is needed to carry out the decompositions expected in terms of spectral processing. 
+libraries such as @lmfit offer everything that is needed to carry out the decompositions expected in terms of spectral processing. 
 However, their implementation requires knowledge in programming, which limits their use by the greatest number of people.
 
 Fitspy was therefore created to address the various weaknesses/drawbacks of each of these 2 options 
@@ -63,7 +63,7 @@ Once loaded via a files selection widget, the spectra can then be processed indi
 or as a whole (i.e. all the loaded spectra).
 
 Firstly, users can choose to reduce the physical support to the range of interest for the next.
-They can also activate the notion of attractors. These attractors correspond to local maxima, calculated using scipy. 
+They can also activate the notion of attractors. These attractors correspond to local maxima, calculated using @scipy. 
 They can be used to define points of interest, which can be used to normalise spectra or to select points associated with
 the baseline and peaks to be modelled (see below).
 
