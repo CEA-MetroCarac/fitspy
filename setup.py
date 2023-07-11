@@ -2,10 +2,9 @@ from setuptools import setup, find_packages
 
 setup(
     name="fitspy",
-    version='2023.2',
+    version='2023.3',
     license='GPL v3',
-    setup_requires=['setuptools_scm'],
-    include_package_data=True,
+    include_package_data=False,
     zip_safe=False,
     python_requires='>=3.7',
     install_requires=[
@@ -31,7 +30,7 @@ setup(
         'Programming Language :: Python :: 3.8',
         'Programming Language :: Python :: 3.9',
         'Programming Language :: Python :: 3.10',
-        'Programming Language :: Python :: 3.11',        
+        'Programming Language :: Python :: 3.11',
         'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
         'Operating System :: Microsoft :: Windows',
         'Operating System :: POSIX :: Linux',
