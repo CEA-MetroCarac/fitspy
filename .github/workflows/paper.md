@@ -1,5 +1,5 @@
 ---
-title: 'Fitspy : A Python package for spectra decomposition'
+title: 'Fitspy: A Python package for spectra decomposition'
 tags:
   - Python
   - spectrum
@@ -14,7 +14,8 @@ affiliations:
  - name: Univ. Grenoble Alpes, CEA, Leti, F-38000 Grenoble, France
    index: 1
 date: 11 July 2023
-bibliography: https://github.dev/CEA-MetroCarac/fitspy/.github/workflows/paper.bib
+bibliography: paper.bib
+
 ---
 
 # Summary
@@ -42,7 +43,7 @@ or to save all the processing steps to be replayed.
 These 2 last aspects, among others, severely limit the results and models exchanges within research teams as well as the use and re-use of models to analogeous set of spectra.
 
 On the other hand, in the world of Open Source and particularly in the world of Python programming, 
-libraries such as `[@lmfit]` offer everything that is needed to carry out spectra decompositions. 
+libraries such as `lmfit` (cf. @lmfit) offer everything that is needed to carry out spectra decompositions. 
 However, their implementations require knowledge in programming, which limits their use by a large part of people.
 
 `Fitspy` was therefore created to address the weaknesses/drawbacks of each of these 2 approaches 
@@ -60,7 +61,7 @@ by providing a spectra decomposition tool in open source with a GUI designed to 
 Once loaded in the GUI via a files selection widget, the spectra can be processed one by one or by groups (depending on spectra selected with the cursor in the file selection widget) or as a whole.
 
 Firstly, the user can choose to reduce the physical support to a range of interest for the next.<br>
-he can also activate the `Attractors` capabilities defined as local maxima and obtained thanks to *signal.find_peaks()* of the `[@scipy]` library. 
+he can also activate the `Attractors` capabilities defined as local maxima and obtained thanks to *signal.find_peaks()* of the `scipy` library (cf. @scipy). 
 These attractors can be used by the next to normalise spectra or to select points associated with
 the baseline and peaks to be modelled (see below).
 
@@ -72,7 +73,7 @@ The baseline is then approximated over the entire spectrum range using either pi
 
 Once the baseline has been subtracted, the next step consists in defining the **peaks** of interest for the decomposition.
 This could be done either directly in the figure by clicking or by an `Auto` mode which consists in an iterative process to automatically determine the main peaks locations.<br>
-Thanks to the functionalities offered by `[@lmfit]`, each peak can be associated to a model to choose among a Gaussian model,
+Thanks to the functionalities offered by `lmfit`, each peak can be associated to a model to choose among a Gaussian model,
 a Lorentzian model, their Asymmetric variations or a Pseudovoigt model. These models relies basically on 3 main parameters : a position, an amplitude and a width (FWHM) that is differentiated (*left-right*) in the frame of an asymmetric model.<br>
 
 For the fit, **bounds** can be defined for each of the parameters as well as associated **constraints**.
@@ -87,7 +88,7 @@ Several fit options are also proposed, such as :
 * the maximum number of fit iterations (used to determine whether the fit process has converged or not)
 * the number of CPUs to be used during the fit processing.
 
-At the end of the fit, the fit parameters and the statistics returned by `[@lmfit]` are displayed in related widgets and can be exported in .csv and .txt files respectively.<br><br>
+At the end of the fit, the fit parameters and the statistics returned by `lmfit` are displayed in related widgets and can be exported in .csv and .txt files respectively.<br><br>
 
 
 All the processing steps previously described constitute a model in the sense of the `fitspy` application
@@ -112,4 +113,3 @@ This work was made possible thanks to the support of CEA and the resources made 
 
 
 # References
-
