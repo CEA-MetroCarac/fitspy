@@ -1,6 +1,6 @@
 {
    "0": {
-      "fname": "data\\spectra_2\\InP-1_42-P21.txt",
+      "fname": "..\\examples\\data\\spectra_2\\InP-1_42-P21.txt",
       "range_min": 200.0,
       "range_max": 957.299,
       "norm_mode": "Attractor",

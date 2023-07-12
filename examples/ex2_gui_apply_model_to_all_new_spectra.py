@@ -6,23 +6,38 @@ import tkinter as tk
 
 from fitspy.app.gui import Appli
 
-root = tk.Tk()
-appli = Appli(root)
+DATA = os.path.join('..', 'examples', 'data')
 
-# specify the dirname to work with
-dirname = os.path.join('data', 'spectra_2')
-appli.add_items_from_dir(dirname=dirname)
 
-# load model and apply it to ALL SPECTRA
-fname_json = os.path.join(dirname, 'model.json')
-model = appli.load_model(fname_json=fname_json)
-appli.apply_model(model)
+def gui_apply_model_to_all(dirname_res=None):
+    """Example of spectra fitting and model applied to all through the appli """
+    root = tk.Tk()
+    appli = Appli(root)
 
-# canvas rescaling
-appli.rescale()
+    # specify the dirname to work with
+    dirname = os.path.join(DATA, 'spectra_2')
+    appli.add_items_from_dir(dirname=dirname)
 
-# save results and figures
-# appli.save_results(dirname_res='results')
-# appli.save_figures(dirname_fig='results')
+    # load model and apply it to ALL SPECTRA
+    fname_json = os.path.join(dirname, 'model.json')
+    model = appli.load_model(fname_json=fname_json)
+    appli.apply_model(model)
 
-root.mainloop()
+    # canvas rescaling
+    appli.rescale()
+
+    # save results and figures
+    # appli.save_results(dirname_res='results')
+    # appli.save_figures(dirname_fig='results')
+
+    # save and destroy for pytest
+    if dirname_res is not None:
+        appli.save_results(dirname_res=dirname_res)
+        root.destroy()
+        return
+
+    root.mainloop()
+
+
+if __name__ == "__main__":
+    gui_apply_model_to_all()
