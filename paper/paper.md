@@ -1,5 +1,5 @@
 ---
-title: 'Fitspy: A Python package for spectra decomposition'
+title: 'Fitspy: A Python package for spectral decomposition'
 tags:
   - Python
   - spectrum
