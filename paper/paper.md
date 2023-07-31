@@ -40,7 +40,7 @@ In addition, the large amount of functionalities often proposed in these softwar
 Finally, commercial softwares do not always make it easy to export the results in a open format (like .csv), or to save all the processing steps to be modified at a later time.
 These 2 last aspects, among others, severely limit the exchange of results and models within research teams as well as the use and re-use of models to compare analogous sets of spectra.
 
-On the other hand, in the world of Open Source and particularly in the world of Python programming, libraries such as `lmfit` (cf. @lmfit) offer everything that is needed to carry out spectral decomposition. However, their implementations require knowledge in programming, which limits their use by a large groups of people.
+On the other hand, in the world of Open Source and particularly in the world of Python programming, libraries such as `lmfit` (cf. @lmfit), `specutils` (cf. @specutils) or `pyspeckit` (cf. @pyspeckit) offer everything that is needed to carry out spectral decomposition. However, their implementations require knowledge in programming, which limits their use by a large groups of people.
 
 `Fitspy` was therefore created to address the weaknesses/drawbacks of each of these 2 approaches by providing a spectral decomposition tool with a GUI designed to be as simple as possible to use.
 
@@ -94,6 +94,6 @@ This is this approach that has been recently used by teams at CEA to process ten
 
 # Acknowledgements
 
-This work was made possible thanks to the support of CEA and the resources made available to the "numeric" team at the Nano-Characterisation Platform (PFNC) to develop such a tool and make it available to the research community.
+This work, carried out on the Platform for Nanocharacterisation (PFNC), was supported by the “Recherche Technologique de Base” program of the French National Research Agency (ANR).
 
 # References
