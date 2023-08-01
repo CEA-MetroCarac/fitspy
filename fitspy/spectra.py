@@ -64,6 +64,11 @@ def fit_mp(spectra, models,
     with ProcessPoolExecutor(max_workers=ncpus) as executor:
         results = tuple(executor.map(fit, args))
 
+    # dictionary of custom function names and definitions
+    funcdefs = {}
+    for val in MODELS.values():
+        funcdefs[val.__name__] = val
+
     for result_fit_json, spectrum in zip(results, spectra):
         spectrum.models = deepcopy(models)
         spectrum.fit_method = fit_method
@@ -71,7 +76,7 @@ def fit_mp(spectra, models,
         spectrum.max_ite = max_ite
         # dummy ModelResult that will be overwritten hereafter
         modres = ModelResult(Model(gaussian), Parameters())
-        spectrum.result_fit = modres.loads(result_fit_json)
+        spectrum.result_fit = modres.loads(result_fit_json, funcdefs=funcdefs)
         spectrum.reassign_params()
 
 
