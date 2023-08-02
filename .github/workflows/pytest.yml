@@ -13,7 +13,6 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-      # scipy-1.11.1: Python version >= 3.9 required
         python-version: ["3.9", "3.10"]
 
     steps:
