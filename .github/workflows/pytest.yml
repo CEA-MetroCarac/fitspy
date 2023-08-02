@@ -2,9 +2,12 @@ name: Python test
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "test_ci" ]
   pull_request:
-    branches: [ "main" ]
+    branches: [ "test_ci" ]
+
+env:
+  PYTHONPATH: ${{ vars.GITHUB_WORKSPACE }}
 
 jobs:
   build:
@@ -28,4 +31,4 @@ jobs:
         python setup.py install
     - name: Test with pytest
       run: |
-        pytest
+        pytest tests/
