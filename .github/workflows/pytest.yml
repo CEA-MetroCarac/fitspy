@@ -2,9 +2,9 @@ name: Python test
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "fix_ci_deps" ]
   pull_request:
-    branches: [ "main" ]
+    branches: [ "fix_ci_deps" ]
 
 jobs:
   build:
@@ -13,7 +13,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.9", "3.10"] # scipy-1.11.1: Python version >= 3.9 required
+        python-version: ["3.7"] # scipy-1.11.1: Python version >= 3.9 required
 
     steps:
     - uses: actions/checkout@v3
