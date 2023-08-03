@@ -6,11 +6,12 @@ The main class of Fitspy is [`Spectra`](../fitspy/spectra.py) (inherited
 from `list`) that contains a list of  [`Spectrum`](../fitspy/spectra.py)
 objects.
 
-For each of these [`Spectrum`](../fitspy/spectra.py) objects, the correspondning (x, y) profile is associated.
+For each of these [`Spectrum`](../fitspy/spectra.py) objects, the corresponding (x, y) profile is associated.<br>
+2D maps of spectra (named `SpectraMap`) can also be given as input according to a dedicated format. They consist in a set of `Spectrum` with associated grid coordinates (see below).
 
 ![](_static/spectra.png)
 
-Given the users instructions, a `baseline`
+In term of processing, given the users instructions, `baselines`
 can be defined, as well as a list of `peaks` models (Gaussian, Lorentzian
 , ...) used to fit the spectra profiles.
 

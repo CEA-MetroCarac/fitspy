@@ -3,7 +3,7 @@
 # Fitspy
 
 **Fitspy** is a generic tool dedicated to **fit** **sp**ectra in **py**thon
-with a GUI that aims to be as simple and intuitive as possible.
+with a GUI that aims to be as simple and intuitive to use as possible.
 
 Processed spectra may be independent of each other or may result from 2D-maps
 acquisitions.
@@ -33,6 +33,8 @@ examples [here](https://github.com/CEA-MetroCarac/fitspy/tree/main/examples)).
 These actions (like baseline definition and removal, peaks definition,
 parameters constraints, ...) can be saved in a 'fitspy' `model` and replayed as
 is or applied to other new spectra.
+
+See the [documentation](https://github.com/CEA-MetroCarac/fitspy/tree/main/doc) for more details.
 
 ### Authors informations
 
