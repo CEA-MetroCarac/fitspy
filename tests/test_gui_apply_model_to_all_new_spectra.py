@@ -3,9 +3,10 @@ from pytest import approx
 
 from examples.ex2_gui_apply_model_to_all_new_spectra import \
     gui_apply_model_to_all
-from utils import extract_results
+from utils import extract_results, display_is_ok
 
 
+@pytest.mark.skipif(not display_is_ok(), reason="DISPLAY problem")
 def test_gui_apply_model_to_all(tmp_path):
     gui_apply_model_to_all(dirname_res=tmp_path)
 

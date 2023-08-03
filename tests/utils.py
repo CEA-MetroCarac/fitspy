@@ -3,6 +3,8 @@ utilities functions for test
 """
 import os
 import glob
+import tkinter
+
 import pandas as pd
 
 from fitspy.utils import hsorted
@@ -17,3 +19,12 @@ def extract_results(dirname_res):
         dfr = pd.read_csv(fname, sep=';', header=1)
         results.append(list(map(float, list(dfr)[2:-3])))
     return results
+
+
+def display_is_ok():
+    """ Check that Tkinter can be launched """
+    try:
+        tkinter.Tk()
+        return True
+    except EnvironmentError:
+        return False
