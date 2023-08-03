@@ -1,6 +1,6 @@
 import os
 import tkinter
 print("Hello !!")
-os.environ['DISPLAY'] = ':99'
+print(os.environ.get('DISPLAY'))
 print("test")
 tkinter.Tk()

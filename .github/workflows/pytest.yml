@@ -29,12 +29,12 @@ jobs:
     #   run: |
     #     python -m pytest tests/
     - name: Test with pytest
-      run: |
+      env:
         VERSION=${{ matrix.python-version }}
         export VERSION
-        PORT=${VERSION//.}
-        echo $PORT
-      # Xvfb :99 &
-      # export DISPLAY=:99
-      # python display.py
+        DISPLAY=${VERSION//.}
+        echo $DISPLAY
+      run: |
+        Xvfb :$DISPLAY &
+        python display.py
 
