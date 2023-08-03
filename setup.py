@@ -7,14 +7,14 @@ setup(
     include_package_data=False,
     zip_safe=False,
     python_requires='>=3.7',
-    install_requires=[
-        "numpy",
-        "pandas",
-        "matplotlib",
-        "scipy",
-        "lmfit",
-        "pywin32; platform_system == 'Windows'",
-    ],
+    # install_requires=[
+    #     "numpy",
+    #     "pandas",
+    #     "matplotlib",
+    #     "scipy",
+    #     "lmfit",
+    #     "pywin32; platform_system == 'Windows'",
+    # ],
     packages=['fitspy'],
 
     description="Fitspy (A generic tool to fit spectra in python)",
