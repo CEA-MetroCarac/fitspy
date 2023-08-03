@@ -16,6 +16,8 @@ def inline_auto_decomposition(verbosity=True, show_plots=False):
     """ Example of 'in line' spectra automatic decomposition """
 
     fnames = glob.glob(os.path.join(DATA, 'spectra_1', '*.txt'))
+    dirname = os.path.join(DATA, 'spectra_1')
+    print("CHECK", dirname, os.path.isdir(dirname))
 
     # spectra fitting processing
     spectra_list = []

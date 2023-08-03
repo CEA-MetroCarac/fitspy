@@ -17,6 +17,7 @@ def gui_auto_decomposition(dirname_res=None):
 
     # specify the dirname to work with
     dirname = os.path.join(DATA, 'spectra_1')
+    print("CHECK", dirname, os.path.isdir(dirname))
     appli.add_items_from_dir(dirname=dirname)
 
     # all spectra automatic processing (baseline and peaks evaluation + fitting)
