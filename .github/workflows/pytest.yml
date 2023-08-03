@@ -30,7 +30,7 @@ jobs:
     #     python -m pytest tests/
     - name: Test with pytest
       run: |
-        setenv VERSION=${{ matrix.python-version }}
+        VERSION=${{ matrix.python-version }}
         export VERSION
         PORT=${VERSION//.}
         echo $PORT
