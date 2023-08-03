@@ -8,13 +8,14 @@ import matplotlib.pyplot as plt
 from lmfit import report_fit
 
 from fitspy.spectra import Spectrum, Spectra
+from fitspy.utils import hsorted
 from examples import DATA
 
 
 def inline_auto_decomposition(verbosity=True, show_plots=False):
     """ Example of 'in line' spectra automatic decomposition """
 
-    fnames = glob.glob(os.path.join(DATA, 'spectra_1', '*.txt'))
+    fnames = hsorted(glob.glob(os.path.join(DATA, 'spectra_1', '*.txt')))
 
     # spectra fitting processing
     spectra_list = []
