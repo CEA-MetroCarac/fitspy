@@ -33,5 +33,5 @@ jobs:
           DISPLAY=:${PY_VERSION//.}
           export DISPLAY
           Xvfb $DISPLAY &
-          python -m pytest tests/ -vv --tb=long
+          python -m pytest -s -vv --tb=long tests/
 
