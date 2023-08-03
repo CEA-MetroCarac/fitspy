@@ -8,11 +8,11 @@ from examples.ex4_inline_auto_decomposition import inline_auto_decomposition
 def test_inline_auto_decomposition(tmp_path):
     spectra = inline_auto_decomposition(verbosity=False)
 
-    # refs = []
-    # for i in range(3):
-    #     ampli = spectra[i].models[0].param_hints['ampli']['value']
-    #     refs.append([np.sum(spectra[i].y), ampli])
-    # print(refs)
+    refs = []
+    for i in range(3):
+        ampli = spectra[i].models[0].param_hints['ampli']['value']
+        refs.append([np.sum(spectra[i].y), ampli])
+    print(refs)
 
     refs = [[896641.9940061372, 28146.72777729365],
             [890727.8824949837, 18920.21153480585],
