@@ -5,8 +5,7 @@ import os
 import tkinter as tk
 
 from fitspy.app.gui import Appli
-
-DATA = os.path.join('..', 'examples', 'data')
+from examples import DATA
 
 
 def gui_2d_maps(dirname_res=None):

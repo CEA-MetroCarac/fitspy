@@ -5,7 +5,7 @@ from pytest import approx
 from examples.ex4_inline_auto_decomposition import inline_auto_decomposition
 
 
-def test_inline_auto_decomposition(tmp_path):
+def test_inline_auto_decomposition():
     spectra = inline_auto_decomposition(verbosity=False)
 
     # refs = []
@@ -18,6 +18,7 @@ def test_inline_auto_decomposition(tmp_path):
             [890727.8824949837, 18920.21153480585],
             [737968.1326228122, 9630.572508960488]]
 
+    assert len(spectra) > 0
     for spectrum, ref in zip(spectra, refs):
         ampli = spectrum.models[0].param_hints['ampli']['value']
         assert np.sum(spectrum.y) == approx(ref[0])

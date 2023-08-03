@@ -4,8 +4,7 @@ Example of preprocessed spectra model reloading through the application
 import os
 
 from fitspy.app.gui import fitspy_launcher
-
-DATA = os.path.join('..', 'examples', 'data')
+from examples import DATA
 
 
 def gui_reload_model():

@@ -8,8 +8,7 @@ import matplotlib.pyplot as plt
 from lmfit import report_fit
 
 from fitspy.spectra import Spectrum, Spectra
-
-DATA = os.path.join('..', 'examples', 'data')
+from examples import DATA
 
 
 def inline_auto_decomposition(verbosity=True, show_plots=False):
