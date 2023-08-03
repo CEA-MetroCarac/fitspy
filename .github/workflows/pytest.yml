@@ -13,19 +13,21 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.7", "3.8", "3.9", "3.10"] # scipy-1.11.1: Python version >= 3.9 required
+        python-version: [ "3.7", "3.8", "3.9", "3.10" ] # scipy-1.11.1: Python version >= 3.9 required
 
     steps:
-    - uses: actions/checkout@v3
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v3
-      with:
-        python-version: ${{ matrix.python-version }}
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        python -m pip install pytest
-        python -m pip install .
-    - name: Test with pytest
-      run: |
-        python -m pytest tests/
+      - uses: actions/checkout@v3
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v3
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install pytest
+          python -m pip install .
+      - name: Test with pytest
+        run: |
+          Xvfb :99 &
+          export DISPLAY=:99
+          python -m pytest tests/
