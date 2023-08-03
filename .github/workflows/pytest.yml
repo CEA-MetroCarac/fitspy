@@ -29,11 +29,13 @@ jobs:
     #   run: |
     #     python -m pytest tests/
     - name: Test with pytest
-      env:
+      run:
         VERSION=${{ matrix.python-version }}
         export VERSION
         DISPLAY=${VERSION//.}
         echo $DISPLAY
+      env:
+        DISPLAY=$DISPLAY
       run: |
         Xvfb :$DISPLAY &
         python display.py
