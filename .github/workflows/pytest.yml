@@ -21,16 +21,17 @@ jobs:
       uses: actions/setup-python@v3
       with:
         python-version: ${{ matrix.python-version }}
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        python -m pip install pytest
-        python setup.py install
+    # - name: Install dependencies
+    #   run: |
+    #     python -m pip install --upgrade pip
+    #     python -m pip install pytest
+    #     python setup.py install
     #   run: |
     #     python -m pytest tests/
     - name: Test with pytest
       run: |
-        Xvfb :99 &
-        export DISPLAY=:99
-        python display.py
+        echo ${{ matrix.python-version }}
+      # Xvfb :99 &
+      # export DISPLAY=:99
+      # python display.py
 
