@@ -30,7 +30,7 @@ jobs:
     #     python -m pytest tests/
     - name: Test with pytest
       run: |
-        echo "${matrix.python-version//.}"
+        echo ${{ matrix.python-version//. }}
       # Xvfb :99 &
       # export DISPLAY=:99
       # python display.py
