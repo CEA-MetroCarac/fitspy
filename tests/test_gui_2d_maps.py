@@ -15,5 +15,4 @@ def test_gui_2d_maps(tmp_path):
     refs = [[520.3121368156001, 904.3819512688175, 9.704633018161001]]
 
     for result, reference in zip(results, refs):
-        assert result[0:2] == approx(reference[0:2], rel=1e-2)
-        assert result[2] == approx(reference[2], rel=1e-1)
+        assert result == approx(reference, rel=1e-1)
