@@ -32,9 +32,9 @@ jobs:
       run: |
         VERSION=${{ matrix.python-version }}
         export VERSION
-        DISPLAY=${VERSION//.}
+        DISPLAY=:${VERSION//.}
         export DISPLAY
         echo $DISPLAY
-        Xvfb :$DISPLAY &
+        Xvfb $DISPLAY &
         python display.py
 
