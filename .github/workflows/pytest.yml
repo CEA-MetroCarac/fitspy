@@ -28,6 +28,9 @@ jobs:
           python -m pip install .
       - name: Test with pytest
         run: |
-          Xvfb :99 &
-          export DISPLAY=:99
+          PY_VERSION=${{ matrix.python-version }}
+          export PY_VERSION
+          DISPLAY=:${PY_VERSION//.}
+          export DISPLAY
+          Xvfb $DISPLAY &
           python -m pytest tests/

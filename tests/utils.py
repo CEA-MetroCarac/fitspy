@@ -27,9 +27,4 @@ def display_is_ok():
         tkinter.Tk()
         return True
     except tkinter.TclError:
-        try:
-            os.environ['DISPLAY'] = ':99'  # opened port in pytest.yml
-            tkinter.Tk()
-            return True
-        except tkinter.TclError:
-            return False
+        return False
