@@ -16,25 +16,23 @@ jobs:
         python-version: ["3.9"] # scipy-1.11.1: Python version >= 3.9 required
 
     steps:
-    - uses: actions/checkout@v3
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v3
-      with:
-        python-version: ${{ matrix.python-version }}
-    # - name: Install dependencies
-    #   run: |
-    #     python -m pip install --upgrade pip
-    #     python -m pip install pytest
-    #     python setup.py install
-    #   run: |
-    #     python -m pytest tests/
-    - name: Test with pytest
-      run: |
-        VERSION=${{ matrix.python-version }}
-        export VERSION
-        DISPLAY=:${${{ matrix.python-version }}//.}
-        export DISPLAY
-        echo $DISPLAY
-        Xvfb $DISPLAY &
-        python display.py
+      - uses: actions/checkout@v3
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v3
+        with:
+          python-version: ${{ matrix.python-version }}
+      # - name: Install dependencies
+      #   run: |
+      #     python -m pip install --upgrade pip
+      #     python -m pip install pytest
+      #     python -m pip install .
+      - name: Test with pytest
+        run: |
+          PY_VERSION=${{ matrix.python-version }}
+          export PY_VERSION
+          DISPLAY=:${PY_VERSION//.}
+          export DISPLAY
+          Xvfb $DISPLAY &
+          python display.py
+        # python -m pytest tests/
 
