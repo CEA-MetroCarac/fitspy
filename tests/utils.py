@@ -26,5 +26,5 @@ def display_is_ok():
     try:
         tkinter.Tk()
         return True
-    except EnvironmentError:
+    except tkinter.TclError:
         return False
