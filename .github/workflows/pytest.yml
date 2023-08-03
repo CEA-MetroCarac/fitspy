@@ -13,7 +13,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.9"] # scipy-1.11.1: Python version >= 3.9 required
+        python-version: ["3.9", "3.10"] # scipy-1.11.1: Python version >= 3.9 required
 
     steps:
     - uses: actions/checkout@v3
