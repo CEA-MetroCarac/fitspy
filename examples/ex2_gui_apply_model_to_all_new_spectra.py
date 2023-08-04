@@ -5,7 +5,7 @@ import os
 import tkinter as tk
 
 from fitspy.app.gui import Appli
-from examples import DATA
+from fitspy import DATA
 
 
 def gui_apply_model_to_all(dirname_res=None):

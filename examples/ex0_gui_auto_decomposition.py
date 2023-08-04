@@ -5,7 +5,7 @@ import os
 import tkinter as tk
 
 from fitspy.app.gui import Appli
-from examples import DATA
+from fitspy import DATA
 
 
 def gui_auto_decomposition(dirname_res=None):
