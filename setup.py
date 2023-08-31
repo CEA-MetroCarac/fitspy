@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="fitspy",
-    version='2023.4dev',
+    version='2023.4',
     license='GPL v3',
     include_package_data=False,
     zip_safe=False,
