@@ -36,6 +36,13 @@ is or applied to other new spectra.
 
 See the [documentation](https://github.com/CEA-MetroCarac/fitspy/tree/main/doc) for more details.
 
+### Installation
+
+```
+pip install fitspy
+```
+
+
 ### Authors informations
 
 In case you use the results of this code in an article, please cite:
