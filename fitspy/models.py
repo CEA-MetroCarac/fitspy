@@ -9,7 +9,6 @@ def gaussian(x, ampli, fwhm, x0):
     Return Gaussian function defined as:
     :math:`ampli * e^{-(x-x0)^2/(2*\sigma^2)}`
     with :math:`\sigma = fwhm / (2*\sqrt{2*log(2)})`
-    or related derivatives (der=0, 1, 2)
 
     Example
     -------
@@ -35,7 +34,6 @@ def gaussian_asym(x, ampli, fwhm_l, fwhm_r, x0):
     r"""
     Return Asymmetric Gaussian function defined as:
     :math:`(x < x0) * Gaussian(fwhm\_l) +  (x >= x0) * Gaussian(fwhm\_r)`
-    or related derivatives (der=0, 1, 2)
 
     Example
     -------
@@ -60,7 +58,6 @@ def lorentzian(x, ampli, fwhm, x0):
     r"""
     Return Lorentzian function defined as:
     :math:`ampli * \frac{fwhm^2}{4 * ((x - x0)^2 + fwhm^2 / 4)}`
-    or related derivatives (der=0, 1, 2)
 
     Example
     -------
@@ -84,7 +81,6 @@ def lorentzian_asym(x, ampli, fwhm_l, fwhm_r, x0):
     r"""
     Return Asymmetric Lorentzian function defined as:
     :math:`(x < x0) * Lorentzian(fwhm\_l) +  (x >= x0) * Lorentzian(fwhm\_r)`
-    or related derivatives (der=0, 1, 2)
 
     Example
     -------
@@ -109,7 +105,6 @@ def pseudovoigt(x, ampli, fwhm, x0, alpha=0.5):
     r"""
     Return Pseudovoigt function defined as:
     :math:`alpha * Gaussian + (1 - alpha) * Lorentzian`
-    or related derivatives (der=0, 1, 2)
 
     Example
     -------
