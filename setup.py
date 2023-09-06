@@ -15,7 +15,7 @@ setup(
         "lmfit",
         "pywin32; platform_system == 'Windows'",
     ],
-    packages=find_packages(),
+    packages=find_packages(where='.', include=['fitspy*']),
 
     description="Fitspy (A generic tool to fit spectra in python)",
 
