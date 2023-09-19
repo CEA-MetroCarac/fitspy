@@ -2,6 +2,7 @@
 GUI and Appli classes associated to the spectra fitting application
 """
 import os
+import platform
 
 from tkinter import (Tk, Toplevel, Frame, LabelFrame, Label, Radiobutton,
                      Entry, Text, Button, Checkbutton, W, E, END,
@@ -146,7 +147,7 @@ class GUI(Callbacks):
         def clipboard_handler(event):
             """ Put the current figure in the clipboard, for Copy/Paste,
             inspired from: https://github.com/joshburnett/addcopyfighandler """
-            if event.key == 'ctrl+c' and os.system().lower() == 'windows':
+            if event.key == 'ctrl+c' and platform.system().lower() == 'windows':
                 with BytesIO() as buf:
                     fig.savefig(buf, format='png')
                     data = buf.getvalue()
