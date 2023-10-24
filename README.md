@@ -47,5 +47,4 @@ pip install fitspy
 
 In case you use the results of this code in an article, please cite:
 
-- (To come)
-
+- Patrick Quéméré, Univ. Grenoble Alpes, CEA, Leti, F-38000 Grenoble, France, https://github.dev/CEA-MetroCarac/fitspy
