@@ -4,12 +4,14 @@ Example of 'in line' spectra automatic decomposition
 import os
 import glob
 import tempfile
+from pathlib import Path
 import matplotlib.pyplot as plt
 from lmfit import report_fit
 
 from fitspy.spectra import Spectrum, Spectra
 from fitspy.utils import hsorted
-from fitspy import DATA
+
+DATA = Path(__file__).parent / "data"
 
 
 def inline_auto_decomposition(verbosity=True, show_plots=False):
@@ -42,7 +44,7 @@ def inline_auto_decomposition(verbosity=True, show_plots=False):
     if show_plots:
         # spectra plotting
         for i, spectrum in enumerate(spectra_reloaded):
-            fig, (ax0, ax1) = plt.subplots(1, 2, figsize=(10, 4))
+            _, (ax0, ax1) = plt.subplots(1, 2, figsize=(10, 4))
 
             # Raw spectra
             spectrum0 = Spectrum()

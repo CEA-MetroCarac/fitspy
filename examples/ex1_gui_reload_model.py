@@ -2,9 +2,11 @@
 Example of preprocessed spectra model reloading through the application
 """
 import os
+from pathlib import Path
 
 from fitspy.app.gui import fitspy_launcher
-from fitspy import DATA
+
+DATA = Path(__file__).parent / "data"
 
 
 def gui_reload_model():

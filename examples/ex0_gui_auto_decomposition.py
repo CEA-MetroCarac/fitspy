@@ -3,9 +3,11 @@ Example of spectra automatic decomposition through the application
 """
 import os
 import tkinter as tk
+from pathlib import Path
 
 from fitspy.app.gui import Appli
-from fitspy import DATA
+
+DATA = Path(__file__).parent / "data"
 
 
 def gui_auto_decomposition(dirname_res=None):
