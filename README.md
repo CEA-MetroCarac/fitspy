@@ -42,6 +42,23 @@ See the [documentation](https://github.com/CEA-MetroCarac/fitspy/tree/main/doc) 
 pip install fitspy
 ```
 
+### Examples and tests execution
+
+First you need to clone the project:
+```
+git clone https://github.com/CEA-MetroCarac/fitspy.git
+```
+To launch an example (here *ex0_gui_auto_decomposition.py*):
+```
+cd fitspy
+python example/ex0_gui_auto_decomposition.py
+```
+To execute the tests:
+```
+pip install pytest
+cd fitspy
+pytest
+```
 
 ### Authors informations
 
