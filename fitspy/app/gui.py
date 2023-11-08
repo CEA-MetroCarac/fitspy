@@ -128,7 +128,7 @@ class GUI(Callbacks):
         frame_files = Frame(frame)
         frame_files.grid(row=0, column=1)
 
-        frame_proc = Frame(frame, width=300)
+        frame_proc = Frame(frame)
         frame_proc.grid(row=1, column=1, padx=0, sticky=W + E)
 
         frame.pack()
@@ -315,7 +315,7 @@ class GUI(Callbacks):
         self.text_model = Text(fr, height=1, width=20)
         add(self.text_model, 2, 1, cspan=2)
 
-        sbar.update_and_resize(320, 646)
+        sbar.update_and_resize(frame_files.winfo_width(), 646)
 
         self.reload_settings()
 

@@ -148,6 +148,7 @@ class ScrollbarFrame:
         self.canvas.grid(row=0, column=0, sticky="news")
 
         self.frame = Frame(self.canvas)
+        self.frame.update_idletasks()
 
         self.vsbar = None
         self.hsbar = None
