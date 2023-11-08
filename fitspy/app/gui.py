@@ -5,7 +5,7 @@ import os
 import platform
 
 from tkinter import (Tk, Toplevel, Frame, LabelFrame, Label, Radiobutton,
-                     Entry, Text, Button, Checkbutton, W, E, END,
+                     Entry, Text, Button, Checkbutton, messagebox, W, E, END,
                      IntVar, DoubleVar, StringVar, BooleanVar)
 from tkinter.ttk import Combobox
 import itertools
@@ -418,8 +418,15 @@ class Appli(GUI):
         root.title("Fitspy")
         root.geometry(size)
         self.root = root
+        self.root.protocol("WM_DELETE_WINDOW", self.on_closing)
 
         super().__init__()
+
+    def on_closing(self):
+        """ To quit 'properly' the application """
+        if messagebox.askokcancel("Quit", "would you like to quit ?"):
+            self.root.destroy()
+            os._exit(1)  # to exit properly from a terminal session
 
 
 def fitspy_launcher(fname_json=None):
