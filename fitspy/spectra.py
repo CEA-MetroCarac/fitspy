@@ -164,7 +164,7 @@ class Spectrum:
         """Set attributes from a dictionary (obtained from a .json reloading)"""
 
         for key, val in dict_attrs.items():
-            if key != 'models':
+            if key not in ['models', 'bkg_model']:
                 setattr(self, key, val)
 
         for key in ['fit_method', 'fit_negative', 'max_ite']:
@@ -181,6 +181,11 @@ class Spectrum:
                 model = Model(model_func, independent_vars=ind_vars, prefix=pfx)
                 model.param_hints = param_hints
                 self.models.append(model)
+
+        if dict_attrs['bkg_model']:
+            model_name, param_hints = list(dict_attrs['bkg_model'].items())[0]
+            self.bkg_model = eval(f"{model_name}()")
+            self.bkg_model.param_hints = param_hints
 
         # to make 'old' models still working
         if "models_labels" not in dict_attrs.keys():
@@ -513,7 +518,8 @@ class Spectrum:
             Save it if a 'fname_json' is given """
 
         excluded_keys = ['x0', 'y0', 'x', 'y',
-                         'models', 'models_index', 'result_fit', 'baseline']
+                         'models', 'models_index', 'bkg_model',
+                         'result_fit', 'baseline']
         dict_attrs = {}
         for key, val in vars(self).items():
             if key in excluded_keys:  # pass (x,y) coords and objects
@@ -528,6 +534,11 @@ class Spectrum:
             models[i] = {}
             models[i][model_name] = model.param_hints
         dict_attrs['models'] = models
+
+        dict_attrs['bkg_model'] = {}
+        if self.bkg_model is not None:
+            dict_attrs['bkg_model'].update({self.bkg_model.__class__.__name__:
+                                                self.bkg_model.param_hints})
 
         if fname_json is not None:
             save_to_json(fname_json, dict_attrs)
