@@ -74,7 +74,7 @@ class GUI(Callbacks):
     model: Tkinter.StringVar
         Spectrum peak base model name among 'Gaussian', 'Lorentzian',
         'GaussianAsym' and 'LorentzianAsym'
-    bkg_model: Tkinter.StringVar
+    bkg_name: Tkinter.StringVar
         Background model name among 'None', 'Constant', 'Linear', 'Parabolic',
         'Gaussian' and 'Exponential'
     asym: Tkinter.BooleanVar
@@ -114,7 +114,7 @@ class GUI(Callbacks):
 
         # Peaks parameters
         self.model = StringVar(value='Lorentzian')
-        self.bkg_model = StringVar(value='None')
+        self.bkg_name = StringVar(value='None')
         self.asym = BooleanVar(value=False)
 
         # Frames creation
@@ -280,7 +280,7 @@ class GUI(Callbacks):
         add(Combobox(fr, values=list(MODELS.keys()), textvariable=self.model,
                      width=28), 1, 1, cspan=2)
         add(Label(fr, text='BKG model :'), 2, 0, E)
-        add(Combobox(fr, values=BKG_MODELS, textvariable=self.bkg_model,
+        add(Combobox(fr, values=BKG_MODELS, textvariable=self.bkg_name,
                      width=28), 2, 1, cspan=2)
 
         add(Button(fr, text=" Fit ", command=self.fit), 3, 0)
@@ -424,7 +424,7 @@ class Appli(GUI):
 
     def on_closing(self):
         """ To quit 'properly' the application """
-        if messagebox.askokcancel("Quit", "would you like to quit ?"):
+        if messagebox.askokcancel("Quit", "Would you like to quit ?"):
             self.root.destroy()
             os._exit(1)  # to exit properly from a terminal session
 

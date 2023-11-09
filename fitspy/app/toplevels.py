@@ -332,6 +332,7 @@ class FigureSettings(Settings):
         super().__init__(root)
         self.params = {'plot_fit': StringVar(value='On'),
                        'plot_negative_values': StringVar(value='On'),
+                       'plot_background': StringVar(value='On'),
                        'plot_residual': StringVar(value='Off'),
                        'coef_residual': IntVar(value=1),
                        'show_peaks_labels': StringVar(value='On'),

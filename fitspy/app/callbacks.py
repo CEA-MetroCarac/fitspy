@@ -317,9 +317,11 @@ class Callbacks:
         if fig_settings['plot_fit'].get() == 'On':
             show_peaks = self.attractors.get()
             show_neg_values = fig_settings['plot_negative_values'].get() == 'On'
+            show_background = fig_settings['plot_background'].get() == 'On'
             self.lines = spectrum.plot(self.ax,
                                        show_peaks=show_peaks,
-                                       show_negative_values=show_neg_values)
+                                       show_negative_values=show_neg_values,
+                                       show_background=show_background)
 
             # baseline parameters updating
             spectrum.baseline.mode = self.baseline_mode.get()
@@ -589,7 +591,8 @@ class Callbacks:
 
     def fit(self, fnames=None):
         """ Fit the peaks (spectrum models) """
-        if len(self.current_spectrum.models) == 0:
+        bkg_name = self.bkg_name.get()
+        if len(self.current_spectrum.models) == 0 and bkg_name == 'None':
             return
 
         if fnames is None:
@@ -604,10 +607,9 @@ class Callbacks:
         fit_method = params['fit_method'].get()
 
         spectra = []
-        bkg_model = self.bkg_model.get()
         for fname in fnames:
             spectrum, _ = self.spectra.get_objects(fname)
-            spectrum.bkg_model = None if bkg_model == 'None' else bkg_model
+            spectrum.set_bkg_model(bkg_name)
             spectra.append(spectrum)
 
         ncpus = self.get_ncpus(nfiles=len(spectra))

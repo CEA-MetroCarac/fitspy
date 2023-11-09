@@ -110,9 +110,10 @@ class Spectrum:
         List of labels associated to the models. Default is ['1', '2', '3', ...]
     models_index: itertools.count
         Counter used for models indexing when creating a lmfit.Model
-    bkg_model: str
-        Background model to fit with the composite peaks models among :
-        [None, 'Constant', 'Linear', 'Parabolic', 'Gaussian', 'Exponential']
+    bkg_model: lmfit.Model
+        Background model to fit with the composite peaks models, among :
+        [None, 'ConstantModel', 'LinearModel', 'ParabolicModel',
+        'GaussianModel', 'ExponentialModel']
     fit_method: str
         Method used for fitting. See lmfit.Model.fit().
         Default method is 'leastsq'.
@@ -308,6 +309,10 @@ class Spectrum:
                 model.set_param_hint(key[4:],  # remove prefix 'mXX_'
                                      value=param.value,
                                      min=param.min, max=param.max)
+        if self.bkg_model is not None:
+            for key in self.bkg_model.param_names:
+                param = self.result_fit.params[key]
+                self.bkg_model.set_param_hint(key, value=param.value)
 
     def add_model(self, model_name, ind=None):
         """
@@ -359,6 +364,14 @@ class Spectrum:
         self.models_index = itertools.count(start=1)
         self.result_fit = None
 
+    def set_bkg_model(self, bkg_name):
+        """ Set the 'bkg_model' attribute from 'bkg_name' """
+        assert bkg_name in BKG_MODELS, f"{bkg_name} not in {BKG_MODELS}"
+        if bkg_name == 'None':
+            self.bkg_model = None
+        else:
+            self.bkg_model = eval(bkg_name + 'Model()')
+
     def fit(self, fit_method=None, fit_negative=None, max_ite=None,
             report=False, **kwargs):
         """ Fit the Spectrum models """
@@ -384,11 +397,10 @@ class Spectrum:
 
         # background model addition
         if self.bkg_model is not None:
-            bkg_model = eval(self.bkg_model + 'Model()')
             if len(self.models) > 0:
-                comp_model += bkg_model
+                comp_model += self.bkg_model
             else:
-                comp_model = bkg_model
+                comp_model = self.bkg_model
 
         params = comp_model.make_params()
 
@@ -452,7 +464,8 @@ class Spectrum:
             if y.max() < 0.05 * y0.max():
                 is_ok = False
 
-    def plot(self, ax, show_peaks=True, show_negative_values=False):
+    def plot(self, ax, show_peaks=True, show_negative_values=False,
+             show_background=True):
         """ Plot the spectrum with the fitted models and Return the profiles """
         lines = []
         x, y = self.x, self.y
@@ -464,6 +477,11 @@ class Spectrum:
 
         if show_negative_values:
             ax.plot(x[y < 0], y[y < 0], 'ro', ms=4, label="Negative values")
+
+        if show_background and self.bkg_model is not None:
+            params = self.bkg_model.make_params()
+            y_bkg = self.bkg_model.eval(params, x=x)
+            ax.plot(x, y_bkg, 'k--', lw=2, label="Background")
 
         if self.result_fit is not None:
             ax.plot(x, self.result_fit.best_fit, 'b', label="Fitted profile")
