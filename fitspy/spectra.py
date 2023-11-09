@@ -376,22 +376,27 @@ class Spectrum:
             weights[y < 0] = 0
 
         # composite model creation
-        comp_model = self.models[0]
+        if len(self.models) > 0:
+            comp_model = self.models[0]
         if len(self.models) > 1:
             for model in self.models[1:]:
                 comp_model += model
 
         # background model addition
         if self.bkg_model is not None:
-            comp_model += eval(self.bkg_model + 'Model()')
+            bkg_model = eval(self.bkg_model + 'Model()')
+            if len(self.models) > 0:
+                comp_model += bkg_model
+            else:
+                comp_model = bkg_model
 
         params = comp_model.make_params()
 
         # maximum function evaluation from max_ite
         # consider a minimum of 2 ite to avoid instabilities when fitting 1 by 1
         nvarys = 0  # number of 'free' parameters
-        for _, val in comp_model.param_hints.items():
-            nvarys += val['vary'] if 'vary' in val else 1
+        for param in params:
+            nvarys += param['vary'] if 'vary' in param else 1
         max_nfev = max(2, self.max_ite) * nvarys
 
         self.result_fit = comp_model.fit(y, params, x=x, weights=weights,
