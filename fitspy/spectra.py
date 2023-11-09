@@ -391,7 +391,7 @@ class Spectrum:
         # consider a minimum of 2 ite to avoid instabilities when fitting 1 by 1
         nvarys = 0  # number of 'free' parameters
         for _, val in comp_model.param_hints.items():
-            nvarys += val['vary']
+            nvarys += val['vary'] if 'vary' in val else 1
         max_nfev = max(2, self.max_ite) * nvarys
 
         self.result_fit = comp_model.fit(y, params, x=x, weights=weights,
