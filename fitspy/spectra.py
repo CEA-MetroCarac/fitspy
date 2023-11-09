@@ -486,7 +486,8 @@ class Spectrum:
         if show_background and self.bkg_model is not None:
             params = self.bkg_model.make_params()
             y_bkg = self.bkg_model.eval(params, x=x)
-            ax.plot(x, y_bkg, 'k--', lw=2, label="Background")
+            line, = ax.plot(x, y_bkg, 'k--', lw=2, label="Background")
+            lines.append(line)
 
         if self.result_fit is not None:
             ax.plot(x, self.result_fit.best_fit, 'b', label="Fitted profile")

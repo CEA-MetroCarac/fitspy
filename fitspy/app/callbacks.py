@@ -322,6 +322,7 @@ class Callbacks:
                                        show_peaks=show_peaks,
                                        show_negative_values=show_neg_values,
                                        show_background=show_background)
+            line_bkg_visible = show_background and spectrum.bkg_model
 
             # baseline parameters updating
             spectrum.baseline.mode = self.baseline_mode.get()
@@ -337,8 +338,18 @@ class Callbacks:
 
             def annotate_params(i, color='k'):
                 """ Annotate figure with fit parameters """
-                model = spectrum.models[i]
-                x0 = model.param_hints['x0']['value']
+                ind_name = 4
+                if not line_bkg_visible:
+                    model = spectrum.models[i]
+                    x0 = model.param_hints['x0']['value']
+                elif i == 0:
+                    model = spectrum.bkg_model
+                    x0 = 0.5 * (x[0] + x[-1])
+                    ind_name = 0
+                else:
+                    model = spectrum.models[i - 1]
+                    x0 = model.param_hints['x0']['value']
+
                 y0 = model.eval(model.make_params(), x=x0, der=0)
                 xy = (x0, min(y0, self.ax.get_ylim()[1]))
 
@@ -346,7 +357,7 @@ class Callbacks:
                 text = ""
                 for name in names:
                     param = spectrum.result_fit.params[name]
-                    text += f"{name[4:]}: {param.value:.4g}"
+                    text += f"{name[ind_name:]}: {param.value:.4g}"
                     if param.stderr is not None:
                         text += f" +/-{param.stderr:.2g}"
                     if name != names[-1]:
