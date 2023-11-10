@@ -362,6 +362,12 @@ class Spectrum:
         ind = names_fun.index(name_fun)
         return names[ind]
 
+    def get_bkg_model_name(self):
+        if self.bkg_model is None:
+            return 'None'
+        else:
+            return self.bkg_model.__class__.__name__
+
     def remove_models(self):
         """ Remove all the models """
         self.models = []
@@ -376,6 +382,10 @@ class Spectrum:
             self.bkg_model = None
         else:
             self.bkg_model = eval(bkg_name + 'Model()')
+            hints = {'min': -np.inf, 'max': np.inf, 'vary': True, 'expr': None}
+            for key, val in self.bkg_model.def_vals.items():
+                hints.update({'value': val})
+                self.bkg_model.param_hints.update({key: hints.copy()})
 
     def fit(self, fit_method=None, fit_negative=None, max_ite=None,
             report=False, **kwargs):
@@ -538,7 +548,7 @@ class Spectrum:
 
         dict_attrs['bkg_model'] = {}
         if self.bkg_model is not None:
-            dict_attrs['bkg_model'].update({self.bkg_model.__class__.__name__:
+            dict_attrs['bkg_model'].update({self.get_bkg_model_name():
                                                 self.bkg_model.param_hints})
 
         if fname_json is not None:
