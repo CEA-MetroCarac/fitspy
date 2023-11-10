@@ -350,7 +350,7 @@ class Callbacks:
                     model = spectrum.models[i - 1]
                     x0 = model.param_hints['x0']['value']
 
-                y0 = model.eval(model.make_params(), x=x0, der=0)
+                y0 = model.eval(model.make_params(), x=x0)
                 xy = (x0, min(y0, self.ax.get_ylim()[1]))
 
                 names = model.param_names
@@ -877,6 +877,7 @@ class Callbacks:
         self.set_range()
         self.update_attractors()
         self.tabview.spectrum = self.current_spectrum
+        self.tabview.bkg_name = self.bkg_name
         self.tabview.plot = self.plot
         self.tabview.update()
         self.tabview.update_stats()

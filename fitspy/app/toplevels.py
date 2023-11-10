@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 from matplotlib.colors import rgb2hex
 from lmfit import fit_report
 
-from fitspy.spectra import MODELS, KEYS
+from fitspy.spectra import MODELS, BKG_MODELS, KEYS
 from fitspy.app.utils import add, add_entry
 from fitspy.app.callbacks import FIT_METHODS
 
@@ -37,8 +37,10 @@ class TabView:
         self.frame_stats.protocol("WM_DELETE_WINDOW", lambda *args: None)
 
         self.spectrum = None
+        self.bkg_name = None
         self.params = None
         self.models = None
+        self.models_labels = None
         self.models_delete = None
         self.plot = None
 
@@ -95,6 +97,13 @@ class TabView:
                   lambda event, i=i: self.model_has_changed(i))
         self.models.append(model_name)
 
+    def add_combobox_bkg_model(self, row, col):
+        """ Add Tk.Combobox at (row, col) linked to the bkg_model """
+        cbox = Combobox(self.frame, values=BKG_MODELS,
+                        textvariable=self.bkg_name, width=15)
+        add(cbox, row, col)
+        cbox.bind('<<ComboboxSelected>>', self.bkg_model_has_changed)
+
     def label_has_changed(self, i):
         """ Update the label related to the ith-model """
         self.spectrum.models_labels[i] = self.models_labels[i].get()
@@ -103,9 +112,12 @@ class TabView:
 
     def param_has_changed(self, i, key, arg):
         """ Update the 'key'-param 'arg'-value related to the ith-model """
-        value = self.params[i][key][arg].get()
-        param = self.spectrum.models[i].param_hints[key]
+        if i < len(self.spectrum.models):
+            param = self.spectrum.models[i].param_hints[key]
+        else:
+            param = self.spectrum.bkg_model.param_hints[key]
 
+        value = self.params[i][key][arg].get()
         if arg == 'vary':
             value = not bool(value)
         elif arg == 'expr':
@@ -133,6 +145,13 @@ class TabView:
             self.plot()  # pylint:disable=not-callable
             self.update()
 
+    def bkg_model_has_changed(self, _):
+        """ Update the 'bkg_model' """
+        self.spectrum.set_bkg_model(self.bkg_name.get())
+        self.spectrum.result_fit = None
+        self.plot()  # pylint:disable=not-callable
+        self.update()
+
     def set_header(self):
         """ Set the TabView header """
         frame = self.frame
@@ -141,14 +160,6 @@ class TabView:
                         command=self.update), 0, 3, W)
         add(Checkbutton(frame, text='show expressions', variable=self.show_expr,
                         command=self.update), 1, 3, W)
-
-        add(Button(frame, text='Del.', command=self.delete_models), 2, 0)
-        add(Label(frame, text='prefix', width=5), 2, 1)
-        add(Label(frame, text='labels', width=5), 2, 2)
-        add(Label(frame, text='models', width=10), 2, 3)
-
-        for j, label in enumerate(LABELS):
-            add(Label(frame, text=label, width=10), 2, 4 * j + 5)
 
     def delete_models(self):
         """ Delete selected models """
@@ -164,45 +175,70 @@ class TabView:
         """ Update the Tabview """
         self.delete()
 
-        if len(self.spectrum.models) == 0:
-            return
-
         self.models = []
         self.models_delete = []
         self.models_labels = []
         self.params = {}
         row = 3
-        for i, model in enumerate(self.spectrum.models):
 
+        frame = self.frame
+
+        if len(self.spectrum.models) > 0:
+            add(Button(frame, text='Del.', command=self.delete_models), 2, 0)
+            add(Label(frame, text='prefix', width=5), 2, 1)
+            add(Label(frame, text='labels', width=5), 2, 2)
+            add(Label(frame, text='models', width=10), 2, 3)
+            for j, label in enumerate(LABELS):
+                add(Label(frame, text=label, width=10), 2, 4 * j + 5)
+            for i, model in enumerate(self.spectrum.models):
+                self.add_model(model, i, row)
+                row += 2
+
+        bkg_model = self.spectrum.bkg_model
+        if bkg_model is not None:
+            keys = bkg_model.param_names
+            for j, label in enumerate(keys):
+                add(Label(frame, text=label, width=10), row, 4 * j + 5)
+            row += 1
+        else:
+            keys = []
+        add(Label(frame, text='BKG parameters', width=25), row, 0, cspan=3)
+        self.add_model(bkg_model, len(self.spectrum.models), row, keys=keys)
+
+    def add_model(self, model, i, row, keys=KEYS):
+        """ Add model in the Tabview """
+        if model is None:
+            self.add_combobox_bkg_model(row, 3)
+            return
+
+        if model.prefix:
             var = BooleanVar(value=False)
             add(Checkbutton(self.frame, variable=var), row, 0)
             self.models_delete.append(var)
-
             add(Label(self.frame, text=model.prefix, font='Helvetica 10 bold',
                       fg=rgb2hex(CMAP(i % CMAP.N)), width=4), row, 1)
-
             self.add_entry_models_labels(row, 2, i)
-
             self.add_combobox_models(row, 3, i, model)
+        else:
+            self.add_combobox_bkg_model(row, 3)
 
-            params = model.param_hints
-            self.params[i] = {}
-            for k, key in enumerate(KEYS):
-                if key not in params.keys():
-                    continue
-                param = params[key]
-                self.params[i][key] = {}
-                col = 4 * k + 4
-                self.add_entry('value', row, col + 1, i, key, param)
-                self.add_check_button('vary', row, col + 3, i, key, param)
+        params = model.param_hints
+        self.params[i] = {}
+        for k, key in enumerate(keys):
+            if key not in params.keys():
+                continue
+            param = params[key]
+            self.params[i][key] = {}
+            col = 4 * k + 4
+            self.add_entry('value', row, col + 1, i, key, param)
+            self.add_check_button('vary', row, col + 3, i, key, param)
 
-                if self.show_bounds.get():
-                    self.add_entry('min', row, col, i, key, param)
-                    self.add_entry('max', row, col + 2, i, key, param)
+            if self.show_bounds.get():
+                self.add_entry('min', row, col, i, key, param)
+                self.add_entry('max', row, col + 2, i, key, param)
 
-                if self.show_expr.get():
-                    self.add_entry('expr', row + 1, col, i, key, param)
-            row += 2
+            if self.show_expr.get():
+                self.add_entry('expr', row + 1, col, i, key, param)
 
     def update_stats(self):
         """ Update the statistics """
