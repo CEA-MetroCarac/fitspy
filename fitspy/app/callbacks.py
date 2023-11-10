@@ -618,9 +618,14 @@ class Callbacks:
         fit_method = params['fit_method'].get()
 
         spectra = []
+        bkg_model_ref = self.tabview.spectrum.bkg_model
         for fname in fnames:
             spectrum, _ = self.spectra.get_objects(fname)
-            spectrum.set_bkg_model(bkg_name)
+            # to keep values defined by the user
+            if bkg_model_ref is not None:
+                spectrum.bkg_model = deepcopy(bkg_model_ref)
+            else:
+                spectrum.set_bkg_model(bkg_name)
             spectra.append(spectrum)
 
         ncpus = self.get_ncpus(nfiles=len(spectra))
