@@ -12,7 +12,6 @@ from fitspy.spectra import MODELS, BKG_MODELS, KEYS
 from fitspy.app.utils import add, add_entry
 from fitspy.app.callbacks import FIT_METHODS
 
-LABELS = ['x0', 'ampli', 'fwhm', 'fwhm (left)', 'fwhm (right)', 'alpha']
 CMAP = plt.get_cmap("tab10")
 NCPUS = ['auto', 1, 2, 3, 4, 5, 6, 8, 10, 12, 14, 16, 20, 24, 28, 32]
 
@@ -55,9 +54,9 @@ class TabView:
     def add_entry(self, arg, row, col, i, key, param):
         """ Add Tk.Entry at (row, col) linked to params[i][key][arg] """
         if arg == 'expr':
-            width, cspan, val = 36, 3, f'{param[arg]}'
+            width, cspan, val = 28, 3, f'{param[arg]}'
         else:
-            width, cspan, val = 10, 1, f'{param[arg]:.4g}'
+            width, cspan, val = 7, 1, f'{param[arg]:.4g}'
 
         var = StringVar()
         entry = Entry(self.frame, textvariable=var, width=width,
@@ -65,7 +64,7 @@ class TabView:
                       validatecommand=lambda i=i, key=key, arg=arg:
                       self.param_has_changed(i, key, arg))
         entry.insert(0, val)
-        add(entry, row, col, cspan=cspan)
+        add(entry, row, col, padx=0, cspan=cspan)
         entry.bind('<Return>', lambda _, key=key, arg=arg,
                                       i=i: self.param_has_changed(i, key, arg))
         self.params[i][key][arg] = var
@@ -123,7 +122,7 @@ class TabView:
         elif arg == 'expr':
             pass
         else:  # 'value', 'min', 'max'
-            value = float(self.params[i][key][arg].get())
+            value = float(value)
             if arg == 'value':
                 value = max(min(param['max'], value), param['min'])
                 self.params[i][key][arg].set(f'{value:.4g}')  # bound the value
@@ -182,19 +181,30 @@ class TabView:
         row = 3
 
         frame = self.frame
+        spectrum = self.spectrum
+        models = spectrum.models
+        bkg_model = spectrum.bkg_model
 
-        if len(self.spectrum.models) > 0:
+        if len(models) > 0:
             add(Button(frame, text='Del.', command=self.delete_models), 2, 0)
             add(Label(frame, text='prefix', width=5), 2, 1)
             add(Label(frame, text='labels', width=5), 2, 2)
             add(Label(frame, text='models', width=10), 2, 3)
-            for j, label in enumerate(LABELS):
-                add(Label(frame, text=label, width=10), 2, 4 * j + 5)
-            for i, model in enumerate(self.spectrum.models):
-                self.add_model(model, i, row)
+
+            keys_models = [x[4:] for model in models for x in model.param_names]
+            keys = []
+            col = 5
+            for key in KEYS:
+                if key in keys_models:
+                    label = key.replace("_l", " (left)")
+                    label = label.replace("_r", " (right)")
+                    add(Label(frame, text=label, width=10), 2, col)
+                    keys.append(key)
+                    col += 4
+            for i, model in enumerate(models):
+                self.add_model(model, i, row, keys)
                 row += 2
 
-        bkg_model = self.spectrum.bkg_model
         if bkg_model is not None:
             keys = bkg_model.param_names
             for j, label in enumerate(keys):
@@ -203,9 +213,9 @@ class TabView:
         else:
             keys = []
         add(Label(frame, text='BKG parameters', width=25), row, 0, cspan=3)
-        self.add_model(bkg_model, len(self.spectrum.models), row, keys=keys)
+        self.add_model(bkg_model, len(models), row, keys)
 
-    def add_model(self, model, i, row, keys=KEYS):
+    def add_model(self, model, i, row, keys):
         """ Add model in the Tabview """
         if model is None:
             self.add_combobox_bkg_model(row, 3)
