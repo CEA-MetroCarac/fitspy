@@ -382,11 +382,12 @@ class Spectrum:
             self.bkg_model = None
         else:
             self.bkg_model = eval(bkg_name + 'Model()')
-            hints = {'min': -np.inf, 'max': np.inf, 'vary': True, 'expr': None}
-            for key, val in self.bkg_model.def_vals.items():
-                hints.update({'value': val})
-                self.bkg_model.param_hints.update({key: hints.copy()})
-
+            params = self.bkg_model.guess(self.y, self.x)
+            for key, val in params.items():
+                self.bkg_model.set_param_hint(key, value=val.value,
+                                              min=-np.inf, max=np.inf,
+                                              vary=True, expr=None)
+    
     def fit(self, fit_method=None, fit_negative=None, max_ite=None,
             report=False, **kwargs):
         """ Fit the Spectrum models """
