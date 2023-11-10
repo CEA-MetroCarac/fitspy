@@ -75,8 +75,8 @@ class GUI(Callbacks):
         Spectrum peak base model name among 'Gaussian', 'Lorentzian',
         'GaussianAsym' and 'LorentzianAsym'
     bkg_name: Tkinter.StringVar
-        Background model name among 'None', 'Constant', 'Linear', 'Parabolic',
-        'Gaussian' and 'Exponential'
+        Background model name among 'None', 'Constant', 'Linear', 'Parabolic'
+        and 'Exponential'
     asym: Tkinter.BooleanVar
         Activation keyword to consider asymetric spectrum model
     ax: Matplotlib.Axes object

@@ -17,7 +17,7 @@ from scipy.ndimage import gaussian_filter1d
 from lmfit import Model, report_fit, fit_report, Parameters
 from lmfit.model import ModelResult
 from lmfit.models import ConstantModel, LinearModel, ParabolicModel, \
-    GaussianModel, ExponentialModel  # pylint:disable=unused-import
+    ExponentialModel  # pylint:disable=unused-import
 
 from fitspy.utils import closest_index, fileparts, check_or_rename
 from fitspy.utils import save_to_json, load_from_json
@@ -32,8 +32,7 @@ MODELS = {"Gaussian": gaussian,
           "GaussianAsym": gaussian_asym,
           "LorentzianAsym": lorentzian_asym}
 
-BKG_MODELS = ['None', 'Constant', 'Linear', 'Parabolic', 'Gaussian',
-              'Exponential']
+BKG_MODELS = ['None', 'Constant', 'Linear', 'Parabolic', 'Exponential']
 
 KEYS = ['x0', 'ampli', 'fwhm', 'fwhm_l', 'fwhm_r', 'alpha']
 
@@ -113,7 +112,7 @@ class Spectrum:
     bkg_model: lmfit.Model
         Background model to fit with the composite peaks models, among :
         [None, 'ConstantModel', 'LinearModel', 'ParabolicModel',
-        'GaussianModel', 'ExponentialModel']
+        'ExponentialModel']
     fit_method: str
         Method used for fitting. See lmfit.Model.fit().
         Default method is 'leastsq'.
@@ -363,6 +362,7 @@ class Spectrum:
         return names[ind]
 
     def get_bkg_model_name(self):
+        """ from 'bkg_model' return the function name associated """
         if self.bkg_model is None:
             return 'None'
         else:
