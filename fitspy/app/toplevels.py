@@ -36,7 +36,6 @@ class TabView:
         self.frame_stats.protocol("WM_DELETE_WINDOW", lambda *args: None)
 
         self.spectrum = None
-        self.bkg_name = None
         self.params = None
         self.models = None
         self.models_labels = None
@@ -45,6 +44,7 @@ class TabView:
 
         self.show_bounds = BooleanVar(value=False)
         self.show_expr = BooleanVar(value=False)
+        self.bkg_name = StringVar(value='None')
 
         vsbar = Scrollbar(self.frame_stats, orient='vertical')
         vsbar.pack(side=RIGHT, fill='y')
@@ -138,8 +138,8 @@ class TabView:
         if new_model_name != old_model_name:
             ampli = spectrum.models[i].param_hints['ampli']['value']
             x0 = spectrum.models[i].param_hints['x0']['value']
-            spectrum.models[i] = spectrum.create_model(new_model_name, i + 1,
-                                                       ampli=ampli, x0=x0)
+            spectrum.models[i] = spectrum.create_model(i + 1, new_model_name,
+                                                       x0=x0, ampli=ampli)
             self.spectrum.result_fit = None
             self.plot()  # pylint:disable=not-callable
             self.update()
@@ -405,8 +405,9 @@ if __name__ == '__main__':
     from fitspy.spectra import Spectrum
 
     my_spectrum = Spectrum()
-    my_spectrum.models = [Spectrum.create_model('Lorentzian', i, ampli=10 * i,
-                                                x0=100 * i) for i in range(5)]
+    my_spectrum.models_labels = [i for i in range(5)]
+    my_spectrum.models = [Spectrum.create_model(i, 'Lorentzian', x0=100 * i,
+                                                ampli=10 * i) for i in range(5)]
 
     my_root = tk.Tk()
     tabview = TabView(my_root)

@@ -258,26 +258,27 @@ class Spectrum:
         self.peaks = peaks[inds[::-1]].astype(int).tolist()
 
     @staticmethod
-    def create_model(model_name, index, ampli, x0,
+    def create_model(index, model_name, x0, ampli,
                      fwhm=2, fwhm_l=2, fwhm_r=2, alpha=0.5):
         """
         Create a 'lmfit' model
 
         Parameters
         ----------
+        index: int
+            Index used to create the model 'prefix'
         model_name: str
             Model name among 'Gaussian', 'Lorentzian', 'PseudoVoigt',
             'GaussianAsym', 'LorentzianAsym'
-        index: int
-            Index used to create the model 'prefix'
-        ampli, x0: floats
-            Paramaters associated to the model
+        x0, ampli: floats
+            Parameters associated to the model
         fwhm, fwhm_l, fwhm_r: floats, optional
             Optional parameters passed to the model.
             Default values are 2.
         alpha: float, optional
             Optional parameter passed to the 'PseudoVoigt' model.
             Default values is 0.5.
+
         Returns
         -------
         model: lmfit.Model
@@ -325,15 +326,15 @@ class Spectrum:
         Parameters
         ----------
         ind: int
-            indice related to x-position for x0 peak localization
+            index related to x-position for x0 peak localization
         model_name: str
             Model name among 'Gaussian', 'Lorentzian', 'GaussianAsym',
             'LorentzianAsym'
         """
         dx = self.x[1] - self.x[0]
         index = next(self.models_index)
-        model = self.create_model(model_name, index,
-                                  ampli=self.y[ind], x0=self.x[ind],
+        model = self.create_model(index, model_name,
+                                  x0=self.x[ind], ampli=self.y[ind],
                                   fwhm=dx, fwhm_l=dx, fwhm_r=dx)
         self.models.append(model)
         self.models_labels.append(f"{index}")
@@ -387,7 +388,7 @@ class Spectrum:
                 self.bkg_model.set_param_hint(key, value=val.value,
                                               min=-np.inf, max=np.inf,
                                               vary=True, expr=None)
-    
+
     def fit(self, fit_method=None, fit_negative=None, max_ite=None,
             report=False, **kwargs):
         """ Fit the Spectrum models """
@@ -469,8 +470,8 @@ class Spectrum:
             index = next(self.models_index)
             ind = np.argmax(y)
             dx = self.x[1] - self.x[0]
-            model = self.create_model(model_name, index,
-                                      ampli=self.y[ind], x0=self.x[ind],
+            model = self.create_model(index, model_name,
+                                      x0=self.x[ind], ampli=self.y[ind],
                                       fwhm=dx, fwhm_l=dx, fwhm_r=dx)
             self.models.append(model)
             self.models_labels.append(index)
