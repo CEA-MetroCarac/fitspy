@@ -62,14 +62,15 @@ Then, from the top to the bottom of the right panel:
 
 - `Select` file(s)
 - <span style="color: rgba(0, 0, 0, 0.3);">*(Optional)* Define the **X-range**</span>
-- Define the baseline to `subtract` *(On the figure: left-click to add a baseline point / right-click to delete a baseline point)*
+- Define the baseline to `subtract` *(left or right click on the figure to add or delete (resp.) a baseline point)*
 - <span style="color: rgba(0, 0, 0, 0.3);">*(Optional)* Normalize the spectrum/spectra</span>
 - Click on the `Peaks` panel to activate it
-- Select `Peak model` and add peaks *(On the figure: left-click to add a peak / right-click to delete a peak)*
+- Select `Peak model` and add peaks *(left or right click on the figure to add or delete (resp.) a peak)*
 - <span style="color: rgba(0, 0, 0, 0.3);">*(Optional)* Add a background (**BKG model**) to be fitted</span>
-- <span style="color: rgba(0, 0, 0, 0.3);">*(Optional)* Use **Paramaters** to set bounds and constraints</span>
-- `Fit` the selected spectrum/spectra *(fitted parameters are automatically saved in the related *'filename'.csv* )*
-- <span style="color: rgba(0, 0, 0, 0.3);">*(Optional)* **Save** the model to be replayed later</span>
+- <span style="color: rgba(0, 0, 0, 0.3);">*(Optional)* Use **Parameters** to set bounds and constraints</span>
+- `Fit` the selected spectrum/spectra 
+- <span style="color: rgba(0, 0, 0, 0.3);">*(Optional)* **Save** the parameters in **.csv** format</span>
+- <span style="color: rgba(0, 0, 0, 0.3);">*(Optional)* **Save** the **Model** in a .json file (to be replayed later)</span>
 
 See the [documentation](https://github.com/CEA-MetroCarac/fitspy/tree/main/doc) for more details.
 
