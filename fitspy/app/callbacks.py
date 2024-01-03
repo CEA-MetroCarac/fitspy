@@ -2,6 +2,7 @@
 Callback functions encapsulated in a class to interact with the GUI
 """
 import os
+import warnings
 from tkinter import END
 from tkinter.messagebox import askyesno, showerror
 from tkinter import filedialog as fd
@@ -416,7 +417,9 @@ class Callbacks:
                 if frame in ['Baseline', 'Peaks']:
                     eval(f"self.{action}_{frame.lower()}_point")(x, y)
 
-        self.ax.get_figure().tight_layout()
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            self.ax.get_figure().tight_layout()
         self.canvas.draw()
 
         # disconnection and to avoid show_all()/plot() mode mismatching
