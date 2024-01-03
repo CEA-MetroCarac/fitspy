@@ -8,9 +8,9 @@ import matplotlib.pyplot as plt
 from matplotlib.colors import rgb2hex
 from lmfit import fit_report
 
-from fitspy.spectra import MODELS, BKG_MODELS, KEYS
 from fitspy.app.utils import add, add_entry
 from fitspy.app.callbacks import FIT_METHODS
+from fitspy import MODELS, BKG_MODELS, KEYS
 
 CMAP = plt.get_cmap("tab10")
 NCPUS = ['auto', 1, 2, 3, 4, 5, 6, 8, 10, 12, 14, 16, 20, 24, 28, 32]

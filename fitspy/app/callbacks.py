@@ -10,7 +10,9 @@ import glob
 import numpy as np
 import matplotlib.pyplot as plt
 
-from fitspy.spectra import Spectrum, Spectra, SpectraMap, fit_mp
+from fitspy.spectra import Spectra, fit_mp
+from fitspy.spectra_map import SpectraMap
+from fitspy.spectrum import Spectrum
 from fitspy.utils import closest_index, check_or_rename
 
 FIT_METHODS = {'Leastsq': 'leastsq', 'Least_squares': 'least_squares',
@@ -612,6 +614,7 @@ class Callbacks:
             fnames = [fnames[i] for i in fselector.lbox[0].curselection()]
 
         models = self.current_spectrum.models
+        models_labels = self.current_spectrum.models_labels
         params = self.fit_settings.params
         fit_negative = params['fit_negative_values'].get() == 'On'
         max_ite = params['maximum_iterations'].get()
@@ -633,9 +636,11 @@ class Callbacks:
         if ncpus == 1:
             for spectrum in spectra:
                 spectrum.models = deepcopy(models)
+                spectrum.models_labels = models_labels.copy()
                 spectrum.fit(fit_method, fit_negative, max_ite)
         else:
-            fit_mp(spectra, models, fit_method, fit_negative, max_ite, ncpus)
+            fit_mp(spectra, models,
+                   fit_method, fit_negative, max_ite, ncpus, models_labels)
 
         self.colorize_from_fit_status(fnames=fnames)
         self.tabview.update()

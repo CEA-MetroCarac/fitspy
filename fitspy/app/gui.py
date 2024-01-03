@@ -21,7 +21,7 @@ except:
     pass
 
 from fitspy.utils import closest_index, save_to_json, load_from_json
-from fitspy.spectra import MODELS, BKG_MODELS
+from fitspy import MODELS, BKG_MODELS
 
 from fitspy.app.utils import add, interactive_entry
 from fitspy.app.utils import ToggleFrame, ScrollbarFrame, FilesSelector
