@@ -414,7 +414,7 @@ class Spectrum:
                                       x0=self.x[ind], ampli=self.y[ind],
                                       fwhm=dx, fwhm_l=dx, fwhm_r=dx)
             self.models.append(model)
-            self.models_labels.append(index)
+            self.models_labels.append(f"{index}")
             self.fit()
             is_ok = self.result_fit.success
             y = y0 - self.result_fit.best_fit
