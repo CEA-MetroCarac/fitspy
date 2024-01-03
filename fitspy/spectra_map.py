@@ -1,44 +1,14 @@
 """
-Classes dedicated to spectra fitting
+Class dedicated to handle 'Spectrum' objects from a 2D map managed by SpectraMap
 """
-# import os
-# import warnings
-# import itertools
-# import csv
-# from copy import deepcopy
-# from concurrent.futures import ProcessPoolExecutor
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from matplotlib.widgets import RangeSlider
-# from scipy.signal import find_peaks
-# from scipy.interpolate import interp1d
-# from scipy.ndimage import gaussian_filter1d
-# from lmfit import Model, report_fit, fit_report, Parameters
-# from lmfit.model import ModelResult
-# from lmfit.models import ConstantModel, LinearModel, ParabolicModel, \
-#     ExponentialModel  # pylint:disable=unused-import
 
 from fitspy.utils import closest_index
-# from fitspy.utils import closest_index, fileparts, check_or_rename
-# from fitspy.utils import save_to_json, load_from_json
-# from fitspy.models import gaussian, lorentzian, gaussian_asym, lorentzian_asym
-# from fitspy.models import pseudovoigt
-# from fitspy.app.utils import convert_dict_from_tk_variables
-# from fitspy.app.utils import dict_has_tk_variable
 from fitspy.spectra import Spectra
 from fitspy.spectrum import Spectrum
-
-
-# MODELS = {"Gaussian": gaussian,
-#           "Lorentzian": lorentzian,
-#           "PseudoVoigt": pseudovoigt,
-#           "GaussianAsym": gaussian_asym,
-#           "LorentzianAsym": lorentzian_asym}
-#
-# BKG_MODELS = ['None', 'Constant', 'Linear', 'Parabolic', 'Exponential']
-#
-# KEYS = ['x0', 'ampli', 'fwhm', 'fwhm_l', 'fwhm_r', 'alpha']
 
 
 class SpectraMap(Spectra):

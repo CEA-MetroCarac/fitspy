@@ -28,7 +28,7 @@ from fitspy.app.utils import ToggleFrame, ScrollbarFrame, FilesSelector
 from fitspy.app.toplevels import TabView
 from fitspy.app.toplevels import AttractorsSettings, FitSettings
 from fitspy.app.toplevels import FigureSettings
-from fitspy.app.callbacks import Callbacks, FIT_METHODS
+from fitspy.app.callbacks import Callbacks
 
 SETTINGS_PATHNAME = Path.home() / Path(".fitspy.json")
 FONT = ('Helvetica', 8, 'bold')
