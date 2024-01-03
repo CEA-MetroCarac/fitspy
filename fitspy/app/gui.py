@@ -3,6 +3,7 @@ GUI and Appli classes associated to the spectra fitting application
 """
 import os
 import platform
+import warnings
 
 from tkinter import (Tk, Toplevel, Frame, LabelFrame, Label, Radiobutton,
                      Entry, Text, Button, Checkbutton, messagebox, W, E, END,
@@ -11,6 +12,7 @@ from tkinter.ttk import Combobox
 import itertools
 from pathlib import Path
 from io import BytesIO
+import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.backends.backend_tkagg import NavigationToolbar2Tk
@@ -21,7 +23,7 @@ except:
     pass
 
 from fitspy.utils import closest_index, save_to_json, load_from_json
-from fitspy import MODELS, BKG_MODELS
+from fitspy import MODELS, BKG_MODELS, KEYS
 
 from fitspy.app.utils import add, interactive_entry
 from fitspy.app.utils import ToggleFrame, ScrollbarFrame, FilesSelector
@@ -325,12 +327,77 @@ class GUI(Callbacks):
 
         frame_map = Toplevel(self.root)
         frame_map.title(os.path.basename(spectra_map.fname))
-        # frame_map.protocol("WM_DELETE_WINDOW", lambda *args: None)
+        frame_map.protocol("WM_DELETE_WINDOW", lambda *args: None)
+
+        # attach tkinter objects to spectra_map
+        keys = ['Intensity (sum)'] + KEYS
+        vmin = np.nanmin(spectra_map.arr)
+        vmax = np.nanmax(spectra_map.arr)
+        setattr(spectra_map, 'var', StringVar(value=keys[0]))
+        setattr(spectra_map, 'label', StringVar(value=''))
+        setattr(spectra_map, 'vmin', DoubleVar(value=vmin))
+        setattr(spectra_map, 'vmax', DoubleVar(value=vmax))
+
+        def update_labels():
+            labels = sorted(list(set([label for spectrum in spectra_map
+                                      for label in spectrum.models_labels])))
+            cbox1['values'] = labels
+            if len(labels) > 0:
+                spectra_map.label.set(labels[0])
+
+        def update_var():
+            if "Intensity" in spectra_map.var.get():
+                spectra_map.ax_slider.set_visible(True)
+                label1.grid_forget()
+                cbox1.grid_forget()
+            else:
+                spectra_map.ax_slider.set_visible(False)
+                label1.grid(row=1, column=0, sticky=W)
+                cbox1.grid(row=1, column=1, padx=5)
+                update_labels()
+            update_map()
+
+        def update_map(vmin=None, vmax=None):
+            spectra_map.plot_map_update(var=spectra_map.var.get(),
+                                        label=spectra_map.label.get(),
+                                        vmin=vmin, vmax=vmax)
+            if vmin is None and vmax is None:
+                with warnings.catch_warnings():
+                    warnings.simplefilter("ignore")
+                    spectra_map.vmin.set(np.nanmin(spectra_map.arr))
+                    spectra_map.vmax.set(np.nanmax(spectra_map.arr))
+
+        frame = Frame(frame_map)
+        frame.grid(row=0, column=0)
+        add(Label(frame, text="              "), 0, 0)  # permanent blank label
+        cbox0 = Combobox(frame, values=keys, textvariable=spectra_map.var, w=14)
+        add(cbox0, 0, 1, W)
+        cbox0.bind('<<ComboboxSelected>>', lambda _: update_var())
+
+        add(Label(frame, text="min:"), 0, 2, E)
+        entmin = Entry(frame, textvariable=spectra_map.vmin, w=9)
+        add(entmin, 0, 3, W)
+        entmin.bind("<KeyRelease>",
+                    lambda _: update_map(vmin=spectra_map.vmin.get(),
+                                         vmax=spectra_map.vmax.get()))
+
+        add(Label(frame, text="max:"), 0, 4, E)
+        entmax = Entry(frame, textvariable=spectra_map.vmax, w=9)
+        add(entmax, 0, 5, W)
+        entmax.bind("<KeyRelease>",
+                    lambda _: update_map(vmin=spectra_map.vmin.get(),
+                                         vmax=spectra_map.vmax.get()))
+
+        add(Label(frame, text="              "), 1, 0)  # permanent blank label
+        label1 = Label(frame, text="       Labels:")
+        cbox1 = Combobox(frame, textvariable=spectra_map.label, width=14,
+                         postcommand=update_labels)
+        cbox1.bind('<<ComboboxSelected>>', lambda _: update_map())
 
         fig, ax = plt.subplots(figsize=(6.5, 5))
         # marker = ax.plot(0, 0, 'rs', ms=9, mfc='none')
         canvas = FigureCanvasTkAgg(fig, master=frame_map)
-        canvas.get_tk_widget().grid(row=0, column=0)
+        canvas.get_tk_widget().grid(row=1, column=0, columnspan=2)
         canvas.draw()
 
         # attach objects to spectra_map
