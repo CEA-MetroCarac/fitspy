@@ -95,7 +95,7 @@ All the actions described above can be performed through python scripts without 
 
 This is this approach that has been recently used by teams at CEA to process tens of thousands of Raman spectra acquired on microelectronics chips, taking advantage of the parallelism capabilities offered by `Fitpsy` (see \autoref{fig:wafer}).
 
-![`Fitpsy` application used in photoluminescence to characterize exciton intensities at wafer scale (cf. @wafer).\label{fig:wafer}](https://cea-metrocarac.github.io/fitspy/fitspy_wafer.png){width=85%}
+![`Fitpsy` application used in photoluminescence to characterize exciton intensities at wafer scale (cf. @wafer).\label{fig:wafer}](https://cea-metrocarac.github.io/fitspy/2d-map-PL.png){width=85%}
 
 # Acknowledgements
 
