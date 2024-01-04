@@ -17,7 +17,7 @@ def gaussian(x, ampli, fwhm, x0):
 
         import numpy as np
         import matplotlib.pyplot as plt
-        from models import gaussian
+        from fitspy.models import gaussian
 
         x = np.linspace(-10, 10, 201)
         y = gaussian(x, ampli=1, fwhm=2, x0=2)
@@ -42,7 +42,7 @@ def gaussian_asym(x, ampli, fwhm_l, fwhm_r, x0):
 
         import numpy as np
         import matplotlib.pyplot as plt
-        from models import gaussian_asym
+        from fitspy.models import gaussian_asym
 
         x = np.linspace(-10, 10, 201)
         y = gaussian_asym(x, ampli=1, fwhm_l=4, fwhm_r=2, x0=2)
@@ -66,7 +66,7 @@ def lorentzian(x, ampli, fwhm, x0):
 
         import numpy as np
         import matplotlib.pyplot as plt
-        from models import lorentzian
+        from fitspy.models import lorentzian
 
         x = np.linspace(-10, 10, 201)
         y = lorentzian(x, ampli=1, fwhm=2, x0=2)
@@ -89,7 +89,7 @@ def lorentzian_asym(x, ampli, fwhm_l, fwhm_r, x0):
 
         import numpy as np
         import matplotlib.pyplot as plt
-        from models import lorentzian_asym
+        from fitspy.models import lorentzian_asym
 
         x = np.linspace(-10, 10, 201)
         y = lorentzian_asym(x, ampli=1, fwhm_l=4, fwhm_r=2, x0=2)
@@ -113,7 +113,7 @@ def pseudovoigt(x, ampli, fwhm, x0, alpha=0.5):
 
         import numpy as np
         import matplotlib.pyplot as plt
-        from models import pseudovoigt
+        from fitspy.models import pseudovoigt
 
         x = np.linspace(-10, 10, 201)
         y = pseudovoigt(x, ampli=1, fwhm=2, x0=2, alpha=0.5)
