@@ -13,16 +13,33 @@ Fitting
 :code:`Auto` can be used for the automatic determination of peaks, considering the selected :code:`Peak model`.
 
 
-For manual peaks positioning by the user, the :code:`Peak model` (to be chosen between `Gaussian`, `Lorentzian`, `Asymetric Gaussian`, `Asymetric Lorentzian` and `Pseudovoigt`) is applied when left-clicking in the spectrum figure. A right-click allows the removal of the nearest peak.
+For manual peaks positioning by the user, the :code:`Peak model` (to be chosen between **Gaussian**, **Lorentzian**, **Asymetric Gaussian**, **Asymetric Lorentzian** and **Pseudovoigt**) is applied when left-clicking in the spectrum figure. A right-click allows the removal of the nearest peak.
 
 The available peak models are:
 
-* `Gaussian` : $ampli * exp({-(x-x0)^2/(2*\sigma^2)})$
-* `Lorentzian` : $ampli * fwhm^2 / [4 * ((x - x0)^2 + fwhm^2 / 4)]$
-* `Asymetric Gaussian` : $(x < x0) * Gaussian (fwhm_l) +  (x ≥ x0) * Gaussian (fwhm_r)$
-* `Asymetric Lorentzian` : $(x < x0) * Lorentzian (fwhm_l) +  (x ≥ x0) * Lorentzian (fwhm_r)$
-* `Pseudovoigt` : $alpha * Gaussian + (1 - alpha) * Lorentzian $
+* **Gaussian**:
+.. math::
+   ampli * exp({-(x-x0)^2/(2*\sigma^2)}) \quad with \quad \sigma = fwhm / (2*\sqrt{2*log(2)})
 
+* **Lorentzian**:
+.. math::
+   ampli * fwhm^2 / [4 * ((x - x0)^2 + fwhm^2 / 4)]
+
+* **Asymetric Gaussian**:
+.. math::
+   (x < x0) * Gaussian(fwhm_l) +  (x ≥ x0) * Gaussian(fwhm_r)
+
+* **Asymetric Lorentzian**:
+.. math::
+   (x < x0) * Lorentzian(fwhm_l) +  (x ≥ x0) * Lorentzian(fwhm_r)
+
+* **Pseudovoigt**:
+.. math::
+   alpha * Gaussian + (1 - alpha) * Lorentzian
+
+.. raw:: html
+
+   <br>
 
 :code:`Fit` and :code:`Fit All` perform the fitting based on the conditions defined in the :code:`Fit Settings` widget:
 
