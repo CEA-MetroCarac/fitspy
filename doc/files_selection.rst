@@ -13,13 +13,13 @@ The files selection is realized with the following widget:
 1D-spectrum
 -----------
 
-The input data file format for a single spectrum is based on 2 columns representing the support (typically associated to wavelengths or energies) and the spectrum intensity.
+The input data file format for a single spectrum is based on 2 columns representing the support (x) - typically associated to wavelengths or energies - and the spectrum intensity (y).
 
-The separators between the columns can be the tabulation :code:`\t`, comma :code:`,`, semicolon :code:`;` or space :code:`\ `.
+The separators between the columns can be tabulation :code:`\t`, comma :code:`,`, semicolon :code:`;` or space :code:`\ `.
 
 Note that the first row is skipped and the (x, y) rows can be unordered.
 
-Example of input data file::
+Example of (partial) input data file::
 
     #Wave       #Intensity
     958.468750	307.873749
@@ -32,6 +32,7 @@ Example of input data file::
     948.005859	312.723724
     946.511719	321.054932
     945.015625	346.104187
+    ...
 
 (Full 1D data files can be loaded from `here <https://github.com/CEA-MetroCarac/fitspy/tree/main/examples/data/spectra_1/>`_.)
 

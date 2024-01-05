@@ -59,28 +59,30 @@ Quick start
 
 Once the `Fitspy` GUI has opened, at the right panel, from top to bottom:
 
-    - :code:`Select` **file(s)**
-    - Define the :code:`X-range`
-    - Define the baseline to :code:`subtract` *(left or right click on the figure to add or delete (resp.) a baseline point)*
-    - :code:`Normalize` *the spectrum/spectra*
-    - **Click on the** :code:`Peaks` **panel to activate it**
-    - **Select** :code:`Peak model` **and add peaks** *(left or right click on the figure to add or delete (resp.) a peak)*
-    - Add a background (:code:`BKG model`) to be fitted
-    - Use :code:`Parameters` to set bounds and constraints
-    - :code:`Fit` **the selected spectrum/spectra**
-    - :code:`Save` the parameters in `.csv` format
-    - :code:`Save` the* `Model` in a `.json` file (to be replayed later)
+- :code:`Select` **file(s)** (`▶ <files_selection.html>`_)
+- Define the :code:`X-range` (`▶ <overall_settings.html>`_)
+- Define the baseline to :code:`subtract` *(left or right click on the figure to add or delete a baseline point)* (`▶ <baseline.html>`_)
+- :code:`Normalize` *the spectrum/spectra* (`▶ <normalization.html>`_)
+- **Click on the** :code:`Peaks` **panel to activate it** (`▶ <fitting.html>`_)
+- **Select** :code:`Peak model` **and add peaks** *(left or right click on the figure to add or delete a peak)* (`▶ <fitting.html>`_)
+- Add a background (:code:`BKG model`) to be fitted (`▶ <fitting.html>`_)
+- Use :code:`Parameters` to set bounds and constraints (`▶ <fitting.html>`_)
+- :code:`Fit` **the selected spectrum/spectra** (`▶ <fitting.html>`_)
+- :code:`Save` the parameters in `.csv` format (`▶ <models.html>`_)
+- :code:`Save` the `Model` in a `.json` file (to be replayed later) (`▶ <models.html>`_)
 
-the lines in **bold** are the strict minimum to do a spectrum fit, the other ones are optional.
+The lines in **bold** are the strict minimum to do a spectrum fit, the other ones are optional.
+The pictogram ▶ corresponds to a direct link to the dedicated 'html' page.
+
 
 How Fitspy works
 ----------------
 
 The main class of Fitspy is :class:`~fitspy.spectra.Spectra` (inherited from `list`) that contains a list of  :class:`~fitspy.spectrum.Spectrum` objects.
 
-For each of these :class:`~fitspy.spectrum.Spectrum` objects, a (x, y) profile is associated.
+For each of these :class:`~fitspy.spectrum.Spectrum` objects, a (x, y) profile is associated. (More details `here <files_selection.html?2D-map_spectra=#d-spectrum>`_).
 
-Additionally, 2D maps of spectra (named :class:`~fitspy.spectra_map.SpectraMap`) can be provided as input according to a dedicated format. They consist in a set of :class:`~fitspy.spectrum.Spectrum` with associated grid coordinates (see below).
+Additionally, 2D maps of spectra (named :class:`~fitspy.spectra_map.SpectraMap`) that consist in a set of :class:`~fitspy.spectrum.Spectrum` with associated grid coordinates can be provided as input according to a dedicated format. (More details `here <files_selection.html?2D-map_spectra=#d-map-spectra>`_).
 
 
 The spectra processing are based on  :class:`~fitspy.baseline.BaseLine` (optional) and peaks :mod:`~fitspy.models` like Gaussian, Lorentzian, ... used to fit the spectra profiles.
