@@ -122,7 +122,7 @@ The available peak models are:
 
 ![](_static/fit_settings.png)
 
-`maxmimum iterations` can be used to limit the number of iterations, saving CPU time processing consequently.<br>
+`maximum iterations` can be used to limit the number of iterations, saving CPU time processing consequently.<br>
 (An iteration corresponds to a gradient descent attached to all the fit parameters).
 
 Spectrum fit success or failure (related to reaching a fit convergence criterion before reaching the `maxmimum iterations`) is displayed in green or orange (resp.) in the file selector widget.
@@ -179,9 +179,9 @@ The function associated with the <img src="_static/home.png" width="20">  icon h
 
 Note that to ease copy/paste, `CTRL+C` allows putting the current figure in the clipboard (only available on Windows).
 
-## 2D-map widgets
+## 2D-map Figure
 
-The 2D-map widgets allow easy selection of spectra and interaction with the cursor selection of the files selector widget.
+The 2D-map Figure widgets allow easy selection of spectra and interaction with the cursor selection of the files selector widget.
 
 By default, the full range of integrated spectra intensity is displayed.<br>
 A range slider in the figure allows specifying the summation bounds.<br>
