@@ -1,9 +1,13 @@
-![](https://cea-metrocarac.github.io/fitspy/fitspy.png)
-
-# Fitspy
+<p align="center" width="100%">
+    <img align="center" width=200 src=https://cea-metrocarac.github.io/fitspy/logo.png>
+</p>
 
 **Fitspy** is a generic tool dedicated to **fit** **sp**ectra in **py**thon
 with a GUI that aims to be as simple and intuitive to use as possible.
+
+<p align="center" width="100%">
+    <img align="center" width="75%" src=https://cea-metrocarac.github.io/fitspy/fitspy.png>
+</p>
 
 Processed spectra may be independent of each other or may result from 2D-maps
 acquisitions.
