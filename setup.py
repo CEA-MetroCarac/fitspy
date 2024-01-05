@@ -1,8 +1,9 @@
 from setuptools import setup, find_packages
+from fitspy import VERSION
 
 setup(
     name="fitspy",
-    version='2023.5',
+    version=VERSION,
     license='GPL v3',
     include_package_data=False,
     zip_safe=False,
