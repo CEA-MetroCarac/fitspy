@@ -22,27 +22,35 @@ bibliography: paper.bib
 
 **`Fitspy`** is a dedicated tool to **fit** **sp**ectra in **py**thon.
 
-Spectrum decomposition (also known as fitting) is the choice of a linear combination of peak models to best represent an experimental spectrum. `fitspy` currently has implementations for: Gaussian, Lorientzan, related asymmetric functions and the Pseudovoigt model. Spectrum decomposition corresponds to the resolution of a minimization problem, which can be subject to bounds and constraints on model parameters.
+Spectrum decomposition (also known as fitting) is the choice of a linear combination of peak models to best represent an experimental spectrum. `Fitspy` currently has implementations for: Gaussian, Lorientzan, related asymmetric functions and the Pseudovoigt model. Spectrum decomposition corresponds to the resolution of a minimization problem, which can be subject to bounds and constraints on model parameters.
 
-The `fitspy` GUI (see \autoref{fig:GUI}) is designed to be as simple and intuitive to use as possible.
+The `Fitspy` GUI (see \autoref{fig:GUI}) is designed to be as simple and intuitive to use as possible.
 
-![The `fitpsy` GUI.\label{fig:GUI}](https://cea-metrocarac.github.io/fitspy/fitspy.png){width=85%}
+![The `Fitpsy` GUI.\label{fig:GUI}](https://cea-metrocarac.github.io/fitspy/fitspy.png){width=85%}
 
 # Statement of need
 
 The analysis of spectra in many areas of physics, from materials characterisation to astrophysics, often requires their decomposition
 into more or less complex models to estimate the chemical composition of the subject being analysed.
-To carry out these decompositions, research communities can rely on spectral decomposition tools provided in numerous commercial or open source softwares.
+To carry out these decompositions, research communities can rely on spectral decomposition tools.
+While many open-source tools for spectral fitting exist, most of them have, however, been designed for specific application domains, offering a broad range of services beyond mere spectral fitting. Consequently, these tools can prove challenging to use, especially for less experienced individuals.
 
-Although commercial softwares are often of very high quality and high performance, they are by definition subject to licensing
-which is likely to limit their use within a team of researchers.
-In addition, the large amount of functionalities often proposed in these softwares can sometimes make them difficult to use.
-Finally, commercial softwares do not always make it easy to export the results in a open format (like .csv), or to save all the processing steps to be modified at a later time.
-These 2 last aspects, among others, severely limit the exchange of results and models within research teams as well as the use and re-use of models to compare analogous sets of spectra.
+In the vein of generic tools like `Fityk` [@Fityk] or `PRISMA`  [@PRISMA], `Fitspy` is a dedicated tool for spectral fitting — and only spectral fitting — with the following characteristics or functionalities:
 
-On the other hand, in the world of Open Source and particularly in the world of Python programming, libraries such as `lmfit` (cf. @lmfit), `specutils` (cf. @specutils) or `pyspeckit` (cf. @pyspeckit) offer everything that is needed to carry out spectral decomposition. However, their implementations require knowledge in programming, which limits their use by a large groups of people.
+* **Agnostic Nature**: `Fitspy` is not tied to any specific physical quantity or database. It is designed to process spectra regardless of their x-support and y-intensity without any prior knowledge.
 
-`Fitspy` was therefore created to address the weaknesses/drawbacks of each of these 2 approaches by providing a spectral decomposition tool with a GUI designed to be as simple as possible to use.
+* **Python Implementation**: `Fitspy` is coded in Python. As a result, spectra can be easily processed using Python scripts, catering to individuals with basic knowledge of the language.
+
+* **2D Maps**: `Fitspy` has been designed to handle spectra derived from 2D acquisitions. Note that "2D" can encompass time or any other dimension. When dealing with 2D data, an interactive map in the `Fitspy` GUI allows users to locate and select spectra of interest easily.
+
+* **Multiprocessing Capabilities**: `Fitspy` enables spectral fit processing on multiple processors, enhancing efficiency.
+
+* **Constrained Parameters**: Leveraging the `lmfit` library [@lmfit], `Fitspy` empowers users to impose constraints on parameter ranges or establish constraints between parameters using literal expressions.
+
+* **Simple GUI**: `Fitspy` has been designed to be as intuitive and simple to use as possible (subjective criterion).
+
+To the author's knowledge, although many open-source softwares are much more advanced in certain aspects mentioned, none of them seems to encompass all the functionalities described above. Therefore, the features of `Fitspy` make it an ideal tool for quickly fitting a few spectra through its GUI or for fitting several thousand of spectra (or more) by python batches, as can occur in the context of large-scale parametric studies [@wafer].
+
 
 # `Fitspy` workflow short description
 
@@ -52,15 +60,15 @@ On the other hand, in the world of Open Source and particularly in the world of 
 
 * the second format is associated to 2D-maps of spectra acquisitions. The related spectra are stored in a single file in which each spectrum is identified thanks to its grid coordinates (X,Y).
 
-Once loaded in the GUI via a file-selection widget, the spectra can be processed one by one, in groups depending on spectra selected with the cursor in the file selection widget, or as a whole dataset.
+Once loaded in the GUI via a files selector widget, the spectra can be processed one by one, or in groups depending on spectra selected with the cursor in the file selector widget, or as a whole dataset.
 
-Firstly, the user can choose to reduce the physical support (wavelength axis) to a range of interest for subsequent processing. They can also activate the `Attractors` capability, which are local maxima of a spectrum obtained thanks to the *signal.find_peaks()* function of the `scipy` library (cf. @scipy).
+Firstly, the users can choose to reduce the physical support (wavelength axis) to a range of interest for subsequent processing. They can also activate the `Attractors` capability, which are the local maxima of spectra obtained with the *signal.find_peaks()* function of the `scipy` library [@scipy].
 These attractors can be used subsequently to normalise spectra or to select points associated with the baseline and peaks to be modelled (see below).
 
-Once the range of interest and the spectra are (optionally) normalised, the user can define a **baseline** in order to make the spectra share a common, flat zero-intensity level.
-This baseline can be defined in an automatic way or by the user, who positions characteristic points on the figure with the mouse.
+Once the range of interest and the spectra are (optionally) normalised, the users can define a **baseline** in order to make the spectra share a common, flat zero-intensity level.
+This baseline can be defined in an automatic way or by the users, who positions characteristic points on the figure with the mouse.
 These points can be left at their initial positions or attached to the spectrum profile (`Attached` mode).
-In the latter case, the points can be attached either to the raw spectrum or to an averaged spectrum if the user wishes to attenuate the effects of noise.
+In the latter case, the points can be attached either to the raw spectrum or to an averaged spectrum if the users wish to attenuate the effects of noise.
 The baseline is then approximated over the entire spectrum range using either piecewise linear interpolation or an *n*-order polynomial approximation.
 
 Once the baseline has been subtracted, the next step consists of defining the **peaks** of interest for the decomposition.
@@ -80,17 +88,19 @@ Several fit options are also proposed, such as:
 
 At the end of the fit, the fit parameters and the statistics returned by `lmfit` are displayed in related widgets and can be exported in .csv and .txt files respectively.
 
-All the processing steps previously described constitute a model in the sense of the `fitspy` application that can be saved (in a .json file) and easily replayed as-is or applied to other series of spectra.
+All the processing steps previously described constitute a model in the sense of the `Fitspy` application that can be saved (in a .json file) and easily replayed as-is or applied to other series of spectra.
 
-In term of visualization, the GUI allows the user to display all of the spectra simultaneously (`Show All` mode) or, when a spectrum is selected, to display the corresponding fit decomposition and its residual. Figure titles and axis names can be changed and peak models can be labeled.
+In term of visualization, the GUI allows the users to display all of the spectra simultaneously (`Show All` mode) or, when a spectrum is selected, to display the corresponding fit decomposition and its residual. Figure titles and axis names can be changed and peak models can be labeled.
 
-All the actions described above can be performed through python scripts without using the GUI. In practice, when performing repeated analyses and for users having some Python skill, it may be useful to use `fitspy` as follows:
+All the actions described above can be performed through python scripts without using the GUI. In practice, when performing repeated analyses and for users having some Python skill, it may be useful to use `Fitspy` as follows:
 
 1. create a model with the GUI
 2. save the model
 3. apply the model to several sets of spectra using a python script
 
-This is this approach that has been recently used by teams at CEA to process tens of thousands of Raman spectra acquired on microelectronics chips, taking advantage of the parallelism capabilities offered by `fitpsy`.
+This is this approach that has been recently used by teams at CEA to process tens of thousands of PhotoLuminescence and Raman spectra acquired on  wafers, taking advantage of the parallelism capabilities offered by `Fitpsy` (see \autoref{fig:wafer}).
+
+![`Fitpsy` application used in photoluminescence to characterize exciton intensities on a wafer [@wafer].\label{fig:wafer}](https://cea-metrocarac.github.io/fitspy/2d-map-PL.png){width=85%}
 
 # Acknowledgements
 
