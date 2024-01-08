@@ -413,8 +413,8 @@ class GUI(Callbacks):
         add(Button(frame, text='Export\n(.csv)', width=14,
                    command=export_to_csv), 0, 6, rspan=2)
 
-        add(Label(frame, text="               "), 1, 0)  # permanent blank label
-        label1 = Label(frame, text="       Labels:")
+        add(Label(frame, text="              "), 1, 0)  # permanent blank label
+        label1 = Label(frame, text="       Label:")
         cbox1 = Combobox(frame, textvariable=spectra_map.label, width=14,
                          postcommand=update_labels)
         cbox1.bind('<<ComboboxSelected>>', lambda _: update_map())
