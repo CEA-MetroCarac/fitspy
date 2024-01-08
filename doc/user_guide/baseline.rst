@@ -1,7 +1,7 @@
 Baseline
 ========
 
-.. figure::  _static/baseline.png
+.. figure::  ../_static/baseline.png
    :align:   center
 
 .. raw:: html

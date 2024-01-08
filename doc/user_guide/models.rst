@@ -1,7 +1,7 @@
 Models
 ======
 
-.. figure::  _static/models.png
+.. figure::  ../_static/models.png
    :align:   center
 
 .. raw:: html

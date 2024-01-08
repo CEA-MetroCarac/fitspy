@@ -3,7 +3,7 @@ Files selection
 
 The files selection is realized with the following widget:
 
-.. figure::  _static/files_selector.png
+.. figure::  ../_static/files_selector.png
    :align:   center
 
 .. raw:: html
@@ -70,13 +70,13 @@ The associated spectra appear in the files selection widget according to the 2D-
 A 2D-map figure is also opened to facilitate the spectrum selection and the interaction with the cursor selection of the files selector widget.
 
 
-.. figure::  _static/2d-map.png
+.. figure::  ../_static/2d-map.png
    :align:   center
    :width:   50%
 
    interactive 2D-map figure resulting from a `fully defined ordered acquisition grid <https://github.com/CEA-MetroCarac/fitspy/tree/main/examples/data/2D_maps/ordered_map.txt>`_
 
-.. figure::  _static/2d-map_unordered.png
+.. figure::  ../_static/2d-map_unordered.png
    :align:   center
    :width:   50%
 

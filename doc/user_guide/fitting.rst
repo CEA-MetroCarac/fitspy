@@ -1,7 +1,7 @@
 Fitting
 =======
 
-.. figure::  _static/peaks.png
+.. figure::  ../_static/peaks.png
    :align:   center
 
 .. raw:: html
@@ -43,7 +43,7 @@ The available peak models are:
 
 :code:`Fit` and :code:`Fit All` perform the fitting based on the conditions defined in the :code:`Fit Settings` widget:
 
-.. figure::  _static/fit_settings.png
+.. figure::  ../_static/fit_settings.png
    :align:   center
 
 .. raw:: html
@@ -61,7 +61,7 @@ Spectrum fit success or failure (related to reaching a fit convergence criterion
 The :code:`Parameters` widget can be used to interact with each of the spectra (deleting or labeling peak models, redefining models).
 By default, all parameters are considered as free but may be fixed during the fitting using the right-handed selection boxes.
 
-.. figure::  _static/parameters.png
+.. figure::  ../_static/parameters.png
    :align:   center
 
 .. raw:: html
@@ -75,7 +75,7 @@ Bounds and fit constraints can be addressed by activating the dedicated selector
 **Constraints** relies on expressions that can be parameters-dependent, using the prefix defined in the 2nd column.<br>
 The example below shows how to constrain the second fitted peak to be half the amplitude of the first one.
 
-.. figure::  _static/fit_constraint.png
+.. figure::  ../_static/fit_constraint.png
    :align:   center
 
 .. raw:: html

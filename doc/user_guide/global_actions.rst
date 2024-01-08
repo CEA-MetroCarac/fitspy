@@ -1,7 +1,7 @@
 Global actions
 ==============
 
-.. figure::  _static/global_actions.png
+.. figure::  ../_static/global_actions.png
    :align:   center
 
 .. raw:: html

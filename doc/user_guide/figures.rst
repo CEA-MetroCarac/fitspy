@@ -11,9 +11,9 @@ The standard navigation toolbar from *Matplotlib* allows panning, zooming and sa
 The function associated with the |home|
 icon has been reconfigured to allow spectra rescaling.
 
-.. |home| image:: _static/home.png
+.. |home| image:: ../_static/home.png
 
-.. figure:: _static/navigation_toolbox.png
+.. figure:: ../_static/navigation_toolbox.png
    :align:   center
 
 .. raw:: html
@@ -22,7 +22,7 @@ icon has been reconfigured to allow spectra rescaling.
 
 :code:`Figure settings` (at the top) allows personalizing plots displays, figure title, and axis labels.
 
-.. figure::  _static/figure_settings.png
+.. figure::  ../_static/figure_settings.png
    :align:   center
 
 .. raw:: html
@@ -43,7 +43,7 @@ By default, the full range of integrated spectra intensity is displayed.
 A range slider in the figure allows specifying the summation bounds.
 Once peaks have been defined, the corresponding model parameters can be also visualized in the 2D-map figures.
 
-.. figure:: _static/2d-map_intensity_fwhm.png
+.. figure:: ../_static/2d-map_intensity_fwhm.png
    :align:   center
 
    left: intensity field in a 2D-map figure (default mode). right: FWHM values associated to 'Peak I' (obtained after fitting).

@@ -89,6 +89,6 @@ The spectra processing are based on  :class:`~fitspy.baseline.BaseLine` (optiona
 
 **Important**: it is strongly recommended to address the spectra processing operations in the order defined in the `Quick start`_ below.
 
-.. figure::  _static/spectra.png
+.. figure::  ../_static/spectra.png
    :align:   center
    :width:   75%

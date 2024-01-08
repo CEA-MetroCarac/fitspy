@@ -1,7 +1,7 @@
 Normalization
 =============
 
-.. figure::  _static/normalization.png
+.. figure::  ../_static/normalization.png
    :align:   center
 
 .. raw:: html

@@ -1,7 +1,7 @@
 Overall settings
 ================
 
-.. figure::  _static/overall_settings.png
+.. figure::  ../_static/overall_settings.png
    :align:   center
 
 .. raw:: html

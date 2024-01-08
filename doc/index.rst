@@ -4,15 +4,15 @@ Welcome to Fitspy's documentation!
 .. toctree::
    :caption: User Guide
 
-   intro.rst
-   files_selection.rst
-   global_actions.rst
-   overall_settings.rst
-   baseline.rst
-   normalization.rst
-   fitting.rst
-   models.rst
-   figures.rst
+   user_guide/intro.rst
+   user_guide/files_selection.rst
+   user_guide/global_actions.rst
+   user_guide/overall_settings.rst
+   user_guide/baseline.rst
+   user_guide/normalization.rst
+   user_guide/fitting.rst
+   user_guide/models.rst
+   user_guide/figures.rst
 
 
 .. toctree::
