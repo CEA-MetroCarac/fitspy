@@ -9,6 +9,8 @@ from tkinter import (Tk, Toplevel, Frame, LabelFrame, Label, Radiobutton,
                      Entry, Text, Button, Checkbutton, messagebox, W, E, END,
                      IntVar, DoubleVar, StringVar, BooleanVar)
 from tkinter.ttk import Combobox
+from tkinter import filedialog as fd
+from tkinter.messagebox import askyesno
 import itertools
 from pathlib import Path
 from io import BytesIO
@@ -367,6 +369,26 @@ class GUI(Callbacks):
                     spectra_map.vmin.set(np.nanmin(spectra_map.arr))
                     spectra_map.vmax.set(np.nanmax(spectra_map.arr))
 
+        def export_to_csv():
+            fname = str(Path(spectra_map.fname).stem)
+            var = spectra_map.var.get().split()[0]
+            if var == "Intensity":
+                fname += "_intensity.csv"
+            else:
+                fname += f"_{var}_{spectra_map.label.get()}.csv"
+
+            fname_csv = fd.asksaveasfilename(defaultextension='.csv',
+                                             initialfile=fname)
+
+            if fname_csv == '':
+                return
+            if not os.path.isfile(fname_csv):
+                msg = f'{Path(fname_csv).name} already exists.\n'
+                msg += 'Do you want to overwrite it?'.center(24)
+                if not askyesno('', msg):
+                    return
+            spectra_map.export_to_csv(fname_csv)
+
         frame = Frame(frame_map)
         frame.grid(row=0, column=0)
         add(Label(frame, text="              "), 0, 0)  # permanent blank label
@@ -388,14 +410,16 @@ class GUI(Callbacks):
                     lambda _: update_map(vmin=spectra_map.vmin.get(),
                                          vmax=spectra_map.vmax.get()))
 
-        add(Label(frame, text="              "), 1, 0)  # permanent blank label
+        add(Button(frame, text='Export\n(.csv)', width=14,
+                   command=export_to_csv), 0, 6, rspan=2)
+
+        add(Label(frame, text="               "), 1, 0)  # permanent blank label
         label1 = Label(frame, text="       Labels:")
         cbox1 = Combobox(frame, textvariable=spectra_map.label, width=14,
                          postcommand=update_labels)
         cbox1.bind('<<ComboboxSelected>>', lambda _: update_map())
 
         fig, ax = plt.subplots(figsize=(6.5, 5))
-        # marker = ax.plot(0, 0, 'rs', ms=9, mfc='none')
         canvas = FigureCanvasTkAgg(fig, master=frame_map)
         canvas.get_tk_widget().grid(row=1, column=0, columnspan=2)
         canvas.draw()

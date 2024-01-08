@@ -172,6 +172,12 @@ class SpectraMap(Spectra):
         self.cbar.update_normal(self.img)
         self.ax.get_figure().canvas.draw()
 
+    def export_to_csv(self, fname):
+        """ Export 'arr' class attribute in a .csv file named 'fname' """
+        if self.arr is not None:
+            dfr = pd.DataFrame(self.arr)
+            dfr.to_csv(fname, sep=';', header=False, index=False)
+
     @staticmethod
     def load_map(fname):
         """ Return a SpectraMap object from .txt file issued from labspec files
