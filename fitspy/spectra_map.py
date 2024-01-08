@@ -112,11 +112,16 @@ class SpectraMap(Spectra):
         self.arr = np.sum(intensity_map, axis=1).reshape(self.shape_map)
         self.coords = coords
 
-    def spectrum_indices(self, spectrum):
-        """ Return the (i, j) map indices related to 'spectrum' """
+    def spectrum_coords(self, spectrum):
+        """ Return the (x, y) map coordinates associated with 'spectrum' """
         res = PARSER.parse(spectrum.fname)
         x = float(res.named['x'])
         y = float(res.named['y'])
+        return x, y
+
+    def spectrum_indices(self, spectrum):
+        """ Return the (i, j) map indices associated with 'spectrum' """
+        x, y = self.spectrum_coords(spectrum)
         j = self.xy_map[0].index(x)
         i = self.xy_map[1].index(y)
         return i, j
