@@ -145,8 +145,13 @@ class Spectrum:
         self.baseline = BaseLine()
         self.normalize()
 
-    def load_profile(self, fname):
+    def load_profile(self, fname, xmin=None, xmax=None):
         """ Load profile from 'fname' with 1 header line and 2 (x,y) columns"""
+
+        if xmin is not None:
+            self.range_min = xmin
+        if xmax is not None:
+            self.range_max = xmax
 
         # raw profile loading
         if self.x0 is None:
