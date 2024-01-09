@@ -132,7 +132,7 @@ class Spectrum:
 
     def preprocess(self):
         """ Preprocess the spectrum: call successively load_profile(),
-        substract_baseline() and normalize() """
+        subtract_baseline() and normalize() """
 
         self.load_profile(self.fname)
         for baseline_histo in self.baseline_history:
@@ -141,7 +141,7 @@ class Spectrum:
             self.baseline.points = baseline_histo[2]
             if len(baseline_histo) == 4:
                 self.baseline.sigma = baseline_histo[3]
-            self.substract_baseline(add_to_history=False)
+            self.subtract_baseline(add_to_history=False)
         self.baseline = BaseLine()
         self.normalize()
 
@@ -389,10 +389,10 @@ class Spectrum:
         self.baseline.points[0] = list(self.x[peaks])
         self.baseline.points[1] = list(self.y[peaks])
 
-    def substract_baseline(self, attached=True, sigma=None,
-                           add_to_history=True):
-        """ Substract the baseline to the spectrum """
-        # substract baseline
+    def subtract_baseline(self, attached=True, sigma=None,
+                          add_to_history=True):
+        """ Subtract the baseline to the spectrum """
+        # subtract baseline
         self.y -= self.baseline.eval(x=self.x,
                                      y=self.y if attached else None,
                                      sigma=sigma)

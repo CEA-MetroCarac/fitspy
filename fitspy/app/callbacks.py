@@ -483,8 +483,8 @@ class Callbacks:
         self.current_spectrum.auto_baseline()
         self.plot()
 
-    def substract_baseline(self, fnames=None):
-        """ Substract the current baseline """
+    def subtract_baseline(self, fnames=None):
+        """ Subtract the current baseline """
         baseline_points = self.current_spectrum.baseline.points
         if len(baseline_points[0]) == 0:
             return
@@ -500,15 +500,15 @@ class Callbacks:
         for fname in fnames:
             spectrum, _ = self.spectra.get_objects(fname)
             spectrum.baseline.points = baseline_points.copy()
-            spectrum.substract_baseline(attached=attached, sigma=sigma)
+            spectrum.subtract_baseline(attached=attached, sigma=sigma)
             spectrum.baseline.points = [[], []]
         self.tabview.delete()
         self.ax.clear()
         self.plot()
 
-    def substract_baseline_to_all(self):
-        """ Substract baseline to all the spectra """
-        self.substract_baseline(fnames=self.spectra.fnames)
+    def subtract_baseline_to_all(self):
+        """ Subtract baseline to all the spectra """
+        self.subtract_baseline(fnames=self.spectra.fnames)
 
     def delete_baseline(self):
         """ Delete the current baseline """
@@ -755,7 +755,7 @@ class Callbacks:
     def auto_eval(self, model_name=None):
         """ Fit spectrum after evaluating baseline and peaks automatically """
         self.auto_baseline()
-        self.substract_baseline(fnames=[self.current_spectrum.fname])
+        self.subtract_baseline(fnames=[self.current_spectrum.fname])
         self.auto_peaks(model_name=model_name)
         self.fit(fnames=[self.current_spectrum.fname])
 

@@ -247,10 +247,10 @@ class GUI(Callbacks):
         add(order_entry, 2, 2, W)
         order_entry.bind("<KeyRelease>", lambda event: self.plot())
 
-        add(Button(fr, text="Substract",
-                   command=self.substract_baseline), 4, 0, padx=10)
-        add(Button(fr, text="Substract All",
-                   command=self.substract_baseline_to_all), 4, 1)
+        add(Button(fr, text="Subtract",
+                   command=self.subtract_baseline), 4, 0, padx=10)
+        add(Button(fr, text="Subtract All",
+                   command=self.subtract_baseline_to_all), 4, 1)
         add(Button(fr, text="Delete",
                    command=self.delete_baseline), 4, 2)
 

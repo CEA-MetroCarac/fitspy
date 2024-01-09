@@ -25,7 +25,7 @@ def inline_auto_decomposition(verbosity=True, show_plots=False):
         spectrum = Spectrum()
         spectrum.load_profile(fname)
         spectrum.auto_baseline()
-        spectrum.substract_baseline()
+        spectrum.subtract_baseline()
         spectrum.auto_peaks(model_name="LorentzianAsym")
         # spectrum.fit() # fit is already performed during auto_peaks processing
         spectra_list.append(spectrum)
