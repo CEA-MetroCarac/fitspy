@@ -5,14 +5,10 @@ Welcome to Fitspy's documentation!
    :caption: User Guide
 
    user_guide/intro.rst
-   user_guide/files_selection.rst
-   user_guide/global_actions.rst
-   user_guide/overall_settings.rst
-   user_guide/baseline.rst
-   user_guide/normalization.rst
-   user_guide/fitting.rst
-   user_guide/models.rst
-   user_guide/figures.rst
+   user_guide/input_data.rst
+   user_guide/peak_models.rst
+   user_guide/workflow.rst
+   user_guide/gui.rst
 
 
 .. toctree::

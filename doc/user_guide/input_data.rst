@@ -1,14 +1,12 @@
-Files selection
-===============
+Input data files formats
+========================
 
-The files selection is realized with the following widget:
 
-.. figure::  ../_static/files_selector.png
-   :align:   center
+Two types of input data can be interpreted:
 
-.. raw:: html
+    - basic single **1D-spectrum**
+    - **2D map** spectra
 
-   <br>
 
 1D-spectrum
 -----------
@@ -19,7 +17,7 @@ The separators between the columns can be tabulation :code:`\t`, comma :code:`,`
 
 Note that the first row is skipped and the (x, y) rows can be unordered.
 
-Example of (partial) input data file::
+Example of input data file (extract)::
 
     #Wave       #Intensity
     958.468750	307.873749
@@ -34,7 +32,7 @@ Example of (partial) input data file::
     945.015625	346.104187
     ...
 
-(Full 1D data files can be loaded from `here <https://github.com/CEA-MetroCarac/fitspy/tree/main/examples/data/spectra_1/>`_.)
+(Full 1D data files can be found `here <https://github.com/CEA-MetroCarac/fitspy/tree/main/examples/data/spectra_1/>`_.)
 
 
 2D-map spectra
@@ -62,23 +60,11 @@ Example of 2D-map input data::
     10. 10. 306.325648  291.235672  324.834579  306.378541  312.387649  ...
 
 
-(Full 2D-map data files can be loaded from `here <https://github.com/CEA-MetroCarac/fitspy/tree/main/examples/data/2D_maps/>`_).
+(Full 2D-map data files can be found `here <https://github.com/CEA-MetroCarac/fitspy/tree/main/examples/data/2D_maps/>`_).
 
-Once loaded in the `Fitspy` GUI, a 2D-map input data file is expanded.
-The associated spectra appear in the files selection widget according to the 2D-map file basename and the (X) and (Y) spectrum coordinates in the grid as prefix.
-
-A 2D-map figure is also opened to facilitate the spectrum selection and the interaction with the cursor selection of the files selector widget.
-
-
-.. figure::  ../_static/2d-map.png
-   :align:   center
-   :width:   50%
-
-   interactive 2D-map figure resulting from a `fully defined ordered acquisition grid <https://github.com/CEA-MetroCarac/fitspy/tree/main/examples/data/2D_maps/ordered_map.txt>`_
 
 .. figure::  ../_static/2d-map_unordered.png
    :align:   center
    :width:   50%
 
-   interactive 2D-map figure resulting from a `partially unordered acquisition grid <https://github.com/CEA-MetroCarac/fitspy/tree/main/examples/data/2D_maps/unordered_map.txt>`_
-
+   Illustration of a partially unordered 2D map issued from `unordered_map.txt <https://github.com/CEA-MetroCarac/fitspy/tree/main/examples/data/2D_maps/unordered_map.txt>`_

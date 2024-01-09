@@ -57,22 +57,21 @@ For a full install::
 Quick start
 -----------
 
-Once the `Fitspy` GUI has opened, at the right panel, from top to bottom:
+Once the `Fitspy` GUI has opened, from top to bottom of the right panel, the strict minimum operations (in red) for a spectrum fitting consists of:
 
-- :code:`Select` **file(s)** (`▶ <files_selection.html>`_)
-- Define the :code:`X-range` (`▶ <overall_settings.html>`_)
-- Define the baseline to :code:`subtract` *(left or right click on the figure to add or delete a baseline point)* (`▶ <baseline.html>`_)
-- :code:`Normalize` *the spectrum/spectra* (`▶ <normalization.html>`_)
-- **Click on the** :code:`Peaks` **panel to activate it** (`▶ <fitting.html>`_)
-- **Select** :code:`Peak model` **and add peaks** *(left or right click on the figure to add or delete a peak)* (`▶ <fitting.html>`_)
-- Add a background (:code:`BKG model`) to be fitted (`▶ <fitting.html>`_)
-- Use :code:`Parameters` to set bounds and constraints (`▶ <fitting.html>`_)
-- :code:`Fit` **the selected spectrum/spectra** (`▶ <fitting.html>`_)
-- :code:`Save` the parameters in `.csv` format (`▶ <models.html>`_)
-- :code:`Save` the `Model` in a `.json` file (to be replayed later) (`▶ <models.html>`_)
+- (`1 <files_selection.html>`_) **Select file(s) from** :code:`Select Files`  **or**  :code:`Select Dir`
+- (`6 <fitting.html>`_) **Click on the** :code:`Peaks` **panel to activate it (if not)**
+- (`7 <fitting.html>`_) **Select a** :code:`Peak model`
+- (`8 <fitting.html>`_) **Select a peak point on the main figure** *(with left/right click on the figure to add/delete a baseline point)*
+- Repeat the last two actions as needed
+- (`10 <fitting.html>`_) :code:`Fit` **the spectrum/spectra selected in the files selector widget or** :code:`Fit All` the **spectra**
+- (`12 <fitting.html>`_) :code:`Save (.csv)` **the fitting parameters**
 
-The lines in **bold** are the strict minimum to do a spectrum fit, the other ones are optional.
-The pictogram ▶ corresponds to a direct link to the dedicated 'html' page.
+.. figure::  ../_static/workflow.png
+   :align:   center
+   :width:   300
+
+*(The entire workflow is described* `here <workflow.html>`_ *).*
 
 
 How Fitspy works
