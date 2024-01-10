@@ -9,6 +9,6 @@ MODELS = {"Gaussian": gaussian,
 
 BKG_MODELS = ['None', 'Constant', 'Linear', 'Parabolic', 'Exponential']
 
-KEYS = ['x0', 'ampli', 'fwhm', 'fwhm_l', 'fwhm_r', 'alpha']
+PARAMS = ['x0', 'ampli', 'fwhm', 'fwhm_l', 'fwhm_r', 'alpha']
 
 VERSION = "2024.1"

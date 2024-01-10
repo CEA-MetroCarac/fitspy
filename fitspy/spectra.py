@@ -14,7 +14,7 @@ from fitspy.utils import fileparts, check_or_rename
 from fitspy.utils import save_to_json, load_from_json
 from fitspy.models import gaussian
 from fitspy.spectrum import Spectrum
-from fitspy import MODELS, KEYS
+from fitspy import MODELS, PARAMS
 
 
 def fit(params):
@@ -132,10 +132,10 @@ class Spectra(list):
         def write_params(fname_params, labels, models):
             with open(fname_params, 'w', newline='') as fid:
                 writer = csv.writer(fid, delimiter=';')
-                writer.writerow(['label', 'model'] + KEYS)
+                writer.writerow(['label', 'model'] + PARAMS)
                 for label, model in zip(labels, models):
                     vals = [label, Spectrum.get_model_name(model)]
-                    for key in KEYS:
+                    for key in PARAMS:
                         params = model.param_hints
                         if key in params.keys():
                             vals.append(params[key]['value'])

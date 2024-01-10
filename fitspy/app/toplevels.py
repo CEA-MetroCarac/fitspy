@@ -10,7 +10,7 @@ from lmfit import fit_report
 
 from fitspy.app.utils import add, add_entry
 from fitspy.app.callbacks import FIT_METHODS
-from fitspy import MODELS, BKG_MODELS, KEYS
+from fitspy import MODELS, BKG_MODELS, PARAMS
 
 CMAP = plt.get_cmap("tab10")
 NCPUS = ['auto', 1, 2, 3, 4, 5, 6, 8, 10, 12, 14, 16, 20, 24, 28, 32]
@@ -194,7 +194,7 @@ class TabView:
             keys_models = [x[4:] for model in models for x in model.param_names]
             keys = []
             col = 5
-            for key in KEYS:
+            for key in PARAMS:
                 if key in keys_models:
                     label = key.replace("_l", " (left)")
                     label = label.replace("_r", " (right)")

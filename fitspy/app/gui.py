@@ -25,7 +25,7 @@ except:
     pass
 
 from fitspy.utils import closest_index, save_to_json, load_from_json
-from fitspy import MODELS, BKG_MODELS, KEYS
+from fitspy import MODELS, BKG_MODELS, PARAMS
 
 from fitspy.app.utils import add, interactive_entry
 from fitspy.app.utils import ToggleFrame, ScrollbarFrame, FilesSelector
@@ -332,7 +332,7 @@ class GUI(Callbacks):
         frame_map.protocol("WM_DELETE_WINDOW", lambda *args: None)
 
         # attach tkinter objects to spectra_map
-        keys = ['Intensity (sum)'] + KEYS
+        keys = ['Intensity (sum)'] + PARAMS
         vmin = np.nanmin(spectra_map.arr)
         vmax = np.nanmax(spectra_map.arr)
         setattr(spectra_map, 'var', StringVar(value=keys[0]))
