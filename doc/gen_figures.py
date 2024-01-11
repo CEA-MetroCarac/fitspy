@@ -3,6 +3,7 @@ Functions to generate figures
 """
 import numpy as np
 import matplotlib.pyplot as plt
+from matplotlib.patches import FancyArrowPatch
 
 from fitspy.spectrum import Spectrum
 from fitspy.baseline import BaseLine
@@ -79,6 +80,11 @@ def baseline(attached=True):
     ax[1].set_ylim(-0.2, 0.8)
     ax[1].axis('off')
 
+    fig.text(0.45, 0.7, 'Subtract + Fit', fontsize=15)
+    fig.patches.append(FancyArrowPatch([0.48, 0.6], [0.58, 0.6],
+                                       transform=fig.transFigure,
+                                       mutation_scale=60))
+
     plt.savefig(f"_static/gen_figures_baseline{attached * '_attached'}.png")
 
 
@@ -105,6 +111,11 @@ def bkg_model():
     ax[1].axhline(y=0, c='k', ls='dotted')
     ax[1].set_ylim(-0.2, 0.8)
     ax[1].axis('off')
+
+    fig.text(0.5, 0.7, 'Fit', fontsize=15)
+    fig.patches.append(FancyArrowPatch([0.48, 0.6], [0.58, 0.6],
+                                       transform=fig.transFigure,
+                                       mutation_scale=60))
 
     plt.savefig("_static/gen_figures_bkg.png")
 
