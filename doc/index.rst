@@ -6,6 +6,7 @@ Welcome to Fitspy's documentation!
 
    user_guide/intro.rst
    user_guide/input_data.rst
+   user_guide/baseline.rst
    user_guide/peak_models.rst
    user_guide/workflow.rst
    user_guide/gui.rst
