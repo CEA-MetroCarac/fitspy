@@ -2,7 +2,8 @@ Peak models
 ===========
 
 In addition to predefined peak models, the user can define and use their own models.
-All of them should be defined from the following peak parameters:
+
+All of them are / should be defined from the following **peak parameters**:
 
 - :math:`x0` : the peak position
 - :math:`ampli` : the peak amplitude
@@ -50,19 +51,26 @@ Pseudovoigt
 Custom models
 -------------
 
-When working with python script, customized users models can be easily defined from a new launcher file (named for instance *my_fistpy_launcher.py*, to be executed) as follows::
+Custom user models can be defined using a file named  :code:`fitspy_users_models.txt`, located in the :code:`%HOMEUSER%` directory.
 
-    from fitspy.app.gui import fitspy_launcher
-    from fitspy.spectra import MODELS
+Using basic python encoding, new peaks models can be added as follows::
 
-    def my_model_0(x, param_1, param_2, param_3, ...):
-        return ...
+    import numpy as np
+    from lmfit.models import GaussianModel
 
-    def my_model_1(x, param_1, param_2, param_3, ...):
-        return ...
+    gaussian2_model = GaussianModel()
 
-    MODELS.update({"My Model 0": my_model_0})
-    MODELS.update({"My Model 1": my_model_1})
-    fitspy_launcher()
+    def gaussian1(x, ampli, fwhm, x0):
+        sigma = fwhm / (2. * np.sqrt(2. * np.log(2.)))
+        coef = 1. / (2 * sigma ** 2)
+        return ampli * np.exp(-coef * (x - x0) ** 2)
 
-where the expression returned by the function :code:`my_model` is defined from arguments :math:`param_i` associated -fully or partially- with the fit parameters defined at the top section  **whatever their order**.
+    def gaussian2(x, x0, ampli, fwhm):
+        sigma = fwhm / (2. * np.sqrt(2. * np.log(2.)))
+        return gaussian2_model.eval(x=x, center=x0, amplitude=ampli, sigma=sigma)
+
+where here the `gaussian1` function/model and the :code:`gaussian2` function/model (defined from the built-in lmfit models) return exactly the same results as with the predefined :code:`Gaussian` model.
+
+Note that the users function names are used as model names.
+
+To be correctly interpreted by `Fistpy` the arguments passed to the functions must be chosen from the fit parameters defined at the top, regardless their order.
