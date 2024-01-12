@@ -3,8 +3,11 @@ utilities functions
 """
 import os
 import re
-import numpy as np
+from importlib.machinery import SourceFileLoader
+from importlib.util import module_from_spec, spec_from_loader
+import inspect
 import json
+import numpy as np
 
 
 def closest_item(element_list, value):
@@ -94,3 +97,17 @@ def save_to_json(filename, dictionary, indent=3):
     """
     with open(filename, 'w') as fid:
         json.dump(dictionary, fid, indent=indent)
+
+
+def get_func(fname):
+    """ Return functions present in a file """
+    func = []
+    if fname.exists():
+        module_name = fname.stem
+        loader = SourceFileLoader(module_name, str(fname))
+        spec = spec_from_loader(module_name, loader)
+        module = module_from_spec(spec)
+        loader.exec_module(module)
+        members = inspect.getmembers(module)
+        func = [x for x in members if inspect.isfunction(x[1])]
+    return func
