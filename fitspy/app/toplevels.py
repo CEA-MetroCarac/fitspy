@@ -98,7 +98,7 @@ class TabView:
 
     def add_combobox_bkg_model(self, row, col):
         """ Add Tk.Combobox at (row, col) linked to the bkg_model """
-        cbox = Combobox(self.frame, values=BKG_MODELS,
+        cbox = Combobox(self.frame, values=list(BKG_MODELS.keys()),
                         textvariable=self.bkg_name, width=15)
         add(cbox, row, col)
         cbox.bind('<<ComboboxSelected>>', self.bkg_model_has_changed)

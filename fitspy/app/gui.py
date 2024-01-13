@@ -284,7 +284,8 @@ class GUI(Callbacks):
         add(Combobox(fr, values=list(MODELS.keys()), textvariable=self.model,
                      width=28), 1, 1, cspan=2)
         add(Label(fr, text='BKG model :'), 2, 0, E)
-        add(Combobox(fr, values=BKG_MODELS, textvariable=self.bkg_name,
+        add(Combobox(fr, values=list(BKG_MODELS.keys()),
+                     textvariable=self.bkg_name,
                      width=28), 2, 1, cspan=2)
 
         add(Button(fr, text=" Fit ", command=self.fit), 3, 0)

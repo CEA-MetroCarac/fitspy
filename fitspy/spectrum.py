@@ -323,12 +323,19 @@ class Spectrum:
 
     def set_bkg_model(self, bkg_name):
         """ Set the 'bkg_model' attribute from 'bkg_name' """
-        assert bkg_name in BKG_MODELS, f"{bkg_name} not in {BKG_MODELS}"
+        assert bkg_name in BKG_MODELS.keys(), f"{bkg_name} not in {BKG_MODELS}"
         if bkg_name == 'None':
             self.bkg_model = None
         else:
-            self.bkg_model = eval(bkg_name + 'Model()')
-            params = self.bkg_model.guess(self.y, self.x)
+            bkg_model = BKG_MODELS[bkg_name]
+            if isinstance(bkg_model, type):
+                self.bkg_model = bkg_model()
+                params = self.bkg_model.guess(self.y, self.x)
+            else:
+                self.bkg_model = Model(bkg_model, independent_vars=['x'])
+                params = self.bkg_model.make_params()
+                for val in params.values():
+                    val.value = 1
             for key, val in params.items():
                 self.bkg_model.set_param_hint(key, value=val.value,
                                               min=-np.inf, max=np.inf,
