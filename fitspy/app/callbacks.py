@@ -7,7 +7,11 @@ from tkinter import END
 from tkinter.messagebox import askyesno, showerror
 from tkinter import filedialog as fd
 from copy import deepcopy
+import dill
 import glob
+
+import lmfit.models
+from lmfit.models import ExpressionModel
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -635,7 +639,10 @@ class Callbacks:
             spectrum, _ = self.spectra.get_objects(fname)
             # to keep values defined by the user
             if bkg_model_ref is not None:
-                spectrum.bkg_model = deepcopy(bkg_model_ref)
+                if isinstance(bkg_model_ref, ExpressionModel):
+                    spectrum.bkg_model = dill.copy(bkg_model_ref)
+                else:
+                    spectrum.bkg_model = deepcopy(bkg_model_ref)
             else:
                 spectrum.set_bkg_model(bkg_name)
             spectra.append(spectrum)
@@ -644,7 +651,12 @@ class Callbacks:
 
         if ncpus == 1:
             for spectrum in spectra:
-                spectrum.models = deepcopy(models)
+                # ExpressionModel can not be serialized with Pickle,
+                # which deepcopy uses
+                if np.any([isinstance(x, ExpressionModel) for x in models]):
+                    spectrum.models = dill.copy(models)
+                else:
+                    spectrum.models = deepcopy(models)
                 spectrum.models_labels = models_labels.copy()
                 spectrum.fit(fit_method, fit_negative, max_ite)
         else:
