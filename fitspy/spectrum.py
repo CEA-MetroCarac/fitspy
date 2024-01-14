@@ -228,12 +228,13 @@ class Spectrum:
         -------
         model: lmfit.Model
         """
-        try:
-            model = Model(MODELS[model_name], independent_vars=['x'])
-        except:
-            model = MODELS[model_name]
-            
-        model.prefix = f'm{index:02d}_'
+        model = MODELS[model_name]
+        prefix = f'm{index:02d}_'
+        if isinstance(model, Model):
+            model.name = model_name
+            model.prefix = prefix
+        else:
+            model = Model(model, independent_vars=['x'], prefix=prefix)
 
         kwargs_ampli = {'min': 0, 'max': np.inf, 'vary': True, 'expr': None}
         kwargs_fwhm = {'min': 0, 'max': 200, 'vary': True, 'expr': None}
