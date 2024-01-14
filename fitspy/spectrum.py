@@ -228,9 +228,12 @@ class Spectrum:
         -------
         model: lmfit.Model
         """
-        ind_vars = ['x']
-        pfx = f'm{index:02d}_'
-        model = Model(MODELS[model_name], independent_vars=ind_vars, prefix=pfx)
+        try:
+            model = Model(MODELS[model_name], independent_vars=['x'])
+        except:
+            model = MODELS[model_name]
+            
+        model.prefix = f'm{index:02d}_'
 
         kwargs_ampli = {'min': 0, 'max': np.inf, 'vary': True, 'expr': None}
         kwargs_fwhm = {'min': 0, 'max': 200, 'vary': True, 'expr': None}
@@ -331,6 +334,11 @@ class Spectrum:
             if isinstance(bkg_model, type):
                 self.bkg_model = bkg_model()
                 params = self.bkg_model.guess(self.y, self.x)
+            elif isinstance(bkg_model, Model):
+                self.bkg_model = bkg_model
+                params = self.bkg_model.make_params()
+                for val in params.values():
+                    val.value = 1
             else:
                 self.bkg_model = Model(bkg_model, independent_vars=['x'])
                 params = self.bkg_model.make_params()

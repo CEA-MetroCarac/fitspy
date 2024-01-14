@@ -1,12 +1,16 @@
 from pathlib import Path
+import shutil
+import runpy
 from lmfit.models import (ConstantModel, LinearModel, ParabolicModel,
-                          ExponentialModel)
+                          ExponentialModel, ExpressionModel)
 
-from fitspy.utils import get_func
 from fitspy.models import (gaussian, lorentzian,
                            gaussian_asym, lorentzian_asym, pseudovoigt)
 
 VERSION = "2024.1"
+
+FITSPY_DIR = Path.home() / "Fitspy"
+SETTINGS_FNAME = FITSPY_DIR / "settings.json"
 
 MODELS = {"Gaussian": gaussian,
           "Lorentzian": lorentzian,
@@ -22,10 +26,15 @@ BKG_MODELS = {'None': None,
               'Parabolic': ParabolicModel,
               'Exponential': ExponentialModel}
 
-# add users models
-for model in get_func(Path.home() / "fitspy_users_models.py"):
-    MODELS.update({model[0]: model[1]})
+Path.mkdir(FITSPY_DIR, exist_ok=True)
 
-# add users BKG models
-for bkg_model in get_func(Path.home() / "fitspy_users_bkg_models.py"):
-    BKG_MODELS.update({bkg_model[0]: bkg_model[1]})
+# move and rename old settings file
+fname = Path.home() / '.fitspy.json'
+if fname.exists():
+    shutil.move(fname, SETTINGS_FNAME)
+
+# add users models from '.py' file
+for name in ["models.py", "bkg_models.py"]:
+    fname = FITSPY_DIR / name
+    if fname.exists():
+        runpy.run_path(fname, run_name='__main__')
