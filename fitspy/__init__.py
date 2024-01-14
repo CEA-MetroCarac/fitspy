@@ -26,6 +26,7 @@ BKG_MODELS = {'None': None,
               'Parabolic': ParabolicModel,
               'Exponential': ExponentialModel}
 
+# create FITSPY_DIR if not exists
 Path.mkdir(FITSPY_DIR, exist_ok=True)
 
 # move and rename old settings file
@@ -33,8 +34,25 @@ fname = Path.home() / '.fitspy.json'
 if fname.exists():
     shutil.move(fname, SETTINGS_FNAME)
 
+# add users models from '.txt' file
+for name, models in zip(["models.txt", "bkg_models.txt"], [MODELS, BKG_MODELS]):
+    fname = FITSPY_DIR / name
+    if fname.exists():
+        with open(fname, 'r') as fid:
+            for line in fid.readlines():
+                words = line.split('=')
+                if len(words) == 2:
+                    name, expr = words[0], words[1]
+                    try:
+                        model = ExpressionModel(expr, independent_vars=['x'])
+                        model.__name__ = name
+                        models.update({name: model})
+                        print(f"{name} ADDED")
+                    except:
+                        print(f"{name} INCORRECT EXPRESSION")
+                      
 # add users models from '.py' file
 for name in ["models.py", "bkg_models.py"]:
     fname = FITSPY_DIR / name
     if fname.exists():
-        runpy.run_path(fname, run_name='__main__')
+        runpy.run_path(fname)
