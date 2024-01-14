@@ -284,9 +284,10 @@ class GUI(Callbacks):
         add(Combobox(fr, values=list(MODELS.keys()), textvariable=self.model,
                      width=28), 1, 1, cspan=2)
         add(Label(fr, text='BKG model :'), 2, 0, E)
-        add(Combobox(fr, values=list(BKG_MODELS.keys()),
-                     textvariable=self.bkg_name,
-                     width=28), 2, 1, cspan=2)
+        cbox = Combobox(fr, values=list(BKG_MODELS.keys()),
+                        textvariable=self.bkg_name, width=28)
+        add(cbox, 2, 1, cspan=2)
+        cbox.bind('<<ComboboxSelected>>', lambda _: self.set_bkg_model())
 
         add(Button(fr, text=" Fit ", command=self.fit), 3, 0)
         add(Button(fr, text=" Fit All ", command=self.fit_all), 3, 1)

@@ -582,6 +582,12 @@ class Callbacks:
         self.tabview.update_stats()
         self.plot()
 
+    def set_bkg_model(self):
+        self.current_spectrum.set_bkg_model(self.bkg_name.get())
+        self.current_spectrum.result_fit = None
+        self.tabview.update()
+        self.plot()
+
     def update_fit_settings(self):
         """ Update fit settings """
         x = self.root.winfo_pointerx()
