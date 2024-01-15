@@ -30,28 +30,44 @@ Note that to minimize the impact of noise in the baseline attached-points defini
 Background model
 ----------------
 
-The background model approach consists in selecting a 'BKG' model that is taken into account with the peak models during the fit processing.
+The background model approach consists in selecting a **BKG model** that is taken into account with the peak models during the fit processing.
 
 .. figure::  ../_static/gen_figures_bkg.png
    :align:   center
 
 
-The available predefined `BKG models` are `Constant`, `Linear`, `Parabolic`, `Exponential` related to the `lmfit` standard models defined `here <https://lmfit.github.io/lmfit-py/builtin_models.html>`_.
+The available predefined **BKG models** are :code:`Constant`, :code:`Linear`, :code:`Parabolic`, :code:`Exponential` related to the `lmfit` standard models defined `here <https://lmfit.github.io/lmfit-py/builtin_models.html>`_.
 
-In python scripting, as for the `Peak models`, **customized users `BKG models`** can be added from a new launcher file (named for instance *my_fistpy_launcher.py*) as follows::
+User-defined background models
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    from fitspy.app.gui import fitspy_launcher
+In the :code:`%HOMEUSER%/Fitspy` directory, user-defined models can be defined through expressions written in a file named  :code:`bkg_models.txt`::
+
+    Linear_1 = slope * x + constant
+    Exponential_1 = ampli * np.exp(-coef * x)
+
+or using Python encoding, in a file named  :code:`bkg_models.py`::
+
+    import numpy as np
     from fitspy import BKG_MODELS
 
-    def my_bkg_model_0(x, param_1, param_2, param_3):
-        return ...
 
-    def my_bkg_model_1(x, param_4, param_5):
-        return ...
+    def linear(x, slope, constant):
+        return slope * x + constant
 
-    BKG_MODELS.update({"My BKG Model 0": my_bkg_model_0})
-    BKG_MODELS.update({"My BKG Model 1": my_bkg_model_1})
+    def exponential(x, ampli, coef):
+        return ampli * np.exp(-coef * x)
 
-    fitspy_launcher()
+    BKG_MODELS.update({"Linear_2": linear})
+    BKG_MODELS.update({"Exponential_2": exponential})
 
-where :code:`param_i` are the model parameters
+where in the examples given above, the resulting :code:`Linear_1`, :code:`Linear_2` models yield identical results to those obtained from the predefined :code:`Linear` model, when converged.
+The same for :code:`Exponential_1`, :code:`Exponential_2` and :code:`Exponential`.
+
+.. warning::
+    Unlike predefined models, user-defined models do not have 'guess' parameter fitting functions.
+    All parameters are initialized to 1.
+    This can lead to poor convergence of the background.
+    To prevent this, it is advisable to review the model parameters using appropriate multiplier coefficients, considering that the initial values for the parameters are 1.
+
+    Example: for a x-range in [0, 1000], the Exponential functions should be rather defined as :code:`ampli * np.exp(-coef * x / 1000)`
