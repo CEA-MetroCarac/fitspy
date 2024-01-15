@@ -1,5 +1,5 @@
 <p align="center" width="100%">
-    <img align="center" width=200 src=https://cea-metrocarac.github.io/fitspy/logo.png>
+    <img align="center" width=250 src=https://cea-metrocarac.github.io/fitspy/logo.png>
 </p>
 
 **Fitspy** is a generic tool dedicated to **fit** **sp**ectra in **py**thon
@@ -21,7 +21,7 @@ The fitting algorithm has multiprocessing capabilities and relies on
 the [lmfit](https://github.com/lmfit/lmfit-py) library.<br>
 Bounds and constraints can be set on each peaks models parameter.
 
-The peak models considered in fitspy are :
+The peak models considered in Fitspy are :
 
 * `Gaussian`
 * `Lorentzian`
@@ -29,15 +29,14 @@ The peak models considered in fitspy are :
 * `Asymetric Lorentzian`
 * `Pseudovoigt`
 
-A `constant`, `linear`, `parabolic` or `exponential` background can
+A `constant`, `linear`, `parabolic` or `exponential` background model can
 also be added in the fitting.
 
-All actions allowed with the GUI can be easily executed in script mode (see
-examples [here](https://github.com/CEA-MetroCarac/fitspy/tree/main/examples)).
-These actions (like baseline definition and removal, peaks definition,
-parameters constraints, ...) can be saved in a 'fitspy' `model` and replayed as
-is or applied to other new spectra.
+In both cases, user-defined models can be added.
 
+All actions allowed with the GUI can be executed in script mode (see
+examples [here](https://github.com/CEA-MetroCarac/fitspy/tree/main/examples)).
+These actions (like baseline and peaks definition, parameters constraints, ...) can be saved in a `Fitspy model` and replayed as-is or applied to other new spectra datasets.
 
 ### Installation
 
@@ -59,10 +58,12 @@ python example/ex0_gui_auto_decomposition.py
 ### Quick start
 
 Launch the application:
+
 ```
 fitspy
 ```
-Then, from the top to the bottom of the right panel:
+
+Then, from the top to the bottom of the right GUI panel:
 
 - `Select` file(s)
 - <span style="color: rgba(0, 0, 0, 0.3);">*(Optional)* Define the **X-range**</span>
@@ -72,14 +73,13 @@ Then, from the top to the bottom of the right panel:
 - Select `Peak model` and add peaks *(left or right click on the figure to add or delete (resp.) a peak)*
 - <span style="color: rgba(0, 0, 0, 0.3);">*(Optional)* Add a background (**BKG model**) to be fitted</span>
 - <span style="color: rgba(0, 0, 0, 0.3);">*(Optional)* Use **Parameters** to set bounds and constraints</span>
-- `Fit` the selected spectrum/spectra 
+- `Fit` the selected spectrum/spectra
 - <span style="color: rgba(0, 0, 0, 0.3);">*(Optional)* **Save** the parameters in **.csv** format</span>
 - <span style="color: rgba(0, 0, 0, 0.3);">*(Optional)* **Save** the **Model** in a .json file (to be replayed later)</span>
 
-See the [documentation](https://github.com/CEA-MetroCarac/fitspy/tree/main/doc) for more details.
+See the [documentation](https://cea-metrocarac.github.io/fitspy/doc/html/index.html) for more details.
 
-
-### Authors informations
+### Authors information
 
 In case you use the results of this code in an article, please cite:
 
