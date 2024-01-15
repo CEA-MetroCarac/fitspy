@@ -77,7 +77,7 @@ Then, from the top to the bottom of the right GUI panel:
 - <span style="color: rgba(0, 0, 0, 0.3);">*(Optional)* **Save** the parameters in **.csv** format</span>
 - <span style="color: rgba(0, 0, 0, 0.3);">*(Optional)* **Save** the **Model** in a .json file (to be replayed later)</span>
 
-See the [documentation](https://cea-metrocarac.github.io/fitspy/doc/_build/html/index.html) for more details.
+See the [documentation](https://cea-metrocarac.github.io/fitspy/doc/index.html) for more details.
 
 ### Authors information
 
