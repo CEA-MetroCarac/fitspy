@@ -53,11 +53,11 @@ To the author's knowledge, although many open-source softwares are much more adv
 
 `Fitspy` accepts at this time two types of input data file formats:
 
-* a first format where each spectrum is stored individually in a `.txt` file. The input data file consists of a 2 columns base format where the first column is associated with the physical support of the spectrum (typically wavelengths) and the second with the corresponding spectrum intensity.
+* a first format where each spectrum is stored individually in a `.txt` file. The input data file consists of a 2 columns base format where the first column is associated to the physical support of the spectrum (typically wavelengths) and the second to the corresponding spectrum intensity.
 
-* the second format is associated with 2D-maps of spectra acquisitions. The related spectra are stored in a single file in which each spectrum is identified thanks to its grid coordinates (X,Y).
+* the second format is associated to 2D-maps of spectra acquisitions. The related spectra are stored in a single file in which each spectrum is identified thanks to its grid coordinates (X,Y).
 
-Once loaded in the GUI via a files selector widget, the spectra can be processed one by one, or in groups (depending on spectra selected with the cursor in the file selector widget), or as a whole dataset.
+Once loaded in the GUI via a files selector widget, the spectra can be processed one by one or in groups (depending on spectra selected with the cursor in the file selector widget), or as a whole dataset.
 
 Firstly, the users can choose to reduce the physical support (wavelength axis) to a range of interest for subsequent processing. They can also activate the `Attractors` capability, which are the local maxima of spectra obtained with the *signal.find_peaks()* function of the `scipy` library [@scipy].
 These attractors can be used subsequently to normalise spectra or to select points associated with the baseline and peaks to be modelled (see below).
