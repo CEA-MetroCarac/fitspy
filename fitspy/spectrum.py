@@ -8,7 +8,7 @@ import pandas as pd
 from scipy.signal import find_peaks
 from lmfit import Model, report_fit
 from lmfit.models import ConstantModel, LinearModel, ParabolicModel, \
-    ExponentialModel  # pylint:disable=unused-import
+    ExponentialModel, ExpressionModel  # pylint:disable=unused-import
 
 from fitspy.utils import closest_index
 from fitspy.utils import save_to_json, load_from_json
@@ -113,16 +113,27 @@ class Spectrum:
         for _, dict_model in dict_attrs['models'].items():
             for model_name, param_hints in dict_model.items():
                 index = next(self.models_index)
-                ind_vars = ['x']
-                pfx = f'm{index:02d}_'
-                model_func = MODELS[model_name]
-                model = Model(model_func, independent_vars=ind_vars, prefix=pfx)
+                model = MODELS[model_name]
+                prefix = f'm{index:02d}_'
+                if isinstance(model, Model):
+                    model.name = model_name
+                    model.prefix = prefix
+                else:
+                    model = Model(model, independent_vars=['x'], prefix=prefix)
                 model.param_hints = param_hints
                 self.models.append(model)
 
         if dict_attrs['bkg_model']:
             model_name, param_hints = list(dict_attrs['bkg_model'].items())[0]
-            self.bkg_model = eval(f"{model_name}()")
+            model = BKG_MODELS[model_name]
+            if isinstance(model, ExpressionModel):
+                pass
+            elif isinstance(model, type):
+                model = model()
+            else:
+                model = Model(model, independent_vars=['x'])
+            self.bkg_model = model
+            self.bkg_model.name2 = model_name
             self.bkg_model.param_hints = param_hints
 
         # to make 'old' models still working
@@ -311,13 +322,6 @@ class Spectrum:
         ind = names_fun.index(name_fun)
         return names[ind]
 
-    def get_bkg_model_name(self):
-        """ from 'bkg_model' return the function name associated """
-        if self.bkg_model is None:
-            return 'None'
-        else:
-            return self.bkg_model.__class__.__name__
-
     def remove_models(self):
         """ Remove all the models """
         self.models = []
@@ -349,6 +353,7 @@ class Spectrum:
                 self.bkg_model.set_param_hint(key, value=val.value,
                                               min=-np.inf, max=np.inf,
                                               vary=True, expr=None)
+            self.bkg_model.name2 = bkg_name
 
     def fit(self, fit_method=None, fit_negative=None, max_ite=None,
             report=False, **kwargs):
@@ -511,7 +516,7 @@ class Spectrum:
 
         dict_attrs['bkg_model'] = {}
         if self.bkg_model is not None:
-            dict_attrs['bkg_model'].update({self.get_bkg_model_name():
+            dict_attrs['bkg_model'].update({self.bkg_model.name2:
                                                 self.bkg_model.param_hints})
 
         if fname_json is not None:
