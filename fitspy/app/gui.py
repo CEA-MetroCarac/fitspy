@@ -25,7 +25,7 @@ except:
     pass
 
 from fitspy.utils import closest_index, save_to_json, load_from_json
-from fitspy import MODELS, BKG_MODELS, PARAMS
+from fitspy import MODELS, BKG_MODELS, PARAMS, SETTINGS_FNAME
 
 from fitspy.app.utils import add, interactive_entry
 from fitspy.app.utils import ToggleFrame, ScrollbarFrame, FilesSelector
@@ -34,7 +34,6 @@ from fitspy.app.toplevels import AttractorsSettings, FitSettings
 from fitspy.app.toplevels import FigureSettings
 from fitspy.app.callbacks import Callbacks
 
-SETTINGS_PATHNAME = Path.home() / Path(".fitspy.json")
 FONT = ('Helvetica', 8, 'bold')
 
 
@@ -477,12 +476,12 @@ class GUI(Callbacks):
             obj = eval(f"self.{key}")
             for key2, val2 in obj.params.items():
                 dict_attrs[key][key2] = val2.get()
-        save_to_json(SETTINGS_PATHNAME, dict_attrs)
+        save_to_json(SETTINGS_FNAME, dict_attrs)
 
     def reload_settings(self):
         """ Reload GUI users settings """
-        if SETTINGS_PATHNAME.is_file():
-            dict_attrs = load_from_json(SETTINGS_PATHNAME)
+        if SETTINGS_FNAME.is_file():
+            dict_attrs = load_from_json(SETTINGS_FNAME)
             for key, val in dict_attrs.items():
                 # try/except to manage changes in attributes
                 try:
