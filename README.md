@@ -83,4 +83,4 @@ See the [documentation](https://cea-metrocarac.github.io/fitspy/doc/index.html) 
 
 In case you use the results of this code in an article, please cite:
 
-- Patrick Quéméré, Univ. Grenoble Alpes, CEA, Leti, F-38000 Grenoble, France, https://github.dev/CEA-MetroCarac/fitspy
+- Quéméré, (2024). Fitspy: A python package for spectral decomposition. *Journal of Open Source Software. (submitted)*
