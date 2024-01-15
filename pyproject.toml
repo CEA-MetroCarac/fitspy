@@ -2,13 +2,45 @@
 requires = ['setuptools>=42']
 build-backend = 'setuptools.build_meta'
 
-[tool.pytest.ini_options]
-minversion = "6.0"
-testpaths = ["tests"]
 
 [project]
 name = "fitspy"
 dynamic = ["version"]
+authors = [{ name = "Patrick Quéméré", email = "patrick.quemere@cea.fr" }]
+description = "Fitspy (A generic tool to fit spectra in python)"
+readme = "README.md"
+requires-python = ">=3.7"
+keywords = ["Fitspy", "fit", "spectra", "spectrum", "map", "1D", "2D",
+    "decomposition", "Gaussian", "Lorentzian", "Pseudovoigt", "GUI"]
+license = { text = "GPL v3" }
+classifiers = [
+    "Programming Language :: Python :: 3",
+]
+dependencies = [
+    "numpy",
+    "pandas",
+    "matplotlib",
+    "scipy",
+    "lmfit",
+    "parse",
+    "pywin32; platform_system == 'Windows'",
+]
+dynamic = ["version"]
+
+[project.scripts]
+fitspy = "fitspy.app.gui:fitspy_launcher"
+
+[tool.setuptools]
+include-package-data = false
 
 [tool.setuptools.dynamic]
 version = { attr = "fitspy.VERSION" }
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["fitspy*"]  # alternatively: `exclude = ["additional*"]`
+namespaces = false
+
+[tool.pytest.ini_options]
+minversion = "6.0"
+testpaths = ["tests"]
