@@ -71,6 +71,10 @@ Once the `Fitspy` GUI has opened, from top to bottom of the right panel, the str
    :align:   center
    :width:   300
 
+.. raw:: html
+
+   <br>
+
 *(The entire workflow is described* `here <workflow.html>`_ *).*
 
 
@@ -86,7 +90,6 @@ Additionally, 2D maps of spectra (named :class:`~fitspy.spectra_map.SpectraMap`)
 
 The spectra processing are based on  :class:`~fitspy.baseline.BaseLine` (optional) and peaks :mod:`~fitspy.models` like Gaussian, Lorentzian, ... used to fit the spectra profiles.
 
-**Important**: it is strongly recommended to address the spectra processing operations in the order defined in the `Quick start`_ below.
 
 .. figure::  ../_static/spectra.png
    :align:   center

@@ -8,8 +8,15 @@ Welcome to Fitspy's documentation!
    user_guide/input_data.rst
    user_guide/baseline.rst
    user_guide/peak_models.rst
+   user_guide/fitting.rst
    user_guide/workflow.rst
    user_guide/gui.rst
+
+
+.. toctree::
+   :caption: Release Notes
+
+   release_notes/release_notes.rst
 
 
 .. toctree::
