@@ -24,7 +24,7 @@ Bug fixes/enhancements:
 - Add xmin and xmax (optional) arguments to spectrum.load_profile() to ease the x-range setting when loading profiles by python scripts
 
 
-Version 2023.x (from July 10 to September 1, 2023)
--------------------------------------------------------
+Version 2023.x
+--------------
 
 First releases.
