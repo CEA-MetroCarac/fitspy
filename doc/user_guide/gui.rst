@@ -46,9 +46,15 @@ Global actions
 
 :code:`Auto eval` and :code:`Auto eval All`  perform automatic evaluation of the baseline and peak positions and conduct fitting on the selected spectra or all the spectra (respectively).
 
-:code:`Save settings` enables the saving of user settings in a **.fitspy.json** file located in the :code:`%HOMEUSER%` directory (open this file to have a look on which and how settings are saved).
+:code:`Save settings` enables the saving of user settings in a **settings.json** file located in the :code:`%HOMEUSER%/Fitspy` directory (open this file to have a look on which and how settings are saved).
 
 :code:`Reinitialize` and :code:`Reinitialize All` reinitialize the spectrum and all the spectra (resp.) to their original values.
+
+
+.. figure::  ../_static/show_all.png
+   :align:   center
+
+   Example of the global display obtained with :code:`Show All`
 
 
 Overall settings
