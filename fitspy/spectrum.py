@@ -123,7 +123,7 @@ class Spectrum:
                 model.param_hints = param_hints
                 self.models.append(model)
 
-        if dict_attrs['bkg_model']:
+        if 'bkg_model' in dict_attrs.keys() and dict_attrs['bkg_model']:
             model_name, param_hints = list(dict_attrs['bkg_model'].items())[0]
             model = BKG_MODELS[model_name]
             if isinstance(model, ExpressionModel):
