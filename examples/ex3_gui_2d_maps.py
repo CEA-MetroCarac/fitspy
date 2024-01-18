@@ -20,10 +20,8 @@ def gui_2d_maps(dirname_res=None):
     unstr_map = os.path.join(DATA, '2D_maps', 'unordered_map.txt')
     appli.add_items(fnames=[str_map, unstr_map])
 
+    # automatic evaluation of the 1rst spectrum ONLY
     appli.auto_eval()
-
-    # # canvas rescaling
-    # appli.rescale()
 
     # save and destroy for pytest
     if dirname_res is not None:
