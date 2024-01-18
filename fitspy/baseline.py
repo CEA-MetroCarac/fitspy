@@ -124,3 +124,15 @@ class BaseLine:
         if show_all:
             ax.plot(self.points[0], self.points[1], 'ko--', mfc='none')
             ax.plot(points[0], points[1], 'go', mfc='none')
+
+    @staticmethod
+    def create_baseline_from_histo(baseline_histo):
+        """ Return a Baseline object from an item of baseline_history
+            (DEPRECATED: to reload old baseline format. """
+        baseline = BaseLine()
+        baseline.mode = baseline_histo[0]
+        baseline.order_max = baseline_histo[1]
+        baseline.points = baseline_histo[2]
+        if len(baseline_histo) == 4:
+            baseline.sigma = baseline_histo[3]
+        return baseline

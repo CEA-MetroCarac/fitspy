@@ -147,11 +147,7 @@ class Spectrum:
 
         self.load_profile(self.fname)
         for baseline_histo in self.baseline_history:
-            self.baseline.mode = baseline_histo[0]
-            self.baseline.order_max = baseline_histo[1]
-            self.baseline.points = baseline_histo[2]
-            if len(baseline_histo) == 4:
-                self.baseline.sigma = baseline_histo[3]
+            self.baseline = BaseLine.create_baseline_from_histo(baseline_histo)
             self.subtract_baseline(add_to_history=False)
         self.baseline = BaseLine()
         self.normalize()
@@ -445,8 +441,8 @@ class Spectrum:
             if y.max() < 0.05 * y0.max():
                 is_ok = False
 
-    def plot(self, ax, show_peaks=True, show_negative_values=False,
-             show_background=True):
+    def plot(self, ax, show_peaks=True, show_negative_values=True,
+             show_baseline=True, show_background=True):
         """ Plot the spectrum with the fitted models and Return the profiles """
         lines = []
         x, y = self.x, self.y
@@ -460,6 +456,14 @@ class Spectrum:
 
         if show_negative_values:
             ax.plot(x[y < 0], y[y < 0], 'ro', ms=4, label="Negative values")
+
+        if show_baseline and len(self.baseline_history) > 0:
+            label = "Baseline"
+            for k, baseline_histo in enumerate(self.baseline_history):
+                baseline = BaseLine.create_baseline_from_histo(baseline_histo)
+                if len(self.baseline_history) > 1:
+                    label = f"Baseline_{k + 1}"
+                baseline.plot(ax, x=x, label=label, show_all=False)
 
         if show_background and self.bkg_model is not None:
             params = self.bkg_model.make_params()

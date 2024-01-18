@@ -324,10 +324,12 @@ class Callbacks:
         if fig_settings['plot_fit'].get() == 'On':
             show_peaks = self.attractors.get()
             show_neg_values = fig_settings['plot_negative_values'].get() == 'On'
+            show_baseline = fig_settings['plot_baseline'].get() == 'On'
             show_background = fig_settings['plot_background'].get() == 'On'
             self.lines = spectrum.plot(self.ax,
                                        show_peaks=show_peaks,
                                        show_negative_values=show_neg_values,
+                                       show_baseline=show_baseline,
                                        show_background=show_background)
             line_bkg_visible = show_background and spectrum.bkg_model
 
@@ -501,9 +503,6 @@ class Callbacks:
             fselector = self.fileselector
             fnames = fselector.filenames[0]
             fnames = [fnames[i] for i in fselector.lbox[0].curselection()]
-
-        attached = self.attached.get()
-        sigma = self.sigma.get()
 
         for fname in fnames:
             spectrum, _ = self.spectra.get_objects(fname)
