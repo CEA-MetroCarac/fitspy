@@ -55,6 +55,7 @@ def inline_auto_decomposition(verbosity=True, show_plots=False):
             # Fitted spectra
             ax1.set_title('Flattened + Attractors + Fitted')
             spectrum.plot(ax=ax1)
+            ax1.legend()
 
         plt.show()
 
