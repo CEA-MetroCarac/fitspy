@@ -27,7 +27,7 @@ except:
 from fitspy.utils import closest_index, save_to_json, load_from_json
 from fitspy import MODELS, BKG_MODELS, PARAMS, SETTINGS_FNAME
 
-from fitspy.app.utils import add, interactive_entry
+from fitspy.app.utils import add, interactive_entry as entry
 from fitspy.app.utils import ToggleFrame, ScrollbarFrame, FilesSelector
 from fitspy.app.toplevels import TabView
 from fitspy.app.toplevels import AttractorsSettings, FitSettings
@@ -230,21 +230,21 @@ class GUI(Callbacks):
         add(Entry(fr, textvariable=self.distance, width=4), 0, 2, W)
 
         add(Checkbutton(fr, variable=self.attached, text='Attached',
-                        command=self.plot), 1, 0)
+                        command=self.update_baseline), 1, 0)
         add(Label(fr, text="Sigma (smoothing) :"), 1, 1, E)
-        add(interactive_entry(fr, self.sigma, self.plot, width=4), 1, 2, W)
+        add(entry(fr, self.sigma, self.update_baseline, width=4), 1, 2, W)
 
         var_mode = self.baseline_mode
         var_order = self.baseline_order_max
         modes = ["Linear", "Polynomial"]
         texts = ["Linear", "Polynomial - Order :"]
         add(Radiobutton(fr, text=texts[0], variable=var_mode, value=modes[0],
-                        command=self.plot), 2, 0)
+                        command=self.update_baseline), 2, 0)
         add(Radiobutton(fr, text=texts[1], variable=var_mode, value=modes[1],
-                        command=self.plot), 2, 1)
+                        command=self.update_baseline), 2, 1)
         order_entry = Entry(fr, textvariable=var_order, width=2)
         add(order_entry, 2, 2, W)
-        order_entry.bind("<KeyRelease>", lambda event: self.plot())
+        order_entry.bind("<KeyRelease>", lambda event: self.update_baseline())
 
         add(Button(fr, text="Subtract",
                    command=self.subtract_baseline), 4, 0, padx=10)

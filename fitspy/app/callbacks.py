@@ -331,14 +331,10 @@ class Callbacks:
                                        show_background=show_background)
             line_bkg_visible = show_background and spectrum.bkg_model
 
-            # baseline parameters updating
-            spectrum.baseline.mode = self.baseline_mode.get()
-            spectrum.baseline.order_max = self.baseline_order_max.get()
-
             # baseline plotting
             x = spectrum.x
-            y = spectrum.y if self.attached.get() else None
-            spectrum.baseline.plot(self.ax, x=x, y=y, sigma=self.sigma.get())
+            y = spectrum.y if spectrum.baseline.attached else None
+            spectrum.baseline.plot(self.ax, x=x, y=y)
 
             self.ax.legend()
             self.tmp = None
@@ -472,6 +468,14 @@ class Callbacks:
         self.current_spectrum.baseline.points[1].pop(ind_min)
         self.plot()
 
+    def update_baseline(self):
+        """ Update baseline attributes """
+        self.current_spectrum.baseline.mode = self.baseline_mode.get()
+        self.current_spectrum.baseline.order_max = self.baseline_order_max.get()
+        self.current_spectrum.baseline.sigma = self.sigma.get()
+        self.current_spectrum.baseline.attached = self.attached.get()
+        self.plot()
+
     def load_baseline(self, fname=None):
         """ Load a baseline from a row-column .txt file """
         if fname is None:
@@ -504,7 +508,7 @@ class Callbacks:
         for fname in fnames:
             spectrum, _ = self.spectra.get_objects(fname)
             spectrum.baseline.points = baseline_points.copy()
-            spectrum.subtract_baseline(attached=attached, sigma=sigma)
+            spectrum.subtract_baseline()
             spectrum.baseline.points = [[], []]
         self.tabview.delete()
         self.ax.clear()

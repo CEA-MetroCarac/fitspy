@@ -410,13 +410,11 @@ class Spectrum:
         self.baseline.points[0] = list(self.x[peaks])
         self.baseline.points[1] = list(self.y[peaks])
 
-    def subtract_baseline(self, attached=True, sigma=None,
-                          add_to_history=True):
+    def subtract_baseline(self, add_to_history=True):
         """ Subtract the baseline to the spectrum """
         # subtract baseline
-        self.y -= self.baseline.eval(x=self.x,
-                                     y=self.y if attached else None,
-                                     sigma=sigma)
+        y = self.y if self.baseline.attached else None
+        self.y -= self.baseline.eval(x=self.x, y=y)
 
         # add baseline points in history
         if add_to_history:

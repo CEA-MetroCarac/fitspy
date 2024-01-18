@@ -34,6 +34,7 @@ class BaseLine:
         self.order_max = 1
         self.distance = 100
         self.sigma = None
+        self.attached = True
 
     def add_point(self, x, y):
         """ Add point in the baseline """
@@ -45,14 +46,13 @@ class BaseLine:
         self.points[0] = [self.points[0][ind] for ind in inds]
         self.points[1] = [self.points[1][ind] for ind in inds]
 
-    def attach_points(self, x, y, sigma=None):
+    def attach_points(self, x, y):
         """Return baseline points attached to (x,y) 'spectrum' profile coords"""
         assert x.size == y.size, 'x and y should have the same size'
-        self.sigma = sigma
         points = [[], []]
         inds = [closest_index(x, x0) for x0 in self.points[0]]
-        if sigma is not None and sigma > 0:
-            y = gaussian_filter1d(y, sigma=sigma)
+        if self.sigma is not None and self.sigma > 0:
+            y = gaussian_filter1d(y, sigma=self.sigma)
         points[0] = [x[ind] for ind in inds]
         points[1] = [y[ind] for ind in inds]
         return points
@@ -68,12 +68,12 @@ class BaseLine:
         self.points[0] = [x[ind] for ind in inds]
         self.points[1] = [y[ind] for ind in inds]
 
-    def eval(self, x, y=None, sigma=None):
+    def eval(self, x, y=None):
         """ Evaluate the baseline on a 'x' support and a 'y' attached profile
-            possibily smoothed with a gaussian filter """
+            possibly smoothed with a gaussian filter """
 
         # use the original points or the attached points to an y-profile
-        points = self.points if y is None else self.attach_points(x, y, sigma)
+        points = self.points if y is None else self.attach_points(x, y)
 
         if len(points[1]) == 1:
             return points[1] * np.ones_like(x)
@@ -90,7 +90,7 @@ class BaseLine:
                 coefs = np.polyfit(points[0], points[1], order)
             return np.polyval(coefs, x)
 
-    def plot(self, ax, x=None, y=None, sigma=None):
+    def plot(self, ax, x=None, y=None, label=None, show_all=True):
         """
         Plot the baseline and its related points
 
@@ -104,14 +104,15 @@ class BaseLine:
         y: iterable of floats, optional
             Values for baseline points attachment (if provided), sharing the
             same x coordinates
-        sigma: float, optional
-            Smoothing gaussian filter coefficient applied to 'y'
+        show_all: bool, optional
+            Activation key to display the primary baseline components (before
+            attachment)
         """
         if len(self.points[0]) == 0:
             return
 
         # use the original points or the attached points to an y-profile
-        points = self.points if y is None else self.attach_points(x, y, sigma)
+        points = self.points if y is None else self.attach_points(x, y)
 
         if x is None:
             if len(points[0]) > 1:
@@ -119,6 +120,7 @@ class BaseLine:
             else:
                 x = points[0][0]
 
-        ax.plot(x, self.eval(x, y, sigma), 'g')
-        ax.plot(self.points[0], self.points[1], 'ko--', mfc='none')
-        ax.plot(points[0], points[1], 'go', mfc='none')
+        ax.plot(x, self.eval(x, y), 'g', label=label)
+        if show_all:
+            ax.plot(self.points[0], self.points[1], 'ko--', mfc='none')
+            ax.plot(points[0], points[1], 'go', mfc='none')
