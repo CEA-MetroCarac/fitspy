@@ -452,10 +452,12 @@ class Spectrum:
         """ Plot the spectrum with the fitted models and Return the profiles """
         lines = []
         x, y = self.x, self.y
-        ax.plot(x, y, 'ko-', lw=0.5, ms=1)
+        linewidth = 0.5 if self.result_fit is None else 1
 
-        peaks = self.peaks
-        if show_peaks and peaks is not None:
+        ax.plot(x, y, 'ko-', lw=linewidth, ms=1)
+
+        if show_peaks and self.peaks is not None:
+            peaks = self.peaks
             ax.plot(x[peaks], y[peaks], 'go', ms=4, label="Attractors")
 
         if show_negative_values:
@@ -464,11 +466,9 @@ class Spectrum:
         if show_background and self.bkg_model is not None:
             params = self.bkg_model.make_params()
             y_bkg = self.bkg_model.eval(params, x=x)
-            line, = ax.plot(x, y_bkg, 'k--', lw=2, label="Background")
+            line, = ax.plot(x, y_bkg, 'k--', lw=linewidth, label="Background")
             lines.append(line)
 
-        if self.result_fit is not None:
-            ax.plot(x, self.result_fit.best_fit, 'b', label="Fitted profile")
         if len(self.models) > 0:
             ax.set_prop_cycle(None)
             for model in self.models:
@@ -480,8 +480,11 @@ class Spectrum:
                 # rassign 'expr'
                 model.param_hints = param_hints_orig
 
-                line, = ax.plot(x, model.eval(params, x=x))
+                line, = ax.plot(x, model.eval(params, x=x), lw=linewidth)
                 lines.append(line)
+
+        if self.result_fit is not None:
+            ax.plot(x, self.result_fit.best_fit, 'b', label="Fitted profile")
 
         return lines
 
