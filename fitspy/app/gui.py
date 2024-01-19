@@ -63,12 +63,12 @@ class GUI(Callbacks):
         Reference position in case of 'Attractor' normalize_mode
     attractors: Tkinter.BooleanVar
         Activation keyword for spectrum peaks association when adding
-    attached: Tkinter.BooleanVar
+    baseline_attached: Tkinter.BooleanVar
         Activation keyword for baseline points attachment to the spectra
-    sigma: Tkinter.IntVar
+    baseline_sigma: Tkinter.IntVar
         Smoothing gaussian coefficient applied to the spectra when calculating
         the attached baseline points
-    distance: Tkinter.DoubleVar
+    baseline_distance: Tkinter.DoubleVar
         Minimum distance used by 'spectrum.auto_baseline'
     baseline_mode: Tkinter.StringVar
         Type of baseline ('Linear' or 'Polynomial')
@@ -105,9 +105,9 @@ class GUI(Callbacks):
         self.attractors = BooleanVar(value=True)
 
         # Baseline parameters
-        self.attached = BooleanVar(value=True)
-        self.sigma = IntVar(value=0)
-        self.distance = DoubleVar(value=500)
+        self.baseline_attached = BooleanVar(value=True)
+        self.baseline_sigma = IntVar(value=0)
+        self.baseline_distance = DoubleVar(value=500)
         self.baseline_mode = StringVar(value='Linear')
         self.baseline_order_max = IntVar(value=2)
 
@@ -227,24 +227,30 @@ class GUI(Callbacks):
         add(Button(fr, text="Import", command=self.load_baseline), 0, 0)
         add(Button(fr, text="Auto", command=self.auto_baseline), 0, 1, W)
         add(Label(fr, text="Min distance :"), 0, 1, E)
-        add(Entry(fr, textvariable=self.distance, width=4), 0, 2, W)
+        add(Entry(fr, textvariable=self.baseline_distance, width=4), 0, 2, W)
 
-        add(Checkbutton(fr, variable=self.attached, text='Attached',
-                        command=self.update_baseline), 1, 0)
+        add(Checkbutton(fr, variable=self.baseline_attached, text='Attached',
+                        command=lambda: self.update_baseline('attached')), 1, 0)
+
+        baseline_sigma = self.baseline_sigma
         add(Label(fr, text="Sigma (smoothing) :"), 1, 1, E)
-        add(entry(fr, self.sigma, self.update_baseline, width=4), 1, 2, W)
+        sigma_entry = entry(fr, baseline_sigma, self.update_baseline, width=4)
+        add(sigma_entry, 1, 2, W)
+        sigma_entry.bind("<KeyRelease>",
+                         lambda event: self.update_baseline('sigma'))
 
         var_mode = self.baseline_mode
         var_order = self.baseline_order_max
         modes = ["Linear", "Polynomial"]
         texts = ["Linear", "Polynomial - Order :"]
         add(Radiobutton(fr, text=texts[0], variable=var_mode, value=modes[0],
-                        command=self.update_baseline), 2, 0)
+                        command=lambda: self.update_baseline('mode')), 2, 0)
         add(Radiobutton(fr, text=texts[1], variable=var_mode, value=modes[1],
-                        command=self.update_baseline), 2, 1)
+                        command=lambda: self.update_baseline('mode')), 2, 1)
         order_entry = Entry(fr, textvariable=var_order, width=2)
         add(order_entry, 2, 2, W)
-        order_entry.bind("<KeyRelease>", lambda event: self.update_baseline())
+        order_entry.bind("<KeyRelease>",
+                         lambda event: self.update_baseline('order_max'))
 
         add(Button(fr, text="Subtract",
                    command=self.subtract_baseline), 4, 0, padx=10)

@@ -7,13 +7,12 @@ from tkinter import END
 from tkinter.messagebox import askyesno, showerror
 from tkinter import filedialog as fd
 from copy import deepcopy
-import dill
 import glob
 
-import lmfit.models
 from lmfit.models import ExpressionModel
 import numpy as np
 import matplotlib.pyplot as plt
+import dill
 
 from fitspy.spectra import Spectra, fit_mp
 from fitspy.spectra_map import SpectraMap
@@ -334,9 +333,10 @@ class Callbacks:
             line_bkg_visible = show_background and spectrum.bkg_model
 
             # baseline plotting
-            x = spectrum.x
-            y = spectrum.y if spectrum.baseline.attached else None
-            spectrum.baseline.plot(self.ax, x=x, y=y)
+            if not spectrum.baseline.is_subtracted:
+                x = spectrum.x
+                y = spectrum.y if spectrum.baseline.attached else None
+                spectrum.baseline.plot(self.ax, x=x, y=y)
 
             self.ax.legend()
             self.tmp = None
@@ -454,8 +454,13 @@ class Callbacks:
 
     def add_baseline_point(self, x, y):
         """ Add baseline point from the (x,y)-coordinate """
-        self.current_spectrum.baseline.add_point(x, y)
-        self.plot()
+        if self.current_spectrum.baseline.is_subtracted:
+            msg = "A baseline has already be subtracted to the profile.\n"
+            msg += "Reinitialize the profile to create a new baseline."
+            showerror(message=msg)
+        else:
+            self.current_spectrum.baseline.add_point(x, y)
+            self.plot()
 
     def del_baseline_point(self, x, _):
         """ Delete the closest baseline 'x'-point """
@@ -470,13 +475,18 @@ class Callbacks:
         self.current_spectrum.baseline.points[1].pop(ind_min)
         self.plot()
 
-    def update_baseline(self):
-        """ Update baseline attributes """
-        self.current_spectrum.baseline.mode = self.baseline_mode.get()
-        self.current_spectrum.baseline.order_max = self.baseline_order_max.get()
-        self.current_spectrum.baseline.sigma = self.sigma.get()
-        self.current_spectrum.baseline.attached = self.attached.get()
+    def update_baseline(self, key):
+        """ Update a baseline attribute"""
+        val = eval(f"self.baseline_{key}").get()
+        setattr(self.current_spectrum.baseline, key, val)
         self.plot()
+
+    def set_baseline(self):
+        """ Set baseline properties from the baseline to the appli """
+        self.baseline_mode.set(self.current_spectrum.baseline.mode)
+        self.baseline_order_max.set(self.current_spectrum.baseline.order_max)
+        self.baseline_sigma.set(self.current_spectrum.baseline.sigma)
+        self.baseline_attached.set(self.current_spectrum.baseline.attached)
 
     def load_baseline(self, fname=None):
         """ Load a baseline from a row-column .txt file """
@@ -489,7 +499,7 @@ class Callbacks:
 
     def auto_baseline(self):
         """ Define baseline from automatic points selection """
-        self.current_spectrum.baseline.distance = self.distance.get()
+        self.current_spectrum.baseline.distance = self.baseline_distance.get()
         self.current_spectrum.auto_baseline()
         self.plot()
 
@@ -508,7 +518,6 @@ class Callbacks:
             spectrum, _ = self.spectra.get_objects(fname)
             spectrum.baseline.points = baseline_points.copy()
             spectrum.subtract_baseline()
-            spectrum.baseline.points = [[], []]
         self.tabview.delete()
         self.ax.clear()
         self.plot()
@@ -590,6 +599,7 @@ class Callbacks:
         self.plot()
 
     def set_bkg_model(self):
+        """ Set bkg_model """
         if self.current_spectrum is not None:
             self.current_spectrum.set_bkg_model(self.bkg_name.get())
             self.current_spectrum.result_fit = None
@@ -741,9 +751,9 @@ class Callbacks:
             spectrum.x = spectrum.x0.copy()
             spectrum.y = spectrum.y0.copy()
             spectrum.result_fit = None
-            spectrum.baseline_history = []
             spectrum.remove_models()
             spectrum.baseline.points = [[], []]
+            spectrum.baseline.is_subtracted = False
 
         self.colorize_from_fit_status(fnames=fnames)
         self.tabview.delete()
@@ -910,6 +920,7 @@ class Callbacks:
 
         self.show_plot = False
         self.set_range()
+        self.set_baseline()
         self.update_attractors()
         self.tabview.spectrum = self.current_spectrum
         self.tabview.bkg_name = self.bkg_name

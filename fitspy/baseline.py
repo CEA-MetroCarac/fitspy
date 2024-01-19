@@ -24,8 +24,13 @@ class BaseLine:
         Minimum distance between baseline point to consider when doing automatic
         detection with 'Spectrum.auto_baseline'
     sigma: float
-        Smoothing coefficient related to a gaussian filtering when defining
-        baseline attached points to the spectrum
+        Smoothing coefficient (standard deviation) related to a gaussian
+        filtering when defining baseline attached points to the spectrum
+    attached: bool
+        Activation key for attach the baseline points to the spectrum
+    is_subtracted: bool
+        Key used to indicate whether the baseline has been subtracted from the
+        spectrum
     """
 
     def __init__(self):
@@ -33,8 +38,9 @@ class BaseLine:
         self.mode = "Linear"
         self.order_max = 1
         self.distance = 100
-        self.sigma = None
+        self.sigma = 0
         self.attached = True
+        self.is_subtracted = False
 
     def add_point(self, x, y):
         """ Add point in the baseline """
@@ -49,13 +55,13 @@ class BaseLine:
     def attach_points(self, x, y):
         """Return baseline points attached to (x,y) 'spectrum' profile coords"""
         assert x.size == y.size, 'x and y should have the same size'
-        points = [[], []]
+        attached_points = [[], []]
         inds = [closest_index(x, x0) for x0 in self.points[0]]
-        if self.sigma is not None and self.sigma > 0:
+        if self.sigma > 0:
             y = gaussian_filter1d(y, sigma=self.sigma)
-        points[0] = [x[ind] for ind in inds]
-        points[1] = [y[ind] for ind in inds]
-        return points
+        attached_points[0] = [x[ind] for ind in inds]
+        attached_points[1] = [y[ind] for ind in inds]
+        return attached_points
 
     def load_baseline(self, fname):
         """ Load baseline from 'fname' with 1 header line and 2 (x,y) columns"""
@@ -90,7 +96,7 @@ class BaseLine:
                 coefs = np.polyfit(points[0], points[1], order)
             return np.polyval(coefs, x)
 
-    def plot(self, ax, x=None, y=None, label=None, show_all=True):
+    def plot(self, ax, x=None, y=None, label="Baseline", show_all=True):
         """
         Plot the baseline and its related points
 
@@ -104,6 +110,8 @@ class BaseLine:
         y: iterable of floats, optional
             Values for baseline points attachment (if provided), sharing the
             same x coordinates
+        label: str, optional
+            Label displays in the figure
         show_all: bool, optional
             Activation key to display the primary baseline components (before
             attachment)
@@ -124,15 +132,3 @@ class BaseLine:
         if show_all:
             ax.plot(self.points[0], self.points[1], 'ko--', mfc='none')
             ax.plot(points[0], points[1], 'go', mfc='none')
-
-    @staticmethod
-    def create_baseline_from_histo(baseline_histo):
-        """ Return a Baseline object from an item of baseline_history
-            (DEPRECATED: to reload old baseline format. """
-        baseline = BaseLine()
-        baseline.mode = baseline_histo[0]
-        baseline.order_max = baseline_histo[1]
-        baseline.points = baseline_histo[2]
-        if len(baseline_histo) == 4:
-            baseline.sigma = baseline_histo[3]
-        return baseline

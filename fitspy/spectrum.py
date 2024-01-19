@@ -48,6 +48,12 @@ class Spectrum:
         List of labels associated to the models. Default is ['1', '2', '3', ...]
     models_index: itertools.count
         Counter used for models indexing when creating a lmfit.Model
+    baseline: Baseline object
+        Baseline associated to the spectrum (to subract)
+    baseline_history: list of list - DEPRECATED from v2024.2
+        Concatenation list of all baselines applied to the spectrum. Each item
+        of the list consist in the max order of the baseline polynom and the
+        (x, y) baseline points coordinates.
     bkg_model: lmfit.Model
         Background model to fit with the composite peaks models, among :
         [None, 'ConstantModel', 'LinearModel', 'ParabolicModel',
@@ -64,12 +70,6 @@ class Spectrum:
         Default is 200.
     result_fit: lmfit.ModelResult
         Object resulting from lmfit fitting
-    baseline: Baseline object
-        Baseline associated to the spectrum (to be removed)
-    baseline_history: list of list
-        Concatenation list of all baselines applied to the spectrum. Each item
-        of the list consist in the max order of the baseline polynome and the
-        (x, y) baseline points coordinates
     """
 
     def __init__(self):
@@ -86,24 +86,24 @@ class Spectrum:
         self.peaks = None
         self.peaks_params = {'distance': 20, 'prominence': None,
                              'width': None, 'height': None, 'threshold': None}
+        self.baseline = BaseLine()
+        self.bkg_model = None
         self.models = []
         self.models_labels = []
         self.models_index = itertools.count(start=1)
-        self.bkg_model = None
         self.fit_method = 'leastsq'
         self.fit_negative = False
         self.max_ite = 200
         self.result_fit = None
 
-        self.baseline = BaseLine()
-        self.baseline_history = []
-
     def set_attributes(self, dict_attrs, **fit_kwargs):
         """Set attributes from a dictionary (obtained from a .json reloading)"""
 
-        for key, val in dict_attrs.items():
-            if key not in ['models', 'bkg_model']:
-                setattr(self, key, val)
+        keys = dict_attrs.keys()
+
+        for key in vars(self).keys():
+            if key in keys:
+                setattr(self, key, dict_attrs[key])
 
         for key in ['fit_method', 'fit_negative', 'max_ite']:
             if key in fit_kwargs:
@@ -123,7 +123,7 @@ class Spectrum:
                 model.param_hints = param_hints
                 self.models.append(model)
 
-        if 'bkg_model' in dict_attrs.keys() and dict_attrs['bkg_model']:
+        if 'bkg_model' in keys and dict_attrs['bkg_model']:
             model_name, param_hints = list(dict_attrs['bkg_model'].items())[0]
             model = BKG_MODELS[model_name]
             if isinstance(model, ExpressionModel):
@@ -135,21 +135,45 @@ class Spectrum:
             self.bkg_model = model
             self.bkg_model.name2 = model_name
             self.bkg_model.param_hints = param_hints
+            print(self.bkg_model)
 
-        # to make 'old' models still working
-        if "models_labels" not in dict_attrs.keys() or \
-                len(dict_attrs["models_labels"]) == 0:
+        if 'baseline' in keys:
+            self.baseline = BaseLine()
+            for key, val in vars(self.baseline).items():
+                if key in dict_attrs['baseline'].keys():
+                    setattr(self.baseline, key, dict_attrs['baseline'][key])
+
+        # COMPATIBILITY with 'old' models
+        #################################
+
+        if "models_labels" not in keys or len(dict_attrs["models_labels"]) == 0:
             self.models_labels = list(map(str, range(1, len(self.models) + 1)))
+
+        if "baseline_history" in keys:
+            baseline_history = dict_attrs["baseline_history"]
+            if len(baseline_history) > 1:
+                msg = "baseline_history with more than 1 item are no more valid"
+                raise IOError(msg)
+            if len(baseline_history) == 1:
+                self.baseline.mode = baseline_history[0][0]
+                self.baseline.order_max = baseline_history[0][1]
+                self.baseline.points = baseline_history[0][2]
+                if len(baseline_history[0]) == 4:
+                    sigma = baseline_history[0][3]
+                    self.baseline.sigma = sigma if sigma is not None else 0
+                self.baseline.is_subtracted = True
+
+        if "attached" in keys:
+            self.baseline.attached = dict_attrs["attached"]
 
     def preprocess(self):
         """ Preprocess the spectrum: call successively load_profile(),
         subtract_baseline() and normalize() """
 
         self.load_profile(self.fname)
-        for baseline_histo in self.baseline_history:
-            self.baseline = BaseLine.create_baseline_from_histo(baseline_histo)
-            self.subtract_baseline(add_to_history=False)
-        self.baseline = BaseLine()
+        if self.baseline.is_subtracted:
+            self.baseline.is_subtracted = False
+            self.subtract_baseline()
         self.normalize()
 
     def load_profile(self, fname, xmin=None, xmax=None):
@@ -406,18 +430,13 @@ class Spectrum:
         self.baseline.points[0] = list(self.x[peaks])
         self.baseline.points[1] = list(self.y[peaks])
 
-    def subtract_baseline(self, add_to_history=True):
-        """ Subtract the baseline to the spectrum """
-        # subtract baseline
-        y = self.y if self.baseline.attached else None
-        self.y -= self.baseline.eval(x=self.x, y=y)
-
-        # add baseline points in history
-        if add_to_history:
-            self.baseline_history.append([self.baseline.mode,
-                                          self.baseline.order_max,
-                                          self.baseline.points,
-                                          self.baseline.sigma])
+    def subtract_baseline(self):
+        """ Subtract the baseline to the spectrum 
+            if this has not been done previously """
+        if not self.baseline.is_subtracted:
+            y = self.y if self.baseline.attached else None
+            self.y -= self.baseline.eval(x=self.x, y=y)
+            self.baseline.is_subtracted = True
 
     def auto_peaks(self, model_name):
         """ Create automatically 'model_name' peak-models in the limit of
@@ -457,13 +476,8 @@ class Spectrum:
         if show_negative_values:
             ax.plot(x[y < 0], y[y < 0], 'ro', ms=4, label="Negative values")
 
-        if show_baseline and len(self.baseline_history) > 0:
-            label = "Baseline"
-            for k, baseline_histo in enumerate(self.baseline_history):
-                baseline = BaseLine.create_baseline_from_histo(baseline_histo)
-                if len(self.baseline_history) > 1:
-                    label = f"Baseline_{k + 1}"
-                baseline.plot(ax, x=x, label=label, show_all=False)
+        if show_baseline and self.baseline.is_subtracted:
+            self.baseline.plot(ax, x=x, show_all=False)
 
         if show_background and self.bkg_model is not None:
             params = self.bkg_model.make_params()
@@ -506,11 +520,17 @@ class Spectrum:
                          'result_fit', 'baseline']
         dict_attrs = {}
         for key, val in vars(self).items():
-            if key in excluded_keys:  # pass (x,y) coords and objects
+            if key in excluded_keys:  # by-pass (x,y) coords and objects
                 continue
             if isinstance(val, dict) and dict_has_tk_variable(val):
                 val = convert_dict_from_tk_variables(val)
             dict_attrs[key] = val
+
+        dict_attrs['baseline'] = dict(vars(self.baseline).items())
+
+        bkg_model = self.bkg_model
+        if bkg_model is not None:
+            dict_attrs['bkg_model'] = {bkg_model.name2: bkg_model.param_hints}
 
         models = {}
         for i, model in enumerate(self.models):
@@ -518,11 +538,6 @@ class Spectrum:
             models[i] = {}
             models[i][model_name] = model.param_hints
         dict_attrs['models'] = models
-
-        dict_attrs['bkg_model'] = {}
-        if self.bkg_model is not None:
-            dict_attrs['bkg_model'].update({self.bkg_model.name2:
-                                                self.bkg_model.param_hints})
 
         if fname_json is not None:
             save_to_json(fname_json, dict_attrs)
