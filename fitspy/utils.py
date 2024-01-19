@@ -27,6 +27,7 @@ def closest_index(element_list, value):
 
 def hsorted(list_):
     """ Sort the given list in the way that humans expect """
+    list_ = [str(x) for x in list_]
     convert = lambda text: int(text) if text.isdigit() else text
     alphanum_key = lambda key: [convert(c) for c in re.split('([0-9]+)', key)]
     return sorted(list_, key=alphanum_key)
