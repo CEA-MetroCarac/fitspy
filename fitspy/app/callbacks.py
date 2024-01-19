@@ -358,15 +358,11 @@ class Callbacks:
                 y0 = model.eval(model.make_params(), x=x0)
                 xy = (x0, min(y0, self.ax.get_ylim()[1]))
 
-                names = model.param_names
-                text = ""
-                for name in names:
-                    param = spectrum.result_fit.params[name]
-                    text += f"{name[ind_name:]}: {param.value:.4g}"
-                    if param.stderr is not None:
-                        text += f" +/-{param.stderr:.2g}"
-                    if name != names[-1]:
-                        text += "\n"
+                text = []
+                for name, val in model.param_hints.items():
+                    text.append(f"{name}: {val['value']:.4g}")
+                text = '\n'.join(text)
+
                 bbox = dict(facecolor='w', edgecolor=color, boxstyle='round')
                 self.tmp = self.ax.annotate(text, xy=xy, xycoords='data',
                                             bbox=bbox, verticalalignment='top')
@@ -379,8 +375,7 @@ class Callbacks:
                             line.set_linewidth(3)
                             if self.tmp is not None:
                                 self.tmp.remove()
-                            if spectrum.result_fit is not None:
-                                annotate_params(i, color=line.get_c())
+                            annotate_params(i, color=line.get_c())
                         else:
                             line.set_linewidth(1)
                     self.canvas.draw_idle()
