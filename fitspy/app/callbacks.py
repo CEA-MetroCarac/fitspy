@@ -340,17 +340,16 @@ class Callbacks:
 
             self.ax.legend()
             self.tmp = None
+            linewidth = 0.5 if spectrum.result_fit is None else 1
 
             def annotate_params(i, color='k'):
                 """ Annotate figure with fit parameters """
-                ind_name = 4
                 if not line_bkg_visible:
                     model = spectrum.models[i]
                     x0 = model.param_hints['x0']['value']
                 elif i == 0:
                     model = spectrum.bkg_model
                     x0 = 0.5 * (x[0] + x[-1])
-                    ind_name = 0
                 else:
                     model = spectrum.models[i - 1]
                     x0 = model.param_hints['x0']['value']
@@ -377,7 +376,7 @@ class Callbacks:
                                 self.tmp.remove()
                             annotate_params(i, color=line.get_c())
                         else:
-                            line.set_linewidth(1)
+                            line.set_linewidth(linewidth)
                     self.canvas.draw_idle()
 
         if fig_settings['plot_residual'].get() == 'On':
@@ -618,10 +617,11 @@ class Callbacks:
             result_fit = spectrum.result_fit
             if result_fit is None:
                 color = 'white'
-            elif result_fit.success:
-                color = 'Lime'
             else:
-                color = 'Orange'
+                if hasattr(result_fit, 'success'):
+                    color = 'Lime' if result_fit.success else 'Orange'
+                else:
+                    color = 'Lime' if result_fit else 'Orange'
             self.fileselector.lbox[0].itemconfig(ind_fselector, {'bg': color})
 
     def fit(self, fnames=None):

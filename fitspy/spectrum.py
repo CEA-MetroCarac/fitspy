@@ -143,6 +143,9 @@ class Spectrum:
                 if key in dict_attrs['baseline'].keys():
                     setattr(self.baseline, key, dict_attrs['baseline'][key])
 
+        if 'result_fit_success' in keys:
+            self.result_fit = dict_attrs['result_fit_success']
+
         # COMPATIBILITY with 'old' models
         #################################
 
@@ -485,30 +488,40 @@ class Spectrum:
             line, = ax.plot(x, y_bkg, 'k--', lw=linewidth, label="Background")
             lines.append(line)
 
-        if len(self.models) > 0:
-            ax.set_prop_cycle(None)
-            for model in self.models:
-                # remove temporarily 'expr' that can be related to another model
-                param_hints_orig = deepcopy(model.param_hints)
-                for key, _ in model.param_hints.items():
-                    model.param_hints[key]['expr'] = ''
-                params = model.make_params()
-                # rassign 'expr'
-                model.param_hints = param_hints_orig
+        ax.set_prop_cycle(None)
+        y_fit = np.zeros_like(x)
+        for model in self.models:
+            # remove temporarily 'expr' that can be related to another model
+            param_hints_orig = deepcopy(model.param_hints)
+            for key, _ in model.param_hints.items():
+                model.param_hints[key]['expr'] = ''
+            params = model.make_params()
+            # rassign 'expr'
+            model.param_hints = param_hints_orig
 
-                line, = ax.plot(x, model.eval(params, x=x), lw=linewidth)
-                lines.append(line)
+            y = model.eval(params, x=x)
+            y_fit += y
+
+            line, = ax.plot(x, y, lw=linewidth)
+            lines.append(line)
 
         if self.result_fit is not None:
-            ax.plot(x, self.result_fit.best_fit, 'b', label="Fitted profile")
+            ax.plot(x, y_fit, 'b', label="Fitted profile")
 
         return lines
 
     def plot_residual(self, ax, factor=1):
         """ Plot the residual x factor obtained after fitting """
         if self.result_fit is not None:
-            ax.plot(self.x, factor * self.result_fit.residual, 'r',
-                    label=f"residual (x{factor})")
+            x, y = self.x, self.y
+            if hasattr(self.result_fit, 'residual'):
+                residual = self.result_fit.residual
+            else:
+                y_fit = np.zeros_like(x)
+                for model in self.models:
+                    y_fit += model.eval(model.make_params(), x=x)
+                residual = y - y_fit
+            ax.plot(x, factor * residual, 'r', label=f"residual (x{factor})")
             ax.legend()
 
     def save(self, fname_json=None):
@@ -538,6 +551,9 @@ class Spectrum:
             models[i] = {}
             models[i][model_name] = model.param_hints
         dict_attrs['models'] = models
+
+        if self.result_fit is not None:
+            dict_attrs['result_fit_success'] = self.result_fit.success
 
         if fname_json is not None:
             save_to_json(fname_json, dict_attrs)

@@ -254,8 +254,9 @@ class TabView:
         """ Update the statistics """
         self.text.delete(1.0, END)
         if self.spectrum.result_fit is not None:
-            self.text.insert(END, fit_report(self.spectrum.result_fit))
-            self.text.pack()
+            if hasattr(self.spectrum.result_fit, 'success'):
+                self.text.insert(END, fit_report(self.spectrum.result_fit))
+                self.text.pack()
 
     def delete(self):
         """ Delete all the values contained in frames """
@@ -406,7 +407,7 @@ if __name__ == '__main__':
     from fitspy.spectra import Spectrum
 
     my_spectrum = Spectrum()
-    my_spectrum.models_labels = [i for i in range(5)]
+    my_spectrum.models_labels = list(range(5))
     my_spectrum.models = [Spectrum.create_model(i, 'Lorentzian', x0=100 * i,
                                                 ampli=10 * i) for i in range(5)]
 
