@@ -20,8 +20,10 @@ def gui_2d_maps(dirname_res=None):
     unstr_map = os.path.join(DATA, '2D_maps', 'unordered_map.txt')
     appli.add_items(fnames=[str_map, unstr_map])
 
-    # automatic evaluation of the 1rst spectrum ONLY
+    # automatic evaluation: in the absence of specified fnames passed as
+    # arguments to auto_val(), ONLY the first spectrum is processed
     appli.auto_eval()
+    # appli.auto_eval_all() # 4220 spectra to handle (could be long)
 
     # save and destroy for pytest
     if dirname_res is not None:
