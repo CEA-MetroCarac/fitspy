@@ -745,6 +745,7 @@ class Callbacks:
             spectrum.range_max = None
             spectrum.x = spectrum.x0.copy()
             spectrum.y = spectrum.y0.copy()
+            spectrum.norm_mode = None
             spectrum.result_fit = None
             spectrum.remove_models()
             spectrum.baseline.points = [[], []]
