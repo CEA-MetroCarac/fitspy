@@ -32,7 +32,7 @@ The peak models considered in Fitspy are :
 A `constant`, `linear`, `parabolic` or `exponential` background model can
 also be added in the fitting.
 
-In both cases, user-defined models can be added.
+In both cases, `user-defined models` can be added.
 
 All actions allowed with the GUI can be executed in script mode (see
 examples [here](https://github.com/CEA-MetroCarac/fitspy/tree/main/examples)).
@@ -63,7 +63,7 @@ Launch the application:
 fitspy
 ```
 
-Then, from the top to the bottom of the right GUI panel:
+Then, from the top to the bottom of the right panel:
 
 - `Select` file(s)
 - <span style="color: rgba(0, 0, 0, 0.3);">*(Optional)* Define the **X-range**</span>
