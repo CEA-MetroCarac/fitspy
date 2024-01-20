@@ -109,19 +109,20 @@ class Spectrum:
             if key in fit_kwargs:
                 setattr(self, key, fit_kwargs[key])
 
-        self.models = []
-        for _, dict_model in dict_attrs['models'].items():
-            for model_name, param_hints in dict_model.items():
-                index = next(self.models_index)
-                model = MODELS[model_name]
-                prefix = f'm{index:02d}_'
-                if isinstance(model, Model):
-                    model.name = model_name
-                    model.prefix = prefix
-                else:
-                    model = Model(model, independent_vars=['x'], prefix=prefix)
-                model.param_hints = param_hints
-                self.models.append(model)
+        if 'models' in keys:
+            self.models = []
+            for _, dict_model in dict_attrs['models'].items():
+                for model_name, param_hints in dict_model.items():
+                    index = next(self.models_index)
+                    model = MODELS[model_name]
+                    pfx = f'm{index:02d}_'
+                    if isinstance(model, Model):
+                        model.name = model_name
+                        model.prefix = pfx
+                    else:
+                        model = Model(model, independent_vars=['x'], prefix=pfx)
+                    model.param_hints = param_hints
+                    self.models.append(model)
 
         if 'bkg_model' in keys and dict_attrs['bkg_model']:
             model_name, param_hints = list(dict_attrs['bkg_model'].items())[0]
@@ -135,7 +136,6 @@ class Spectrum:
             self.bkg_model = model
             self.bkg_model.name2 = model_name
             self.bkg_model.param_hints = param_hints
-            print(self.bkg_model)
 
         if 'baseline' in keys:
             self.baseline = BaseLine()
