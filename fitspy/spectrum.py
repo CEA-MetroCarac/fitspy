@@ -417,10 +417,15 @@ class Spectrum:
             nvarys += param['vary'] if 'vary' in param else 1
         max_nfev = max(2, self.max_ite) * nvarys
 
+        fit_kws = None
+        if 'fit_kws' in kwargs:
+            fit_kws = kwargs['fit_kws']  # example: fit_kws={'xtol': 1.e-2}
+            kwargs.pop('fit_kws')
+
         self.result_fit = comp_model.fit(y, params, x=x, weights=weights,
                                          method=self.fit_method,
                                          max_nfev=max_nfev,
-                                         # fit_kws={'xtol': 1.e-2},
+                                         fit_kws=fit_kws,
                                          **kwargs)
         self.reassign_params()
 
