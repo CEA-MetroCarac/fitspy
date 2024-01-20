@@ -144,24 +144,23 @@ class Spectra(list):
                     writer.writerow(vals)
 
         for fname in fnames:
-            for spectrum in self.all:
-                if spectrum.fname == fname:
-                    _, name, _ = fileparts(fname)
+            spectrum, _ = self.get_objects(fname)
+            if spectrum.result_fit is not None:
+                # TODO : use Path, move write method in spectrum
+                _, name, _ = fileparts(fname)
 
-                    # results saving
-                    fname_params = os.path.join(dirname_res, name + '.csv')
-                    fname_params = check_or_rename(fname_params)
-                    labels, models = spectrum.models_labels, spectrum.models
-                    if len(models) > 0:
-                        write_params(fname_params, labels, models)
+                # results saving
+                fname_params = os.path.join(dirname_res, name + '.csv')
+                fname_params = check_or_rename(fname_params)
+                labels, models = spectrum.models_labels, spectrum.models
+                if len(models) > 0:
+                    write_params(fname_params, labels, models)
 
-                    # statistics saving
-                    fname_stats = os.path.join(dirname_res, name + '_stats.txt')
-                    fname_stats = check_or_rename(fname_stats)
-                    if spectrum.result_fit is not None:
-                        with open(fname_stats, 'w') as fid:
-                            fid.write(fit_report(spectrum.result_fit))
-                    break
+                # statistics saving
+                fname_stats = os.path.join(dirname_res, name + '_stats.txt')
+                fname_stats = check_or_rename(fname_stats)
+                with open(fname_stats, 'w') as fid:
+                    fid.write(fit_report(spectrum.result_fit))
 
     def save_figures(self, dirname_fig, fnames=None, bounds=None):
         """
@@ -181,17 +180,15 @@ class Spectra(list):
             fnames = self.fnames
 
         for fname in fnames:
-            for spectrum in self.all:
-                if spectrum.fname == fname:
-                    _, ax = plt.subplots()
-                    if bounds is not None:
-                        ax.set_xlim(bounds[0])
-                        ax.set_ylim(bounds[1])
-                    spectrum.plot(ax, show_peaks=False)
-                    _, name, _ = fileparts(fname)
-                    fname_fig = os.path.join(dirname_fig, name + '.png')
-                    plt.savefig(fname_fig)
-                    break
+            spectrum, _ = self.get_objects(fname)
+            _, ax = plt.subplots()
+            spectrum.plot(ax, show_peaks=False)
+            if bounds is not None:
+                ax.set_xlim(bounds[0])
+                ax.set_ylim(bounds[1])
+            _, name, _ = fileparts(fname)
+            fname_fig = os.path.join(dirname_fig, name + '.png')
+            plt.savefig(fname_fig)
 
     @staticmethod
     def load_model(fname_json, ind=0):
@@ -231,14 +228,19 @@ class Spectra(list):
         fit_kwargs: dict
             Keywords arguments passed to spectrum.fit()
         """
+        if fnames is None:
+            fnames = self.all
+
+        if len(fnames) == 0:
+            return
+
         spectra = []
-        for spectrum in self.all:
-            if fnames is None or spectrum.fname in fnames:
-                fname = spectrum.fname
-                spectrum.set_attributes(deepcopy(model), **fit_kwargs)
-                spectrum.fname = fname  # reassign the correct fname
-                spectrum.preprocess()
-                spectra.append(spectrum)
+        for fname in fnames:
+            spectrum, _ = self.get_objects(fname)
+            spectrum.set_attributes(model, **fit_kwargs)
+            spectrum.fname = fname  # reassign the correct fname
+            spectrum.preprocess()
+            spectra.append(spectrum)
 
         if len(spectra) == 0:
             return
@@ -248,7 +250,7 @@ class Spectra(list):
                 spectrum.fit()
         else:
             spectrum = spectra[0]
-            models = deepcopy(spectrum.models)
+            models = spectrum.models
             fit_method = spectrum.fit_method
             fit_negative = spectrum.fit_negative
             max_ite = spectrum.max_ite
