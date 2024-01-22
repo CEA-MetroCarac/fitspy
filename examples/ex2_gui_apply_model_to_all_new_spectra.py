@@ -21,8 +21,8 @@ def gui_apply_model_to_all(dirname_res=None):
 
     # load model and apply it to ALL SPECTRA
     fname_json = os.path.join(dirname, 'model.json')
-    model = appli.load_model(fname_json=fname_json)
-    appli.apply_model(model)
+    appli.load_model(fname_json=fname_json)
+    appli.apply_model()
 
     # canvas rescaling
     appli.rescale()
