@@ -3,18 +3,16 @@ Class dedicated to handle 'Spectrum' objects contained in a list managed by
 "Spectra"
 """
 import os
-import csv
 from copy import deepcopy
 from concurrent.futures import ProcessPoolExecutor
 import matplotlib.pyplot as plt
-from lmfit import Model, fit_report, Parameters
+from lmfit import Model, Parameters
 from lmfit.model import ModelResult
 
-from fitspy.utils import fileparts, check_or_rename
-from fitspy.utils import save_to_json, load_from_json
+from fitspy.utils import fileparts, save_to_json, load_from_json
 from fitspy.models import gaussian
 from fitspy.spectrum import Spectrum
-from fitspy import MODELS, PARAMS
+from fitspy import MODELS
 
 
 def fit(params):
@@ -129,38 +127,11 @@ class Spectra(list):
         if fnames is None:
             fnames = self.fnames
 
-        def write_params(fname_params, labels, models):
-            with open(fname_params, 'w', newline='') as fid:
-                writer = csv.writer(fid, delimiter=';')
-                writer.writerow(['label', 'model'] + PARAMS)
-                for label, model in zip(labels, models):
-                    vals = [label, Spectrum.get_model_name(model)]
-                    for key in PARAMS:
-                        params = model.param_hints
-                        if key in params.keys():
-                            vals.append(params[key]['value'])
-                        else:
-                            vals.append('')
-                    writer.writerow(vals)
-
         for fname in fnames:
             spectrum, _ = self.get_objects(fname)
             if spectrum.result_fit is not None:
-                # TODO : use Path, move write method in spectrum
-                _, name, _ = fileparts(fname)
-
-                # results saving
-                fname_params = os.path.join(dirname_res, name + '.csv')
-                fname_params = check_or_rename(fname_params)
-                labels, models = spectrum.models_labels, spectrum.models
-                if len(models) > 0:
-                    write_params(fname_params, labels, models)
-
-                # statistics saving
-                fname_stats = os.path.join(dirname_res, name + '_stats.txt')
-                fname_stats = check_or_rename(fname_stats)
-                with open(fname_stats, 'w') as fid:
-                    fid.write(fit_report(spectrum.result_fit))
+                spectrum.save_params(dirname_res)
+                spectrum.save_stats(dirname_res)
 
     def save_figures(self, dirname_fig, fnames=None, bounds=None):
         """
