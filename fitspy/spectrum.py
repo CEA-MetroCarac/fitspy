@@ -489,14 +489,16 @@ class Spectrum:
         if show_baseline and self.baseline.is_subtracted:
             self.baseline.plot(ax, x=x, show_all=False)
 
+        y_bkg = np.zeros_like(x)
+        if self.bkg_model is not None:
+            y_bkg = self.bkg_model.eval(self.bkg_model.make_params(), x=x)
+
         if show_background and self.bkg_model is not None:
-            params = self.bkg_model.make_params()
-            y_bkg = self.bkg_model.eval(params, x=x)
             line, = ax.plot(x, y_bkg, 'k--', lw=linewidth, label="Background")
             lines.append(line)
 
         ax.set_prop_cycle(None)
-        y_fit = np.zeros_like(x)
+        y_models = np.zeros_like(x)
         for model in self.models:
             # remove temporarily 'expr' that can be related to another model
             param_hints_orig = deepcopy(model.param_hints)
@@ -507,13 +509,13 @@ class Spectrum:
             model.param_hints = param_hints_orig
 
             y = model.eval(params, x=x)
-            y_fit += y
+            y_models += y
 
             line, = ax.plot(x, y, lw=linewidth)
             lines.append(line)
 
         if self.result_fit is not None:
-            ax.plot(x, y_fit, 'b', label="Fitted profile")
+            ax.plot(x, y_bkg + y_models, 'b', label="Fitted profile")
 
         return lines
 
@@ -527,6 +529,9 @@ class Spectrum:
                 y_fit = np.zeros_like(x)
                 for model in self.models:
                     y_fit += model.eval(model.make_params(), x=x)
+                if self.bkg_model is not None:
+                    bkg_model = self.bkg_model
+                    y_fit += bkg_model.eval(bkg_model.make_params(), x=x)
                 residual = y - y_fit
             ax.plot(x, factor * residual, 'r', label=f"residual (x{factor})")
             ax.legend()
