@@ -277,6 +277,10 @@ class Callbacks:
             fselector.lbox[0].delete(0, END)
             fselector.filenames[0] = []
 
+            for spectra_map in self.spectra.spectra_maps:
+                spectra_map.frame.destroy()
+                spectra_map.slider.disconnect(spectra_map.slider)
+
             self.spectra = Spectra.load(fname_json)
 
             for spectra_map in self.spectra.spectra_maps:
