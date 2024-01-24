@@ -203,19 +203,23 @@ class Spectra(list):
         model = load_from_json(fname_json)[ind]
         return model
 
-    def apply_model(self, model, fnames=None, ncpus=1, **fit_kwargs):
+    def apply_model(self, model, fnames=None, ncpus=1,
+                    fit_only=False, **fit_kwargs):
         """
         Apply 'model' to all or part of the spectra
 
         Parameters
         ----------
         model: dict
-            Dictionary issued from a .json model reloading
+            Dictionary related to the Spectrum object attributes (obtained from
+            Spectrum.save())
         fnames: list of str, optional
             List of spectrum filename to handle.
             If None, apply the model to all the spectra
         ncpus: int, optional
             Number of CPU to work with in fitting
+        fit_only: bool, optional
+            Activation key to process only fittin
         fit_kwargs: dict
             Keywords arguments passed to spectrum.fit()
         """
@@ -230,11 +234,9 @@ class Spectra(list):
             spectrum, _ = self.get_objects(fname)
             spectrum.set_attributes(model, **fit_kwargs)
             spectrum.fname = fname  # reassign the correct fname
-            spectrum.preprocess()
+            if not fit_only:
+                spectrum.preprocess()
             spectra.append(spectrum)
-
-        if len(spectra) == 0:
-            return
 
         if ncpus == 1:
             for spectrum in spectra:

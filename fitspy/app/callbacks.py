@@ -6,15 +6,11 @@ import warnings
 from tkinter import END
 from tkinter.messagebox import askyesno, showerror
 from tkinter import filedialog as fd
-from copy import deepcopy
 import glob
-
-from lmfit.models import ExpressionModel
 import numpy as np
 import matplotlib.pyplot as plt
-import dill
 
-from fitspy.spectra import Spectra, fit_mp
+from fitspy.spectra import Spectra
 from fitspy.spectra_map import SpectraMap
 from fitspy.spectrum import Spectrum
 from fitspy.utils import closest_index, check_or_rename
@@ -639,43 +635,15 @@ class Callbacks:
             fnames = fselector.filenames[0]
             fnames = [fnames[i] for i in fselector.lbox[0].curselection()]
 
-        models = self.current_spectrum.models
-        models_labels = self.current_spectrum.models_labels
         params = self.fit_settings.params
-        fit_negative = params['fit_negative_values'].get() == 'On'
-        max_ite = params['maximum_iterations'].get()
-        fit_method = params['fit_method'].get()
+        kwargs = {'fit_negative': params['fit_negative_values'].get() == 'On',
+                  'max_ite': params['maximum_iterations'].get(),
+                  'fit_method': params['fit_method'].get()}
 
-        spectra = []
-        bkg_model_ref = self.tabview.spectrum.bkg_model
-        for fname in fnames:
-            spectrum, _ = self.spectra.get_objects(fname)
-            # to keep values defined by the user
-            if bkg_model_ref is not None:
-                if isinstance(bkg_model_ref, ExpressionModel):
-                    spectrum.bkg_model = dill.copy(bkg_model_ref)
-                else:
-                    spectrum.bkg_model = deepcopy(bkg_model_ref)
-            else:
-                spectrum.set_bkg_model(bkg_name)
-            spectra.append(spectrum)
-
-        ncpus = self.get_ncpus(nfiles=len(spectra))
-
-        if ncpus == 1:
-            for spectrum in spectra:
-                # ExpressionModel can not be serialized with Pickle,
-                # which deepcopy uses
-                if np.any([isinstance(x, ExpressionModel) for x in models]):
-                    spectrum.models = dill.copy(models)
-                else:
-                    spectrum.models = deepcopy(models)
-                spectrum.models_labels = models_labels.copy()
-                spectrum.fit(fit_method, fit_negative, max_ite)
-        else:
-            fit_mp(spectra, models,
-                   fit_method, fit_negative, max_ite, ncpus, models_labels)
-
+        model_dict = self.current_spectrum.save()
+        ncpus = self.get_ncpus(nfiles=len(fnames))
+        fit_only = True
+        self.spectra.apply_model(model_dict, fnames, ncpus, fit_only, **kwargs)
         self.colorize_from_fit_status(fnames=fnames)
         self.tabview.update()
         self.tabview.update_stats()
