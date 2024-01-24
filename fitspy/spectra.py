@@ -6,11 +6,9 @@ import os
 from copy import deepcopy
 from concurrent.futures import ProcessPoolExecutor
 import matplotlib.pyplot as plt
-from lmfit import Model, Parameters
-from lmfit.model import ModelResult
+from lmfit.models import ExpressionModel
 
 from fitspy.utils import fileparts, save_to_json, load_from_json
-from fitspy.models import gaussian
 from fitspy.spectrum import Spectrum
 from fitspy import MODELS
 
@@ -21,26 +19,51 @@ def fit(params):
     spectrum = Spectrum()
     spectrum.x = x
     spectrum.y = y
-    spectrum.models = deepcopy(models)
+
+    models_ = []
+    for model in models:
+        if isinstance(model, dict):
+            model_ = ExpressionModel(model['expr'], independent_vars=['x'])
+            model_.__name__ = model['name']
+            model_.param_hints = deepcopy(model['param_hints'])
+            model_.make_params()
+            param_names = model_.param_names.copy()
+            model_.prefix = model['prefix']  # -> make model.param_names = []
+            for name in param_names:  # reassign model.param_names with prefix
+                model_.param_names.append(model['prefix'] + name)
+            models_.append(model_)
+        else:
+            models_.append(model)
+
+    spectrum.models = models_
     spectrum.fit(fit_method=method, fit_negative=fit_negative, max_ite=max_ite)
-    return spectrum.result_fit.dumps()
+    return spectrum.result_fit.values, spectrum.result_fit.success
 
 
-def fit_mp(spectra, models,
-           fit_method=None, fit_negative=None, max_ite=None, ncpus=None,
-           models_labels=None):
+def fit_mp(spectra, models, bkg_model,
+           fit_method=None, fit_negative=None, max_ite=None, ncpus=None):
     """ Multiprocessing fit function applied to spectra """
 
     ncpus = ncpus or os.cpu_count()
     ncpus = min(ncpus, os.cpu_count())
 
-    if models_labels is None:
-        models_labels = [str(i) for i in range(len(models))]
+    def picklable_model(model):
+        if isinstance(model, ExpressionModel):
+            return {'expr': model.expr,
+                    'name': model.__name__,
+                    'prefix': model.prefix,
+                    'param_hints': model.param_hints}
+        else:
+            return model
 
     args = []
     for spectrum in spectra:
         x, y = spectrum.x, spectrum.y
-        args.append((x, y, models, fit_method, fit_negative, max_ite))
+        models_ = []
+        for model in models:
+            models_.append(picklable_model(model))
+        models_.append(picklable_model(bkg_model))
+        args.append((x, y, models_, fit_method, fit_negative, max_ite))
 
     with ProcessPoolExecutor(max_workers=ncpus) as executor:
         results = tuple(executor.map(fit, args))
@@ -50,16 +73,13 @@ def fit_mp(spectra, models,
     for val in MODELS.values():
         funcdefs[val.__name__] = val
 
-    for result_fit_json, spectrum in zip(results, spectra):
-        spectrum.models = deepcopy(models)
-        spectrum.models_labels = models_labels.copy()
-        spectrum.fit_method = fit_method
-        spectrum.fit_negative = fit_negative
-        spectrum.max_ite = max_ite
-        # dummy ModelResult that will be overwritten hereafter
-        modres = ModelResult(Model(gaussian), Parameters())
-        spectrum.result_fit = modres.loads(result_fit_json, funcdefs=funcdefs)
-        spectrum.reassign_params()
+    for (values, success), spectrum in zip(results, spectra):
+        spectrum.result_fit = success
+        for model in spectrum.models:
+            for key in model.param_names:
+                model.set_param_hint(key[4:], value=values[key])
+        for key in spectrum.bkg_model.param_names:
+            spectrum.bkg_model.set_param_hint(key, value=values[key])
 
 
 class Spectra(list):
@@ -222,10 +242,12 @@ class Spectra(list):
         else:
             spectrum = spectra[0]
             models = spectrum.models
+            bkg_model = spectrum.bkg_model
             fit_method = spectrum.fit_method
             fit_negative = spectrum.fit_negative
             max_ite = spectrum.max_ite
-            fit_mp(spectra, models, fit_method, fit_negative, max_ite, ncpus)
+            fit_mp(spectra, models, bkg_model,
+                   fit_method, fit_negative, max_ite, ncpus)
 
     def save(self, fname_json, fnames=None):
         """
