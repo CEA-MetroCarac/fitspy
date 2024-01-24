@@ -2,6 +2,7 @@
 Class dedicated to spectrum processing
 """
 import os
+import re
 import csv
 import itertools
 from copy import deepcopy
@@ -18,6 +19,23 @@ from fitspy.app.utils import convert_dict_from_tk_variables
 from fitspy.app.utils import dict_has_tk_variable
 from fitspy.baseline import BaseLine
 from fitspy import MODELS, PARAMS, BKG_MODELS
+
+
+def create_model(model, model_name, prefix=None):
+    """ Create a 'model' object """
+    if isinstance(model, ExpressionModel):
+        model = ExpressionModel(model.expr, independent_vars=['x'])
+        model.__name__ = model_name
+        model.name = model_name
+        model.make_params()
+        if prefix is not None:
+            param_names = model.param_names.copy()
+            model.prefix = prefix  # -> make model.param_names = []
+            for name in param_names:  # reassign model.param_names with prefix
+                model.param_names.append(prefix + name)
+    else:
+        model = Model(model, independent_vars=['x'], prefix=prefix)
+    return model
 
 
 class Spectrum:
@@ -115,27 +133,17 @@ class Spectrum:
             self.models = []
             for _, dict_model in dict_attrs['models'].items():
                 for model_name, param_hints in dict_model.items():
-                    index = next(self.models_index)
                     model = MODELS[model_name]
-                    pfx = f'm{index:02d}_'
-                    if isinstance(model, Model):
-                        model.name = model_name
-                        model.prefix = pfx
-                    else:
-                        model = Model(model, independent_vars=['x'], prefix=pfx)
+                    index = next(self.models_index)
+                    prefix = f'm{index:02d}_'
+                    model = create_model(model, model_name, prefix)
                     model.param_hints = deepcopy(param_hints)
                     self.models.append(model)
 
         if 'bkg_model' in keys and dict_attrs['bkg_model']:
             model_name, param_hints = list(dict_attrs['bkg_model'].items())[0]
-            model = BKG_MODELS[model_name]
-            if isinstance(model, ExpressionModel):
-                pass
-            elif isinstance(model, type):
-                model = model()
-            else:
-                model = Model(model, independent_vars=['x'])
-            self.bkg_model = model
+            bkg_model = BKG_MODELS[model_name]
+            self.bkg_model = create_model(bkg_model, model_name)
             self.bkg_model.name2 = model_name
             self.bkg_model.param_hints = deepcopy(param_hints)
 
@@ -264,30 +272,21 @@ class Spectrum:
         -------
         model: lmfit.Model
         """
+        # pylint:disable=unused-argument, unused-variable
         model = MODELS[model_name]
         prefix = f'm{index:02d}_'
-        if isinstance(model, Model):
-            model.name = model_name
-            model.prefix = prefix
-        else:
-            model = Model(model, independent_vars=['x'], prefix=prefix)
+        model = create_model(model, model_name, prefix)
 
         kwargs_ampli = {'min': 0, 'max': np.inf, 'vary': True, 'expr': None}
         kwargs_fwhm = {'min': 0, 'max': 200, 'vary': True, 'expr': None}
         kwargs_x0 = {'min': x0 - 20, 'max': x0 + 20, 'vary': True, 'expr': None}
         kwargs_alpha = {'min': 0, 'max': 1, 'vary': True, 'expr': None}
+        kwargs_fwhm_l = kwargs_fwhm_r = kwargs_fwhm
 
-        model.set_param_hint("ampli", value=ampli, **kwargs_ampli)
-        model.set_param_hint("x0", value=x0, **kwargs_x0)
-
-        if 'Asym' not in model_name:
-            model.set_param_hint("fwhm", value=fwhm, **kwargs_fwhm)
-        else:
-            model.set_param_hint("fwhm_l", value=fwhm_l, **kwargs_fwhm)
-            model.set_param_hint("fwhm_r", value=fwhm_r, **kwargs_fwhm)
-
-        if "PseudoVoigt" in model_name:
-            model.set_param_hint("alpha", value=alpha, **kwargs_alpha)
+        for name in model.param_names:
+            name = name[4:]  # remove prefix 'mXX_'
+            value, kwargs = eval(name), eval('kwargs_' + name)
+            model.set_param_hint(name, value=value, **kwargs)
 
         return model
 
@@ -296,8 +295,8 @@ class Spectrum:
         for model in self.models:
             for key in model.param_names:
                 param = self.result_fit.params[key]
-                model.set_param_hint(key[4:],  # remove prefix 'mXX_'
-                                     value=param.value,
+                name = key[4:]  # remove prefix 'mXX_'
+                model.set_param_hint(name, value=param.value,
                                      min=param.min, max=param.max)
         if self.bkg_model is not None:
             for key in self.bkg_model.param_names:
@@ -341,7 +340,10 @@ class Spectrum:
     def get_model_name(model):
         """ from model class attribute return the function name associated
             Ex: Model('LorentzianAsym'...) -> 'lorentzian_asym' """
-        name_fun = model.name.split(',')[0][6:]
+        if 'prefix' in model.name:
+            name_fun = model.name.split(',')[0][6:]
+        else:
+            name_fun = re.search(r'\((.*?)\)', model.name).group(1)
         names = list(MODELS.keys())
         names_fun = [x.__name__ for x in MODELS.values()]
         ind = names_fun.index(name_fun)
