@@ -7,6 +7,7 @@ from tkinter.ttk import Combobox
 import matplotlib.pyplot as plt
 from matplotlib.colors import rgb2hex
 from lmfit import fit_report
+from lmfit.model import ModelResult
 
 from fitspy.app.utils import add, add_entry
 from fitspy.app.callbacks import FIT_METHODS
@@ -127,7 +128,7 @@ class TabView:
                 value = max(min(param['max'], value), param['min'])
                 self.params[i][key][arg].set(f'{value:.4g}')  # bound the value
         param[arg] = value
-        self.spectrum.result_fit = None
+        self.spectrum.result_fit = lambda: None
         self.plot()  # pylint:disable=not-callable
 
     def model_has_changed(self, i):
@@ -140,14 +141,14 @@ class TabView:
             x0 = spectrum.models[i].param_hints['x0']['value']
             spectrum.models[i] = spectrum.create_model(i + 1, new_model_name,
                                                        x0=x0, ampli=ampli)
-            self.spectrum.result_fit = None
+            self.spectrum.result_fit = lambda: None
             self.plot()  # pylint:disable=not-callable
             self.update()
 
     def bkg_model_has_changed(self, _):
         """ Update the 'bkg_model' """
         self.spectrum.set_bkg_model(self.bkg_name.get())
-        self.spectrum.result_fit = None
+        self.spectrum.result_fit = lambda: None
         self.plot()  # pylint:disable=not-callable
         self.update()
 
@@ -166,7 +167,7 @@ class TabView:
         for i, val in enumerate(reversed(self.models_delete)):
             if val.get():
                 self.spectrum.del_model(nb_models - i - 1)
-                self.spectrum.result_fit = None
+                self.spectrum.result_fit = lambda: None
         self.plot()  # pylint:disable=not-callable
         self.update()
 
@@ -253,10 +254,9 @@ class TabView:
     def update_stats(self):
         """ Update the statistics """
         self.text.delete(1.0, END)
-        if self.spectrum.result_fit is not None:
-            if hasattr(self.spectrum.result_fit, 'success'):
-                self.text.insert(END, fit_report(self.spectrum.result_fit))
-                self.text.pack()
+        if isinstance(self.spectrum.result_fit, ModelResult):
+            self.text.insert(END, fit_report(self.spectrum.result_fit))
+            self.text.pack()
 
     def delete(self):
         """ Delete all the values contained in frames """

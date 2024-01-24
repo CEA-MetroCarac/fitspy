@@ -74,7 +74,7 @@ def fit_mp(spectra, models, bkg_model,
         funcdefs[val.__name__] = val
 
     for (values, success), spectrum in zip(results, spectra):
-        spectrum.result_fit = success
+        spectrum.result_fit.success = success
         for model in spectrum.models:
             for key in model.param_names:
                 model.set_param_hint(key[4:], value=values[key])
@@ -149,7 +149,7 @@ class Spectra(list):
 
         for fname in fnames:
             spectrum, _ = self.get_objects(fname)
-            if spectrum.result_fit is not None:
+            if hasattr(spectrum.result_fit, "success"):
                 spectrum.save_params(dirname_res)
                 spectrum.save_stats(dirname_res)
 

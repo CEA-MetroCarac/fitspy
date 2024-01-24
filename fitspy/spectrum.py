@@ -10,6 +10,7 @@ import numpy as np
 import pandas as pd
 from scipy.signal import find_peaks
 from lmfit import Model, report_fit, fit_report
+from lmfit.model import ModelResult
 from lmfit.models import ConstantModel, LinearModel, ParabolicModel, \
     ExponentialModel, ExpressionModel  # pylint:disable=unused-import
 
@@ -89,7 +90,8 @@ class Spectrum:
         An iteration consists in evaluating all the 'free' parameters once.
         Default is 200.
     result_fit: lmfit.ModelResult
-        Object resulting from lmfit fitting
+        Object resulting from lmfit fitting. Default value is an 'empty'
+        function that enables to address a 'result_fit.success' status
     """
 
     def __init__(self):
@@ -114,7 +116,7 @@ class Spectrum:
         self.fit_method = 'leastsq'
         self.fit_negative = False
         self.max_ite = 200
-        self.result_fit = None
+        self.result_fit = lambda: None
 
     def set_attributes(self, dict_attrs, **fit_kwargs):
         """Set attributes from a dictionary (obtained from a .json reloading)"""
@@ -154,7 +156,7 @@ class Spectrum:
                     setattr(self.baseline, key, dict_attrs['baseline'][key])
 
         if 'result_fit_success' in keys:
-            self.result_fit = dict_attrs['result_fit_success']
+            self.result_fit.success = dict_attrs['result_fit_success']
 
         # COMPATIBILITY with 'old' models
         #################################
@@ -354,7 +356,8 @@ class Spectrum:
         self.models = []
         self.models_labels = []
         self.models_index = itertools.count(start=1)
-        self.result_fit = None
+        self.bkg_model = None
+        self.result_fit = lambda: None
 
     def set_bkg_model(self, bkg_name):
         """ Set the 'bkg_model' attribute from 'bkg_name' """
@@ -477,7 +480,9 @@ class Spectrum:
         """ Plot the spectrum with the fitted models and Return the profiles """
         lines = []
         x, y = self.x, self.y
-        linewidth = 0.5 if self.result_fit is None else 1
+        linewidth = 0.5
+        if hasattr(self.result_fit, 'success') and self.result_fit.success:
+            linewidth = 1
 
         ax.plot(x, y, 'ko-', lw=linewidth, ms=1)
 
@@ -516,27 +521,26 @@ class Spectrum:
             line, = ax.plot(x, y, lw=linewidth)
             lines.append(line)
 
-        if self.result_fit is not None:
+        if linewidth == 1:  # self.result_fit.success
             ax.plot(x, y_bkg + y_models, 'b', label="Fitted profile")
 
         return lines
 
     def plot_residual(self, ax, factor=1):
         """ Plot the residual x factor obtained after fitting """
-        if self.result_fit is not None:
-            x, y = self.x, self.y
-            if hasattr(self.result_fit, 'residual'):
-                residual = self.result_fit.residual
-            else:
-                y_fit = np.zeros_like(x)
-                for model in self.models:
-                    y_fit += model.eval(model.make_params(), x=x)
-                if self.bkg_model is not None:
-                    bkg_model = self.bkg_model
-                    y_fit += bkg_model.eval(bkg_model.make_params(), x=x)
-                residual = y - y_fit
-            ax.plot(x, factor * residual, 'r', label=f"residual (x{factor})")
-            ax.legend()
+        x, y = self.x, self.y
+        if hasattr(self.result_fit, 'residual'):
+            residual = self.result_fit.residual
+        else:
+            y_fit = np.zeros_like(x)
+            for model in self.models:
+                y_fit += model.eval(model.make_params(), x=x)
+            if self.bkg_model is not None:
+                bkg_model = self.bkg_model
+                y_fit += bkg_model.eval(bkg_model.make_params(), x=x)
+            residual = y - y_fit
+        ax.plot(x, factor * residual, 'r', label=f"residual (x{factor})")
+        ax.legend()
 
     def save_params(self, dirname_params):
         """ Save fit parameters in a '.csv' file located in 'dirname_params' """
@@ -559,11 +563,12 @@ class Spectrum:
 
     def save_stats(self, dirname_stats):
         """ Save statistics in a '.txt' file located in 'dirname_stats' """
-        _, name, _ = fileparts(self.fname)
-        fname_stats = os.path.join(dirname_stats, name + '_stats.txt')
-        fname_stats = check_or_rename(fname_stats)
-        with open(fname_stats, 'w') as fid:
-            fid.write(fit_report(self.result_fit))
+        if isinstance(self.result_fit, ModelResult):
+            _, name, _ = fileparts(self.fname)
+            fname_stats = os.path.join(dirname_stats, name + '_stats.txt')
+            fname_stats = check_or_rename(fname_stats)
+            with open(fname_stats, 'w') as fid:
+                fid.write(fit_report(self.result_fit))
 
     def save(self, fname_json=None):
         """ Return a 'dict_attrs' dictionary from the spectrum attributes and
@@ -593,7 +598,7 @@ class Spectrum:
             models[i][model_name] = model.param_hints
         dict_attrs['models'] = models
 
-        if self.result_fit is not None:
+        if hasattr(self.result_fit, 'success'):
             dict_attrs['result_fit_success'] = self.result_fit.success
 
         if fname_json is not None:
