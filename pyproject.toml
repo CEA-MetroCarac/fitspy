@@ -7,7 +7,7 @@ build-backend = 'setuptools.build_meta'
 name = "fitspy"
 dynamic = ["version"]
 authors = [{ name = "Patrick Quéméré", email = "patrick.quemere@cea.fr" }]
-description = "Fitspy (A generic tool to fit spectra in python)"
+description = "Fitspy: a generic tool to fit spectra in python"
 readme = "README.md"
 requires-python = ">=3.7"
 keywords = ["Fitspy", "fit", "spectra", "spectrum", "map", "1D", "2D",
@@ -33,7 +33,6 @@ dependencies = [
     "scipy",
     "lmfit",
     "parse",
-    "dill",
     "pywin32; platform_system == 'Windows'",
 ]
 
