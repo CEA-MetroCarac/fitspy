@@ -1,7 +1,7 @@
 import pytest
 from pytest import approx
 
-from examples.ex3_gui_2d_maps import gui_2d_maps
+from examples.ex_gui_2d_maps import gui_2d_maps
 from utils import extract_results, display_is_ok
 
 

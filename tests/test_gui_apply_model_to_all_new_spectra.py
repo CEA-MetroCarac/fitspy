@@ -1,7 +1,7 @@
 import pytest
 from pytest import approx
 
-from examples.ex2_gui_apply_model_to_all_new_spectra import \
+from examples.ex_gui_apply_model_to_all_new_spectra import \
     gui_apply_model_to_all
 from utils import extract_results, display_is_ok
 

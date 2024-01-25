@@ -51,7 +51,7 @@ pip install pytest
 git clone https://github.com/CEA-MetroCarac/fitspy.git
 cd fitspy
 pytest
-python example/ex0_gui_auto_decomposition.py
+python example/ex_gui_auto_decomposition.py
 ...
 ```
 

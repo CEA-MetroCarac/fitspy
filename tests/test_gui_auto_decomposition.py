@@ -1,7 +1,7 @@
 import pytest
 from pytest import approx
 
-from examples.ex0_gui_auto_decomposition import gui_auto_decomposition
+from examples.ex_gui_auto_decomposition import gui_auto_decomposition
 from utils import extract_results, display_is_ok
 
 

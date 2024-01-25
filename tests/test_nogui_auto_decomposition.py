@@ -2,11 +2,11 @@ import numpy as np
 import pytest
 from pytest import approx
 
-from examples.ex4_inline_auto_decomposition import inline_auto_decomposition
+from examples.ex_nogui_auto_decomposition import auto_decomposition
 
 
-def test_inline_auto_decomposition():
-    spectra = inline_auto_decomposition(verbosity=False)
+def test_auto_decomposition():
+    spectra = auto_decomposition(verbosity=False)
 
     # refs = []
     # for i in range(3):

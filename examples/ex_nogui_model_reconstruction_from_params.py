@@ -1,6 +1,5 @@
 """
-Example of 'in line' spectrum model reconstruction from .json and .csv
-parameters
+Example of spectrum model reconstruction from .json and .csv parameters
 """
 from pathlib import Path
 import pandas as pd
@@ -28,7 +27,7 @@ def plot_spectrum_models(spectrum, title=None):
     plt.title(title)
 
 
-def inline_model_reconstruction_from_json():
+def model_reconstruction_from_json():
     """ Example of 'inline' spectrum model reconstruction from '.json' params"""
 
     fname_json = DATA / 'spectra_2' / 'model.json'
@@ -39,7 +38,7 @@ def inline_model_reconstruction_from_json():
     plot_spectrum_models(spectrum, title='from .json')
 
 
-def inline_model_reconstruction_from_csv():
+def model_reconstruction_from_csv():
     """ Example of 'inline' spectrum model reconstruction from '.csv' params"""
 
     fname_csv = DATA / 'spectra_2' / 'InP-1_42-P21.csv'
@@ -58,6 +57,6 @@ def inline_model_reconstruction_from_csv():
 
 
 if __name__ == "__main__":
-    inline_model_reconstruction_from_json()
-    inline_model_reconstruction_from_csv()
+    model_reconstruction_from_json()
+    model_reconstruction_from_csv()
     plt.show()
