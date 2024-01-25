@@ -29,9 +29,8 @@ from fitspy import MODELS, BKG_MODELS, PARAMS, SETTINGS_FNAME
 
 from fitspy.app.utils import add, interactive_entry as entry
 from fitspy.app.utils import ToggleFrame, ScrollbarFrame, FilesSelector
-from fitspy.app.toplevels import TabView
-from fitspy.app.toplevels import AttractorsSettings, FitSettings
-from fitspy.app.toplevels import FigureSettings
+from fitspy.app.toplevels import TabView, ProgressBar
+from fitspy.app.toplevels import AttractorsSettings, FitSettings, FigureSettings
 from fitspy.app.callbacks import Callbacks
 
 FONT = ('Helvetica', 8, 'bold')
@@ -55,6 +54,8 @@ class GUI(Callbacks):
         Tkinter.TopLevel derivative object for fitting parameters setting
     tabview: TabView obj
         Tkinter.TopLevel derivative object for fitting results models displaying
+    progressbar: ProgressBar obj
+        Tkinter.TopLevel derivative object with progression bar
     range_min, range_max: Tkinter.DoubleVars
         Range associated to the spectrum support
     normalize_mode: Tkinter.StringVar
@@ -98,6 +99,7 @@ class GUI(Callbacks):
         self.attractors_settings = AttractorsSettings(self.root)
         self.fit_settings = FitSettings(self.root)
         self.tabview = TabView(self.root)
+        self.progressbar = ProgressBar(self.root)
 
         # Spectrum parameters
         self.range_min = DoubleVar(value=-1)

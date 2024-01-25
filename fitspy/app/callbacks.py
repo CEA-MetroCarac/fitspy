@@ -6,6 +6,7 @@ import warnings
 from tkinter import END
 from tkinter.messagebox import askyesno, showerror
 from tkinter import filedialog as fd
+from threading import Thread
 import glob
 import numpy as np
 import matplotlib.pyplot as plt
@@ -205,9 +206,18 @@ class Callbacks:
                   'fit_method': params['fit_method'].get()}
 
         ncpus = self.get_ncpus(nfiles=len(fnames))
-        self.spectra.apply_model(self.model_dict, fnames, ncpus, **kwargs)
-        self.colorize_from_fit_status(fnames)
-        self.update()
+        fit_only = False
+
+        def proc():
+            self.progressbar.var.set(0)
+            self.progressbar.frame.deiconify()
+            args = (self.model_dict, fnames, ncpus, fit_only, self.progressbar)
+            self.spectra.apply_model(*args, **kwargs)
+            self.progressbar.frame.withdraw()
+            self.colorize_from_fit_status(fnames)
+            self.update()
+
+        Thread(target=proc).start()
 
     def messagebox_continue(self, fnames):
         """ Open a messagebox if no models are found and return True/False

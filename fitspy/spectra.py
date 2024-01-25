@@ -218,7 +218,7 @@ class Spectra(list):
         return model
 
     def apply_model(self, model, fnames=None, ncpus=1,
-                    fit_only=False, **fit_kwargs):
+                    fit_only=False, tk_progressbar=None, **fit_kwargs):
         """
         Apply 'model' to all or part of the spectra
 
@@ -226,21 +226,25 @@ class Spectra(list):
         ----------
         model: dict
             Dictionary related to the Spectrum object attributes (obtained from
-            Spectrum.save())
+            Spectrum.save() for instance)
         fnames: list of str, optional
-            List of spectrum filename to handle.
+            List of the spectrum.fname to handle.
             If None, apply the model to all the spectra
         ncpus: int, optional
             Number of CPU to work with in fitting
         fit_only: bool, optional
-            Activation key to process only fittin
+            Activation key to process only fitting
+        tk_progressbar: ProgressBar obj, optional
+            Progression bar using tkinter.ttk.Progressbar to follow the
+            'apply_model' progression
         fit_kwargs: dict
             Keywords arguments passed to spectrum.fit()
         """
         if fnames is None:
             fnames = self.all
 
-        if len(fnames) == 0:
+        ntot = len(fnames)
+        if ntot == 0:
             return
 
         spectra = []
@@ -254,7 +258,8 @@ class Spectra(list):
 
         # progressbar launching
         queue_incr = Queue()
-        Thread(target=pbar_update, args=(queue_incr, len(fnames))).start()
+        args = (queue_incr, ntot, tk_progressbar)
+        Thread(target=pbar_update, args=args).start()
 
         if ncpus == 1:
             for spectrum in spectra:
@@ -333,7 +338,7 @@ class Spectra(list):
         return spectra
 
 
-def pbar_update(queue_incr, ntot):
+def pbar_update(queue_incr, ntot, tk_progressbar=None):
     """ Progress bar """
     n = 0
     is_finished = False
@@ -349,4 +354,7 @@ def pbar_update(queue_incr, ntot):
             cursor = "*" * int(percent)
             exec_time = time.time() - t0
             sys.stdout.write(pbar.format(cursor, percent, n, ntot, exec_time))
+            if tk_progressbar is not None:
+                tk_progressbar.var.set(percent)
+                tk_progressbar.label['text'] = f"{n}/{ntot}"
     print()

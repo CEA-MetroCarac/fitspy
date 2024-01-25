@@ -3,7 +3,8 @@ Module dedicated to external widgets (Tkinter.Toplevel) creation
 """
 from tkinter import Toplevel, Label, Entry, Button, Checkbutton, Text, Scrollbar
 from tkinter import IntVar, StringVar, BooleanVar, W, E, END, RIGHT
-from tkinter.ttk import Combobox
+from tkinter.ttk import Combobox, Progressbar
+
 import matplotlib.pyplot as plt
 from matplotlib.colors import rgb2hex
 from lmfit import fit_report
@@ -275,6 +276,32 @@ class TabView:
             self.frame.deiconify()
             self.frame_stats.deiconify()
             self.hidden = False
+
+
+class ProgressBar:
+    """ Class to create a progress bar """
+
+    def __init__(self, root, width=300, height=50):
+        self.frame = Toplevel(root,
+                              highlightbackground="black",
+                              highlightthickness=1)
+        self.frame.attributes('-topmost', 'true')
+        self.frame.overrideredirect(True)
+        self.frame.withdraw()
+
+        screen_width = root.winfo_screenwidth()
+        screen_height = root.winfo_screenheight()
+        x_pos = (screen_width - width) // 2
+        y_pos = (screen_height - height) // 2
+        self.frame.geometry(f"{width}x{height}+{x_pos}+{y_pos}")
+
+        self.var = IntVar(value=0)
+        self.pbar = Progressbar(self.frame, variable=self.var, maximum=100,
+                                length=width, mode='determinate')
+        self.label = Label(self.frame, text='')
+
+        self.pbar.pack()
+        self.label.pack()
 
 
 class Settings:
