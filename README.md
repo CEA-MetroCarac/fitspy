@@ -83,4 +83,6 @@ See the [documentation](https://cea-metrocarac.github.io/fitspy/doc/index.html) 
 
 In case you use the results of this code in an article, please cite:
 
-- Quéméré, (2024). Fitspy: A python package for spectral decomposition. *Journal of Open Source Software. (submitted)*
+- Quéméré P., (2024). Fitspy: A python package for spectral decomposition. *Journal of Open Source Software. (submitted)*
+
+- Newville M., (2014). LMFIT: Non-Linear Least-Square Minimization and Curve-Fitting for Python. Zenodo. doi: 10.5281/zenodo.11813.
