@@ -185,20 +185,23 @@ class Callbacks:
         else:
             return int(ncpus)
 
-    def apply_model(self, fnames=None, selection=False):
+    def apply_model(self, model_dict=None, fnames=None, selection=False,
+                    fit_only=False):
         """ Apply model to the selected spectra """
-        fselector = self.fileselector
 
-        if self.model_dict is None:
+        model_dict = model_dict or self.model_dict
+
+        if model_dict is None:
             showerror(message='No model has been loaded')
             return
 
         if fnames is None:
-            fnames = fselector.filenames[0]
+            fnames = self.fileselector.filenames[0]
 
         if selection:
-            fnames = fselector.filenames[0]
-            fnames = [fnames[i] for i in fselector.lbox[0].curselection()]
+            fnames = self.fileselector.filenames[0]
+            fnames = [fnames[i]
+                      for i in self.fileselector.lbox[0].curselection()]
 
         params = self.fit_settings.params
         kwargs = {'fit_negative': params['fit_negative_values'].get() == 'On',
@@ -206,7 +209,6 @@ class Callbacks:
                   'fit_method': params['fit_method'].get()}
 
         ncpus = self.get_ncpus(nfiles=len(fnames))
-        fit_only = False
 
         def proc():
             self.progressbar.var.set(0)
@@ -634,34 +636,19 @@ class Callbacks:
                     color = 'Lime' if result_fit else 'Orange'
             self.fileselector.lbox[0].itemconfig(ind_fselector, {'bg': color})
 
-    def fit(self, fnames=None):
+    def fit(self, fnames=None, selection=True):
         """ Fit the peaks (spectrum models) """
         bkg_name = self.bkg_name.get()
         if len(self.current_spectrum.models) == 0 and bkg_name == 'None':
             return
 
-        if fnames is None:
-            fselector = self.fileselector
-            fnames = fselector.filenames[0]
-            fnames = [fnames[i] for i in fselector.lbox[0].curselection()]
-
-        params = self.fit_settings.params
-        kwargs = {'fit_negative': params['fit_negative_values'].get() == 'On',
-                  'max_ite': params['maximum_iterations'].get(),
-                  'fit_method': params['fit_method'].get()}
-
         model_dict = self.current_spectrum.save()
-        ncpus = self.get_ncpus(nfiles=len(fnames))
-        fit_only = True
-        self.spectra.apply_model(model_dict, fnames, ncpus, fit_only, **kwargs)
-        self.colorize_from_fit_status(fnames=fnames)
-        self.tabview.update()
-        self.tabview.update_stats()
-        self.plot()
+        self.apply_model(model_dict=model_dict, fnames=fnames, fit_only=True,
+                         selection=selection)
 
     def fit_all(self):
         """ Fit the peaks (spectrum models) for all the spectra """
-        self.fit(fnames=self.spectra.fnames)
+        self.fit(fnames=self.spectra.fnames, selection=False)
 
     def set_spectrum_range(self, delete_tabview=True):
         """ Set range to the current spectrum """
