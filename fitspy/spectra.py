@@ -3,8 +3,12 @@ Class dedicated to handle 'Spectrum' objects contained in a list managed by
 "Spectra"
 """
 import os
+import sys
+import time
 from copy import deepcopy
 from concurrent.futures import ProcessPoolExecutor
+from threading import Thread
+from multiprocessing import Queue
 import matplotlib.pyplot as plt
 from lmfit.models import ExpressionModel
 
@@ -37,11 +41,18 @@ def fit(params):
 
     spectrum.models = models_
     spectrum.fit(fit_method=method, fit_negative=fit_negative, max_ite=max_ite)
+    shared_queue.put(1)
     return spectrum.result_fit.values, spectrum.result_fit.success
 
 
+def initializer(queue_incr):
+    """ Initialize a global var shared btw the processes and the progressbar """
+    global shared_queue  # pylint:disable=global-variable-undefined
+    shared_queue = queue_incr
+
+
 def fit_mp(spectra, models, bkg_model,
-           fit_method=None, fit_negative=None, max_ite=None, ncpus=None):
+           fit_method, fit_negative, max_ite, ncpus, queue_incr):
     """ Multiprocessing fit function applied to spectra """
 
     ncpus = ncpus or os.cpu_count()
@@ -63,9 +74,12 @@ def fit_mp(spectra, models, bkg_model,
         for model in models:
             models_.append(picklable_model(model))
         models_.append(picklable_model(bkg_model))
-        args.append((x, y, models_, fit_method, fit_negative, max_ite))
+        args.append((x, y, models_,
+                     fit_method, fit_negative, max_ite))
 
-    with ProcessPoolExecutor(max_workers=ncpus) as executor:
+    with ProcessPoolExecutor(initializer=initializer,
+                             initargs=(queue_incr,),
+                             max_workers=ncpus) as executor:
         results = tuple(executor.map(fit, args))
 
     # dictionary of custom function names and definitions
@@ -238,9 +252,14 @@ class Spectra(list):
                 spectrum.preprocess()
             spectra.append(spectrum)
 
+        # progressbar launching
+        queue_incr = Queue()
+        Thread(target=pbar_update, args=(queue_incr, len(fnames))).start()
+
         if ncpus == 1:
             for spectrum in spectra:
                 spectrum.fit()
+                queue_incr.put(1)
         else:
             spectrum = spectra[0]
             models = spectrum.models
@@ -249,7 +268,9 @@ class Spectra(list):
             fit_negative = spectrum.fit_negative
             max_ite = spectrum.max_ite
             fit_mp(spectra, models, bkg_model,
-                   fit_method, fit_negative, max_ite, ncpus)
+                   fit_method, fit_negative, max_ite, ncpus, queue_incr)
+
+        queue_incr.put("finished")
 
     def save(self, fname_json, fnames=None):
         """
@@ -310,3 +331,22 @@ class Spectra(list):
                 spectra.append(spectrum)
 
         return spectra
+
+
+def pbar_update(queue_incr, ntot):
+    """ Progress bar """
+    n = 0
+    is_finished = False
+    pbar = "\r[{:100}] {:.0f}% {}/{} {:.2f}s"
+    t0 = time.time()
+    while not is_finished:
+        val = queue_incr.get()
+        if val == 'finished':
+            is_finished = True
+        else:
+            n += val
+            percent = 100 * n / ntot
+            cursor = "*" * int(percent)
+            exec_time = time.time() - t0
+            sys.stdout.write(pbar.format(cursor, percent, n, ntot, exec_time))
+    print()
