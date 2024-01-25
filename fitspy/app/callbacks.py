@@ -213,10 +213,11 @@ class Callbacks:
         def proc():
             self.progressbar.var.set(0)
             self.progressbar.frame.deiconify()
-            args = (self.model_dict, fnames, ncpus, fit_only, self.progressbar)
+            args = (model_dict, fnames, ncpus, fit_only, self.progressbar)
             self.spectra.apply_model(*args, **kwargs)
             self.progressbar.frame.withdraw()
             self.colorize_from_fit_status(fnames)
+            self.reassign_current_spectrum(self.current_spectrum.fname)
             self.update()
 
         Thread(target=proc).start()
@@ -642,6 +643,9 @@ class Callbacks:
         if len(self.current_spectrum.models) == 0 and bkg_name == 'None':
             return
 
+        if fnames is not None:
+            selection = False
+
         model_dict = self.current_spectrum.save()
         self.apply_model(model_dict=model_dict, fnames=fnames, fit_only=True,
                          selection=selection)
@@ -749,12 +753,14 @@ class Callbacks:
             self.ax.clear()
             self.plot()
 
-    def auto_eval(self, model_name=None):
+    def auto_eval(self, model_name=None, fnames=None):
         """ Fit spectrum after evaluating baseline and peaks automatically """
+        if fnames is None:
+            fnames = [self.current_spectrum.fname]
         self.auto_baseline()
         self.subtract_baseline(fnames=[self.current_spectrum.fname])
         self.auto_peaks(model_name=model_name)
-        self.fit(fnames=[self.current_spectrum.fname])
+        self.fit(fnames=fnames)
 
     def auto_eval_all(self, model_name=None):
         """ Apply automatic fitting on all spectra  """
