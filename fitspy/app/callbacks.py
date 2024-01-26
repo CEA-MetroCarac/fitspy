@@ -8,6 +8,7 @@ from tkinter.messagebox import askyesno, showerror
 from tkinter import filedialog as fd
 from threading import Thread
 import glob
+from pathlib import Path
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -15,6 +16,7 @@ from fitspy.spectra import Spectra
 from fitspy.spectra_map import SpectraMap
 from fitspy.spectrum import Spectrum
 from fitspy.utils import closest_index, check_or_rename
+from fitspy.utils import load_models_from_txt, load_models_from_py
 
 FIT_METHODS = {'Leastsq': 'leastsq', 'Least_squares': 'least_squares',
                'Nelder-Mead': 'nelder', 'SLSQP': 'slsqp'}
@@ -552,6 +554,16 @@ class Callbacks:
         x = self.root.winfo_pointerx()
         y = self.root.winfo_pointery()
         self.attractors_settings.update(x, y, bind_fun=self.update_peaks)
+
+    def load_user_model(self, model):
+        """ Load user-defined model in MODELS or BKG_MODEL from external file"""
+        fname = fd.askopenfilename(title='Select file',
+                                   filetypes=[("", "*.txt;*.py")])
+        if fname is not None:
+            if Path(fname).suffix == '.txt':
+                load_models_from_txt(fname, eval(f"{model}"))
+            else:
+                load_models_from_py(fname)
 
     def update_peaks(self):
         """ Update peaks """

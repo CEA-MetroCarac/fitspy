@@ -285,23 +285,35 @@ class GUI(Callbacks):
         fr = self.fr_peaks
         add(Button(fr, text='Auto', command=self.auto_peaks), 0, 0)
         add(Button(fr, text='Fit Settings',
-                   command=self.update_fit_settings), 0, 1, cspan=2)
+                   command=self.update_fit_settings), 0, 1)
+
+        def update_cbox(cbox, models):
+            cbox['value'] = list(models.keys())
 
         add(Label(fr, text='Peak model :'), 1, 0, E)
-        add(Combobox(fr, values=list(MODELS.keys()), textvariable=self.model,
-                     width=28), 1, 1, cspan=2)
+        cbox1 = Combobox(fr, values=list(MODELS.keys()),
+                         postcommand=lambda: update_cbox(cbox1, MODELS),
+                         textvariable=self.model, width=18)
+        add(cbox1, 1, 1)
+        add(Button(fr, text="Load",
+                   command=lambda: self.load_user_model('MODELS')), 1, 2)
+
         add(Label(fr, text='BKG model :'), 2, 0, E)
-        cbox = Combobox(fr, values=list(BKG_MODELS.keys()),
-                        textvariable=self.bkg_name, width=28)
-        add(cbox, 2, 1, cspan=2)
-        cbox.bind('<<ComboboxSelected>>', lambda _: self.set_bkg_model())
+        cbox2 = Combobox(fr, values=list(BKG_MODELS.keys()),
+                         postcommand=lambda: update_cbox(cbox2, BKG_MODELS),
+                         textvariable=self.bkg_name, width=18)
+        add(cbox2, 2, 1)
+        cbox2.bind('<<ComboboxSelected>>',
+                   lambda _: self.set_bkg_model())
+        add(Button(fr, text="Load",
+                   command=lambda: self.load_user_model('BKG_MODELS')), 2, 2)
 
         add(Button(fr, text=" Fit ", command=self.fit), 3, 0)
         add(Button(fr, text=" Fit All ", command=self.fit_all), 3, 1)
         add(Button(fr, text="Remove", command=self.remove), 3, 2)
 
         add(Button(fr, text="Parameters (Show/Hide)",
-                   command=self.show_hide_results), 4, 0, cspan=2)
+                   command=self.show_hide_results), 4, 0, cspan=2, sticky=E + W)
         add(Button(fr, text="Save (.csv)",
                    command=self.save_results), 4, 2)
 
