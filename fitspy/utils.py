@@ -4,7 +4,10 @@ utilities functions
 import os
 import re
 import json
+from pathlib import Path
+import runpy
 import numpy as np
+from lmfit.models import ExpressionModel
 
 
 def closest_item(element_list, value):
@@ -95,3 +98,38 @@ def save_to_json(filename, dictionary, indent=3):
     """
     with open(filename, 'w') as fid:
         json.dump(dictionary, fid, indent=indent)
+
+
+def load_models_from_txt(fname, MODELS):
+    """
+    Load models from '.txt' file
+
+    Parameters
+    ----------
+    fname: str or WindowsPath
+        Filename of the .txt file with the models expressions:
+        model_name1 = expression1
+        model_name2 = expression2
+    MODELS: dict
+        Dictionary corresponding to fitspy.MODELS or fitspy.BKG_MODELS
+    """
+    if Path(fname).exists():
+        with open(fname, 'r') as fid:
+            for line in fid.readlines():
+                line = line.replace('\n', '').replace(' ', '')
+                words = line.split('=')
+                if len(words) == 2:
+                    name, expr = words[0], words[1]
+                    try:
+                        model = ExpressionModel(expr, independent_vars=['x'])
+                        model.__name__ = name
+                        MODELS.update({name: model})
+                        print(f"{name} ADDED")
+                    except:
+                        print(f"{name} INCORRECT EXPRESSION")
+
+
+def load_models_from_py(fname):
+    """ Load models from '.py' file (See the documentation for more details) """
+    if Path(fname).exists():
+        runpy.run_path(fname)

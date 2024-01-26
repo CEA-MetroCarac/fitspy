@@ -1,13 +1,13 @@
 from pathlib import Path
 import shutil
-import runpy
 from lmfit.models import (ConstantModel, LinearModel, ParabolicModel,
-                          ExponentialModel, ExpressionModel)
+                          ExponentialModel)
 
-from fitspy.models import (gaussian, lorentzian,
-                           gaussian_asym, lorentzian_asym, pseudovoigt)
+from fitspy.utils import load_models_from_txt, load_models_from_py
+from fitspy.models import (gaussian, lorentzian, gaussian_asym, lorentzian_asym,
+                           pseudovoigt)
 
-VERSION = "2024.1"
+VERSION = "2024.2beta"
 
 FITSPY_DIR = Path.home() / "Fitspy"
 SETTINGS_FNAME = FITSPY_DIR / "settings.json"
@@ -35,24 +35,9 @@ if fname.exists():
     shutil.move(fname, SETTINGS_FNAME)
 
 # add users models from '.txt' file
-for name, models in zip(["models.txt", "bkg_models.txt"], [MODELS, BKG_MODELS]):
-    fname = FITSPY_DIR / name
-    if fname.exists():
-        with open(fname, 'r') as fid:
-            for line in fid.readlines():
-                words = line.split('=')
-                if len(words) == 2:
-                    name, expr = words[0], words[1]
-                    try:
-                        model = ExpressionModel(expr, independent_vars=['x'])
-                        model.__name__ = name
-                        models.update({name: model})
-                        print(f"{name} ADDED")
-                    except:
-                        print(f"{name} INCORRECT EXPRESSION")
-                      
+load_models_from_txt(FITSPY_DIR / "models.txt", MODELS)
+load_models_from_txt(FITSPY_DIR / "bkg_models.txt", BKG_MODELS)
+
 # add users models from '.py' file
-for name in ["models.py", "bkg_models.py"]:
-    fname = FITSPY_DIR / name
-    if fname.exists():
-        runpy.run_path(fname)
+load_models_from_py(FITSPY_DIR / "models.py")
+load_models_from_py(FITSPY_DIR / "bkg_models.py")
