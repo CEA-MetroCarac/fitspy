@@ -1,0 +1,1 @@
+Lorentzian_user = ampli * fwhm ** 2 / (4 * ((x - x0) ** 2 + fwhm ** 2 / 4))
