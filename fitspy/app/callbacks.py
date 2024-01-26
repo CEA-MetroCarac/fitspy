@@ -209,18 +209,21 @@ class Callbacks:
                   'fit_method': params['fit_method'].get()}
 
         ncpus = self.get_ncpus(nfiles=len(fnames))
+        self.progressbar.var.set(0)
+        self.progressbar.frame.deiconify()
 
         def proc():
-            self.progressbar.var.set(0)
-            self.progressbar.frame.deiconify()
             args = (model_dict, fnames, ncpus, fit_only, self.progressbar)
             self.spectra.apply_model(*args, **kwargs)
-            self.progressbar.frame.withdraw()
-            self.colorize_from_fit_status(fnames)
-            self.reassign_current_spectrum(self.current_spectrum.fname)
-            self.update()
 
-        Thread(target=proc).start()
+        thread = Thread(target=proc)
+        thread.start()
+        thread.join()
+
+        self.progressbar.frame.withdraw()
+        self.colorize_from_fit_status(fnames)
+        self.reassign_current_spectrum(self.current_spectrum.fname)
+        self.update()
 
     def messagebox_continue(self, fnames):
         """ Open a messagebox if no models are found and return True/False
