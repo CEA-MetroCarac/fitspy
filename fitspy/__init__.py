@@ -7,7 +7,7 @@ from fitspy.utils import load_models_from_txt, load_models_from_py
 from fitspy.models import (gaussian, lorentzian, gaussian_asym, lorentzian_asym,
                            pseudovoigt)
 
-VERSION = "2024.2beta"
+VERSION = "2024.2"
 
 FITSPY_DIR = Path.home() / "Fitspy"
 SETTINGS_FNAME = FITSPY_DIR / "settings.json"
