@@ -49,5 +49,5 @@ def ex_gui_users_models(ncpus=1, dirname_res=None):
 
 
 if __name__ == '__main__':
-    # ex_gui_users_models_from_txt()
-    ex_gui_users_models_from_py()
+    # ex_gui_users_models_from_txt(ncpus=1)
+    ex_gui_users_models_from_py(ncpus=1)
