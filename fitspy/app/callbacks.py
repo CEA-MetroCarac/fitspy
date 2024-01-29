@@ -6,7 +6,6 @@ import warnings
 from tkinter import END
 from tkinter.messagebox import askyesno, showerror
 from tkinter import filedialog as fd
-from threading import Thread
 import glob
 from pathlib import Path
 import numpy as np
@@ -205,23 +204,17 @@ class Callbacks:
             fnames = [fnames[i]
                       for i in self.fileselector.lbox[0].curselection()]
 
+        ncpus = self.get_ncpus(nfiles=len(fnames))
+        args = (model_dict, fnames, ncpus, fit_only, self.progressbar)
+
         params = self.fit_settings.params
         kwargs = {'fit_negative': params['fit_negative_values'].get() == 'On',
                   'max_ite': params['maximum_iterations'].get(),
                   'fit_method': params['fit_method'].get()}
 
-        ncpus = self.get_ncpus(nfiles=len(fnames))
         self.progressbar.var.set(0)
         self.progressbar.frame.deiconify()
-
-        def proc():
-            args = (model_dict, fnames, ncpus, fit_only, self.progressbar)
-            self.spectra.apply_model(*args, **kwargs)
-
-        thread = Thread(target=proc)
-        thread.start()
-        thread.join()
-
+        self.spectra.apply_model(*args, **kwargs)
         self.progressbar.frame.withdraw()
         self.colorize_from_fit_status(fnames)
         self.reassign_current_spectrum(self.current_spectrum.fname)
