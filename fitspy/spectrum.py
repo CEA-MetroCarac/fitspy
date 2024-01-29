@@ -22,7 +22,7 @@ from fitspy import PEAK_MODELS, PEAK_PARAMS, BKG_MODELS
 
 
 def create_model(model, model_name, prefix=None):
-    """ Create a 'model' (peak_model or 'bkg_model') object """
+    """ Return a 'model' (peak_model or 'bkg_model') object """
     if isinstance(model, ExpressionModel):
         model = ExpressionModel(model.expr, independent_vars=['x'])
         model.__name__ = model_name
@@ -60,17 +60,11 @@ class Spectrum:
         Arrays related to spectrum raw support and intensity (resp.)
     x, y: numpy.array((n))
         Arrays related to spectrum modified support and intensity (resp.)
-    peaks: list of ints
-        Indices of peaks
-    peaks_params: dict
-        Dictionary passed to scipy.signal.find_peaks for peaks determination.
-        Could be a dictionary with Tkinter.Variable as values.
-    models: list of lmfit.Model
-        List of the lmfit models
-    models_labels: list of str
-        List of labels associated to the models. Default is ['1', '2', '3', ...]
-    models_index: itertools.count
-        Counter used for models indexing when creating a lmfit.Model
+    attractors: list of ints
+        Indices of attractors
+    attractors_params: dict
+        Dictionary passed to scipy.signal.find_peaks for attractors
+        determination. Could be a dictionary with Tkinter.Variable as values.
     baseline: Baseline object
         Baseline associated to the spectrum (to subract)
     baseline_history: list of list - DEPRECATED from v2024.2
@@ -81,6 +75,12 @@ class Spectrum:
         Background model to fit with the composite peaks models, among :
         [None, 'ConstantModel', 'LinearModel', 'ParabolicModel',
         'ExponentialModel']
+    peak_models: list of lmfit.Model
+        List of peak models
+    peak_labels: list of str
+        List of labels associated to the peak models. Default is ['1', '2', ...]
+    peak_index: itertools.count
+        Counter used for peak models indexing when creating a lmfit.Model
     fit_method: str
         Method used for fitting. See lmfit.Model.fit().
         Default method is 'leastsq'.
@@ -110,14 +110,15 @@ class Spectrum:
         self.y0 = None
         self.x = None
         self.y = None
-        self.peaks = None
-        self.peaks_params = {'distance': 20, 'prominence': None,
-                             'width': None, 'height': None, 'threshold': None}
+        self.attractors = None
+        self.attractors_params = {'distance': 20, 'prominence': None,
+                                  'width': None, 'height': None,
+                                  'threshold': None}
         self.baseline = BaseLine()
         self.bkg_model = None
-        self.models = []
-        self.models_labels = []
-        self.models_index = itertools.count(start=1)
+        self.peak_models = []
+        self.peak_labels = []
+        self.peak_index = itertools.count(start=1)
         self.fit_method = 'leastsq'
         self.fit_negative = False
         self.max_ite = 200
@@ -128,6 +129,18 @@ class Spectrum:
 
         keys = model_dict.keys()
 
+        # compatibility with 'old' key names
+        if 'peaks' in keys:
+            model_dict['attractors'] = model_dict.pop('peaks')
+        if 'peaks_params' in keys:
+            model_dict['attractors_params'] = model_dict.pop('peaks_params')
+        if 'models' in keys:
+            model_dict['peak_models'] = model_dict.pop('models')
+        if 'models_labels' in keys:
+            model_dict['peak_labels'] = model_dict.pop('models_labels')
+        if 'models_index' in keys:
+            model_dict['peak_index'] = model_dict.pop('models_index')
+
         for key in vars(self).keys():
             if key in keys:
                 setattr(self, key, model_dict[key])
@@ -136,16 +149,16 @@ class Spectrum:
             if key in fit_kwargs:
                 setattr(self, key, fit_kwargs[key])
 
-        if 'models' in keys:
-            self.models = []
-            for _, dict_model in model_dict['models'].items():
+        if 'peak_models' in keys:
+            self.peak_models = []
+            for _, dict_model in model_dict['peak_models'].items():
                 for model_name, param_hints in dict_model.items():
                     model = PEAK_MODELS[model_name]
-                    index = next(self.models_index)
+                    index = next(self.peak_index)
                     prefix = f'm{index:02d}_'
                     model = create_model(model, model_name, prefix)
                     model.param_hints = deepcopy(param_hints)
-                    self.models.append(model)
+                    self.peak_models.append(model)
 
         if 'bkg_model' in keys and model_dict['bkg_model']:
             model_name, param_hints = list(model_dict['bkg_model'].items())[0]
@@ -166,8 +179,10 @@ class Spectrum:
         # COMPATIBILITY with 'old' models
         #################################
 
-        if "models_labels" not in keys or len(model_dict["models_labels"]) == 0:
-            self.models_labels = list(map(str, range(1, len(self.models) + 1)))
+        if "peak_labels" not in keys or \
+                len(model_dict["peak_labels"]) == 0:
+            npeaks = len(self.peak_models)
+            self.peak_labels = list(map(str, range(1, npeaks + 1)))
 
         if "baseline_history" in keys:
             baseline_history = model_dict["baseline_history"]
@@ -238,26 +253,26 @@ class Spectrum:
         if self.norm_mode == 'Maximum':
             self.y *= 100. / self.y.max()
         elif self.norm_mode == 'Attractor':
-            ind = closest_index(self.x[self.peaks], self.norm_position_ref)
-            self.y *= 100. / self.y[self.peaks][ind]
+            ind = closest_index(self.x[self.attractors], self.norm_position_ref)
+            self.y *= 100. / self.y[self.attractors][ind]
 
-    def peaks_calculation(self):
-        """ Calculate peaks positions ordered wrt decreasing intensities """
+    def attractors_calculation(self):
+        """ Calculate attractors positions ordered wrt decreasing intensities"""
 
-        if dict_has_tk_variable(self.peaks_params):
-            peaks_params = convert_dict_from_tk_variables(self.peaks_params)
+        if dict_has_tk_variable(self.attractors_params):
+            params = convert_dict_from_tk_variables(self.attractors_params)
         else:
-            peaks_params = self.peaks_params
+            params = self.attractors_params
 
-        peaks, _ = find_peaks(self.y, **peaks_params)
-        inds = np.argsort(self.y[peaks])
-        self.peaks = peaks[inds[::-1]].astype(int).tolist()
+        attractors, _ = find_peaks(self.y, **params)
+        inds = np.argsort(self.y[attractors])
+        self.attractors = attractors[inds[::-1]].astype(int).tolist()
 
     @staticmethod
-    def create_model(index, model_name, x0, ampli,
-                     fwhm=2, fwhm_l=2, fwhm_r=2, alpha=0.5):
+    def create_peak_model(index, model_name, x0, ampli,
+                          fwhm=2, fwhm_l=2, fwhm_r=2, alpha=0.5):
         """
-        Create a 'lmfit' model
+        Create a 'lmfit' model associated to one peak
 
         Parameters
         ----------
@@ -277,12 +292,12 @@ class Spectrum:
 
         Returns
         -------
-        model: lmfit.Model
+        peak_model: lmfit.Model
         """
         # pylint:disable=unused-argument, unused-variable
-        model = PEAK_MODELS[model_name]
+        peak_model = PEAK_MODELS[model_name]
         prefix = f'm{index:02d}_'
-        model = create_model(model, model_name, prefix)
+        peak_model = create_model(peak_model, model_name, prefix)
 
         kwargs_ampli = {'min': 0, 'max': np.inf, 'vary': True, 'expr': None}
         kwargs_fwhm = {'min': 0, 'max': 200, 'vary': True, 'expr': None}
@@ -290,29 +305,29 @@ class Spectrum:
         kwargs_alpha = {'min': 0, 'max': 1, 'vary': True, 'expr': None}
         kwargs_fwhm_l = kwargs_fwhm_r = kwargs_fwhm
 
-        for name in model.param_names:
+        for name in peak_model.param_names:
             name = name[4:]  # remove prefix 'mXX_'
             value, kwargs = eval(name), eval('kwargs_' + name)
-            model.set_param_hint(name, value=value, **kwargs)
+            peak_model.set_param_hint(name, value=value, **kwargs)
 
-        return model
+        return peak_model
 
     def reassign_params(self):
         """ Reassign fitted 'params' to the 'models' """
-        for model in self.models:
-            for key in model.param_names:
+        for peak_model in self.peak_models:
+            for key in peak_model.param_names:
                 param = self.result_fit.params[key]
                 name = key[4:]  # remove prefix 'mXX_'
-                model.set_param_hint(name, value=param.value,
-                                     min=param.min, max=param.max)
+                peak_model.set_param_hint(name, value=param.value,
+                                          min=param.min, max=param.max)
         if self.bkg_model is not None:
             for key in self.bkg_model.param_names:
                 param = self.result_fit.params[key]
                 self.bkg_model.set_param_hint(key, value=param.value)
 
-    def add_model(self, model_name, ind=None):
+    def add_peak_model(self, model_name, ind=None):
         """
-        Add model (=peak) passing model_name and indice position or parameters
+        Add a peak model passing model_name and indice position or parameters
 
         Parameters
         ----------
@@ -323,25 +338,25 @@ class Spectrum:
             'LorentzianAsym'
         """
         dx = self.x[1] - self.x[0]
-        index = next(self.models_index)
-        model = self.create_model(index, model_name,
-                                  x0=self.x[ind], ampli=self.y[ind],
-                                  fwhm=dx, fwhm_l=dx, fwhm_r=dx)
-        self.models.append(model)
-        self.models_labels.append(f"{index}")
+        index = next(self.peak_index)
+        peak_model = self.create_model(index, model_name,
+                                       x0=self.x[ind], ampli=self.y[ind],
+                                       fwhm=dx, fwhm_l=dx, fwhm_r=dx)
+        self.peak_models.append(peak_model)
+        self.peak_labels.append(f"{index}")
 
-    def del_model(self, i):
-        """ Delete the ith-model """
-        del self.models[i]
-        del self.models_labels[i]
+    def del_peak_model(self, i):
+        """ Delete the ith-peak model """
+        del self.peak_models[i]
+        del self.peak_labels[i]
 
     def reorder(self, key="x0", reverse=False):
         """ Return increasing or decreasing ordered models list from 'key' """
-        vals = [model.param_hints[key]["value"] for model in self.models]
+        vals = [model.param_hints[key]["value"] for model in self.peak_models]
         inds = np.argsort(vals)
         if reverse:
             inds = inds[::-1]
-        return [self.models[i] for i in inds]
+        return [self.peak_models[i] for i in inds]
 
     @staticmethod
     def get_model_name(model):
@@ -358,9 +373,9 @@ class Spectrum:
 
     def remove_models(self):
         """ Remove all the models """
-        self.models = []
-        self.models_labels = []
-        self.models_index = itertools.count(start=1)
+        self.peak_models = []
+        self.peak_labels = []
+        self.peak_index = itertools.count(start=1)
         self.bkg_model = None
         self.result_fit = lambda: None
 
@@ -406,15 +421,15 @@ class Spectrum:
             weights[y < 0] = 0
 
         # composite model creation
-        if len(self.models) > 0:
-            comp_model = self.models[0]
-        if len(self.models) > 1:
-            for model in self.models[1:]:
-                comp_model += model
+        if len(self.peak_models) > 0:
+            comp_model = self.peak_models[0]
+        if len(self.peak_models) > 1:
+            for peak_model in self.peak_models[1:]:
+                comp_model += peak_model
 
         # background model addition
         if self.bkg_model is not None:
-            if len(self.models) > 0:
+            if len(self.peak_models) > 0:
                 comp_model += self.bkg_model
             else:
                 comp_model = self.bkg_model
@@ -460,25 +475,26 @@ class Spectrum:
         """ Create automatically 'model_name' peak-models in the limit of
             5% of the maximum intensity peaks and nmax_nfev=400 """
         self.remove_models()
-        self.peaks_calculation()
+        self.attractors_calculation()
         y = y0 = self.y.copy()
         is_ok = True
         while is_ok:
-            index = next(self.models_index)
+            index = next(self.peak_index)
             ind = np.argmax(y)
             dx = self.x[1] - self.x[0]
-            model = self.create_model(index, model_name,
-                                      x0=self.x[ind], ampli=self.y[ind],
-                                      fwhm=dx, fwhm_l=dx, fwhm_r=dx)
-            self.models.append(model)
-            self.models_labels.append(f"{index}")
+            peak_model = self.create_peak_model(index, model_name,
+                                                x0=self.x[ind],
+                                                ampli=self.y[ind],
+                                                fwhm=dx, fwhm_l=dx, fwhm_r=dx)
+            self.peak_models.append(peak_model)
+            self.peak_labels.append(f"{index}")
             self.fit()
             is_ok = self.result_fit.success
             y = y0 - self.result_fit.best_fit
             if y.max() < 0.05 * y0.max():
                 is_ok = False
 
-    def plot(self, ax, show_peaks=True, show_negative_values=True,
+    def plot(self, ax, show_attractors=True, show_negative_values=True,
              show_baseline=True, show_background=True):
         """ Plot the spectrum with the fitted models and Return the profiles """
         lines = []
@@ -489,9 +505,9 @@ class Spectrum:
 
         ax.plot(x, y, 'ko-', lw=linewidth, ms=1)
 
-        if show_peaks and self.peaks is not None:
-            peaks = self.peaks
-            ax.plot(x[peaks], y[peaks], 'go', ms=4, label="Attractors")
+        if show_attractors and self.attractors is not None:
+            inds = self.attractors
+            ax.plot(x[inds], y[inds], 'go', ms=4, label="Attractors")
 
         if show_negative_values:
             ax.plot(x[y < 0], y[y < 0], 'ro', ms=4, label="Negative values")
@@ -508,24 +524,24 @@ class Spectrum:
             lines.append(line)
 
         ax.set_prop_cycle(None)
-        y_models = np.zeros_like(x)
-        for model in self.models:
+        y_peaks = np.zeros_like(x)
+        for peak_model in self.peak_models:
             # remove temporarily 'expr' that can be related to another model
-            param_hints_orig = deepcopy(model.param_hints)
-            for key, _ in model.param_hints.items():
-                model.param_hints[key]['expr'] = ''
-            params = model.make_params()
+            param_hints_orig = deepcopy(peak_model.param_hints)
+            for key, _ in peak_model.param_hints.items():
+                peak_model.param_hints[key]['expr'] = ''
+            params = peak_model.make_params()
             # rassign 'expr'
-            model.param_hints = param_hints_orig
+            peak_model.param_hints = param_hints_orig
 
-            y = model.eval(params, x=x)
-            y_models += y
+            y_peak = peak_model.eval(params, x=x)
+            y_peaks += y_peak
 
-            line, = ax.plot(x, y, lw=linewidth)
+            line, = ax.plot(x, y_peak, lw=linewidth)
             lines.append(line)
 
         if hasattr(self.result_fit, 'success') and self.result_fit.success:
-            ax.plot(x, y_bkg + y_models, 'b', label="Fitted profile")
+            ax.plot(x, y_bkg + y_peaks, 'b', label="Fitted profile")
 
         return lines
 
@@ -536,8 +552,8 @@ class Spectrum:
             residual = self.result_fit.residual
         else:
             y_fit = np.zeros_like(x)
-            for model in self.models:
-                y_fit += model.eval(model.make_params(), x=x)
+            for peak_model in self.peak_models:
+                y_fit += model.eval(peak_model.make_params(), x=x)
             if self.bkg_model is not None:
                 bkg_model = self.bkg_model
                 y_fit += bkg_model.eval(bkg_model.make_params(), x=x)
@@ -550,19 +566,23 @@ class Spectrum:
         _, name, _ = fileparts(self.fname)
         fname_params = os.path.join(dirname_params, name + '.csv')
         fname_params = check_or_rename(fname_params)
-        if len(self.models) > 0:
-            with open(fname_params, 'w', newline='') as fid:
-                writer = csv.writer(fid, delimiter=';')
-                writer.writerow(['label', 'model'] + PEAK_PARAMS)
-                for label, model in zip(self.models_labels, self.models):
-                    vals = [label, self.get_model_name(model)]
-                    for key in PEAK_PARAMS:
-                        params = model.param_hints
-                        if key in params.keys():
-                            vals.append(params[key]['value'])
-                        else:
-                            vals.append('')
-                    writer.writerow(vals)
+        if len(self.peak_models) == 0:
+            return
+
+        peak_models = self.peak_models
+        peak_labels = self.peak_labels
+        with open(fname_params, 'w', newline='') as fid:
+            writer = csv.writer(fid, delimiter=';')
+            writer.writerow(['label', 'model'] + PEAK_PARAMS)
+            for peak_label, peak_model in zip(peak_labels, peak_models):
+                vals = [peak_label, self.get_model_name(peak_model)]
+                for key in PEAK_PARAMS:
+                    params = peak_model.param_hints
+                    if key in params.keys():
+                        vals.append(params[key]['value'])
+                    else:
+                        vals.append('')
+                writer.writerow(vals)
 
     def save_stats(self, dirname_stats):
         """ Save statistics in a '.txt' file located in 'dirname_stats' """
@@ -578,7 +598,7 @@ class Spectrum:
             Save it if a 'fname_json' is given """
 
         excluded_keys = ['x0', 'y0', 'x', 'y',
-                         'models', 'models_index', 'bkg_model',
+                         'peak_models', 'peak_index', 'bkg_model',
                          'result_fit', 'baseline']
         model_dict = {}
         for key, val in vars(self).items():
@@ -594,12 +614,12 @@ class Spectrum:
         if bkg_model is not None:
             model_dict['bkg_model'] = {bkg_model.name2: bkg_model.param_hints}
 
-        models = {}
-        for i, model in enumerate(self.models):
-            model_name = self.get_model_name(model)
-            models[i] = {}
-            models[i][model_name] = model.param_hints
-        model_dict['models'] = models
+        peak_models = {}
+        for i, peak_model in enumerate(self.peak_models):
+            model_name = self.get_model_name(peak_model)
+            peak_models[i] = {}
+            peak_models[i][model_name] = peak_model.param_hints
+        model_dict['peak_models'] = peak_models
 
         if hasattr(self.result_fit, 'success'):
             model_dict['result_fit_success'] = self.result_fit.success

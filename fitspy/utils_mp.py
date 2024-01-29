@@ -13,7 +13,7 @@ def fit(params):
     """ Fitting function used in multiprocessing """
     x, y, models_, method, fit_negative, max_ite = params
 
-    models = []
+    models = []  # all peak_models and bkg_model have been put in 'models_'
     for model_ in models_:
         if isinstance(model_, bytes):
             models.append(dill.loads(model_))
@@ -23,7 +23,7 @@ def fit(params):
     spectrum = Spectrum()
     spectrum.x = x
     spectrum.y = y
-    spectrum.models = models
+    spectrum.peak_models = models
     spectrum.fit(fit_method=method, fit_negative=fit_negative, max_ite=max_ite)
     shared_queue.put(1)
 
@@ -44,20 +44,20 @@ def fit_mp(spectra, ncpus, queue_incr):
     ncpus = min(ncpus, os.cpu_count())
 
     spectrum = spectra[0]
-    models_ = []
-    for model in spectrum.models:
-        if model.name2 not in MODELS_NAMES:
-            models_.append(dill.dumps(model))
+    fit_method = spectrum.fit_method
+    fit_negative = spectrum.fit_negative
+    max_ite = spectrum.max_ite
+    models_ = []  # all peak_models and bkg_model are put in a single 'models_'
+    for peak_model in spectrum.peak_models:
+        if peak_model.name2 not in MODELS_NAMES:
+            models_.append(dill.dumps(peak_model))
         else:
-            models_.append(model)
+            models_.append(peak_model)
     if spectrum.bkg_model is not None:
         if spectrum.bkg_model.name2 not in MODELS_NAMES:
             models_.append(dill.dumps(spectrum.bkg_model))
         else:
             models_.append(spectrum.bkg_model)
-    fit_method = spectrum.fit_method
-    fit_negative = spectrum.fit_negative
-    max_ite = spectrum.max_ite
 
     args = []
     for spectrum in spectra:
@@ -77,9 +77,9 @@ def fit_mp(spectra, ncpus, queue_incr):
     for (values, success, fit_report), spectrum in zip(results, spectra):
         spectrum.result_fit.success = success
         spectrum.result_fit.fit_report = fit_report
-        for model in spectrum.models:
-            for key in model.param_names:
-                model.set_param_hint(key[4:], value=values[key])
+        for peak_model in spectrum.peak_models:
+            for key in peak_model.param_names:
+                peak_model.set_param_hint(key[4:], value=values[key])
         if spectrum.bkg_model is not None:
             for key in spectrum.bkg_model.param_names:
                 spectrum.bkg_model.set_param_hint(key, value=values[key])

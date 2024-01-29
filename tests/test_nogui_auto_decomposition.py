@@ -20,6 +20,6 @@ def test_auto_decomposition():
 
     assert len(spectra) > 0
     for spectrum, ref in zip(spectra, refs):
-        ampli = spectrum.models[0].param_hints['ampli']['value']
+        ampli = spectrum.peak_models[0].param_hints['ampli']['value']
         assert np.sum(spectrum.y) == approx(ref[0], rel=1e-2)
         assert ampli == approx(ref[1], rel=1e-2)

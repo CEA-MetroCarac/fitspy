@@ -142,7 +142,7 @@ class Callbacks:
         self.fr_baseline.disable()
 
     def save_results(self, dirname_res=None):
-        """ Save all spectra (peaks) results in .csv files """
+        """ Save all results (peaks parameters) in .csv files """
         if dirname_res is None:
             dirname_res = fd.askdirectory(title='Select directory')
         else:
@@ -227,7 +227,7 @@ class Callbacks:
         for fname in fnames:
             for spectrum in self.spectra:
                 if spectrum.fname == fname:
-                    if len(spectrum.models) == 0:
+                    if len(spectrum.peak_models) == 0:
                         no_models.append(os.path.basename(fname))
                     break
 
@@ -301,7 +301,7 @@ class Callbacks:
             self.update()
 
     def plot(self):
-        """ Plot baseline and spectrum models after 'ax' clearing """
+        """ Plot baseline and peak models after 'ax' clearing """
         if not self.show_plot or self.current_spectrum is None:
             return
 
@@ -332,12 +332,12 @@ class Callbacks:
         self.ax.set_ylabel(fig_settings['y_label'].get(), fontsize=18)
 
         if fig_settings['plot_fit'].get() == 'On':
-            show_peaks = self.attractors.get()
+            show_attractors = self.attractors.get()
             show_neg_values = fig_settings['plot_negative_values'].get() == 'On'
             show_baseline = fig_settings['plot_baseline'].get() == 'On'
             show_background = fig_settings['plot_background'].get() == 'On'
             self.lines = spectrum.plot(self.ax,
-                                       show_peaks=show_peaks,
+                                       show_attractors=show_attractors,
                                        show_negative_values=show_neg_values,
                                        show_baseline=show_baseline,
                                        show_background=show_background)
@@ -356,13 +356,13 @@ class Callbacks:
             def annotate_params(i, color='k'):
                 """ Annotate figure with fit parameters """
                 if not line_bkg_visible:
-                    model = spectrum.models[i]
+                    model = spectrum.peak_models[i]
                     x0 = model.param_hints['x0']['value']
                 elif i == 0:
                     model = spectrum.bkg_model
                     x0 = 0.5 * (x[0] + x[-1])
                 else:
-                    model = spectrum.models[i - 1]
+                    model = spectrum.peak_models[i - 1]
                     x0 = model.param_hints['x0']['value']
 
                 y0 = model.eval(model.make_params(), x=x0)
@@ -396,10 +396,10 @@ class Callbacks:
 
         if fig_settings['show_peaks_labels'].get() == 'On':
             dy = 0.02 * spectrum.y.max()
-            for i, label in enumerate(spectrum.models_labels):
+            for i, label in enumerate(spectrum.peak_labels):
                 if label == '':
                     continue
-                model = spectrum.models[i]
+                model = spectrum.peak_models[i]
                 x0 = model.param_hints['x0']['value']
                 y = spectrum.y[closest_index(spectrum.x, x0)]
                 xy = (x0, y + dy)
@@ -536,17 +536,17 @@ class Callbacks:
         self.current_spectrum.baseline.points = [[], []]
         self.plot()
 
-    def update_attractors(self):
-        """ Update attractors """
-        if self.attractors.get():
-            self.current_spectrum.peaks_calculation()
-        self.plot()
+    # def update_attractors(self):
+    #     """ Update attractors """
+    #     if self.attractors.get():
+    #         self.current_spectrum.attractors_calculation()
+    #     self.plot()
 
     def update_attractors_settings(self):
         """ Update attractors settings """
         x = self.root.winfo_pointerx()
         y = self.root.winfo_pointery()
-        self.attractors_settings.update(x, y, bind_fun=self.update_peaks)
+        self.attractors_settings.update(x, y, bind_fun=self.update_attractors)
 
     def load_user_model(self, model):
         """Load users model from file to be added to PEAK_MODELS or BKG_MODEL"""
@@ -558,20 +558,21 @@ class Callbacks:
             else:
                 load_models_from_py(fname)
 
-    def update_peaks(self):
-        """ Update peaks """
-        self.current_spectrum.peaks_params = self.attractors_settings.params
-        self.current_spectrum.peaks_calculation()
+    def update_attractors(self):
+        """ Update attractors """
+        self.current_spectrum.attractors_params = \
+            self.attractors_settings.params
+        self.current_spectrum.attractors_calculation()
         self.plot()
 
     def add_peaks_point(self, x, y):
-        """ Add peak (spectrum model) from the (x,y)-coordinates """
+        """ Add peak from the (x,y)-coordinates """
 
         # to take into account the strong aspect ratio in the axis represent.
         ratio = 1. / self.ax.get_data_ratio() ** 2
 
         if self.attractors.get():
-            inds = self.current_spectrum.peaks
+            inds = self.current_spectrum.attractors
         else:
             inds = range(len(self.current_spectrum.x))
 
@@ -583,7 +584,7 @@ class Callbacks:
                 dist_min, ind_min = dist, ind
 
         model_name = self.model.get()
-        self.current_spectrum.add_model(model_name, ind=ind_min)
+        self.current_spectrum.add_peak_model(model_name, ind=ind_min)
         self.current_spectrum.result_fit = None
 
         self.tabview.update()
@@ -591,21 +592,21 @@ class Callbacks:
 
     def del_peaks_point(self, x, _):
         """ Delete the closest peak 'x'-point """
-        if len(self.current_spectrum.models) > 0:
+        if len(self.current_spectrum.peak_models) > 0:
             dist_min = np.inf
-            for i, model in enumerate(self.current_spectrum.models):
-                x0 = model.param_hints["x0"]["value"]
+            for i, peak_model in enumerate(self.current_spectrum.peak_models):
+                x0 = peak_model.param_hints["x0"]["value"]
                 dist = abs(x0 - x)
                 if dist < dist_min:
                     dist_min, ind_min = dist, i
-            self.current_spectrum.del_model(ind_min)
+            self.current_spectrum.del_peak_model(ind_min)
             self.current_spectrum.result_fit = None
 
         self.tabview.update()
         self.plot()
 
     def auto_peaks(self, model_name=None):
-        """ Define peaks (spectrum models) from automatic detection """
+        """ Define peaks from automatic detection """
         if model_name is None:
             model_name = self.model.get()
         self.current_spectrum.auto_peaks(model_name)
@@ -643,9 +644,9 @@ class Callbacks:
             self.fileselector.lbox[0].itemconfig(ind_fselector, {'bg': color})
 
     def fit(self, fnames=None, selection=True):
-        """ Fit the peaks (spectrum models) """
+        """ Fit the peaks """
         bkg_name = self.bkg_name.get()
-        if len(self.current_spectrum.models) == 0 and bkg_name == 'None':
+        if len(self.current_spectrum.peak_models) == 0 and bkg_name == 'None':
             return
 
         if fnames is not None:
@@ -656,7 +657,7 @@ class Callbacks:
                          selection=selection)
 
     def fit_all(self):
-        """ Fit the peaks (spectrum models) for all the spectra """
+        """ Fit the peaks for all the spectra """
         self.fit(fnames=self.spectra.fnames, selection=False)
 
     def set_spectrum_range(self, delete_tabview=True):
@@ -671,7 +672,7 @@ class Callbacks:
         """ Set range from the spectrum to the appli """
         self.range_min.set(self.current_spectrum.x[0])
         self.range_max.set(self.current_spectrum.x[-1])
-        self.current_spectrum.peaks_calculation()
+        self.current_spectrum.attractors_calculation()
 
     def apply_range_to_all(self):
         """ Apply the appli range to all the spectra """
@@ -848,7 +849,7 @@ class Callbacks:
 
                 spectrum = Spectrum()
                 spectrum.load_profile(fname)
-                spectrum.peaks_params = self.attractors_settings.params
+                spectrum.attractors_params = self.attractors_settings.params
                 self.spectra.append(spectrum)
 
         self.update(fname=fname_first_item or self.fileselector.filenames[0][0])

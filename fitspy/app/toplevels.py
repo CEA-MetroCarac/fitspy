@@ -38,9 +38,9 @@ class TabView:
 
         self.spectrum = None
         self.params = None
-        self.models = None
-        self.models_labels = None
-        self.models_delete = None
+        self.peak_models = None
+        self.peak_models_delete = None
+        self.peak_labels = None
         self.plot = None
 
         self.show_bounds = BooleanVar(value=False)
@@ -79,23 +79,23 @@ class TabView:
         add(cbut, row, col)
         self.params[i][key][arg] = var
 
-    def add_entry_models_labels(self, row, col, i):
+    def add_entry_peak_labels(self, row, col, i):
         """ Add Tk.Entry at (row, col) linked to models_labels[i] """
-        model_label = StringVar(value=self.spectrum.models_labels[i])
-        entry = Entry(self.frame, textvariable=model_label, width=8)
+        peak_label = StringVar(value=self.spectrum.peak_labels[i])
+        entry = Entry(self.frame, textvariable=peak_label, width=8)
         add(entry, row, col)
         entry.bind('<Return>', lambda event, i=i: self.label_has_changed(i))
-        self.models_labels.append(model_label)
+        self.peak_labels.append(peak_label)
 
-    def add_combobox_models(self, row, col, i, model):
-        """ Add Tk.Combobox at (row, col) linked to models[i] """
+    def add_combobox_peak_model(self, row, col, i, model):
+        """ Add Tk.Combobox at (row, col) linked to peak_models[i] """
         model_name = StringVar(value=self.spectrum.get_model_name(model))
         cbox = Combobox(self.frame, values=list(PEAK_MODELS.keys()),
                         textvariable=model_name, width=15)
         add(cbox, row, col)
         cbox.bind('<<ComboboxSelected>>',
                   lambda event, i=i: self.model_has_changed(i))
-        self.models.append(model_name)
+        self.peak_models.append(model_name)
 
     def add_combobox_bkg_model(self, row, col):
         """ Add Tk.Combobox at (row, col) linked to the bkg_model """
@@ -108,14 +108,14 @@ class TabView:
 
     def label_has_changed(self, i):
         """ Update the label related to the ith-model """
-        self.spectrum.models_labels[i] = self.models_labels[i].get()
+        self.spectrum.peak_labels[i] = self.peak_labels[i].get()
         self.plot()  # pylint:disable=not-callable
         self.update()
 
     def param_has_changed(self, i, key, arg):
         """ Update the 'key'-param 'arg'-value related to the ith-model """
-        if i < len(self.spectrum.models):
-            param = self.spectrum.models[i].param_hints[key]
+        if i < len(self.spectrum.peak_models):
+            param = self.spectrum.peak_models[i].param_hints[key]
         else:
             param = self.spectrum.bkg_model.param_hints[key]
 
@@ -136,13 +136,14 @@ class TabView:
     def model_has_changed(self, i):
         """ Update the model function related to the ith-model """
         spectrum = self.spectrum
-        old_model_name = self.spectrum.get_model_name(spectrum.models[i])
-        new_model_name = self.models[i].get()
+        old_model_name = self.spectrum.get_model_name(spectrum.peak_models[i])
+        new_model_name = self.peak_models[i].get()
         if new_model_name != old_model_name:
-            ampli = spectrum.models[i].param_hints['ampli']['value']
-            x0 = spectrum.models[i].param_hints['x0']['value']
-            spectrum.models[i] = spectrum.create_model(i + 1, new_model_name,
-                                                       x0=x0, ampli=ampli)
+            ampli = spectrum.peak_models[i].param_hints['ampli']['value']
+            x0 = spectrum.peak_models[i].param_hints['x0']['value']
+            peak_model = spectrum.create_peak_model(i + 1, new_model_name,
+                                                    x0=x0, ampli=ampli)
+            spectrum.peak_models[i] = peak_model
             self.spectrum.result_fit = lambda: None
             self.plot()  # pylint:disable=not-callable
             self.update()
@@ -164,11 +165,11 @@ class TabView:
                         command=self.update), 1, 3, W)
 
     def delete_models(self):
-        """ Delete selected models """
-        nb_models = len(self.models_delete)
-        for i, val in enumerate(reversed(self.models_delete)):
+        """ Delete selected (peak) models """
+        nb_models = len(self.peak_models_delete)
+        for i, val in enumerate(reversed(self.peak_models_delete)):
             if val.get():
-                self.spectrum.del_model(nb_models - i - 1)
+                self.spectrum.del_peak_model(nb_models - i - 1)
                 self.spectrum.result_fit = lambda: None
         self.plot()  # pylint:disable=not-callable
         self.update()
@@ -177,24 +178,25 @@ class TabView:
         """ Update the Tabview """
         self.delete()
 
-        self.models = []
-        self.models_delete = []
-        self.models_labels = []
+        self.peak_models = []
+        self.peak_models_delete = []
+        self.peak_labels = []
         self.params = {}
         row = 3
 
         frame = self.frame
         spectrum = self.spectrum
-        models = spectrum.models
+        peak_models = spectrum.peak_models
         bkg_model = spectrum.bkg_model
 
-        if len(models) > 0:
+        if len(peak_models) > 0:
             add(Button(frame, text='Del.', command=self.delete_models), 2, 0)
             add(Label(frame, text='prefix', width=5), 2, 1)
             add(Label(frame, text='labels', width=5), 2, 2)
             add(Label(frame, text='models', width=10), 2, 3)
 
-            keys_models = [x[4:] for model in models for x in model.param_names]
+            keys_models = [x[4:] for peak_model in peak_models
+                           for x in peak_model.param_names]
             keys = []
             col = 5
             for key in PEAK_PARAMS:
@@ -204,8 +206,8 @@ class TabView:
                     add(Label(frame, text=label, width=10), 2, col)
                     keys.append(key)
                     col += 4
-            for i, model in enumerate(models):
-                self.add_model(model, i, row, keys)
+            for i, peak_model in enumerate(peak_models):
+                self.add_model(peak_model, i, row, keys)
                 row += 2
 
         if bkg_model is not None:
@@ -216,7 +218,7 @@ class TabView:
         else:
             keys = []
         add(Label(frame, text='BKG parameters', width=25), row, 0, cspan=3)
-        self.add_model(bkg_model, len(models), row, keys)
+        self.add_model(bkg_model, len(peak_models), row, keys)
 
     def add_model(self, model, i, row, keys):
         """ Add model in the Tabview """
@@ -227,11 +229,11 @@ class TabView:
         if model.prefix:
             var = BooleanVar(value=False)
             add(Checkbutton(self.frame, variable=var), row, 0)
-            self.models_delete.append(var)
+            self.peak_models_delete.append(var)
             add(Label(self.frame, text=model.prefix, font='Helvetica 10 bold',
                       fg=rgb2hex(CMAP(i % CMAP.N)), width=4), row, 1)
-            self.add_entry_models_labels(row, 2, i)
-            self.add_combobox_models(row, 3, i, model)
+            self.add_entry_peak_labels(row, 2, i)
+            self.add_combobox_peak_model(row, 3, i, model)
         else:
             self.add_combobox_bkg_model(row, 3)
 
@@ -434,10 +436,15 @@ if __name__ == '__main__':
     import tkinter as tk
     from fitspy.spectra import Spectrum
 
+    npeaks = 5
+    peak_models = []
+    for i in range(npeaks):
+        peak_models.append(Spectrum.create_peak_model(i, 'Lorentzian',
+                                                      x0=100 * i, ampli=10 * i))
+
     my_spectrum = Spectrum()
-    my_spectrum.models_labels = list(range(5))
-    my_spectrum.models = [Spectrum.create_model(i, 'Lorentzian', x0=100 * i,
-                                                ampli=10 * i) for i in range(5)]
+    my_spectrum.peak_labels = list(range(npeaks))
+    my_spectrum.peak_models = peak_models
 
     my_root = tk.Tk()
     tabview = TabView(my_root)
