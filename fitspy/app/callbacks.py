@@ -322,6 +322,7 @@ class Callbacks:
 
         spectrum = self.current_spectrum
         fig_settings = self.figure_settings.params
+        result_fit = spectrum.result_fit
 
         title = fig_settings['title'].get()
         if title == 'DEFAULT':
@@ -351,7 +352,9 @@ class Callbacks:
 
             self.ax.legend()
             self.tmp = None
-            linewidth = 0.5 if spectrum.result_fit is None else 1
+            linewidth = 0.5
+            if hasattr(result_fit, "success") and result_fit.success:
+                linewidth = 1
 
             def annotate_params(i, color='k'):
                 """ Annotate figure with fit parameters """
@@ -584,8 +587,8 @@ class Callbacks:
                 dist_min, ind_min = dist, ind
 
         model_name = self.model.get()
-        self.current_spectrum.add_peak_model(model_name, ind=ind_min)
-        self.current_spectrum.result_fit = None
+        self.current_spectrum.add_peak_model(model_name, x0=x_sp[ind_min])
+        self.current_spectrum.result_fit = lambda: None
 
         self.tabview.update()
         self.plot()
@@ -600,7 +603,7 @@ class Callbacks:
                 if dist < dist_min:
                     dist_min, ind_min = dist, i
             self.current_spectrum.del_peak_model(ind_min)
-            self.current_spectrum.result_fit = None
+            self.current_spectrum.result_fit = lambda: None
 
         self.tabview.update()
         self.plot()
@@ -618,7 +621,7 @@ class Callbacks:
         """ Set bkg_model """
         if self.current_spectrum is not None:
             self.current_spectrum.set_bkg_model(self.bkg_name.get())
-            self.current_spectrum.result_fit = None
+            self.current_spectrum.result_fit = lambda: None
             self.tabview.update()
             self.plot()
 

@@ -278,15 +278,17 @@ class Spectrum:
         Parameters
         ----------
         index: int
-            Index used to create the model 'prefix'
+            Index used to create the 'prefix' associated to the peak model
         model_name: str
             Model name among 'Gaussian', 'Lorentzian', 'PseudoVoigt',
             'GaussianAsym', 'LorentzianAsym'
-        x0, ampli: floats
-            Parameters associated to the model
+        x0: float
+            Position of the peak model
+        ampli: float
+            Amplitude of the peak model.
         fwhm, fwhm_l, fwhm_r: floats, optional
-            Optional parameters passed to the model.
-            Default values are 2.
+            Optional parameters passed to the model related to the Full Width
+            at Half Maximum. Default values are 2.
         alpha: float, optional
             Optional parameter passed to the 'PseudoVoigt' model.
             Default values is 0.5.
@@ -326,23 +328,38 @@ class Spectrum:
                 param = self.result_fit.params[key]
                 self.bkg_model.set_param_hint(key, value=param.value)
 
-    def add_peak_model(self, model_name, ind=None):
+    def add_peak_model(self, model_name, x0, ampli=None,
+                       fwhm=None, fwhm_l=None, fwhm_r=None, alpha=0.5):
         """
         Add a peak model passing model_name and indice position or parameters
 
         Parameters
         ----------
-        ind: int
-            index related to x-position for x0 peak localization
         model_name: str
             Model name among 'Gaussian', 'Lorentzian', 'GaussianAsym',
             'LorentzianAsym'
+        x0: float
+            Position of the peak model
+        ampli: float, Optional
+            Amplitude of the peak model. If None, consider the amplitude of the
+            spectrum profile at position x0
+        fwhm, fwhm_l, fwhm_r: floats, optional
+            Optional parameters passed to the model related to the Full Width
+            at Half Maximum. Default values are x-step size (x[1]-x[0]).
+        alpha: float, optional
+            Optional parameter passed to the 'PseudoVoigt' model.
+            Default values is 0.5.
         """
         dx = self.x[1] - self.x[0]
+
+        ampli = ampli or self.y[closest_index(self.x, x0)]
+        fwhm = fwhm or dx
+        fwhm_l = fwhm_l or dx
+        fwhm_r = fwhm_r or dx
+
         index = next(self.peak_index)
-        peak_model = self.create_model(index, model_name,
-                                       x0=self.x[ind], ampli=self.y[ind],
-                                       fwhm=dx, fwhm_l=dx, fwhm_r=dx)
+        peak_model = self.create_peak_model(index, model_name, x0, ampli,
+                                            fwhm, fwhm_l, fwhm_r, alpha)
         self.peak_models.append(peak_model)
         self.peak_labels.append(f"{index}")
 
