@@ -71,7 +71,7 @@ Although it is more recommended to use the GUI to define **visually** a `Fitspy`
 
     # peak models creation (based on 2 peaks)
     spectrum.add_peak_model('Lorentzian', x0=322)
-    spectrum.add_peak_model(Gaussian', x0=402)
+    spectrum.add_peak_model('Gaussian', x0=402)
 
     # model saving
     spectrum.save(fname_json=r"C:\Users\...\model.json")
