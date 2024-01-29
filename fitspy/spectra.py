@@ -196,33 +196,33 @@ class Spectra(list):
     @staticmethod
     def load_model(fname_json, ind=0):
         """
-        Return a 'model' (dictionary) from a '.json' file
+        Return a fitspy model ('model_dict') from a '.json' file
 
         Parameters
         ----------
         fname_json: str
             Filename associated to the spectra .json file where to extract the
-            model
+            fitspy model
         ind: int, optional
             Spectrum index to consider as model in the spectra issued from the
             .json file reloading
 
         Returns
         -------
-        model: dict
-            The corresponding model
+        model_dict: dict
+            The corresponding fitspy model
         """
-        model = load_from_json(fname_json)[ind]
-        return model
+        model_dict = load_from_json(fname_json)[ind]
+        return model_dict
 
-    def apply_model(self, model, fnames=None, ncpus=1,
+    def apply_model(self, model_dict, fnames=None, ncpus=1,
                     fit_only=False, tk_progressbar=None, **fit_kwargs):
         """
         Apply 'model' to all or part of the spectra
 
         Parameters
         ----------
-        model: dict
+        model_dict: dict
             Dictionary related to the Spectrum object attributes (obtained from
             Spectrum.save() for instance)
         fnames: list of str, optional
@@ -248,7 +248,7 @@ class Spectra(list):
         spectra = []
         for fname in fnames:
             spectrum, _ = self.get_objects(fname)
-            spectrum.set_attributes(model, **fit_kwargs)
+            spectrum.set_attributes(model_dict, **fit_kwargs)
             spectrum.fname = fname  # reassign the correct fname
             if not fit_only:
                 spectrum.preprocess()

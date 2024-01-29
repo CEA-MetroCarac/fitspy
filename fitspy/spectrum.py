@@ -22,7 +22,7 @@ from fitspy import PEAK_MODELS, PEAK_PARAMS, BKG_MODELS
 
 
 def create_model(model, model_name, prefix=None):
-    """ Create a 'model' object """
+    """ Create a 'model' (peak_model or 'bkg_model') object """
     if isinstance(model, ExpressionModel):
         model = ExpressionModel(model.expr, independent_vars=['x'])
         model.__name__ = model_name
@@ -123,14 +123,14 @@ class Spectrum:
         self.max_ite = 200
         self.result_fit = lambda: None
 
-    def set_attributes(self, dict_attrs, **fit_kwargs):
+    def set_attributes(self, model_dict, **fit_kwargs):
         """Set attributes from a dictionary (obtained from a .json reloading)"""
 
-        keys = dict_attrs.keys()
+        keys = model_dict.keys()
 
         for key in vars(self).keys():
             if key in keys:
-                setattr(self, key, dict_attrs[key])
+                setattr(self, key, model_dict[key])
 
         for key in ['fit_method', 'fit_negative', 'max_ite']:
             if key in fit_kwargs:
@@ -138,7 +138,7 @@ class Spectrum:
 
         if 'models' in keys:
             self.models = []
-            for _, dict_model in dict_attrs['models'].items():
+            for _, dict_model in model_dict['models'].items():
                 for model_name, param_hints in dict_model.items():
                     model = PEAK_MODELS[model_name]
                     index = next(self.models_index)
@@ -147,8 +147,8 @@ class Spectrum:
                     model.param_hints = deepcopy(param_hints)
                     self.models.append(model)
 
-        if 'bkg_model' in keys and dict_attrs['bkg_model']:
-            model_name, param_hints = list(dict_attrs['bkg_model'].items())[0]
+        if 'bkg_model' in keys and model_dict['bkg_model']:
+            model_name, param_hints = list(model_dict['bkg_model'].items())[0]
             bkg_model = BKG_MODELS[model_name]
             self.bkg_model = create_model(bkg_model, model_name)
             self.bkg_model.name2 = model_name
@@ -157,20 +157,20 @@ class Spectrum:
         if 'baseline' in keys:
             self.baseline = BaseLine()
             for key in vars(self.baseline).keys():
-                if key in dict_attrs['baseline'].keys():
-                    setattr(self.baseline, key, dict_attrs['baseline'][key])
+                if key in model_dict['baseline'].keys():
+                    setattr(self.baseline, key, model_dict['baseline'][key])
 
         if 'result_fit_success' in keys:
-            self.result_fit.success = dict_attrs['result_fit_success']
+            self.result_fit.success = model_dict['result_fit_success']
 
         # COMPATIBILITY with 'old' models
         #################################
 
-        if "models_labels" not in keys or len(dict_attrs["models_labels"]) == 0:
+        if "models_labels" not in keys or len(model_dict["models_labels"]) == 0:
             self.models_labels = list(map(str, range(1, len(self.models) + 1)))
 
         if "baseline_history" in keys:
-            baseline_history = dict_attrs["baseline_history"]
+            baseline_history = model_dict["baseline_history"]
             if len(baseline_history) > 1:
                 msg = "baseline_history with more than 1 item are no more valid"
                 raise IOError(msg)
@@ -184,7 +184,7 @@ class Spectrum:
                 self.baseline.is_subtracted = True
 
         if "attached" in keys:
-            self.baseline.attached = dict_attrs["attached"]
+            self.baseline.attached = model_dict["attached"]
 
     def preprocess(self):
         """ Preprocess the spectrum: call successively load_profile(),
@@ -574,49 +574,49 @@ class Spectrum:
                 fid.write(self.result_fit.fit_report)
 
     def save(self, fname_json=None):
-        """ Return a 'dict_attrs' dictionary from the spectrum attributes and
+        """ Return a 'model_dict' dictionary from the spectrum attributes and
             Save it if a 'fname_json' is given """
 
         excluded_keys = ['x0', 'y0', 'x', 'y',
                          'models', 'models_index', 'bkg_model',
                          'result_fit', 'baseline']
-        dict_attrs = {}
+        model_dict = {}
         for key, val in vars(self).items():
             if key in excluded_keys:  # by-pass (x,y) coords and objects
                 continue
             if isinstance(val, dict) and dict_has_tk_variable(val):
                 val = convert_dict_from_tk_variables(val)
-            dict_attrs[key] = val
+            model_dict[key] = val
 
-        dict_attrs['baseline'] = dict(vars(self.baseline).items())
+        model_dict['baseline'] = dict(vars(self.baseline).items())
 
         bkg_model = self.bkg_model
         if bkg_model is not None:
-            dict_attrs['bkg_model'] = {bkg_model.name2: bkg_model.param_hints}
+            model_dict['bkg_model'] = {bkg_model.name2: bkg_model.param_hints}
 
         models = {}
         for i, model in enumerate(self.models):
             model_name = self.get_model_name(model)
             models[i] = {}
             models[i][model_name] = model.param_hints
-        dict_attrs['models'] = models
+        model_dict['models'] = models
 
         if hasattr(self.result_fit, 'success'):
-            dict_attrs['result_fit_success'] = self.result_fit.success
+            model_dict['result_fit_success'] = self.result_fit.success
 
         if fname_json is not None:
-            save_to_json(fname_json, dict_attrs)
+            save_to_json(fname_json, model_dict)
 
-        return dict_attrs
+        return model_dict
 
     @staticmethod
     def load(fname_json):
         """ Return a Spectrum object created from a .json file reloading """
 
-        dict_attrs = load_from_json(fname_json)
+        model_dict = load_from_json(fname_json)
 
         spectrum = Spectrum()
-        spectrum.set_attributes(dict_attrs)
+        spectrum.set_attributes(model_dict)
         spectrum.preprocess()
 
         return spectrum
