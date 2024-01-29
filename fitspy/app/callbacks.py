@@ -643,13 +643,10 @@ class Callbacks:
             ind_fselector = self.fileselector.filenames[0].index(fname)
             spectrum, _ = self.spectra.get_objects(fname)
             result_fit = spectrum.result_fit
-            if result_fit is None:
-                color = 'white'
+            if hasattr(result_fit, 'success'):
+                color = 'Lime' if result_fit.success else 'Orange'
             else:
-                if hasattr(result_fit, 'success'):
-                    color = 'Lime' if result_fit.success else 'Orange'
-                else:
-                    color = 'Lime' if result_fit else 'Orange'
+                color = 'white'
             self.fileselector.lbox[0].itemconfig(ind_fselector, {'bg': color})
 
     def fit(self, fnames=None, selection=True):
