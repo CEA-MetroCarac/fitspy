@@ -33,6 +33,7 @@ dependencies = [
     "scipy",
     "lmfit",
     "parse",
+    "dill",
     "pywin32; platform_system == 'Windows'",
 ]
 

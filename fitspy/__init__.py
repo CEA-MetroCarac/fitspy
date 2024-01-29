@@ -26,6 +26,8 @@ BKG_MODELS = {'None': None,
               'Parabolic': ParabolicModel,
               'Exponential': ExponentialModel}
 
+MODELS_NAMES = list(MODELS.keys()) + list(BKG_MODELS.keys())
+
 # create FITSPY_DIR if not exists
 Path.mkdir(FITSPY_DIR, exist_ok=True)
 

@@ -11,38 +11,33 @@ from threading import Thread
 from multiprocessing import Queue
 import matplotlib.pyplot as plt
 from lmfit.models import ExpressionModel
+import dill
 
 from fitspy.utils import fileparts, save_to_json, load_from_json
 from fitspy.spectrum import Spectrum
-from fitspy import MODELS
+from fitspy import MODELS, MODELS_NAMES
 
 
 def fit(params):
     """ Fitting function used in multiprocessing """
-    x, y, models, method, fit_negative, max_ite = params
+    x, y, models_, method, fit_negative, max_ite = params
+
+    models = []
+    for model_ in models_:
+        if isinstance(model_, bytes):
+            models.append(dill.loads(model_))
+        else:
+            models.append(model_)
+
     spectrum = Spectrum()
     spectrum.x = x
     spectrum.y = y
-
-    models_ = []
-    for model in models:
-        if isinstance(model, dict):
-            model_ = ExpressionModel(model['expr'], independent_vars=['x'])
-            model_.__name__ = model['name']
-            model_.param_hints = deepcopy(model['param_hints'])
-            model_.make_params()
-            param_names = model_.param_names.copy()
-            model_.prefix = model['prefix']  # -> make model.param_names = []
-            for name in param_names:  # reassign model.param_names with prefix
-                model_.param_names.append(model['prefix'] + name)
-            models_.append(model_)
-        else:
-            models_.append(model)
-
-    spectrum.models = models_
+    spectrum.models = models
     spectrum.fit(fit_method=method, fit_negative=fit_negative, max_ite=max_ite)
     shared_queue.put(1)
-    return spectrum.result_fit.values, spectrum.result_fit.success
+
+    result_fit = spectrum.result_fit
+    return result_fit.values, result_fit.success, result_fit.fit_report
 
 
 def initializer(queue_incr):
@@ -51,31 +46,32 @@ def initializer(queue_incr):
     shared_queue = queue_incr
 
 
-def fit_mp(spectra, models, bkg_model,
-           fit_method, fit_negative, max_ite, ncpus, queue_incr):
+def fit_mp(spectra, ncpus, queue_incr):
     """ Multiprocessing fit function applied to spectra """
 
     ncpus = ncpus or os.cpu_count()
     ncpus = min(ncpus, os.cpu_count())
 
-    def picklable_model(model):
-        if isinstance(model, ExpressionModel):
-            return {'expr': model.expr,
-                    'name': model.__name__,
-                    'prefix': model.prefix,
-                    'param_hints': model.param_hints}
+    spectrum = spectra[0]
+    models_ = []
+    for model in spectrum.models:
+        if model.name2 not in MODELS_NAMES:
+            models_.append(dill.dumps(model))
         else:
-            return model
+            models_.append(model)
+    if spectrum.bkg_model is not None:
+        if spectrum.bkg_model.name2 not in MODELS_NAMES:
+            models_.append(dill.dumps(spectrum.bkg_model))
+        else:
+            models_.append(spectrum.bkg_model)
+    fit_method = spectrum.fit_method
+    fit_negative = spectrum.fit_negative
+    max_ite = spectrum.max_ite
 
     args = []
     for spectrum in spectra:
         x, y = spectrum.x, spectrum.y
-        models_ = []
-        for model in models:
-            models_.append(picklable_model(model))
-        models_.append(picklable_model(bkg_model))
-        args.append((x, y, models_,
-                     fit_method, fit_negative, max_ite))
+        args.append((x, y, models_, fit_method, fit_negative, max_ite))
 
     with ProcessPoolExecutor(initializer=initializer,
                              initargs=(queue_incr,),
@@ -87,13 +83,15 @@ def fit_mp(spectra, models, bkg_model,
     for val in MODELS.values():
         funcdefs[val.__name__] = val
 
-    for (values, success), spectrum in zip(results, spectra):
+    for (values, success, fit_report), spectrum in zip(results, spectra):
         spectrum.result_fit.success = success
+        spectrum.result_fit.fit_report = fit_report
         for model in spectrum.models:
             for key in model.param_names:
                 model.set_param_hint(key[4:], value=values[key])
-        for key in spectrum.bkg_model.param_names:
-            spectrum.bkg_model.set_param_hint(key, value=values[key])
+        if spectrum.bkg_model is not None:
+            for key in spectrum.bkg_model.param_names:
+                spectrum.bkg_model.set_param_hint(key, value=values[key])
 
 
 class Spectra(list):
@@ -256,26 +254,20 @@ class Spectra(list):
                 spectrum.preprocess()
             spectra.append(spectrum)
 
-        # progressbar launching
         queue_incr = Queue()
-        args = (queue_incr, ntot, tk_progressbar)
-        Thread(target=pbar_update, args=args).start()
 
-        if ncpus == 1:
-            for spectrum in spectra:
-                spectrum.fit()
-                queue_incr.put(1)
-        else:
-            spectrum = spectra[0]
-            models = spectrum.models
-            bkg_model = spectrum.bkg_model
-            fit_method = spectrum.fit_method
-            fit_negative = spectrum.fit_negative
-            max_ite = spectrum.max_ite
-            fit_mp(spectra, models, bkg_model,
-                   fit_method, fit_negative, max_ite, ncpus, queue_incr)
+        def proc():
+            if ncpus == 1:
+                for spectrum in spectra:
+                    spectrum.fit()
+                    queue_incr.put(1)
+            else:
+                fit_mp(spectra, ncpus, queue_incr)
 
-        queue_incr.put("finished")
+            queue_incr.put("finished")
+
+        Thread(target=proc).start()
+        progressbar(queue_incr, ntot, tk_progressbar)
 
     def save(self, fname_json, fnames=None):
         """
@@ -338,7 +330,7 @@ class Spectra(list):
         return spectra
 
 
-def pbar_update(queue_incr, ntot, tk_progressbar=None):
+def progressbar(queue_incr, ntot, tk_progressbar=None):
     """ Progress bar """
     n = 0
     is_finished = False
@@ -357,4 +349,5 @@ def pbar_update(queue_incr, ntot, tk_progressbar=None):
             if tk_progressbar is not None:
                 tk_progressbar.var.set(percent)
                 tk_progressbar.label['text'] = f"{n}/{ntot}"
+                tk_progressbar.frame.update()
     print()
