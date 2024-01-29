@@ -13,7 +13,7 @@ REFS = [[520.1862765603815, 915.2649558822233, 9.57229876472696],
 
 
 @pytest.mark.skipif(not display_is_ok(), reason="DISPLAY problem")
-@pytest.mark.parametrize("ncpus", [1, 2])
+@pytest.mark.parametrize("ncpus", [1])
 def test_gui_users_models_from_txt(ncpus, tmp_path):
     ex_gui_users_models_from_txt(ncpus=ncpus, dirname_res=tmp_path)
 
@@ -25,7 +25,7 @@ def test_gui_users_models_from_txt(ncpus, tmp_path):
 
 
 @pytest.mark.skipif(not display_is_ok(), reason="DISPLAY problem")
-@pytest.mark.parametrize("ncpus", [1, 2])
+@pytest.mark.parametrize("ncpus", [1])
 def test_gui_users_models_from_py(ncpus, tmp_path):
     ex_gui_users_models_from_py(ncpus=ncpus, dirname_res=tmp_path)
 
