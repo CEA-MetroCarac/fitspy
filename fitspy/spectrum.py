@@ -20,6 +20,9 @@ from fitspy.app.utils import dict_has_tk_variable
 from fitspy.baseline import BaseLine
 from fitspy import PEAK_MODELS, PEAK_PARAMS, BKG_MODELS
 
+ATTRACTORS_PARAMS = {'distance': 20, 'prominence': None,
+                     'width': None, 'height': None, 'threshold': None}
+
 
 def create_model(model, model_name, prefix=None):
     """ Return a 'model' (peak_model or 'bkg_model') object """
@@ -111,9 +114,7 @@ class Spectrum:
         self.x = None
         self.y = None
         self.attractors = None
-        self.attractors_params = {'distance': 20, 'prominence': None,
-                                  'width': None, 'height': None,
-                                  'threshold': None}
+        self.attractors_params = ATTRACTORS_PARAMS
         self.baseline = BaseLine()
         self.bkg_model = None
         self.peak_models = []
