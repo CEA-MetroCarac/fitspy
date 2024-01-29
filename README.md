@@ -21,7 +21,7 @@ The fitting algorithm has multiprocessing capabilities and relies on
 the [lmfit](https://github.com/lmfit/lmfit-py) library.<br>
 Bounds and constraints can be set on each peaks models parameter.
 
-The peak models considered in Fitspy are :
+The predefined peak models considered in Fitspy are :
 
 * `Gaussian`
 * `Lorentzian`
