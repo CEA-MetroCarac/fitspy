@@ -111,7 +111,7 @@ def load_models_from_txt(fname, MODELS):
         model_name1 = expression1
         model_name2 = expression2
     MODELS: dict
-        Dictionary corresponding to fitspy.MODELS or fitspy.BKG_MODELS
+        Dictionary corresponding to fitspy.PEAK_MODELS or fitspy.BKG_MODELS
     """
     if Path(fname).exists():
         with open(fname, 'r') as fid:
