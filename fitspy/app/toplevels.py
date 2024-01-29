@@ -11,7 +11,7 @@ from lmfit.model import ModelResult
 
 from fitspy.app.utils import add, add_entry
 from fitspy.app.callbacks import FIT_METHODS
-from fitspy import MODELS, BKG_MODELS, PARAMS
+from fitspy import PEAK_MODELS, BKG_MODELS, PEAK_PARAMS
 
 CMAP = plt.get_cmap("tab10")
 NCPUS = ['auto', 1, 2, 3, 4, 5, 6, 8, 10, 12, 14, 16, 20, 24, 28, 32]
@@ -90,7 +90,7 @@ class TabView:
     def add_combobox_models(self, row, col, i, model):
         """ Add Tk.Combobox at (row, col) linked to models[i] """
         model_name = StringVar(value=self.spectrum.get_model_name(model))
-        cbox = Combobox(self.frame, values=list(MODELS.keys()),
+        cbox = Combobox(self.frame, values=list(PEAK_MODELS.keys()),
                         textvariable=model_name, width=15)
         add(cbox, row, col)
         cbox.bind('<<ComboboxSelected>>',
@@ -197,7 +197,7 @@ class TabView:
             keys_models = [x[4:] for model in models for x in model.param_names]
             keys = []
             col = 5
-            for key in PARAMS:
+            for key in PEAK_PARAMS:
                 if key in keys_models:
                     label = key.replace("_l", " (left)")
                     label = label.replace("_r", " (right)")

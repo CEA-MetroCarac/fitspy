@@ -18,7 +18,7 @@ from fitspy.utils import save_to_json, load_from_json
 from fitspy.app.utils import convert_dict_from_tk_variables
 from fitspy.app.utils import dict_has_tk_variable
 from fitspy.baseline import BaseLine
-from fitspy import MODELS, PARAMS, BKG_MODELS
+from fitspy import PEAK_MODELS, PEAK_PARAMS, BKG_MODELS
 
 
 def create_model(model, model_name, prefix=None):
@@ -140,7 +140,7 @@ class Spectrum:
             self.models = []
             for _, dict_model in dict_attrs['models'].items():
                 for model_name, param_hints in dict_model.items():
-                    model = MODELS[model_name]
+                    model = PEAK_MODELS[model_name]
                     index = next(self.models_index)
                     prefix = f'm{index:02d}_'
                     model = create_model(model, model_name, prefix)
@@ -280,7 +280,7 @@ class Spectrum:
         model: lmfit.Model
         """
         # pylint:disable=unused-argument, unused-variable
-        model = MODELS[model_name]
+        model = PEAK_MODELS[model_name]
         prefix = f'm{index:02d}_'
         model = create_model(model, model_name, prefix)
 
@@ -351,8 +351,8 @@ class Spectrum:
             name_fun = model.name.split(',')[0][6:]
         else:
             name_fun = re.search(r'\((.*?)\)', model.name).group(1)
-        names = list(MODELS.keys())
-        names_fun = [x.__name__ for x in MODELS.values()]
+        names = list(PEAK_MODELS.keys())
+        names_fun = [x.__name__ for x in PEAK_MODELS.values()]
         ind = names_fun.index(name_fun)
         return names[ind]
 
@@ -553,10 +553,10 @@ class Spectrum:
         if len(self.models) > 0:
             with open(fname_params, 'w', newline='') as fid:
                 writer = csv.writer(fid, delimiter=';')
-                writer.writerow(['label', 'model'] + PARAMS)
+                writer.writerow(['label', 'model'] + PEAK_PARAMS)
                 for label, model in zip(self.models_labels, self.models):
                     vals = [label, self.get_model_name(model)]
-                    for key in PARAMS:
+                    for key in PEAK_PARAMS:
                         params = model.param_hints
                         if key in params.keys():
                             vals.append(params[key]['value'])

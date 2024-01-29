@@ -18,6 +18,7 @@ def test_gui_users_models_from_txt(ncpus, tmp_path):
     ex_gui_users_models_from_txt(ncpus=ncpus, dirname_res=tmp_path)
 
     results = extract_results(dirname_res=tmp_path)
+    # print("results from txt", results)
 
     for result, reference in zip(results, REFS):
         assert result == approx(reference, rel=1e-3)
@@ -29,6 +30,7 @@ def test_gui_users_models_from_py(ncpus, tmp_path):
     ex_gui_users_models_from_py(ncpus=ncpus, dirname_res=tmp_path)
 
     results = extract_results(dirname_res=tmp_path)
+    # print("results from py", results)
 
     for result, reference in zip(results, REFS):
         assert result == approx(reference, rel=1e-3)

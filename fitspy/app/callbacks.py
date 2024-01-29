@@ -549,7 +549,7 @@ class Callbacks:
         self.attractors_settings.update(x, y, bind_fun=self.update_peaks)
 
     def load_user_model(self, model):
-        """ Load user-defined model in MODELS or BKG_MODEL from external file"""
+        """Load users model from file to be added to PEAK_MODELS or BKG_MODEL"""
         fname = fd.askopenfilename(title='Select file',
                                    filetypes=[("", "*.txt;*.py")])
         if fname is not None:

@@ -25,7 +25,7 @@ except:
     pass
 
 from fitspy.utils import closest_index, save_to_json, load_from_json
-from fitspy import MODELS, BKG_MODELS, PARAMS, SETTINGS_FNAME
+from fitspy import PEAK_MODELS, BKG_MODELS, PEAK_PARAMS, SETTINGS_FNAME
 
 from fitspy.app.utils import add, interactive_entry as entry
 from fitspy.app.utils import ToggleFrame, ScrollbarFrame, FilesSelector
@@ -291,12 +291,12 @@ class GUI(Callbacks):
             cbox['value'] = list(models.keys())
 
         add(Label(fr, text='Peak model :'), 1, 0, E)
-        cbox1 = Combobox(fr, values=list(MODELS.keys()),
-                         postcommand=lambda: update_cbox(cbox1, MODELS),
+        cbox1 = Combobox(fr, values=list(PEAK_MODELS.keys()),
+                         postcommand=lambda: update_cbox(cbox1, PEAK_MODELS),
                          textvariable=self.model, width=18)
         add(cbox1, 1, 1)
         add(Button(fr, text="Load",
-                   command=lambda: self.load_user_model('MODELS')), 1, 2)
+                   command=lambda: self.load_user_model('PEAK_MODELS')), 1, 2)
 
         add(Label(fr, text='BKG model :'), 2, 0, E)
         cbox2 = Combobox(fr, values=list(BKG_MODELS.keys()),
@@ -353,7 +353,7 @@ class GUI(Callbacks):
         frame_map.protocol("WM_DELETE_WINDOW", lambda *args: None)
 
         # attach tkinter objects to spectra_map
-        keys = ['Intensity (sum)'] + PARAMS
+        keys = ['Intensity (sum)'] + PEAK_PARAMS
         vmin = np.nanmin(spectra_map.arr)
         vmax = np.nanmax(spectra_map.arr)
         setattr(spectra_map, 'var', StringVar(value=keys[0]))

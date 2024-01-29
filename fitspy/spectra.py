@@ -15,7 +15,7 @@ import dill
 
 from fitspy.utils import fileparts, save_to_json, load_from_json
 from fitspy.spectrum import Spectrum
-from fitspy import MODELS, MODELS_NAMES
+from fitspy import PEAK_MODELS, MODELS_NAMES
 
 
 def fit(params):
@@ -80,7 +80,7 @@ def fit_mp(spectra, ncpus, queue_incr):
 
     # dictionary of custom function names and definitions
     funcdefs = {}
-    for val in MODELS.values():
+    for val in PEAK_MODELS.values():
         funcdefs[val.__name__] = val
 
     for (values, success, fit_report), spectrum in zip(results, spectra):
