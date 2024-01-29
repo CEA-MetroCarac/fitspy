@@ -39,6 +39,8 @@ In the vein of generic tools like `Fityk` [@Fityk] or `PRISMA`  [@PRISMA], `Fits
 
 * **Python Implementation**: `Fitspy` is coded in Python. As a result, for individuals with basic knowledge of the language, spectra can be easily processed by scripts.
 
+* **User Models**: `Fitspy` allows users to input their own models either in the form of literal expressions (for simple models) or through Python scripts (for more complex models).
+
 * **2D Maps**: `Fitspy` has been designed to handle spectra derived from 2D acquisitions. Note that "2D" can encompass time or any other dimension. When dealing with 2D data, an interactive map in the `Fitspy` GUI allows users to locate and select spectra of interest easily.
 
 * **Multiprocessing Capabilities**: `Fitspy` enables spectral fit processing on multiple processors, enhancing efficiency.
