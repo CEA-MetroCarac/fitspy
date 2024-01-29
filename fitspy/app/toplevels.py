@@ -99,6 +99,8 @@ class TabView:
 
     def add_combobox_bkg_model(self, row, col):
         """ Add Tk.Combobox at (row, col) linked to the bkg_model """
+        if self.spectrum.bkg_model is not None:
+            self.bkg_name.set(self.spectrum.bkg_model.name2)
         cbox = Combobox(self.frame, values=list(BKG_MODELS.keys()),
                         textvariable=self.bkg_name, width=15)
         add(cbox, row, col)
