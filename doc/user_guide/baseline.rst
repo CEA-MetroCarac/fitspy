@@ -10,14 +10,14 @@ Two approaches are available in `Fitspy` to handle **non-flattened profiles**:
 Baseline approach
 -----------------
 
-This approach entails manually predefining points to establish the baseline profile that will be subtracted before fitting.
+This approach involves manually predefining points to establish the baseline profile that will be subtracted before fitting.
 
 From the baseline peaks, the profile all along the spectrum support is obtained by interpolation either from **piecewise** or **polynomial** approximations.
 
 .. figure::  ../_static/gen_figures_baseline.png
    :align:   center
 
-When setting a parameter named :code:`attached` to True, the baseline points are attached to the corresponding spectrum intensity profile.
+When setting a parameter named :code:`attached` to :code:`True`, the baseline points are attached to the corresponding spectrum intensity profile.
 This feature allows to adapt the baseline points to the spectrum notably when processing a dataset of spectra that have variations in intensity.
 
 .. figure::  ../_static/gen_figures_baseline_attached.png
@@ -41,12 +41,14 @@ The available predefined **BKG models** are :code:`Constant`, :code:`Linear`, :c
 User-defined background models
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-In the :code:`%HOMEUSER%/Fitspy` directory, user-defined models can be defined through expressions written in a file named  :code:`bkg_models.txt`::
+User-defined models can be defined through literal expressions in a *'.txt'* file or from python scripts in a *'.py'* file.
 
-    Linear_1 = slope * x + constant
-    Exponential_1 = ampli * np.exp(-coef * x)
+Example of two models defined by literal expressions::
 
-or using Python encoding, in a file named  :code:`bkg_models.py`::
+    Linear_1 = slope * x + intercept
+    Exponential_1 = ampli * exp(-coef * x)
+
+Example of two models defined in python::
 
     import numpy as np
     from fitspy import BKG_MODELS
@@ -61,13 +63,23 @@ or using Python encoding, in a file named  :code:`bkg_models.py`::
     BKG_MODELS.update({"Linear_2": linear})
     BKG_MODELS.update({"Exponential_2": exponential})
 
-where in the examples given above, the resulting :code:`Linear_1`, :code:`Linear_2` models yield identical results to those obtained from the predefined :code:`Linear` model, when converged.
+Through the GUI, the corresponding *'.txt'* or *'.py'* files can be loaded via the button :code:`Load` located to the right of the **BKG_MODEL** combobox.
+
+In python, the users models can be loaded by the related functions :func:`~fitspy.utils.load_models_from_txt` and :func:`~fitspy.utils.load_models_from_py`.
+*(See example in* `ex_gui_users_defined_models.py <https://github.com/CEA-MetroCarac/fitspy/tree/main/examples/ex_gui_users_defined_models.py>`_ *)*
+
+For recurrent use, the user-defined models can be defined in files named :code:`bkg_models.txt` or :code:`bkg_models.py` to put in :code:`%HOMEUSER%/Fitspy`.
+
+
+Note that in the examples given above, the resulting :code:`Linear_1`, :code:`Linear_2` models yield identical results to those obtained from the predefined :code:`Linear` model, when converged.
 The same for :code:`Exponential_1`, :code:`Exponential_2` and :code:`Exponential`.
 
 .. warning::
-    Unlike predefined models, user-defined models do not have 'guess' parameter fitting functions.
-    All parameters are initialized to 1.
-    This can lead to poor convergence of the background.
-    To prevent this, it is advisable to review the model parameters using appropriate multiplier coefficients, considering that the initial values for the parameters are 1.
+    Unlike predefined models, user-defined models do not have associated functions to determine their initial values for the fitting.
 
-    Example: for a x-range in [0, 1000], the Exponential functions should be rather defined as :code:`ampli * np.exp(-coef * x / 1000)`
+    **All the parameters are initialized to 1.**
+
+    This can lead to wrong convergence.
+    To prevent this, it is advisable to review the model parameters using appropriate multiplier coefficients.
+
+    Example: for a x-range in [0, 1000], the Exponential functions should be rather defined as :code:`ampli * exp(-coef * x / 1000)`

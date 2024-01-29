@@ -4,12 +4,15 @@ Introduction
 What is Fitspy
 --------------
 
-`Fitspy` is a dedicated tool for spectral fitting — **and only for spectral fitting** — with the following characteristics or functionalities:
+`Fitspy` is a dedicated tool for spectral fitting — **and only for spectral fitting** — with the following characteristics:
 
 * **Agnostic Nature**: `Fitspy` is not tied to any specific physical quantity or database. It is designed to process spectra regardless of their x-support and y-intensity without requiring prior knowledge.
 
 
 * **Python Implementation**: `Fitspy` is coded in Python. As a result, spectra can be easily processed using Python scripts, catering to individuals with basic knowledge of the language.
+
+
+* **User Models**: `Fitspy` allows users to input their own models either in the form of literal expressions (for simple models) or through Python scripts (for more complex models).
 
 
 * **2D Maps**: `Fitspy` has been designed to handle spectra derived from 2D acquisitions. Note that the beyond "2D", dimensions can encompass time or any other dimension. When dealing with 2D data, an interactive map in the `Fitspy` GUI allows users to locate and select spectra of interest easily.
@@ -35,15 +38,15 @@ For a basic install (*ie* without the examples, tests and the related datasets):
     pip install fitspy
     fitspy
 
-For a full install::
+For a full install and examples and tests execution::
 
     git clone https://github.com/CEA-MetroCarac/fitspy.git
     fitspy
 
     # examples execution
     cd fitspy/examples
-    python ex0_gui_auto_decomposition.py
-    python ex1_gui_reload_model.py
+    python ex_gui_auto_decomposition.py
+    python ex_gui_reload_model.py
     ...
 
     # tests execution

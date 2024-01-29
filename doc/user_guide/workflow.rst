@@ -22,7 +22,7 @@ GUI Mode
 
    <br>
 
-To create a `Fitspy` model:
+**To create a `Fitspy` model:**
 
 - (`1 <gui.html?files_selection.html>`_) **Select file(s) from** :code:`Select Files`  **or**  :code:`Select Dir`
 - (`2 <gui.html?overall_settings.html>`_) *Define the* :code:`X-range`
@@ -36,9 +36,9 @@ To create a `Fitspy` model:
 - (`11 <gui.html?fitting>`_) *Use* :code:`Parameters` *to see the results and to set bounds and constraints for a new fitting*
 - (`13 <gui.html?models>`_) :code:`Save Select` *or* :code:`Save All` *the `Models` in a `.json` file (to be replayed later)*
 
-(*) **use left/right click on the figure to add/delete a baseline or a peak point**
+**(*)** *use left/right click on the figure to add/delete a baseline or a peak point*
 
-Once saved, a `Fitspy` model enables to recover a previous state (as-it) if all the spectra defined in the model can be loaded again as follows:
+Once saved, a `Fitspy` model enables to recover a previous state (as-it, if all the spectra defined in the model can be loaded again) as follows:
 
 - (`14 <gui.html?fitting>`_) :code:`Reload` *the `Fitspy` model (`.json` file)*
 - (`10 <gui.html?fitting>`_) :code:`Fit` **or** :code:`Fit All` **the selected spectrum/spectra**
@@ -58,73 +58,46 @@ Scripting Mode
 
 Although it is more recommended to use the GUI to define **visually** a `Fitspy` model, here is a partial example of how to do it by script::
 
-
     from fitspy.spectrum import Spectrum
 
     spectrum = Spectrum()
 
     # load a spectrum to create the model
-    spectrum.load_profile(fname=..., xmin=..., xmax=...)
+    spectrum.load_profile(fname=r"C:\Users\...\H-000.txt", xmin=150, xmax=650)
 
     # baseline definition and subtract
-    spectrum.baseline.points = [[..., ...,], [..., ...]] # (x, y) baseline points coordinates
+    spectrum.baseline.points = [[160, 600], [52, 28]] # (x, y) baseline points coordinates
     spectrum.subtract_baseline()
 
-    # model creation (based on 2 peaks) and saving
-    model0 = spectrum.create_model(0, 'Lorentzian', x0=..., ampli=...)
-    model1 = spectrum.create_model(1, 'Lorentzian', x0=..., ampli=...)
-    spectrum.models = [model0, model1]
-    spectrum.save(fname_json=...)
+    # peak models creation (based on 2 peaks)
+    spectrum.add_peak_model('Lorentzian', x0=322)
+    spectrum.add_peak_model(Gaussian', x0=402)
 
-For more details about functions and arguments to pass, see the `API doc <../api/fitspy.html>`_.
+    # model saving
+    spectrum.save(fname_json=r"C:\Users\...\model.json")
 
-A `Fitspy` model ('.json' file) is applied to a data set as follows::
 
+Once defined, a `Fitspy` model saved in a '.json' file can be applied to a more consequent data set as follows::
+
+    from pathlib import Path
     from fitspy.spectra import Spectra
     from fitspy.spectrum import Spectrum
 
-    # Fitspy model to be applied
-    model = Spectra.load_model(fname_json=...)
 
     # list of the spectra pathnames to handle
-    fnames = [..., ..., ...]
+    dirname = Path(r"C:\Users\...")
+    fnames = dirname.glob('*.txt')
 
+    # Spectra object creation
     spectra = Spectra()
     for fname in fnames:
         spectrum = Spectrum()
         spectrum.load_profile(fname)
         spectra.append(spectrum)
 
-    # apply the model with fitting
-    spectra.apply_model(model, ncpus=...)
+    # Fitspy model loading and application
+    model = Spectra.load_model(fname_json=r"C:\Users\...\model.json")
+    spectra.apply_model(model, ncpus=16)
 
     # save the calculated fitting parameters
-    spectra.save_results(dirname_results=...)
-
-Note that a '.csv' parameters file can be used to define first a basic `spectrum` model only based on `peaks` models definition, this one used to define more globally a `spectra` model as follows::
-
-    import pandas as pd
-    from fitspy.spectra import Spectra
-    from fitspy.spectrum import Spectrum
-
-    dfr = pd.read_csv(fname_csv=..., sep=';')
-    peaks_model = []
-    for i in dfr.index:
-        params = list(dfr.iloc[i, 1:])
-        model = Spectrum.create_model(i, *params)
-        peaks_model.append(model)
-
-    spectrum = Spectrum()
-    spectrum.models = peaks_models
-
-    # Basic Fitspy model to be applied (without baseline, x-range, ... considerations)
-    model = spectrum.save()
-
-    # model application (same as above)
-    ...
-
-
-
-
-
-
+    spectra.save_results(dirname_results=r"C:\Users\...\results")

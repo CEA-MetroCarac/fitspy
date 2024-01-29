@@ -1,6 +1,29 @@
 Release Notes
 =============
 
+Version 2024.2 (January 29, 2024)
+---------------------------------
+
+New features:
+
+- Add a progressbar in the terminal and in the GUI to follow the calculation progression during the fit processing
+- Enable the loading of user-defined models through dedicated 'Load' buttons in the GUI.
+
+
+
+Bug fixes/enhancements:
+
+- Fixed bug when reloading 'old' model.json in which :code:`bkg_model` was absent
+- Baseline format/use revisited to disable multiple baselines subtract capability (the 'baseline_history' spectrum attributes has been removed)
+- Display the models parameters on the figure whatever the fit status
+- Highlight/reduce the peak model curve linewidth according to the fit success status
+- Reproduce the same view when reloading a model, considering the fit success status
+- Fixed bug when using user-defined model in multithreading
+- Take into account the 'fit_kws' through the 'kwargs' of Spectrum.fit() to be passed to the lmfit Model.fit()
+- Fixed bug in bkg_model plotting
+- Fixed bug in removing 'old' Spectra 2D-map when reloading a 'new' one
+
+
 Version 2024.1 (January 16, 2024)
 ---------------------------------
 

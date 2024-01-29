@@ -20,6 +20,12 @@ Welcome to Fitspy's documentation!
 
 
 .. toctree::
+   :caption: Developers Guide
+
+   dev_guide/dev_notes.rst
+
+
+.. toctree::
    :maxdepth: 2
    :caption: API References
 

@@ -17,7 +17,7 @@ The separators between the columns can be tabulation :code:`\t`, comma :code:`,`
 
 Note that the first row is skipped and the (x, y) rows can be unordered.
 
-Example of input data file (extract)::
+Example of input data file::
 
     #Wave       #Intensity
     958.468750	307.873749
@@ -46,7 +46,7 @@ The subsequent rows are related to the spectra intensity at the 'pixel' coordina
 **The number of intensity values defined at each row must be consistent with the support (x) defined in the first row**.
 The X-Y spectra can be defined in a partial and unordered 2D grid.
 
-Note that (X) and (Y) are not necessary related to spacial dimensions. They can refer to any other dimensions like time, ...
+Note that (X) and (Y) are not necessary related to spacial dimensions. They can refer to any other dimensions like time, a study parameter ...
 
 Example of 2D-map input data::
 

@@ -3,20 +3,18 @@ Peak models
 
 As for the background models, the peak models in `Fitspy` are issued either from predefined models, or by he user-defined models.
 
-.. warning::
-    To be correctly interpreted by `Fitspy`, all the models are / should be defined from the following parameters:
-
-    - :math:`x0` : the peak position
-    - :math:`ampli` : the peak amplitude
-    - :math:`fwhm` : the Full Width at Half Maximum
-    - :math:`fwhm_l` : the `fwhm` at the left side of `x0` (for the asymmetric models)
-    - :math:`fwhm_r` : the `fwhm` at the right side of `x0` (for the asymmetric models)
-    - :math:`alpha` : weighting coefficient (used in the Pseudovoigt model))
 
 Predefined models
 -----------------
 
-The predefined peak models available in `Fitspy` are:
+The predefined peak models available in `Fitspy` relies on the following parameters:
+
+- :math:`x0` : the peak position
+- :math:`ampli` : the peak amplitude
+- :math:`fwhm` : the Full Width at Half Maximum
+- :math:`fwhm_l` : the `fwhm` at the left side of `x0` (for the asymmetric models)
+- :math:`fwhm_r` : the `fwhm` at the right side of `x0` (for the asymmetric models)
+- :math:`alpha` : weighting coefficient (used in the Pseudovoigt model)
 
 Gaussian
 ~~~~~~~~
@@ -52,16 +50,19 @@ Pseudovoigt
 User-defined models
 -------------------
 
-In the :code:`%HOMEUSER%/Fitspy` directory, users models can be defined through expressions written in a file named  :code:`models.txt`::
+As for the background, users models can be defined through literal expressions in a *'.txt'* file or from python scripts in a *'.py'* file.
+
+Example of a model defined by a literal expression::
+
 
     Gaussian_1 = ampli * exp(-(x - x0) ** 2 / (fwhm**2 / (4 * log(2))))
 
 
-or using Python encoding, in a file named  :code:`models.py`::
+Example of a model defined in python::
 
     import numpy as np
     from lmfit.models import GaussianModel
-    from fitspy import MODELS
+    from fitspy import PEAK_MODELS
 
     LMFIT_GAUSSIAN_MODEL = GaussianModel()
 
@@ -74,10 +75,22 @@ or using Python encoding, in a file named  :code:`models.py`::
         sigma = fwhm / (2. * np.sqrt(2. * np.log(2.)))
         return sigma * np.sqrt(2. * np.pi) * LMFIT_GAUSSIAN_MODEL.eval(x=x, center=x0, amplitude=ampli, sigma=sigma)
 
-    MODELS.update({"Gaussian_2": gaussian_2})
-    MODELS.update({"Gaussian_3": gaussian_3})
+    PEAK_MODELS.update({"Gaussian_2": gaussian_2})
+    PEAK_MODELS.update({"Gaussian_3": gaussian_3})
 
 where in the examples given above, the resulting :code:`Gaussian_1`, :code:`Gaussian_2` and :code:`Gaussian_3` yield identical results to those obtained from the predefined :code:`Gaussian` model.
 
+As with the background models:
+
+Through the GUI, the corresponding *'.txt'* or *'.py'* files can be loaded via the button :code:`Load` located to the right of the **MODEL** combobox.
+
+In python, the users models can be loaded by the functions :func:`~fitspy.utils.load_models_from_txt` and :func:`~fitspy.utils.load_models_from_py`.
+*(See example in* `ex_gui_users_defined_models.py <https://github.com/CEA-MetroCarac/fitspy/tree/main/examples/ex_gui_users_defined_models.py>`_ *)*
+
+For recurrent use, the user-defined models can be defined in files named :code:`peak_models.txt` or :code:`peak_models.py` to put in :code:`%HOMEUSER%/Fitspy`.
+
+
 .. warning::
-    users models issued from expressions in the `models.txt` are not serializable. Consequently, for **multiprocessing calculations**, the user should instead opt for models defined through the Python script.
+    The users models can be defined with parameters that differ from those used in the predefined models. In such cases, these parameters are initialized to 1 for the fitting process and are not subject to any range limitations.
+
+    However, it is strongly recommended to use the same parameters as much as possible as those used in the predefined models.
