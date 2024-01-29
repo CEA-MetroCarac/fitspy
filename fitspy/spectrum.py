@@ -33,7 +33,7 @@ def create_model(model, model_name, prefix=None):
             model.prefix = prefix  # -> make model.param_names = []
             for name in param_names:  # reassign model.param_names with prefix
                 model.param_names.append(prefix + name)
-    if isinstance(model, type):
+    elif isinstance(model, type):
         model = model()
     else:
         model = Model(model, independent_vars=['x'], prefix=prefix)
