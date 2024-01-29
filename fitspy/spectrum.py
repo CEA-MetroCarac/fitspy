@@ -9,8 +9,7 @@ from copy import deepcopy
 import numpy as np
 import pandas as pd
 from scipy.signal import find_peaks
-from lmfit import Model, report_fit, fit_report
-from lmfit.model import ModelResult
+from lmfit import Model
 from lmfit.models import ConstantModel, LinearModel, ParabolicModel, \
     ExponentialModel, ExpressionModel  # pylint:disable=unused-import
 
@@ -34,8 +33,11 @@ def create_model(model, model_name, prefix=None):
             model.prefix = prefix  # -> make model.param_names = []
             for name in param_names:  # reassign model.param_names with prefix
                 model.param_names.append(prefix + name)
+    if isinstance(model, type):
+        model = model()
     else:
         model = Model(model, independent_vars=['x'], prefix=prefix)
+    model.name2 = model_name
     return model
 
 
@@ -91,7 +93,10 @@ class Spectrum:
         Default is 200.
     result_fit: lmfit.ModelResult
         Object resulting from lmfit fitting. Default value is an 'empty'
-        function that enables to address a 'result_fit.success' status
+        function that enables to address a 'result_fit.success' status.
+        In Multithreading, due to the potential non-picklable objects that the
+        ModelResult may contain, result_fit is limited to success (bool) and
+        fit_report (str).
     """
 
     def __init__(self):
@@ -383,10 +388,9 @@ class Spectrum:
                 self.bkg_model.set_param_hint(key, value=val.value,
                                               min=-np.inf, max=np.inf,
                                               vary=True, expr=None)
-            self.bkg_model.name2 = bkg_name
+        self.bkg_model.name2 = bkg_name
 
-    def fit(self, fit_method=None, fit_negative=None, max_ite=None,
-            report=False, **kwargs):
+    def fit(self, fit_method=None, fit_negative=None, max_ite=None, **kwargs):
         """ Fit the Spectrum models """
         # update class attributes
         if fit_method is not None:
@@ -434,10 +438,9 @@ class Spectrum:
                                          max_nfev=max_nfev,
                                          fit_kws=fit_kws,
                                          **kwargs)
-        self.reassign_params()
 
-        if report:
-            report_fit(self.result_fit)
+        self.result_fit.fit_report = self.result_fit.fit_report()
+        self.reassign_params()
 
     def auto_baseline(self):
         """ Calculate 'baseline.points' considering 'baseline.distance'"""
@@ -521,7 +524,7 @@ class Spectrum:
             line, = ax.plot(x, y, lw=linewidth)
             lines.append(line)
 
-        if linewidth == 1:  # self.result_fit.success
+        if hasattr(self.result_fit, 'success') and self.result_fit.success:
             ax.plot(x, y_bkg + y_models, 'b', label="Fitted profile")
 
         return lines
@@ -563,12 +566,12 @@ class Spectrum:
 
     def save_stats(self, dirname_stats):
         """ Save statistics in a '.txt' file located in 'dirname_stats' """
-        if isinstance(self.result_fit, ModelResult):
+        if hasattr(self.result_fit, 'fit_report'):
             _, name, _ = fileparts(self.fname)
             fname_stats = os.path.join(dirname_stats, name + '_stats.txt')
             fname_stats = check_or_rename(fname_stats)
             with open(fname_stats, 'w') as fid:
-                fid.write(fit_report(self.result_fit))
+                fid.write(self.result_fit.fit_report)
 
     def save(self, fname_json=None):
         """ Return a 'dict_attrs' dictionary from the spectrum attributes and
