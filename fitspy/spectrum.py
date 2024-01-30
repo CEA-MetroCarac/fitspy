@@ -151,6 +151,7 @@ class Spectrum:
                 setattr(self, key, fit_kwargs[key])
 
         if 'peak_models' in keys:
+            self.peak_index = itertools.count(start=1)
             self.peak_models = []
             for _, dict_model in model_dict['peak_models'].items():
                 for model_name, param_hints in dict_model.items():
