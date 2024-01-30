@@ -72,7 +72,7 @@ The baseline is then approximated over the entire spectrum range using either pi
 
 Once the baseline has been subtracted, the next step consists of defining the **peaks** of interest for the decomposition.
 This can be done either directly in the figure by clicking, or by an `Auto` mode which consists of an iterative process to automatically determine the main peak locations.
-Each peak is associated with a model, which can be either a predefined `Fitspy` model (Gaussian model, Lorentzian model, their asymmetric variants, or a Pseudovoigt model) or user-defined model issued from literal expressions in a .txt file or by a Python script in a .py. These models rely essentially on 3 main parameters: a position, an amplitude and a width (full-width half-maximum, FWHM). This width can be differentiated *left and right* in the frame for an asymmetric model.
+Each peak is associated with a model, which can be either a predefined `Fitspy` model (Gaussian model, Lorentzian model, their asymmetric variants, or a Pseudovoigt model) or a user-defined model issued from literal expressions in a .txt file or from a Python script in a .py file. These models rely essentially on 3 main parameters: a position, an amplitude and a width (full-width half-maximum, FWHM). This width can be differentiated *left and right* in the frame for an asymmetric model.
 
 For the fit, an additional background model can be added. 
 Similar to peak models, background models can be defined using pre-defined models provided by `Fitspy` (Constant, Linear, Parabolic or Exponential) or by loading user-defined models from .txt or .py files.
