@@ -161,9 +161,9 @@ class SpectraMap(Spectra):
         else:  # models parameter displaying
             self.arr = np.nan * np.zeros((self.shape_map[0], self.shape_map[1]))
             for spectrum in self:
-                for j, lab in enumerate(spectrum.models_labels):
+                for j, lab in enumerate(spectrum.peak_labels):
                     if lab == label:
-                        params = spectrum.models[j].param_hints
+                        params = spectrum.peak_models[j].param_hints
                         if var in params.keys():
                             ind = self.spectrum_indices(spectrum)
                             self.arr[ind[0], ind[1]] = params[var]['value']

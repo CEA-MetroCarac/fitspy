@@ -363,7 +363,7 @@ class GUI(Callbacks):
 
         def update_labels():
             labels = sorted(list(set([label for spectrum in spectra_map
-                                      for label in spectrum.models_labels])))
+                                      for label in spectrum.peak_labels])))
             cbox1['values'] = labels
             if len(labels) > 0:
                 spectra_map.label.set(labels[0])
