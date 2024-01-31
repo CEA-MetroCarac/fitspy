@@ -258,8 +258,8 @@ class TabView:
     def update_stats(self):
         """ Update the statistics """
         self.text.delete(1.0, END)
-        if hasattr(self.spectrum.result_fit, 'fit_report'):
-            self.text.insert(END, self.spectrum.result_fit.fit_report)
+        if hasattr(self.spectrum.result_fit, 'report'):
+            self.text.insert(END, self.spectrum.result_fit.report)
             self.text.pack()
 
     def delete(self):

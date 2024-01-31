@@ -99,7 +99,7 @@ class Spectrum:
         function that enables to address a 'result_fit.success' status.
         In Multithreading, due to the potential non-picklable objects that the
         ModelResult may contain, result_fit is limited to success (bool) and
-        fit_report (str).
+        report (str).
     """
 
     def __init__(self):
@@ -473,7 +473,8 @@ class Spectrum:
                                          fit_kws=fit_kws,
                                          **kwargs)
 
-        self.result_fit.fit_report = self.result_fit.fit_report()
+        report = self.result_fit.fit_report()
+        self.result_fit.report = '\n'.join(report.split('\n')[2:])
         self.reassign_params()
 
     def auto_baseline(self):
@@ -559,8 +560,9 @@ class Spectrum:
             line, = ax.plot(x, y_peak, lw=linewidth)
             lines.append(line)
 
-        if hasattr(self.result_fit, 'success') and self.result_fit.success:
-            ax.plot(x, y_bkg + y_peaks, 'b', label="Fitted profile")
+        if hasattr(self.result_fit, 'success'):
+            y_fit = y_bkg + y_peaks
+            ax.plot(x, y_fit, 'b', lw=linewidth, label="Fitted profile")
 
         return lines
 
@@ -605,12 +607,12 @@ class Spectrum:
 
     def save_stats(self, dirname_stats):
         """ Save statistics in a '.txt' file located in 'dirname_stats' """
-        if hasattr(self.result_fit, 'fit_report'):
+        if hasattr(self.result_fit, 'report'):
             _, name, _ = fileparts(self.fname)
             fname_stats = os.path.join(dirname_stats, name + '_stats.txt')
             fname_stats = check_or_rename(fname_stats)
             with open(fname_stats, 'w') as fid:
-                fid.write(self.result_fit.fit_report)
+                fid.write(self.result_fit.report)
 
     def save(self, fname_json=None):
         """ Return a 'model_dict' dictionary from the spectrum attributes and
