@@ -424,7 +424,8 @@ class Spectrum:
                                               vary=True, expr=None)
         self.bkg_model.name2 = bkg_name
 
-    def fit(self, fit_method=None, fit_negative=None, max_ite=None, **kwargs):
+    def fit(self, fit_method=None, fit_negative=None, max_ite=None,
+            reinit_guess=True, **kwargs):
         """ Fit the Spectrum models """
         # update class attributes
         if fit_method is not None:
@@ -445,6 +446,19 @@ class Spectrum:
         if len(self.peak_models) > 1:
             for peak_model in self.peak_models[1:]:
                 comp_model += peak_model
+
+        # re-initialize 'ampli' and 'fwhm'
+        if reinit_guess:
+            fwhm_init = self.x[1] - self.x[0]
+            for component in comp_model.components:
+                keys = list(component.param_hints.keys())
+                if 'ampli' in keys and 'x0' in keys:
+                    x0 = component.param_hints['x0']['value']
+                    ind = closest_index(self.x, x0)
+                    component.param_hints['ampli']['value'] = self.y[ind]
+                for key in keys:
+                    if key in ['fwhm', 'fwhm_l', 'fwhm_r']:
+                        component.param_hints[key]['value'] = fwhm_init
 
         # background model addition
         if self.bkg_model is not None:
@@ -508,7 +522,7 @@ class Spectrum:
                                                 fwhm=dx, fwhm_l=dx, fwhm_r=dx)
             self.peak_models.append(peak_model)
             self.peak_labels.append(f"{index}")
-            self.fit()
+            self.fit(reinit_guess=False)
             is_ok = self.result_fit.success
             y = y0 - self.result_fit.best_fit
             if y.max() < 0.05 * y0.max():
@@ -574,7 +588,7 @@ class Spectrum:
         else:
             y_fit = np.zeros_like(x)
             for peak_model in self.peak_models:
-                y_fit += model.eval(peak_model.make_params(), x=x)
+                y_fit += peak_model.eval(peak_model.make_params(), x=x)
             if self.bkg_model is not None:
                 bkg_model = self.bkg_model
                 y_fit += bkg_model.eval(bkg_model.make_params(), x=x)
