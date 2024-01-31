@@ -183,7 +183,6 @@ class Spectra(list):
                     queue_incr.put(1)
             else:
                 fit_mp(spectra, ncpus, queue_incr)
-
             queue_incr.put("finished")
 
         Thread(target=proc).start()
