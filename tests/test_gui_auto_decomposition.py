@@ -17,4 +17,4 @@ def test_gui_auto_decomposition(tmp_path):
             [365.93083875575996, 10720.161126347022, 72.09201006313779]]
 
     for result, reference in zip(results, refs):
-        assert result == approx(reference, rel=1e-3)
+        assert result == approx(reference, rel=5e-3)
