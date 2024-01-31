@@ -31,13 +31,15 @@ From a practical point of view, the `Fitspy` GUI (see \autoref{fig:GUI}) is desi
 
 The analysis of spectra in many areas of physics, from materials characterisation to astrophysics, often requires their decomposition into more or less complex models to estimate the chemical composition of the subject being analysed.
 To carry out these decompositions, research communities can rely on spectral decomposition tools.
-While many open-source tools for spectral fitting exist, most of them have, however, been designed for specific application domains, offering a broad range of services beyond mere spectral fitting. Consequently, these tools can prove challenging to use, especially for less experienced individuals.
+While many open-source tools for spectral decomposition exist, most of them have, however, been designed for specific application domains, offering a broad range of services beyond mere spectral fitting. Consequently, these tools can prove challenging to use, especially for less experienced individuals.
 
 In the vein of generic tools like `Fityk` [@Fityk] or `PRISMA`  [@PRISMA], `Fitspy` is a dedicated tool for spectral fitting — and only spectral fitting — with the following characteristics or functionalities:
 
 * **Agnostic Nature**: `Fitspy` is not tied to any specific physical quantity or database. It is designed to process spectra regardless of their x-support and y-intensity without any prior knowledge.
 
 * **Python Implementation**: `Fitspy` is coded in Python. As a result, for individuals with basic knowledge of the language, spectra can be easily processed by scripts.
+
+* **User Models**: `Fitspy` allows users to input their own models either in the form of literal expressions (for simple models) or through Python scripts (for more complex models).
 
 * **2D Maps**: `Fitspy` has been designed to handle spectra derived from 2D acquisitions. Note that "2D" can encompass time or any other dimension. When dealing with 2D data, an interactive map in the `Fitspy` GUI allows users to locate and select spectra of interest easily.
 
@@ -47,7 +49,7 @@ In the vein of generic tools like `Fityk` [@Fityk] or `PRISMA`  [@PRISMA], `Fits
 
 * **Simple GUI**: `Fitspy` has been designed to be as intuitive and simple to use as possible (subjective criterion).
 
-To the author's knowledge, although many open-source softwares are much more advanced in certain aspects mentioned, none of them seems to encompass all the functionalities described above. Therefore, the features of `Fitspy` make it an ideal tool for quickly fitting a few spectra through its GUI or for fitting several thousand of spectra (or more) by python batches, as can occur in the context of large-scale parametric studies [@wafer].
+To the author's knowledge, although many open-source softwares are much more advanced in certain aspects mentioned, none of them seems to encompass all the functionalities described above. Therefore, the features of `Fitspy` make it an ideal tool for quickly fitting a few spectra through its GUI or for fitting several thousand of spectra (or more) by Python batches, as can occur in the context of large-scale parametric studies [@wafer].
 
 # `Fitspy` workflow short description
 
@@ -70,10 +72,12 @@ The baseline is then approximated over the entire spectrum range using either pi
 
 Once the baseline has been subtracted, the next step consists of defining the **peaks** of interest for the decomposition.
 This can be done either directly in the figure by clicking, or by an `Auto` mode which consists of an iterative process to automatically determine the main peak locations.
-Thanks to the functionalities offered by `lmfit`, each peak can be associated to a predefined model (a Gaussian model, a Lorentzian model, their asymmetric variants, or a Pseudovoigt model) or a user-defined model. These models rely essentially on 3 main parameters: a position, an amplitude and a width (full-width half-maximum, FWHM). This width can be differentiated *left and right* in the frame for an asymmetric model.
+Each peak is associated with a model, which can be either a predefined `Fitspy` model (Gaussian model, Lorentzian model, their asymmetric variants, or a Pseudovoigt model) or a user-defined model issued from literal expressions in a .txt file or from a Python script in a .py file. These models rely essentially on 3 main parameters: a position, an amplitude and a width (full-width half-maximum, FWHM). This width can be differentiated *left and right* in the frame for an asymmetric model.
 
-For the fit, a additional background model can be added.
-**Bounds** can be imposed for each of the parameters as well as associated **constraints**. If required, these constraints can be used to link model parameters together, for instance in the case where a physical ratio between the amplitudes of 2 peaks is expected.
+For the fit, an additional background model can be added. 
+Similar to peak models, background models can be defined using pre-defined models provided by `Fitspy` (Constant, Linear, Parabolic or Exponential) or by loading user-defined models from .txt or .py files.
+
+**Bounds** can be imposed for each of the parameters as well as associated **constraints**. If required, these constraints can be used to link model parameters together, for instance in the case where a physical ratio between the amplitudes of two peaks is expected.
 
 Finally, the parameters can be free to evolve during the fit processing or maintained fixed at their initial values.
 
@@ -90,11 +94,12 @@ All the processing steps previously described constitute a model in the sense of
 
 In terms of visualization, the GUI allows the users to display all of the spectra simultaneously (`Show All` mode) or, when a spectrum is selected, to display the corresponding fit decomposition and its residual. Figure titles and axis names can be customized and peak models labeled.
 
-All the actions described above can be performed through python scripts without using the GUI. In practice, when performing repeated analyses, for users having some Python skill, it may be useful to use `Fitspy` as follows:
+All the actions described above can be performed through Python scripts without using the GUI. 
+In practice, when performing repeated analyses, for users having some Python skill, it may be useful to use `Fitspy` as follows:
 
 1. create a `Fitspy model` with the GUI
 2. save the model
-3. apply the model to several sets of spectra using a python script
+3. apply the model to several datasets using a Python script
 
 This is this approach that has been recently used by teams at CEA to process tens of thousands of PhotoLuminescence and Raman spectra acquired on wafers, taking advantage of the parallelism capabilities offered by `Fitpsy` (see \autoref{fig:wafer}).
 
