@@ -441,6 +441,7 @@ class Spectrum:
             weights[y < 0] = 0
 
         # composite model creation
+        comp_model = None
         if len(self.peak_models) > 0:
             comp_model = self.peak_models[0]
         if len(self.peak_models) > 1:
@@ -448,7 +449,7 @@ class Spectrum:
                 comp_model += peak_model
 
         # re-initialize 'ampli' and 'fwhm'
-        if reinit_guess:
+        if reinit_guess and comp_model is not None:
             fwhm_init = self.x[1] - self.x[0]
             for component in comp_model.components:
                 keys = list(component.param_hints.keys())
