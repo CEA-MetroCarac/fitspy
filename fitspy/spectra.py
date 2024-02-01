@@ -159,7 +159,7 @@ class Spectra(list):
             Keywords arguments passed to spectrum.fit()
         """
         if fnames is None:
-            fnames = self.all
+            fnames = self.fnames
 
         ntot = len(fnames)
         if ntot == 0:
