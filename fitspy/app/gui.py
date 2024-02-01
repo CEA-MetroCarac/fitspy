@@ -109,7 +109,7 @@ class GUI(Callbacks):
         # Baseline parameters
         self.baseline_attached = BooleanVar(value=True)
         self.baseline_sigma = IntVar(value=0)
-        self.baseline_distance = DoubleVar(value=500)
+        self.baseline_distance = IntVar(value=500)
         self.baseline_mode = StringVar(value='Linear')
         self.baseline_order_max = IntVar(value=2)
 
