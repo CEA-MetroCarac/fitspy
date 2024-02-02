@@ -74,7 +74,7 @@ def lorentzian(x, ampli, fwhm, x0):
         plt.grid()
         plt.plot(x, y)
     """
-    return ampli * fwhm ** 2 / (4 * ((x - x0) ** 2 + fwhm ** 2 / 4))
+    return ampli * fwhm ** 2 / (4 * ((x - x0) ** 2 + fwhm ** 2 / 4) + 1e-6)
 
 
 def lorentzian_asym(x, ampli, fwhm_l, fwhm_r, x0):
