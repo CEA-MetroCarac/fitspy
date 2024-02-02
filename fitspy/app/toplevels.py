@@ -7,6 +7,7 @@ from tkinter.ttk import Combobox, Progressbar
 
 import matplotlib.pyplot as plt
 from matplotlib.colors import rgb2hex
+from lmfit import fit_report
 from lmfit.model import ModelResult
 
 from fitspy.app.utils import add, add_entry
@@ -258,8 +259,8 @@ class TabView:
     def update_stats(self):
         """ Update the statistics """
         self.text.delete(1.0, END)
-        if hasattr(self.spectrum.result_fit, 'report'):
-            self.text.insert(END, self.spectrum.result_fit.report)
+        if isinstance(self.spectrum.result_fit, ModelResult):
+            self.text.insert(END, fit_report(self.spectrum.result_fit))
             self.text.pack()
 
     def delete(self):

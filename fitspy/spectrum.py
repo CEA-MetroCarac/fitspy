@@ -9,7 +9,8 @@ from copy import deepcopy
 import numpy as np
 import pandas as pd
 from scipy.signal import find_peaks
-from lmfit import Model
+from lmfit import Model, fit_report
+from lmfit.model import ModelResult
 from lmfit.models import ConstantModel, LinearModel, ParabolicModel, \
     ExponentialModel, ExpressionModel  # pylint:disable=unused-import
 
@@ -99,11 +100,8 @@ class Spectrum:
             An iteration consists in evaluating all the 'free' parameters once.
             Default is 200.
     result_fit: lmfit.ModelResult
-        Object resulting from lmfit fitting. Default value is an 'empty'
-        function that enables to address a 'result_fit.success' status.
-        In Multithreading, due to the potential non-picklable objects that the
-        ModelResult may contain, result_fit is limited to success (bool) and
-        report (str).
+        Object resulting from lmfit fitting. Default value is a 'None' object
+        (finction) that enables to address a 'result_fit.success' status.
     """
 
     def __init__(self):
@@ -495,9 +493,6 @@ class Spectrum:
                                          max_nfev=max_nfev,
                                          fit_kws=fit_kws,
                                          **kwargs)
-
-        report = self.result_fit.fit_report()
-        self.result_fit.report = '\n'.join(report.split('\n')[2:])
         self.reassign_params()
 
     def auto_baseline(self):
@@ -630,12 +625,12 @@ class Spectrum:
 
     def save_stats(self, dirname_stats):
         """ Save statistics in a '.txt' file located in 'dirname_stats' """
-        if hasattr(self.result_fit, 'report'):
+        if isinstance(self.result_fit, ModelResult):
             _, name, _ = fileparts(self.fname)
             fname_stats = os.path.join(dirname_stats, name + '_stats.txt')
             fname_stats = check_or_rename(fname_stats)
             with open(fname_stats, 'w') as fid:
-                fid.write(self.result_fit.report)
+                fid.write(fit_report(self.result_fit))
 
     def save(self, fname_json=None):
         """ Return a 'model_dict' dictionary from the spectrum attributes and
