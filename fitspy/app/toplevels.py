@@ -2,7 +2,7 @@
 Module dedicated to external widgets (Tkinter.Toplevel) creation
 """
 from tkinter import Toplevel, Label, Entry, Button, Checkbutton, Text, Scrollbar
-from tkinter import IntVar, StringVar, BooleanVar, W, E, END, RIGHT
+from tkinter import IntVar, DoubleVar, StringVar, BooleanVar, W, E, END, RIGHT
 from tkinter.ttk import Combobox, Progressbar
 
 import matplotlib.pyplot as plt
@@ -333,7 +333,7 @@ class Settings:
 
         for row, (key, val) in enumerate(params.items()):
             text = key.replace('_', ' ')
-            if isinstance(val, IntVar):
+            if isinstance(val, (IntVar, DoubleVar)):
                 add_entry(self.frame, row, text, val, bind_fun=bind_fun)
             elif isinstance(val, StringVar):
                 cbox = Combobox(self.frame, values=['On', 'Off'],
@@ -386,6 +386,7 @@ class FitSettings(Settings):
     def __init__(self, root):
         super().__init__(root)
         self.params = {'fit_negative_values': StringVar(value='Off'),
+                       'coef_noise': DoubleVar(value=2),
                        'maximum_iterations': IntVar(value=200),
                        'fit_method': StringVar(value='Leastsq'),
                        'ncpus': StringVar(value='auto')}
@@ -410,6 +411,7 @@ class FigureSettings(Settings):
         super().__init__(root)
         self.params = {'plot_fit': StringVar(value='On'),
                        'plot_negative_values': StringVar(value='On'),
+                       'plot_noise_level': StringVar(value='On'),
                        'plot_baseline': StringVar(value='On'),
                        'plot_background': StringVar(value='On'),
                        'plot_residual': StringVar(value='Off'),

@@ -330,11 +330,13 @@ class Callbacks:
         if fig_settings['plot_fit'].get() == 'On':
             show_attractors = self.attractors.get()
             show_neg_values = fig_settings['plot_negative_values'].get() == 'On'
+            show_noise_level = fig_settings['plot_noise_level'].get() == 'On'
             show_baseline = fig_settings['plot_baseline'].get() == 'On'
             show_background = fig_settings['plot_background'].get() == 'On'
             self.lines = spectrum.plot(self.ax,
                                        show_attractors=show_attractors,
                                        show_negative_values=show_neg_values,
+                                       show_noise_level=show_noise_level,
                                        show_baseline=show_baseline,
                                        show_background=show_background)
             line_bkg_visible = show_background and spectrum.bkg_model
@@ -654,6 +656,7 @@ class Callbacks:
         params = self.fit_settings.params
         fit_params = self.current_spectrum.fit_params
         fit_params['fit_negative'] = params['fit_negative_values'].get() == 'On'
+        fit_params['coef_noise'] = params['coef_noise'].get()
         fit_params['max_ite'] = params['maximum_iterations'].get()
         fit_params['fit_method'] = params['fit_method'].get()
 

@@ -9,6 +9,7 @@ from copy import deepcopy
 import numpy as np
 import pandas as pd
 from scipy.signal import find_peaks
+from scipy.ndimage import uniform_filter1d
 from lmfit import Model, fit_report
 from lmfit.model import ModelResult
 from lmfit.models import ConstantModel, LinearModel, ParabolicModel, \
@@ -23,7 +24,8 @@ from fitspy import PEAK_MODELS, PEAK_PARAMS, BKG_MODELS
 
 ATTRACTORS_PARAMS = {'distance': 20, 'prominence': None,
                      'width': None, 'height': None, 'threshold': None}
-FIT_PARAMS = {'method': 'leastsq', 'fit_negative': False, 'max_ite': 200}
+FIT_PARAMS = {'method': 'leastsq', 'fit_negative': False, 'max_ite': 200,
+              'coef_noise': 2}
 
 
 def create_model(model, model_name, prefix=None):
@@ -99,9 +101,14 @@ class Spectrum:
             Maximum number of iteration associated to the fitting process.
             An iteration consists in evaluating all the 'free' parameters once.
             Default is 200.
+        * coef_noise: float
+            Coefficient applied to the estimated noise amplitude to define a
+            threshold below which the fit weights are set to 0, and local
+            peak models are disabled .
+            Default is 2.
     result_fit: lmfit.ModelResult
         Object resulting from lmfit fitting. Default value is a 'None' object
-        (finction) that enables to address a 'result_fit.success' status.
+        (function) that enables to address a 'result_fit.success' status.
     """
 
     def __init__(self):
@@ -151,10 +158,6 @@ class Spectrum:
         for key in vars(self).keys():
             if key in keys:
                 setattr(self, key, model_dict[key])
-
-        # for key in ['fit_method', 'fit_negative', 'max_ite']:
-        #     if key in fit_kwargs:
-        #         setattr(self, key, fit_kwargs[key])
 
         if 'peak_models' in keys:
             self.peak_index = itertools.count(start=1)
@@ -323,13 +326,12 @@ class Spectrum:
         return peak_model
 
     def reassign_params(self):
-        """ Reassign fitted 'params' to the 'models' """
+        """ Reassign fitted 'params' values to the 'models' """
         for peak_model in self.peak_models:
             for key in peak_model.param_names:
                 param = self.result_fit.params[key]
                 name = key[4:]  # remove prefix 'mXX_'
-                peak_model.set_param_hint(name, value=param.value,
-                                          min=param.min, max=param.max)
+                peak_model.set_param_hint(name, value=param.value)
         if self.bkg_model is not None:
             for key in self.bkg_model.param_names:
                 param = self.result_fit.params[key]
@@ -431,7 +433,7 @@ class Spectrum:
         self.bkg_model.name2 = bkg_name
 
     def fit(self, fit_method=None, fit_negative=None, max_ite=None,
-            reinit_guess=True, **kwargs):
+            reinit_guess=True, coef_noise=None, **kwargs):
         """ Fit the Spectrum models """
         # update class attributes
         if fit_method is not None:
@@ -440,11 +442,17 @@ class Spectrum:
             self.fit_params['fit_negative'] = fit_negative
         if max_ite is not None:
             self.fit_params['max_ite'] = max_ite
+        if coef_noise is not None:
+            self.fit_params['coef_noise'] = coef_noise
 
         x, y = self.x, self.y
         weights = np.ones_like(x)
         if not self.fit_params['fit_negative']:
             weights[y < 0] = 0
+
+        ampli_noise = np.median(np.abs(y[:-1] - y[1:]) / 2)
+        noise_level = self.fit_params['coef_noise'] * ampli_noise
+        weights[y < noise_level] = 0
 
         # composite model creation
         comp_model = None
@@ -454,20 +462,41 @@ class Spectrum:
             for peak_model in self.peak_models[1:]:
                 comp_model += peak_model
 
+        # save initial 'vary' state
+        vary_init = None
+        if comp_model is not None:
+            vary_init = [param['vary'] for component in comp_model.components
+                         for param in component.param_hints.values()]
+
         # re-initialize 'ampli' and 'fwhm'
         if reinit_guess and comp_model is not None:
-            fwhm_init = self.x[1] - self.x[0]
-            for component in comp_model.components:
-                keys = list(component.param_hints.keys())
-                if 'ampli' in keys and 'x0' in keys:
-                    x0 = component.param_hints['x0']['value']
-                    ind = closest_index(self.x, x0)
-                    component.param_hints['ampli']['value'] = self.y[ind]
-                for key in keys:
-                    if key in ['fwhm', 'fwhm_l', 'fwhm_r']:
-                        component.param_hints[key]['value'] = fwhm_init
 
-        # background model addition
+            # replace small 'fwhm' values by fwhm_min = dx
+            fwhm_min = max(np.diff(x))
+            for component in comp_model.components:
+                params = component.param_hints
+                for key in params.keys():
+                    if key in ['fwhm', 'fwhm_l', 'fwhm_r']:
+                        param = params[key]
+                        param['value'] = max(fwhm_min, param['value'])
+
+            # disable a peak_model in a noisy region
+            if noise_level > 0:
+                ymean = uniform_filter1d(y, size=5)
+                for k, component in enumerate(comp_model.components):
+                    params = component.param_hints
+                    if 'ampli' in params and 'x0' in params:
+                        ind = closest_index(x, params['x0']['value'])
+                        if ymean[ind] < noise_level or k == 2:
+                            params['ampli']['value'] = 0
+                            for key in params.keys():
+                                if key in ['fwhm', 'fwhm_l', 'fwhm_r']:
+                                    params[key]['value'] = 0
+                                params[key]['vary'] = False
+                        else:
+                            params['ampli']['value'] = y[ind]
+
+        # bkg_model addition
         if self.bkg_model is not None:
             if len(self.peak_models) > 0:
                 comp_model += self.bkg_model
@@ -495,6 +524,16 @@ class Spectrum:
                                          **kwargs)
         self.reassign_params()
 
+        # reassign initial 'vary'
+        if vary_init is not None:
+            i = itertools.count()
+            components = comp_model.components
+            if self.bkg_model is not None:
+                components = components[:-1]
+            for component in components:
+                for param in component.param_hints.values():
+                    param['vary'] = vary_init[next(i)]
+
     def auto_baseline(self):
         """ Calculate 'baseline.points' considering 'baseline.distance'"""
         peaks, _ = find_peaks(-self.y, distance=self.baseline.distance)
@@ -502,7 +541,7 @@ class Spectrum:
         self.baseline.points[1] = list(self.y[peaks])
 
     def subtract_baseline(self):
-        """ Subtract the baseline to the spectrum 
+        """ Subtract the baseline to the spectrum
             if this has not been done previously """
         if not self.baseline.is_subtracted:
             y = self.y if self.baseline.attached else None
@@ -533,7 +572,7 @@ class Spectrum:
                 is_ok = False
 
     def plot(self, ax, show_attractors=True, show_negative_values=True,
-             show_baseline=True, show_background=True):
+             show_noise_level=True, show_baseline=True, show_background=True):
         """ Plot the spectrum with the fitted models and Return the profiles """
         lines = []
         x, y = self.x, self.y
@@ -549,6 +588,12 @@ class Spectrum:
 
         if show_negative_values:
             ax.plot(x[y < 0], y[y < 0], 'ro', ms=4, label="Negative values")
+
+        if show_noise_level:
+            ampli_noise = np.median(np.abs(y[:-1] - y[1:]) / 2)
+            y_noise_level = self.fit_params['coef_noise'] * ampli_noise
+            ax.hlines(y=y_noise_level, xmin=x[0], xmax=x[-1], colors='r',
+                      linestyles='dashed', lw=0.5, label="Noise level")
 
         if show_baseline and self.baseline.is_subtracted:
             self.baseline.plot(ax, x=x, show_all=False)
