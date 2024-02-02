@@ -25,8 +25,7 @@ def fit(params):
     spectrum.fit()
     shared_queue.put(1)
 
-    result_fit = spectrum.result_fit
-    return result_fit.values, result_fit.success, result_fit.report
+    return dill.dumps(spectrum.result_fit)
 
 
 def initializer(queue_incr):
@@ -49,15 +48,10 @@ def fit_mp(spectra, ncpus, queue_incr):
                              max_workers=ncpus) as executor:
         results = tuple(executor.map(fit, args))
 
-    for (values, success, report), spectrum in zip(results, spectra):
-        spectrum.result_fit.success = success
-        spectrum.result_fit.report = report
-        for peak_model in spectrum.peak_models:
-            for key in peak_model.param_names:
-                peak_model.set_param_hint(key[4:], value=values[key])
-        if spectrum.bkg_model is not None:
-            for key in spectrum.bkg_model.param_names:
-                spectrum.bkg_model.set_param_hint(key, value=values[key])
+    for result_fit_, spectrum in zip(results, spectra):
+        spectrum.result_fit = dill.loads(result_fit_)
+        spectrum.reassign_params()
+
 
 # import os
 # from concurrent.futures import ProcessPoolExecutor
