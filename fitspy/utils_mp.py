@@ -6,7 +6,6 @@ The strategy (see commented lines below) of passing the models to the workers
 once instead of duplicating them for each spectrum turned out to be slightly
   more costly in terms of CPU time finally (?).
 """
-import os
 from concurrent.futures import ProcessPoolExecutor
 import dill
 
@@ -40,9 +39,6 @@ def initializer(queue_incr):
 
 def fit_mp(spectra, ncpus, queue_incr):
     """ Multiprocessing fit function applied to spectra """
-
-    ncpus = ncpus or os.cpu_count()
-    ncpus = min(ncpus, os.cpu_count())
 
     spectrum = spectra[0]
     fit_method = spectrum.fit_method

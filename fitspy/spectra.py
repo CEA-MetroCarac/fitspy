@@ -161,6 +161,9 @@ class Spectra(list):
         if fnames is None:
             fnames = self.fnames
 
+        ncpus = ncpus or os.cpu_count()
+        ncpus = min(ncpus, os.cpu_count())
+
         ntot = len(fnames)
         if ntot == 0:
             return
@@ -186,7 +189,7 @@ class Spectra(list):
             queue_incr.put("finished")
 
         Thread(target=proc).start()
-        progressbar(queue_incr, ntot, tk_progressbar)
+        progressbar(queue_incr, ntot, ncpus, tk_progressbar)
 
     def save(self, fname_json, fnames=None):
         """
@@ -249,11 +252,11 @@ class Spectra(list):
         return spectra
 
 
-def progressbar(queue_incr, ntot, tk_progressbar=None):
+def progressbar(queue_incr, ntot, ncpus, tk_progressbar=None):
     """ Progress bar """
     n = 0
     is_finished = False
-    pbar = "\r[{:100}] {:.0f}% {}/{} {:.2f}s"
+    pbar = "\r[{:100}] {:.0f}% {}/{} {:.2f}s " + f"ncpus={ncpus}"
     t0 = time.time()
     while not is_finished:
         val = queue_incr.get()
