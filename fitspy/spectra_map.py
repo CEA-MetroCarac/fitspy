@@ -79,8 +79,14 @@ class SpectraMap(Spectra):
         y_map = y = list(np.sort(np.unique(arr[1:, 0])))
 
         # grid range associated to 'arr' to be consistent with the tools axis
-        extent = [x[0] - 0.5 * (x[1] - x[0]), x[-1] + 0.5 * (x[-1] - x[-2]),
-                  y[-1] + 0.5 * (y[-1] - y[-2]), y[0] - 0.5 * (y[1] - y[0])]
+        xmin = ymin = -0.5
+        xmax = ymax = 0.5
+        if len(x) > 1:
+            xmin = x[0] - 0.5 * (x[1] - x[0])
+            xmax = x[-1] + 0.5 * (x[-1] - x[-2])
+        if len(y) > 1:
+            ymin = y[-1] + 0.5 * (y[-1] - y[-2])
+            ymax = y[0] - 0.5 * (y[1] - y[0])
 
         # wavelengths
         x = arr[0][2:]
@@ -107,7 +113,7 @@ class SpectraMap(Spectra):
 
         self.xy_map = (x_map, y_map)
         self.shape_map = (len(self.xy_map[1]), len(self.xy_map[0]))
-        self.extent = extent
+        self.extent = [xmin, xmax, ymin, ymax]
         self.intensity = intensity_map
         self.arr = np.sum(intensity_map, axis=1).reshape(self.shape_map)
         self.coords = coords
