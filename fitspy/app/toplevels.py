@@ -437,15 +437,14 @@ if __name__ == '__main__':
     import tkinter as tk
     from fitspy.spectra import Spectrum
 
-    npeaks = 5
-    peak_models = []
-    for i in range(npeaks):
-        peak_models.append(Spectrum.create_peak_model(i, 'Lorentzian',
-                                                      x0=100 * i, ampli=10 * i))
+    models = []
+    for ind in range(5):
+        models.append(Spectrum.create_peak_model(ind, 'Lorentzian',
+                                                 x0=100 * ind, ampli=10 * ind))
 
     my_spectrum = Spectrum()
-    my_spectrum.peak_labels = list(range(npeaks))
-    my_spectrum.peak_models = peak_models
+    my_spectrum.peak_labels = list(range(5))
+    my_spectrum.peak_models = models
 
     my_root = tk.Tk()
     tabview = TabView(my_root)
