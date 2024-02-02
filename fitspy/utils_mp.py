@@ -14,7 +14,7 @@ from fitspy.spectrum import Spectrum
 
 def fit(params):
     """ Fitting function used in multiprocessing """
-    x, y, models_, method, fit_negative, max_ite = params
+    x, y, models_, fit_params = params
 
     models = []
     for model_ in models_:
@@ -24,7 +24,9 @@ def fit(params):
     spectrum.x = x
     spectrum.y = y
     spectrum.peak_models = models  # MODELS = peak_models + bkg_model
-    spectrum.fit(fit_method=method, fit_negative=fit_negative, max_ite=max_ite)
+    spectrum.bkg_model = bkg_model
+    spectrum.fit_params = fit_params
+    spectrum.fit()
     shared_queue.put(1)
 
     result_fit = spectrum.result_fit
@@ -54,7 +56,7 @@ def fit_mp(spectra, ncpus, queue_incr):
     args = []
     for spectrum in spectra:
         x, y = spectrum.x, spectrum.y
-        args.append((x, y, models_, fit_method, fit_negative, max_ite))
+        args.append((x, y, models_, fit_params))
 
     with ProcessPoolExecutor(initializer=initializer,
                              initargs=(queue_incr,),

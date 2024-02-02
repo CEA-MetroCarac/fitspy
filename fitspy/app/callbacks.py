@@ -207,14 +207,9 @@ class Callbacks:
         ncpus = self.get_ncpus(nfiles=len(fnames))
         args = (model_dict, fnames, ncpus, fit_only, self.progressbar)
 
-        params = self.fit_settings.params
-        kwargs = {'fit_negative': params['fit_negative_values'].get() == 'On',
-                  'max_ite': params['maximum_iterations'].get(),
-                  'fit_method': params['fit_method'].get()}
-
         self.progressbar.var.set(0)
         self.progressbar.frame.deiconify()
-        self.spectra.apply_model(*args, **kwargs)
+        self.spectra.apply_model(*args)
         self.progressbar.frame.withdraw()
         self.colorize_from_fit_status(fnames)
         self.reassign_current_spectrum(self.current_spectrum.fname)
@@ -654,6 +649,13 @@ class Callbacks:
 
         if fnames is not None:
             selection = False
+
+        # update current_spectrum.fit_params with the GUI fit_settings.params
+        params = self.fit_settings.params
+        fit_params = self.current_spectrum.fit_params
+        fit_params['fit_negative'] = params['fit_negative_values'].get() == 'On'
+        fit_params['max_ite'] = params['maximum_iterations'].get()
+        fit_params['fit_method'] = params['fit_method'].get()
 
         model_dict = self.current_spectrum.save()
         self.apply_model(model_dict=model_dict, fnames=fnames, fit_only=True,

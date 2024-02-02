@@ -22,6 +22,7 @@ from fitspy import PEAK_MODELS, PEAK_PARAMS, BKG_MODELS
 
 ATTRACTORS_PARAMS = {'distance': 20, 'prominence': None,
                      'width': None, 'height': None, 'threshold': None}
+FIT_PARAMS = {'method': 'leastsq', 'fit_negative': False, 'max_ite': 200}
 
 
 def create_model(model, model_name, prefix=None):
@@ -84,16 +85,19 @@ class Spectrum:
         List of labels associated to the peak models. Default is ['1', '2', ...]
     peak_index: itertools.count
         Counter used for peak models indexing when creating a lmfit.Model
-    fit_method: str
-        Method used for fitting. See lmfit.Model.fit().
-        Default method is 'leastsq'.
-    fit_negative: bool
-        Activation keyword to take into account negative values when fitting.
-        Default is False.
-    max_ite: int
-        Maximum number of iteration associated to the fitting process.
-        An iteration consists in evaluating all the 'free' parameters once.
-        Default is 200.
+    fit_params: dict
+        Dictionary used to manage the fit parameters:
+        * method: str
+            Method used for fitting. See lmfit.Model.fit().
+            Default method is 'leastsq'.
+        * fit_negative: bool
+            Activation keyword to take into account negative values when
+            fitting.
+            Default is False.
+        * max_ite: int
+            Maximum number of iteration associated to the fitting process.
+            An iteration consists in evaluating all the 'free' parameters once.
+            Default is 200.
     result_fit: lmfit.ModelResult
         Object resulting from lmfit fitting. Default value is an 'empty'
         function that enables to address a 'result_fit.success' status.
@@ -120,12 +124,10 @@ class Spectrum:
         self.peak_models = []
         self.peak_labels = []
         self.peak_index = itertools.count(start=1)
-        self.fit_method = 'leastsq'
-        self.fit_negative = False
-        self.max_ite = 200
+        self.fit_params = FIT_PARAMS
         self.result_fit = lambda: None
 
-    def set_attributes(self, model_dict, **fit_kwargs):
+    def set_attributes(self, model_dict):
         """Set attributes from a dictionary (obtained from a .json reloading)"""
 
         keys = model_dict.keys()
@@ -141,14 +143,20 @@ class Spectrum:
             model_dict['peak_labels'] = model_dict.pop('models_labels')
         if 'models_index' in keys:
             model_dict['peak_index'] = model_dict.pop('models_index')
+        if 'fit_method' in keys:
+            self.fit_params['method'] = model_dict.pop('fit_method')
+        if 'fit_negative' in keys:
+            self.fit_params['fit_negative'] = model_dict.pop('fit_negative')
+        if 'max_ite' in keys:
+            self.fit_params['max_ite'] = model_dict.pop('max_ite')
 
         for key in vars(self).keys():
             if key in keys:
                 setattr(self, key, model_dict[key])
 
-        for key in ['fit_method', 'fit_negative', 'max_ite']:
-            if key in fit_kwargs:
-                setattr(self, key, fit_kwargs[key])
+        # for key in ['fit_method', 'fit_negative', 'max_ite']:
+        #     if key in fit_kwargs:
+        #         setattr(self, key, fit_kwargs[key])
 
         if 'peak_models' in keys:
             self.peak_index = itertools.count(start=1)
@@ -429,15 +437,15 @@ class Spectrum:
         """ Fit the Spectrum models """
         # update class attributes
         if fit_method is not None:
-            self.fit_method = fit_method
+            self.fit_params['method'] = fit_method
         if fit_negative is not None:
-            self.fit_negative = fit_negative
+            self.fit_params['fit_negative'] = fit_negative
         if max_ite is not None:
-            self.max_ite = max_ite
+            self.fit_params['max_ite'] = max_ite
 
         x, y = self.x, self.y
         weights = np.ones_like(x)
-        if not self.fit_negative:
+        if not self.fit_params['fit_negative']:
             weights[y < 0] = 0
 
         # composite model creation
@@ -475,7 +483,7 @@ class Spectrum:
         nvarys = 0  # number of 'free' parameters
         for param in params:
             nvarys += param['vary'] if 'vary' in param else 1
-        max_nfev = max(2, self.max_ite) * nvarys
+        max_nfev = max(2, self.fit_params['max_ite']) * nvarys
 
         fit_kws = None
         if 'fit_kws' in kwargs:
@@ -483,7 +491,7 @@ class Spectrum:
             kwargs.pop('fit_kws')
 
         self.result_fit = comp_model.fit(y, params, x=x, weights=weights,
-                                         method=self.fit_method,
+                                         method=self.fit_params['method'],
                                          max_nfev=max_nfev,
                                          fit_kws=fit_kws,
                                          **kwargs)

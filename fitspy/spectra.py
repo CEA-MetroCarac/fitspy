@@ -136,7 +136,7 @@ class Spectra(list):
         return model_dict
 
     def apply_model(self, model_dict, fnames=None, ncpus=1,
-                    fit_only=False, tk_progressbar=None, **fit_kwargs):
+                    fit_only=False, tk_progressbar=None):
         """
         Apply 'model' to all or part of the spectra
 
@@ -155,8 +155,6 @@ class Spectra(list):
         tk_progressbar: ProgressBar obj, optional
             Progression bar using tkinter.ttk.Progressbar to follow the
             'apply_model' progression
-        fit_kwargs: dict
-            Keywords arguments passed to spectrum.fit()
         """
         if fnames is None:
             fnames = self.fnames
@@ -171,7 +169,7 @@ class Spectra(list):
         spectra = []
         for fname in fnames:
             spectrum, _ = self.get_objects(fname)
-            spectrum.set_attributes(model_dict, **fit_kwargs)
+            spectrum.set_attributes(model_dict)
             spectrum.fname = fname  # reassign the correct fname
             if not fit_only:
                 spectrum.preprocess()
