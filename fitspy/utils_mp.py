@@ -14,17 +14,13 @@ from fitspy.spectrum import Spectrum
 
 def fit(params):
     """ Fitting function used in multiprocessing """
-    x, y, models_, fit_params = params
-
-    models = []
-    for model_ in models_:
-        models.append(dill.loads(model_))
+    x, y, peak_models_, bkg_models_, fit_params = params
 
     spectrum = Spectrum()
     spectrum.x = x
     spectrum.y = y
-    spectrum.peak_models = models  # MODELS = peak_models + bkg_model
-    spectrum.bkg_model = bkg_model
+    spectrum.peak_models = dill.loads(peak_models_)
+    spectrum.bkg_model = dill.loads(bkg_models_)
     spectrum.fit_params = fit_params
     spectrum.fit()
     shared_queue.put(1)
@@ -41,22 +37,12 @@ def initializer(queue_incr):
 
 def fit_mp(spectra, ncpus, queue_incr):
     """ Multiprocessing fit function applied to spectra """
-
-    spectrum = spectra[0]
-    fit_method = spectrum.fit_method
-    fit_negative = spectrum.fit_negative
-    max_ite = spectrum.max_ite
-
-    models_ = []  # all peak_models and bkg_model are put in a single 'models_'
-    for peak_model in spectrum.peak_models:
-        models_.append(dill.dumps(peak_model))
-    if spectrum.bkg_model is not None:
-        models_.append(dill.dumps(spectrum.bkg_model))
-
     args = []
     for spectrum in spectra:
-        x, y = spectrum.x, spectrum.y
-        args.append((x, y, models_, fit_params))
+        peak_models_ = dill.dumps(spectrum.peak_models)
+        bkg_models_ = dill.dumps(spectrum.bkg_model)
+        x, y, fit_params = spectrum.x, spectrum.y, spectrum.fit_params
+        args.append((x, y, peak_models_, bkg_models_, fit_params))
 
     with ProcessPoolExecutor(initializer=initializer,
                              initargs=(queue_incr,),
