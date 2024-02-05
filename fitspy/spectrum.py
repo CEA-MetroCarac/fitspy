@@ -318,9 +318,9 @@ class Spectrum:
 
         kwargs_ = {'min': -np.inf, 'max': np.inf, 'vary': True, 'expr': None}
         kwargs_ampli = {'min': 0, 'max': np.inf, 'vary': True, 'expr': None}
-        kwargs_fwhm = {'min': 0, 'max': 100 * dx, 'vary': True, 'expr': None}
-        kwargs_fwhm_l = {'min': 0, 'max': 100 * dx, 'vary': True, 'expr': None}
-        kwargs_fwhm_r = {'min': 0, 'max': 100 * dx, 'vary': True, 'expr': None}
+        kwargs_fwhm = {'min': 0, 'max': 200, 'vary': True, 'expr': None}
+        kwargs_fwhm_l = {'min': 0, 'max': 200, 'vary': True, 'expr': None}
+        kwargs_fwhm_r = {'min': 0, 'max': 200, 'vary': True, 'expr': None}
         kwargs_x0 = {'min': x0 - 20, 'max': x0 + 20, 'vary': True, 'expr': None}
         kwargs_alpha = {'min': 0, 'max': 1, 'vary': True, 'expr': None}
 
