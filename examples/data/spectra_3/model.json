@@ -1,0 +1,420 @@
+{
+   "0": {
+      "fname": "../examples/data/data/spectrum_1.txt",
+      "range_min": 115.0,
+      "range_max": 880.0,
+      "norm_mode": null,
+      "norm_position_ref": null,
+      "attractors": [251, 179, 158, 207, 67, 280, 303, 323, 399, 134, 42, 113, 421, 448, 20, 228, 370, 93, 349, 479],
+      "attractors_params": {
+         "distance": 20,
+         "prominence": 0,
+         "width": 0,
+         "height": 0,
+         "threshold": 0
+      },
+      "peak_labels": ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15"],
+      "fit_params": {
+         "method": "Leastsq",
+         "fit_negative": false,
+         "max_ite": 200,
+         "coef_noise": 2,
+         "xtol": 0.0001
+      },
+      "baseline": {
+         "points": [
+            [
+               116.36916164951195,
+               878.4958467341868
+            ],
+            [
+               87.69536044471488,
+               80.63461921421083
+            ]
+         ],
+         "mode": "Linear",
+         "order_max": 2,
+         "distance": 100,
+         "sigma": 5,
+         "attached": true,
+         "is_subtracted": true
+      },
+      "peak_models": {
+         "0": {
+            "Lorentzian": {
+               "ampli": {
+                  "value": 62.07574822786947,
+                  "min": 0,
+                  "max": Infinity,
+                  "vary": true,
+                  "expr": null
+               },
+               "fwhm": {
+                  "value": 1.6542969999999997,
+                  "min": 0,
+                  "max": 165.42969999999997,
+                  "vary": true,
+                  "expr": null
+               },
+               "x0": {
+                  "value": 184.892578,
+                  "min": 164.892578,
+                  "max": 204.892578,
+                  "vary": true,
+                  "expr": null
+               }
+            }
+         },
+         "1": {
+            "Lorentzian": {
+               "ampli": {
+                  "value": 124.724760247207,
+                  "min": 0,
+                  "max": Infinity,
+                  "vary": true,
+                  "expr": null
+               },
+               "fwhm": {
+                  "value": 1.6542969999999997,
+                  "min": 0,
+                  "max": 165.42969999999997,
+                  "vary": true,
+                  "expr": null
+               },
+               "x0": {
+                  "value": 225.740234,
+                  "min": 205.740234,
+                  "max": 245.740234,
+                  "vary": true,
+                  "expr": null
+               }
+            }
+         },
+         "2": {
+            "Lorentzian": {
+               "ampli": {
+                  "value": 59.450785852192794,
+                  "min": 0,
+                  "max": Infinity,
+                  "vary": true,
+                  "expr": null
+               },
+               "fwhm": {
+                  "value": 1.6542969999999997,
+                  "min": 0,
+                  "max": 165.42969999999997,
+                  "vary": true,
+                  "expr": null
+               },
+               "x0": {
+                  "value": 300.353516,
+                  "min": 280.353516,
+                  "max": 320.353516,
+                  "vary": true,
+                  "expr": null
+               }
+            }
+         },
+         "3": {
+            "Lorentzian": {
+               "ampli": {
+                  "value": 63.565719392550804,
+                  "min": 0,
+                  "max": Infinity,
+                  "vary": true,
+                  "expr": null
+               },
+               "fwhm": {
+                  "value": 1.6542969999999997,
+                  "min": 0,
+                  "max": 165.42969999999997,
+                  "vary": true,
+                  "expr": null
+               },
+               "x0": {
+                  "value": 334.189453,
+                  "min": 314.189453,
+                  "max": 354.189453,
+                  "vary": true,
+                  "expr": null
+               }
+            }
+         },
+         "4": {
+            "Lorentzian": {
+               "ampli": {
+                  "value": 195.96094537346426,
+                  "min": 0,
+                  "max": Infinity,
+                  "vary": true,
+                  "expr": null
+               },
+               "fwhm": {
+                  "value": 1.6542969999999997,
+                  "min": 0,
+                  "max": 165.42969999999997,
+                  "vary": true,
+                  "expr": null
+               },
+               "x0": {
+                  "value": 372.6875,
+                  "min": 352.6875,
+                  "max": 392.6875,
+                  "vary": true,
+                  "expr": null
+               }
+            }
+         },
+         "5": {
+            "Lorentzian": {
+               "ampli": {
+                  "value": 933.3423971504909,
+                  "min": 0,
+                  "max": Infinity,
+                  "vary": true,
+                  "expr": null
+               },
+               "fwhm": {
+                  "value": 1.6542969999999997,
+                  "min": 0,
+                  "max": 165.42969999999997,
+                  "vary": true,
+                  "expr": null
+               },
+               "x0": {
+                  "value": 383.882813,
+                  "min": 363.882813,
+                  "max": 403.882813,
+                  "vary": true,
+                  "expr": null
+               }
+            }
+         },
+         "6": {
+            "Lorentzian": {
+               "ampli": {
+                  "value": 1570.1897417125522,
+                  "min": 0,
+                  "max": Infinity,
+                  "vary": true,
+                  "expr": null
+               },
+               "fwhm": {
+                  "value": 1.6542969999999997,
+                  "min": 0,
+                  "max": 165.42969999999997,
+                  "vary": true,
+                  "expr": null
+               },
+               "x0": {
+                  "value": 406.226563,
+                  "min": 386.226563,
+                  "max": 426.226563,
+                  "vary": true,
+                  "expr": null
+               }
+            }
+         },
+         "7": {
+            "Lorentzian": {
+               "ampli": {
+                  "value": 155.691313183683,
+                  "min": 0,
+                  "max": Infinity,
+                  "vary": true,
+                  "expr": null
+               },
+               "fwhm": {
+                  "value": 1.6542969999999997,
+                  "min": 0,
+                  "max": 165.42969999999997,
+                  "vary": true,
+                  "expr": null
+               },
+               "x0": {
+                  "value": 418.966797,
+                  "min": 398.966797,
+                  "max": 438.966797,
+                  "vary": true,
+                  "expr": null
+               }
+            }
+         },
+         "8": {
+            "Lorentzian": {
+               "ampli": {
+                  "value": 177.52623357756096,
+                  "min": 0,
+                  "max": Infinity,
+                  "vary": true,
+                  "expr": null
+               },
+               "fwhm": {
+                  "value": 1.6542969999999997,
+                  "min": 0,
+                  "max": 165.42969999999997,
+                  "vary": true,
+                  "expr": null
+               },
+               "x0": {
+                  "value": 450.728516,
+                  "min": 430.728516,
+                  "max": 470.728516,
+                  "vary": true,
+                  "expr": null
+               }
+            }
+         },
+         "9": {
+            "Lorentzian": {
+               "ampli": {
+                  "value": 4867.2583299520975,
+                  "min": 0,
+                  "max": Infinity,
+                  "vary": true,
+                  "expr": null
+               },
+               "fwhm": {
+                  "value": 1.6542969999999997,
+                  "min": 0,
+                  "max": 165.42969999999997,
+                  "vary": true,
+                  "expr": null
+               },
+               "x0": {
+                  "value": 520.164063,
+                  "min": 500.16406300000006,
+                  "max": 540.164063,
+                  "vary": true,
+                  "expr": null
+               }
+            }
+         },
+         "10": {
+            "Lorentzian": {
+               "ampli": {
+                  "value": 91.51723710158106,
+                  "min": 0,
+                  "max": Infinity,
+                  "vary": true,
+                  "expr": null
+               },
+               "fwhm": {
+                  "value": 1.6542969999999997,
+                  "min": 0,
+                  "max": 165.42969999999997,
+                  "vary": true,
+                  "expr": null
+               },
+               "x0": {
+                  "value": 565.59375,
+                  "min": 545.59375,
+                  "max": 585.59375,
+                  "vary": true,
+                  "expr": null
+               }
+            }
+         },
+         "11": {
+            "Lorentzian": {
+               "ampli": {
+                  "value": 91.15487283370938,
+                  "min": 0,
+                  "max": Infinity,
+                  "vary": true,
+                  "expr": null
+               },
+               "fwhm": {
+                  "value": 1.6542969999999997,
+                  "min": 0,
+                  "max": 165.42969999999997,
+                  "vary": true,
+                  "expr": null
+               },
+               "x0": {
+                  "value": 601.433594,
+                  "min": 581.433594,
+                  "max": 621.433594,
+                  "vary": true,
+                  "expr": null
+               }
+            }
+         },
+         "12": {
+            "Lorentzian": {
+               "ampli": {
+                  "value": 68.40619393657546,
+                  "min": 0,
+                  "max": Infinity,
+                  "vary": true,
+                  "expr": null
+               },
+               "fwhm": {
+                  "value": 1.6542969999999997,
+                  "min": 0,
+                  "max": 165.42969999999997,
+                  "vary": true,
+                  "expr": null
+               },
+               "x0": {
+                  "value": 749.246094,
+                  "min": 729.246094,
+                  "max": 769.246094,
+                  "vary": true,
+                  "expr": null
+               }
+            }
+         },
+         "13": {
+            "Lorentzian": {
+               "ampli": {
+                  "value": 44.72471662573423,
+                  "min": 0,
+                  "max": Infinity,
+                  "vary": true,
+                  "expr": null
+               },
+               "fwhm": {
+                  "value": 1.6542969999999997,
+                  "min": 0,
+                  "max": 165.42969999999997,
+                  "vary": true,
+                  "expr": null
+               },
+               "x0": {
+                  "value": 782.730469,
+                  "min": 762.730469,
+                  "max": 802.730469,
+                  "vary": true,
+                  "expr": null
+               }
+            }
+         },
+         "14": {
+            "Lorentzian": {
+               "ampli": {
+                  "value": 39.185386281906034,
+                  "min": 0,
+                  "max": Infinity,
+                  "vary": true,
+                  "expr": null
+               },
+               "fwhm": {
+                  "value": 1.6542969999999997,
+                  "min": 0,
+                  "max": 165.42969999999997,
+                  "vary": true,
+                  "expr": null
+               },
+               "x0": {
+                  "value": 823.644531,
+                  "min": 803.644531,
+                  "max": 843.644531,
+                  "vary": true,
+                  "expr": null
+               }
+            }
+         }
+      }
+   }
+}
