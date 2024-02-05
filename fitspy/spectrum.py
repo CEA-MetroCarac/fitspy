@@ -281,7 +281,7 @@ class Spectrum:
 
     @staticmethod
     def create_peak_model(index, model_name, x0, ampli,
-                          fwhm=2, fwhm_l=2, fwhm_r=2, alpha=0.5):
+                          fwhm=None, fwhm_l=None, fwhm_r=None, alpha=0.5):
         """
         Create a 'lmfit' model associated to one peak
 
@@ -298,7 +298,7 @@ class Spectrum:
             Amplitude of the peak model.
         fwhm, fwhm_l, fwhm_r: floats, optional
             Optional parameters passed to the model related to the Full Width
-            at Half Maximum. Default values are 2.
+            at Half Maximum. Default values are the maximum of the x-step size.
         alpha: float, optional
             Optional parameter passed to the 'PseudoVoigt' model.
             Default values is 0.5.
@@ -308,19 +308,32 @@ class Spectrum:
         peak_model: lmfit.Model
         """
         # pylint:disable=unused-argument, unused-variable
+        dx = max(np.diff(self.x))
+        if fwhm is None:
+            fwhm = dx
+        if fwhm_l is None:
+            fwhm_l = dx
+        if fwhm_r is None:
+            fwhm_r = dx
+
         peak_model = PEAK_MODELS[model_name]
         prefix = f'm{index:02d}_'
         peak_model = create_model(peak_model, model_name, prefix)
 
+        kwargs_ = {'min': -np.inf, 'max': np.inf, 'vary': True, 'expr': None}
         kwargs_ampli = {'min': 0, 'max': np.inf, 'vary': True, 'expr': None}
-        kwargs_fwhm = {'min': 0, 'max': 200, 'vary': True, 'expr': None}
+        kwargs_fwhm = {'min': 0, 'max': 100 * dx, 'vary': True, 'expr': None}
+        kwargs_fwhm_l = {'min': 0, 'max': 100 * dx, 'vary': True, 'expr': None}
+        kwargs_fwhm_r = {'min': 0, 'max': 100 * dx, 'vary': True, 'expr': None}
         kwargs_x0 = {'min': x0 - 20, 'max': x0 + 20, 'vary': True, 'expr': None}
         kwargs_alpha = {'min': 0, 'max': 1, 'vary': True, 'expr': None}
-        kwargs_fwhm_l = kwargs_fwhm_r = kwargs_fwhm
 
         for name in peak_model.param_names:
             name = name[4:]  # remove prefix 'mXX_'
-            value, kwargs = eval(name), eval('kwargs_' + name)
+            if name in PEAK_PARAMS:
+                value, kwargs = eval(name), eval('kwargs_' + name)
+            else:
+                value, kwargs = 1, kwargs_
             peak_model.set_param_hint(name, value=value, **kwargs)
 
         return peak_model
