@@ -25,7 +25,7 @@ from fitspy import PEAK_MODELS, PEAK_PARAMS, BKG_MODELS
 ATTRACTORS_PARAMS = {'distance': 20, 'prominence': None,
                      'width': None, 'height': None, 'threshold': None}
 FIT_PARAMS = {'method': 'leastsq', 'fit_negative': False, 'max_ite': 200,
-              'coef_noise': 2}
+              'coef_noise': 1}
 
 
 def create_model(model, model_name, prefix=None):
@@ -105,7 +105,7 @@ class Spectrum:
             Coefficient applied to the estimated noise amplitude to define a
             threshold below which the fit weights are set to 0, and local
             peak models are disabled .
-            Default is 2.
+            Default is 1.
     result_fit: lmfit.ModelResult
         Object resulting from lmfit fitting. Default value is a 'None' object
         (function) that enables to address a 'result_fit.success' status.
@@ -452,12 +452,19 @@ class Spectrum:
 
         x, y = self.x, self.y
         weights = np.ones_like(x)
+        vary_init = None
+        noise_level = 0
+
         if not self.fit_params['fit_negative']:
             weights[y < 0] = 0
 
-        ampli_noise = np.median(np.abs(y[:-1] - y[1:]) / 2)
-        noise_level = self.fit_params['coef_noise'] * ampli_noise
-        weights[y < noise_level] = 0
+        if self.fit_params['coef_noise'] > 0:
+            delta = np.diff(y)
+            delta1, delta2 = delta[:-1], delta[1:]
+            mask = np.sign(delta1) * np.sign(delta2) == -1
+            ampli_noise = np.median(np.abs(delta1[mask] - delta2[mask]) / 2)
+            noise_level = self.fit_params['coef_noise'] * ampli_noise
+            weights[y < noise_level] = 0
 
         # composite model creation
         comp_model = None
@@ -467,39 +474,35 @@ class Spectrum:
             for peak_model in self.peak_models[1:]:
                 comp_model += peak_model
 
-        # save initial 'vary' state
-        vary_init = None
-        if comp_model is not None:
+        # reinitialize 'ampli' and 'fwhm'
+        if reinit_guess and comp_model is not None:
+            fwhm_min = max(np.diff(x))
+        for component in comp_model.components:
+            params = component.param_hints
+            ind = closest_index(x, params['x0']['value'])
+            params['ampli']['value'] = y[ind]
+            for key in params.keys():
+                if key in ['fwhm', 'fwhm_l', 'fwhm_r']:
+                    params[key]['value'] = max(fwhm_min, params[key]['value'])
+
+        # disable a peak_models in a noisy areas
+        if noise_level > 0 and comp_model is not None:
+
+            # save initial 'vary' state
             vary_init = [param['vary'] for component in comp_model.components
                          for param in component.param_hints.values()]
 
-        # re-initialize 'ampli' and 'fwhm'
-        if reinit_guess and comp_model is not None:
-
-            # replace small 'fwhm' values by fwhm_min = dx
-            fwhm_min = max(np.diff(x))
+            # set 'ampli'/'fwhm' to 0 and 'vary' to False in noisy areas
+            ymean = uniform_filter1d(y, size=5)
             for component in comp_model.components:
                 params = component.param_hints
-                for key in params.keys():
-                    if key in ['fwhm', 'fwhm_l', 'fwhm_r']:
-                        param = params[key]
-                        param['value'] = max(fwhm_min, param['value'])
-
-            # disable a peak_model in a noisy region
-            if noise_level > 0:
-                ymean = uniform_filter1d(y, size=5)
-                for k, component in enumerate(comp_model.components):
-                    params = component.param_hints
-                    if 'ampli' in params and 'x0' in params:
-                        ind = closest_index(x, params['x0']['value'])
-                        if ymean[ind] < noise_level or k == 2:
-                            params['ampli']['value'] = 0
-                            for key in params.keys():
-                                if key in ['fwhm', 'fwhm_l', 'fwhm_r']:
-                                    params[key]['value'] = 0
-                                params[key]['vary'] = False
-                        else:
-                            params['ampli']['value'] = y[ind]
+                ind = closest_index(x, params['x0']['value'])
+                if ymean[ind] < noise_level:
+                    params['ampli']['value'] = 0
+                    for key in params.keys():
+                        if key in ['fwhm', 'fwhm_l', 'fwhm_r']:
+                            params[key]['value'] = 0
+                        params[key]['vary'] = False
 
         # bkg_model addition
         if self.bkg_model is not None:
@@ -529,7 +532,7 @@ class Spectrum:
                                          **kwargs)
         self.reassign_params()
 
-        # reassign initial 'vary'
+        # reassign initial 'vary' values
         if vary_init is not None:
             i = itertools.count()
             components = comp_model.components
