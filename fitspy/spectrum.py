@@ -483,13 +483,14 @@ class Spectrum:
         # reinitialize 'ampli' and 'fwhm'
         if reinit_guess and comp_model is not None:
             fwhm_min = max(np.diff(x))
-        for component in comp_model.components:
-            params = component.param_hints
-            ind = closest_index(x, params['x0']['value'])
-            params['ampli']['value'] = y[ind]
-            for key in params.keys():
-                if key in ['fwhm', 'fwhm_l', 'fwhm_r']:
-                    params[key]['value'] = max(fwhm_min, params[key]['value'])
+            for component in comp_model.components:
+                params = component.param_hints
+                ind = closest_index(x, params['x0']['value'])
+                params['ampli']['value'] = y[ind]
+                for key in params.keys():
+                    if key in ['fwhm', 'fwhm_l', 'fwhm_r']:
+                        param = params[key]
+                        param['value'] = max(fwhm_min, param['value'])
 
         # disable a peak_models in a noisy areas
         if noise_level > 0 and comp_model is not None:
