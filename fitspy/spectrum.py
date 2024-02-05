@@ -25,7 +25,7 @@ from fitspy import PEAK_MODELS, PEAK_PARAMS, BKG_MODELS
 ATTRACTORS_PARAMS = {'distance': 20, 'prominence': None,
                      'width': None, 'height': None, 'threshold': None}
 FIT_PARAMS = {'method': 'leastsq', 'fit_negative': False, 'max_ite': 200,
-              'coef_noise': 1}
+              'coef_noise': 1, 'xtol': 1.e-4}
 
 
 def create_model(model, model_name, prefix=None):
@@ -92,7 +92,7 @@ class Spectrum:
         Dictionary used to manage the fit parameters:
         * method: str
             Method used for fitting. See lmfit.Model.fit().
-            Default method is 'leastsq'.
+            Default method is 'Leastsq'.
         * fit_negative: bool
             Activation keyword to take into account negative values when
             fitting.
@@ -105,7 +105,11 @@ class Spectrum:
             Coefficient applied to the estimated noise amplitude to define a
             threshold below which the fit weights are set to 0, and local
             peak models are disabled .
-            Default is 1.
+            Default is 2.
+        * xtol: float
+            Relative error desired in the solution approximated by the 'Leastsq'
+            or the 'Least_square' algorithm.
+            Default is 1e-4.
     result_fit: lmfit.ModelResult
         Object resulting from lmfit fitting. Default value is a 'None' object
         (function) that enables to address a 'result_fit.success' status.
@@ -438,7 +442,7 @@ class Spectrum:
         self.bkg_model.name2 = bkg_name
 
     def fit(self, fit_method=None, fit_negative=None, max_ite=None,
-            reinit_guess=True, coef_noise=None, **kwargs):
+            reinit_guess=True, coef_noise=None, xtol=None, **kwargs):
         """ Fit the Spectrum models """
         # update class attributes
         if fit_method is not None:
@@ -449,6 +453,8 @@ class Spectrum:
             self.fit_params['max_ite'] = max_ite
         if coef_noise is not None:
             self.fit_params['coef_noise'] = coef_noise
+        if xtol is not None:
+            self.fit_params['xtol'] = xtol
 
         x, y = self.x, self.y
         weights = np.ones_like(x)
@@ -520,10 +526,12 @@ class Spectrum:
             nvarys += param['vary'] if 'vary' in param else 1
         max_nfev = max(2, self.fit_params['max_ite']) * nvarys
 
-        fit_kws = None
+        fit_kws = {}
         if 'fit_kws' in kwargs:
             fit_kws = kwargs['fit_kws']  # example: fit_kws={'xtol': 1.e-2}
             kwargs.pop('fit_kws')
+        if self.fit_params['method'] in ['Leastsq', 'Least_squares']:
+            fit_kws.update({'xtol': self.fit_params['xtol']})
 
         self.result_fit = comp_model.fit(y, params, x=x, weights=weights,
                                          method=self.fit_params['method'],

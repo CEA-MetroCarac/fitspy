@@ -386,22 +386,23 @@ class FitSettings(Settings):
     def __init__(self, root):
         super().__init__(root)
         self.params = {'fit_negative_values': StringVar(value='Off'),
-                       'coef_noise': DoubleVar(value=2),
+                       'coef_noise': DoubleVar(value=1),
                        'maximum_iterations': IntVar(value=200),
                        'fit_method': StringVar(value='Leastsq'),
+                       'xtol': DoubleVar(value=1.e-4),
                        'ncpus': StringVar(value='auto')}
 
     def frame_creation(self, bind_fun, excluded_keys=None):
         excluded_keys = ['fit_method', 'ncpus']
         super().frame_creation(bind_fun, excluded_keys=excluded_keys)
 
-        add(Label(self.frame, text='fit method'), 2, 0, E)
+        add(Label(self.frame, text='fit method'), 4, 0, E)
         add(Combobox(self.frame, values=list(FIT_METHODS.keys()),
-                     textvariable=self.params['fit_method'], width=12), 2, 1, W)
+                     textvariable=self.params['fit_method'], width=12), 4, 1, W)
 
-        add(Label(self.frame, text='Number of CPUs'), 3, 0, E)
+        add(Label(self.frame, text='Number of CPUs'), 5, 0, E)
         add(Combobox(self.frame, values=NCPUS,
-                     textvariable=self.params['ncpus'], width=6), 3, 1, W)
+                     textvariable=self.params['ncpus'], width=6), 5, 1, W)
 
 
 class FigureSettings(Settings):
