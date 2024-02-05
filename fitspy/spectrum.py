@@ -281,7 +281,7 @@ class Spectrum:
 
     @staticmethod
     def create_peak_model(index, model_name, x0, ampli,
-                          fwhm=None, fwhm_l=None, fwhm_r=None, alpha=0.5):
+                          fwhm=1., fwhm_l=1., fwhm_r=1., alpha=0.5):
         """
         Create a 'lmfit' model associated to one peak
 
@@ -298,24 +298,16 @@ class Spectrum:
             Amplitude of the peak model.
         fwhm, fwhm_l, fwhm_r: floats, optional
             Optional parameters passed to the model related to the Full Width
-            at Half Maximum. Default values are the maximum of the x-step size.
+            at Half Maximum. Default values are 1.
         alpha: float, optional
             Optional parameter passed to the 'PseudoVoigt' model.
-            Default values is 0.5.
+            Default value is 0.5.
 
         Returns
         -------
         peak_model: lmfit.Model
         """
         # pylint:disable=unused-argument, unused-variable
-        dx = max(np.diff(self.x))
-        if fwhm is None:
-            fwhm = dx
-        if fwhm_l is None:
-            fwhm_l = dx
-        if fwhm_r is None:
-            fwhm_r = dx
-
         peak_model = PEAK_MODELS[model_name]
         prefix = f'm{index:02d}_'
         peak_model = create_model(peak_model, model_name, prefix)
@@ -372,7 +364,7 @@ class Spectrum:
             Optional parameter passed to the 'PseudoVoigt' model.
             Default values is 0.5.
         """
-        dx = self.x[1] - self.x[0]
+        dx = max(np.diff(self.x))
 
         ampli = ampli or self.y[closest_index(self.x, x0)]
         fwhm = fwhm or dx
@@ -567,11 +559,12 @@ class Spectrum:
         self.remove_models()
         self.attractors_calculation()
         y = y0 = self.y.copy()
+        dx = max(np.diff(self.x))
+
         is_ok = True
         while is_ok:
             index = next(self.peak_index)
             ind = np.argmax(y)
-            dx = self.x[1] - self.x[0]
             peak_model = self.create_peak_model(index, model_name,
                                                 x0=self.x[ind],
                                                 ampli=self.y[ind],
