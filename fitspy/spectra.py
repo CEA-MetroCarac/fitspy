@@ -21,6 +21,8 @@ class Spectra(list):
     Attributes
     ----------
     spectra_maps: list of SpectraMap objects
+    pbar_index: int
+        Index related to the Progress bar during the fit processing
 
     Parameters
     ----------
@@ -33,6 +35,7 @@ class Spectra(list):
             super().__init__(spectra_list)
 
         self.spectra_maps = []
+        self.pbar_index = 0
 
     @property
     def fnames(self):
@@ -135,8 +138,7 @@ class Spectra(list):
         model_dict = load_from_json(fname_json)[ind]
         return model_dict
 
-    def apply_model(self, model_dict, fnames=None, ncpus=1,
-                    fit_only=False, tk_progressbar=None):
+    def apply_model(self, model_dict, fnames=None, ncpus=1, fit_only=False):
         """
         Apply 'model' to all or part of the spectra
 
@@ -152,9 +154,6 @@ class Spectra(list):
             Number of CPU to work with in fitting
         fit_only: bool, optional
             Activation key to process only fitting
-        tk_progressbar: ProgressBar obj, optional
-            Progression bar using tkinter.ttk.Progressbar to follow the
-            'apply_model' progression
         """
         if fnames is None:
             fnames = self.fnames
@@ -177,17 +176,30 @@ class Spectra(list):
 
         queue_incr = Queue()
 
-        def proc():
-            if ncpus == 1:
-                for spectrum in spectra:
-                    spectrum.fit()
-                    queue_incr.put(1)
-            else:
-                fit_mp(spectra, ncpus, queue_incr)
-            queue_incr.put("finished")
+        Thread(target=self.progressbar, args=(queue_incr, ntot, ncpus)).start()
 
-        Thread(target=proc).start()
-        progressbar(queue_incr, ntot, ncpus, tk_progressbar)
+        if ncpus == 1:
+            for spectrum in spectra:
+                spectrum.fit()
+                queue_incr.put(1)
+        else:
+            fit_mp(spectra, ncpus, queue_incr)
+
+        self.spectra.pbar_index = 0  # reinitialize pbar_index after calculation
+
+    def progressbar(self, queue_incr, ntot, ncpus):
+        """ Progress bar """
+        self.pbar_index = 0
+        pbar = "\r[{:100}] {:.0f}% {}/{} {:.2f}s " + f"ncpus={ncpus}"
+        t0 = time.time()
+        while self.pbar_index < ntot:
+            self.pbar_index += queue_incr.get()
+            percent = 100 * self.pbar_index / ntot
+            cursor = "*" * int(percent)
+            exec_time = time.time() - t0
+            msg = pbar.format(cursor, percent, self.pbar_index, ntot, exec_time)
+            sys.stdout.write(msg)
+        print()
 
     def save(self, fname_json, fnames=None):
         """
@@ -248,26 +260,3 @@ class Spectra(list):
                 spectra.append(spectrum)
 
         return spectra
-
-
-def progressbar(queue_incr, ntot, ncpus, tk_progressbar=None):
-    """ Progress bar """
-    n = 0
-    is_finished = False
-    pbar = "\r[{:100}] {:.0f}% {}/{} {:.2f}s " + f"ncpus={ncpus}"
-    t0 = time.time()
-    while not is_finished:
-        val = queue_incr.get()
-        if val == 'finished':
-            is_finished = True
-        else:
-            n += val
-            percent = 100 * n / ntot
-            cursor = "*" * int(percent)
-            exec_time = time.time() - t0
-            sys.stdout.write(pbar.format(cursor, percent, n, ntot, exec_time))
-            if tk_progressbar is not None:
-                tk_progressbar.var.set(percent)
-                tk_progressbar.label['text'] = f"{n}/{ntot}"
-                tk_progressbar.frame.update()
-    print()

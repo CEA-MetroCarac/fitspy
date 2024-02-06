@@ -307,6 +307,17 @@ class ProgressBar:
         self.pbar.pack()
         self.label.pack()
 
+    def show(self, spectra, ntot):
+        """ Show the progress bar according to the spectra.pbar_index value """
+        self.var.set(0)
+        self.frame.deiconify()
+        while spectra.pbar_index < ntot:
+            percent = 100 * spectra.pbar_index / ntot
+            self.var.set(percent)
+            self.label['text'] = f"{spectra.pbar_index}/{ntot}"
+            self.frame.update()
+        self.frame.withdraw()
+
 
 class Settings:
     """ Master class for parameters setting """

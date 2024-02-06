@@ -6,6 +6,7 @@ import warnings
 from tkinter import END
 from tkinter.messagebox import askyesno, showerror
 from tkinter import filedialog as fd
+from threading import Thread
 import glob
 from pathlib import Path
 import numpy as np
@@ -204,13 +205,15 @@ class Callbacks:
             fnames = [fnames[i]
                       for i in self.fileselector.lbox[0].curselection()]
 
-        ncpus = self.get_ncpus(nfiles=len(fnames))
-        args = (model_dict, fnames, ncpus, fit_only, self.progressbar)
+        nfiles = len(fnames)
+        ncpus = self.get_ncpus(nfiles=nfiles)
 
-        self.progressbar.var.set(0)
-        self.progressbar.frame.deiconify()
-        self.spectra.apply_model(*args)
-        self.progressbar.frame.withdraw()
+        def proc():
+            self.spectra.apply_model(model_dict, fnames, ncpus, fit_only)
+
+        Thread(target=proc).start()
+
+        self.progressbar.show(self.spectra, nfiles)
         self.colorize_from_fit_status(fnames)
         self.reassign_current_spectrum(self.current_spectrum.fname)
         self.update()
