@@ -185,7 +185,7 @@ class Spectra(list):
         else:
             fit_mp(spectra, ncpus, queue_incr)
 
-        self.spectra.pbar_index = 0  # reinitialize pbar_index after calculation
+        self.pbar_index = 0  # reinitialize pbar_index after the calculation
 
     def progressbar(self, queue_incr, ntot, ncpus):
         """ Progress bar """
