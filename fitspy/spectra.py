@@ -151,19 +151,12 @@ class Spectra(list):
             List of the spectrum.fname to handle.
             If None, apply the model to all the spectra
         ncpus: int, optional
-            Number of CPU to work with in fitting
+            Number of CPU to use during the fit processing
         fit_only: bool, optional
             Activation key to process only fitting
         """
         if fnames is None:
             fnames = self.fnames
-
-        ncpus = ncpus or os.cpu_count()
-        ncpus = min(ncpus, os.cpu_count())
-
-        ntot = len(fnames)
-        if ntot == 0:
-            return
 
         spectra = []
         for fname in fnames:
@@ -175,8 +168,8 @@ class Spectra(list):
             spectra.append(spectrum)
 
         queue_incr = Queue()
-
-        Thread(target=self.progressbar, args=(queue_incr, ntot, ncpus)).start()
+        args = (queue_incr, len(fnames), ncpus)
+        Thread(target=self.progressbar, args=args).start()
 
         if ncpus == 1:
             for spectrum in spectra:
