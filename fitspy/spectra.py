@@ -89,15 +89,6 @@ class Spectra(list):
                 spectrum.outliers = outliers.tolist()
             return outliers_limit
 
-        # def outliers(intensity, spectra, coef):
-        #     mean = np.nanmean(intensity, axis=0)
-        #     std = np.nanstd(intensity, axis=0)
-        #     for spectrum in spectra:
-        #         z_score = (spectrum.y - mean) / std
-        #         spectrum.outliers = np.where(z_score > threshold)[0].tolist()
-        #     outliers_limit = threshold * std + mean
-        #     return outliers_limit
-
         for spectra_map in self.spectra_maps:
             spectra_map.outliers_limit = outliers(spectra_map.intensity,
                                                   spectra_map, coef)
