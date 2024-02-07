@@ -24,8 +24,8 @@ from fitspy import PEAK_MODELS, PEAK_PARAMS, BKG_MODELS
 
 ATTRACTORS_PARAMS = {'distance': 20, 'prominence': None,
                      'width': None, 'height': None, 'threshold': None}
-FIT_PARAMS = {'method': 'leastsq', 'fit_negative': False, 'max_ite': 200,
-              'coef_noise': 1, 'xtol': 1.e-4}
+FIT_PARAMS = {'method': 'leastsq', 'fit_negative': False, 'fit_outliers': False,
+              'max_ite': 200, 'coef_noise': 1, 'xtol': 1.e-4}
 
 
 def create_model(model, model_name, prefix=None):
@@ -72,6 +72,8 @@ class Spectrum:
     attractors_params: dict
         Dictionary passed to scipy.signal.find_peaks for attractors
         determination. Could be a dictionary with Tkinter.Variable as values.
+    outliers: list of ints
+        Indices related to the outliers points
     baseline: Baseline object
         Baseline associated to the spectrum (to subract)
     baseline_history: list of list - DEPRECATED from v2024.2
@@ -95,6 +97,10 @@ class Spectrum:
             Default method is 'Leastsq'.
         * fit_negative: bool
             Activation keyword to take into account negative values when
+            fitting.
+            Default is False.
+        * fit_outliers: bool
+            Activation keyword to take into account outliers points when
             fitting.
             Default is False.
         * max_ite: int
@@ -128,6 +134,7 @@ class Spectrum:
         self.y = None
         self.attractors = None
         self.attractors_params = ATTRACTORS_PARAMS
+        self.outliers = None
         self.baseline = BaseLine()
         self.bkg_model = None
         self.peak_models = []
@@ -441,14 +448,17 @@ class Spectrum:
                                               vary=True, expr=None)
         self.bkg_model.name2 = bkg_name
 
-    def fit(self, fit_method=None, fit_negative=None, max_ite=None,
-            reinit_guess=True, coef_noise=None, xtol=None, **kwargs):
+    def fit(self, fit_method=None, fit_negative=None, fit_outliers=None,
+            max_ite=None, reinit_guess=True, coef_noise=None, xtol=None,
+            **kwargs):
         """ Fit the Spectrum models """
         # update class attributes
         if fit_method is not None:
             self.fit_params['method'] = fit_method
         if fit_negative is not None:
             self.fit_params['fit_negative'] = fit_negative
+        if fit_outliers is not None:
+            self.fit_params['fit_outliers'] = fit_outliers
         if max_ite is not None:
             self.fit_params['max_ite'] = max_ite
         if coef_noise is not None:
@@ -463,6 +473,10 @@ class Spectrum:
 
         if not self.fit_params['fit_negative']:
             weights[y < 0] = 0
+
+        if not self.fit_params['fit_outliers']:
+            if self.outliers is not None:
+                weights[self.outliers] = 0
 
         if self.fit_params['coef_noise'] > 0:
             delta = np.diff(y)
@@ -589,8 +603,10 @@ class Spectrum:
             if y.max() < 0.05 * y0.max():
                 is_ok = False
 
-    def plot(self, ax, show_attractors=True, show_negative_values=True,
-             show_noise_level=True, show_baseline=True, show_background=True):
+    def plot(self, ax,
+             show_attractors=True, show_outliers=True,
+             show_negative_values=True, show_noise_level=True,
+             show_baseline=True, show_background=True):
         """ Plot the spectrum with the fitted models and Return the profiles """
         lines = []
         x, y = self.x, self.y
@@ -603,6 +619,10 @@ class Spectrum:
         if show_attractors and self.attractors is not None:
             inds = self.attractors
             ax.plot(x[inds], y[inds], 'go', ms=4, label="Attractors")
+
+        if show_outliers and self.outliers is not None:
+            inds = self.outliers
+            ax.plot(x[inds], y[inds], 'o', c='lime', label="Outliers")
 
         if show_negative_values:
             ax.plot(x[y < 0], y[y < 0], 'ro', ms=4, label="Negative values")

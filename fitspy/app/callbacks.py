@@ -61,6 +61,7 @@ class Callbacks:
         self.current_spectrum = None
         self.cids = []
         self.show_plot = True
+        self.is_show_all = False
         self.lines = None
         self.nearest_lines = []
         self.tmp = None
@@ -72,7 +73,8 @@ class Callbacks:
         """ Update attractors settings """
         x = self.root.winfo_pointerx()
         y = self.root.winfo_pointery()
-        self.figure_settings.update(x, y, bind_fun=self.plot)
+        bind_fun = self.show_all if self.is_show_all else self.plot
+        self.figure_settings.update(x, y, bind_fun=bind_fun)
 
     def rescale(self):
         """ Rescale the figure """
@@ -80,8 +82,23 @@ class Callbacks:
         self.canvas.draw()
         self.canvas.toolbar.update()
 
+    def outliers_calculation(self):
+        """ Calculate the outliers"""
+        self.spectra.outliers_calculation(coef=self.outliers_coef.get())
+        if self.is_show_all:
+            self.show_all()
+        else:
+            self.plot()
+
+    def set_outliers_coef(self):
+        """ Set the outliers coefficient """
+        self.spectra.outliers_coef = float(self.outliers_coef.get())
+        self.outliers_calculation()
+
     def show_all(self):
         """ Show all spectra and highlight spectrum on mouse over """
+        self.is_show_all = True
+
         fselector = self.fileselector
 
         xlim, ylim = self.ax.get_xlim(), self.ax.get_ylim()
@@ -93,10 +110,20 @@ class Callbacks:
             self.ax.set_ylim(ylim)
 
         self.lines = []
-        for fname in fselector.filenames[0]:
-            spectrum, _ = self.spectra.get_objects(fname)
-            x, y = spectrum.x0, spectrum.y0
+        for spectrum in self.spectra.all:
+            x, y, inds = spectrum.x0, spectrum.y0, spectrum.outliers
             self.lines.append(self.ax.plot(x, y, 'k-', lw=0.2, zorder=0)[0])
+            if inds is not None:
+                self.ax.plot(x[inds], y[inds], 'o', c='lime')
+
+        #  outliers
+        if self.figure_settings.params['plot_outliers_limit'].get() == 'On':
+            if self.spectra.outliers_limit is not None:
+                self.ax.plot(x, self.spectra.outliers_limit, 'r-', lw=2)
+            for spectra_map in self.spectra.spectra_maps:
+                if spectra_map.outliers_limit is not None:
+                    self.ax.plot(x, spectra_map.outliers_limit, 'r-', lw=2)
+
         self.canvas.draw()
 
         def on_press(event):
@@ -303,6 +330,8 @@ class Callbacks:
         if not self.show_plot or self.current_spectrum is None:
             return
 
+        self.is_show_all = False
+
         if self.lines is not None:
             for line in self.lines:
                 line.remove()
@@ -332,12 +361,14 @@ class Callbacks:
 
         if fig_settings['plot_fit'].get() == 'On':
             show_attractors = self.attractors.get()
+            show_outliers = fig_settings['plot_outliers'].get() == 'On'
             show_neg_values = fig_settings['plot_negative_values'].get() == 'On'
             show_noise_level = fig_settings['plot_noise_level'].get() == 'On'
             show_baseline = fig_settings['plot_baseline'].get() == 'On'
             show_background = fig_settings['plot_background'].get() == 'On'
             self.lines = spectrum.plot(self.ax,
                                        show_attractors=show_attractors,
+                                       show_outliers=show_outliers,
                                        show_negative_values=show_neg_values,
                                        show_noise_level=show_noise_level,
                                        show_baseline=show_baseline,
@@ -392,6 +423,13 @@ class Callbacks:
                         else:
                             line.set_linewidth(linewidth)
                     self.canvas.draw_idle()
+
+        if fig_settings['plot_outliers_limit'].get() == 'On':
+            _, spectra = self.spectra.get_objects(spectrum.fname)
+            if spectra.outliers_limit is not None:
+                self.ax.plot(spectrum.x, spectra.outliers_limit,
+                             'r', label="Outliers limit")
+                self.ax.legend()
 
         if fig_settings['plot_residual'].get() == 'On':
             coef_residual = fig_settings['coef_residual'].get()

@@ -60,6 +60,7 @@ class SpectraMap(Spectra):
         self.coords = None
         self.intensity = None
         self.arr = None
+        self.outliers_limit = None
 
         self.ax = None
         self.img = None

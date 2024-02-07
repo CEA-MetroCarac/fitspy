@@ -64,6 +64,8 @@ class GUI(Callbacks):
         Reference position in case of 'Attractor' normalize_mode
     attractors: Tkinter.BooleanVar
         Activation keyword for spectrum peaks association when adding
+    outliers_coef: Tkinter.DoubleVar
+        Coefficient applied to the outliers limits
     baseline_attached: Tkinter.BooleanVar
         Activation keyword for baseline points attachment to the spectra
     baseline_sigma: Tkinter.IntVar
@@ -105,6 +107,7 @@ class GUI(Callbacks):
         self.range_min = DoubleVar(value=-1)
         self.range_max = DoubleVar(value=99999)
         self.attractors = BooleanVar(value=True)
+        self.outliers_coef = DoubleVar(value=1.5)
 
         # Baseline parameters
         self.baseline_attached = BooleanVar(value=True)
@@ -215,9 +218,16 @@ class GUI(Callbacks):
                    command=self.apply_range_to_all), 0, 3)
 
         add(Checkbutton(fr, text='Attractors', variable=self.attractors,
-                        command=self.update_attractors), 1, 0, cspan=2)
+                        command=self.update_attractors), 1, 0, E, cspan=2)
         add(Button(fr, text='Attractors Settings',
                    command=self.update_attractors_settings), 1, 2, cspan=2)
+
+        add(Button(fr, text='Outliers Calc.',
+                   command=self.outliers_calculation), 2, 0, E, cspan=2)
+        add(Label(fr, text='coef :'), 2, 2, E)
+        entry_outliers_coef = Entry(fr, textvariable=self.outliers_coef, w=3)
+        entry_outliers_coef.bind("<Return>", lambda _: self.set_outliers_coef())
+        add(entry_outliers_coef, 2, 3, W)
 
         # Baseline
 
@@ -284,8 +294,10 @@ class GUI(Callbacks):
 
         fr = self.fr_peaks
         add(Button(fr, text='Auto', command=self.auto_peaks), 0, 0)
+        add(Button(fr, text="Parameters", width=16,
+                   command=self.show_hide_results), 0, 1, cspan=2)
         add(Button(fr, text='Fit Settings',
-                   command=self.update_fit_settings), 0, 1)
+                   command=self.update_fit_settings), 0, 3)
 
         def update_cbox(cbox, models):
             cbox['value'] = list(models.keys())
@@ -293,29 +305,25 @@ class GUI(Callbacks):
         add(Label(fr, text='Peak model :'), 1, 0, E)
         cbox1 = Combobox(fr, values=list(PEAK_MODELS.keys()),
                          postcommand=lambda: update_cbox(cbox1, PEAK_MODELS),
-                         textvariable=self.model, width=18)
-        add(cbox1, 1, 1)
+                         textvariable=self.model, width=16)
+        add(cbox1, 1, 1, cspan=2)
         add(Button(fr, text="Load",
-                   command=lambda: self.load_user_model('PEAK_MODELS')), 1, 2)
+                   command=lambda: self.load_user_model('PEAK_MODELS')), 1, 3)
 
         add(Label(fr, text='BKG model :'), 2, 0, E)
         cbox2 = Combobox(fr, values=list(BKG_MODELS.keys()),
                          postcommand=lambda: update_cbox(cbox2, BKG_MODELS),
-                         textvariable=self.bkg_name, width=18)
-        add(cbox2, 2, 1)
+                         textvariable=self.bkg_name, width=16)
+        add(cbox2, 2, 1, cspan=2)
         cbox2.bind('<<ComboboxSelected>>',
                    lambda _: self.set_bkg_model())
         add(Button(fr, text="Load",
-                   command=lambda: self.load_user_model('BKG_MODELS')), 2, 2)
+                   command=lambda: self.load_user_model('BKG_MODELS')), 2, 3)
 
         add(Button(fr, text=" Fit ", command=self.fit), 3, 0)
         add(Button(fr, text=" Fit All ", command=self.fit_all), 3, 1)
         add(Button(fr, text="Remove", command=self.remove), 3, 2)
-
-        add(Button(fr, text="Parameters (Show/Hide)",
-                   command=self.show_hide_results), 4, 0, cspan=2, sticky=E + W)
-        add(Button(fr, text="Save (.csv)",
-                   command=self.save_results), 4, 2)
+        add(Button(fr, text="Save (.csv)", command=self.save_results), 3, 3)
 
         self.fr_peaks.disable()
         self.fr_peaks.bind("<Button-1>", self.on_press_baseline_peaks)

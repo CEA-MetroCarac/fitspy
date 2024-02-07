@@ -1,6 +1,7 @@
 """
 Module dedicated to external widgets (Tkinter.Toplevel) creation
 """
+import itertools
 from tkinter import Toplevel, Label, Entry, Button, Checkbutton, Text, Scrollbar
 from tkinter import IntVar, DoubleVar, StringVar, BooleanVar, W, E, END, RIGHT
 from tkinter.ttk import Combobox, Progressbar
@@ -397,6 +398,7 @@ class FitSettings(Settings):
     def __init__(self, root):
         super().__init__(root)
         self.params = {'fit_negative_values': StringVar(value='Off'),
+                       'fit_outliers': StringVar(value='Off'),
                        'coef_noise': DoubleVar(value=1),
                        'maximum_iterations': IntVar(value=200),
                        'fit_method': StringVar(value='Leastsq'),
@@ -407,13 +409,17 @@ class FitSettings(Settings):
         excluded_keys = ['fit_method', 'ncpus']
         super().frame_creation(bind_fun, excluded_keys=excluded_keys)
 
-        add(Label(self.frame, text='fit method'), 4, 0, E)
-        add(Combobox(self.frame, values=list(FIT_METHODS.keys()),
-                     textvariable=self.params['fit_method'], width=12), 4, 1, W)
+        count = itertools.count(start=len(self.params) - len(excluded_keys))
 
-        add(Label(self.frame, text='Number of CPUs'), 5, 0, E)
+        k = next(count)
+        add(Label(self.frame, text='fit method'), k, 0, E)
+        add(Combobox(self.frame, values=list(FIT_METHODS.keys()),
+                     textvariable=self.params['fit_method'], width=12), k, 1, W)
+
+        k = next(count)
+        add(Label(self.frame, text='Number of CPUs'), k, 0, E)
         add(Combobox(self.frame, values=NCPUS,
-                     textvariable=self.params['ncpus'], width=6), 5, 1, W)
+                     textvariable=self.params['ncpus'], width=6), k, 1, W)
 
 
 class FigureSettings(Settings):
@@ -423,6 +429,8 @@ class FigureSettings(Settings):
         super().__init__(root)
         self.params = {'plot_fit': StringVar(value='On'),
                        'plot_negative_values': StringVar(value='On'),
+                       'plot_outliers': StringVar(value='On'),
+                       'plot_outliers_limit': StringVar(value='On'),
                        'plot_noise_level': StringVar(value='On'),
                        'plot_baseline': StringVar(value='On'),
                        'plot_background': StringVar(value='On'),
@@ -437,14 +445,16 @@ class FigureSettings(Settings):
         excluded_keys = ['title', 'x_label', 'y_label']
         super().frame_creation(bind_fun, excluded_keys=excluded_keys)
 
-        add_entry(self.frame, 6, 'title', self.params['title'], width=10,
-                  bind_fun=bind_fun)
+        count = itertools.count(start=len(self.params) - len(excluded_keys))
 
-        add_entry(self.frame, 7, 'x-label', self.params['x_label'], width=10,
-                  bind_fun=bind_fun)
+        add_entry(self.frame, next(count), 'title', self.params['title'],
+                  width=10, bind_fun=bind_fun)
 
-        add_entry(self.frame, 8, 'y-label', self.params['y_label'], width=10,
-                  bind_fun=bind_fun)
+        add_entry(self.frame, next(count), 'x-label', self.params['x_label'],
+                  width=10, bind_fun=bind_fun)
+
+        add_entry(self.frame, next(count), 'y-label', self.params['y_label'],
+                  width=10, bind_fun=bind_fun)
 
 
 if __name__ == '__main__':
