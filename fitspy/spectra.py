@@ -36,8 +36,6 @@ class Spectra(list):
             super().__init__(spectra_list)
 
         self.spectra_maps = []
-        self.outliers_coef = 1.5
-        self.outliers_limit = None
         self.pbar_index = 0
 
     @property
@@ -55,10 +53,10 @@ class Spectra(list):
         return spectra_all
 
     def intensity(self):
-        """ Return the intensity array related to spectrum in spectra (ONLY) """
+        """Return the raw intensity array related to spectra AND spectra maps"""
         intensity = []
-        for spectrum in self:
-            intensity.append(spectrum.y)
+        for spectrum in self.all:
+            intensity.append(spectrum.y0)
         return np.asarray(intensity)
 
     def get_objects(self, fname):
@@ -77,23 +75,13 @@ class Spectra(list):
         print(f"{fname} not found in spectra")
         return None, None
 
-    def outliers_calculation(self, coef=1.5):
-        """ Outliers calculation from 'coef' * intensity_ref """
-
-        def outliers(intensity, spectra, coef):
-            shape = intensity.shape
-            inds = np.argsort(intensity, axis=0)[-5, :], np.arange(shape[1])
-            outliers_limit = coef * intensity[inds[0], inds[1]]
-            for spectrum in spectra:
-                outliers = np.where(spectrum.y > outliers_limit)[0]
-                spectrum.outliers = outliers.tolist()
-            return outliers_limit
-
-        for spectra_map in self.spectra_maps:
-            spectra_map.outliers_limit = outliers(spectra_map.intensity,
-                                                  spectra_map, coef)
-        if len(self) > 0:
-            self.outliers_limit = outliers(self.intensity, self, coef)
+    def outliers_limit_calculation(self, coef=1.5, nmax=5):
+        """ Calculate the outliers limit from 'coef' * intensity_ref """
+        intensity = self.intensity()
+        inds = np.argsort(intensity, axis=0)[-nmax, :]
+        outliers_limit = coef * intensity[inds, np.arange(intensity.shape[1])]
+        for spectrum in self.all:
+            spectrum.outliers_limit = outliers_limit
 
     def save_results(self, dirname_res, fnames=None):
         """

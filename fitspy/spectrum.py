@@ -63,8 +63,8 @@ class Spectrum:
     norm_position_ref: float
         Reference position associated to the 'Attractor' mode during the
         normalization
-    x0, y0: numpy.array((n))
-        Arrays related to spectrum raw support and intensity (resp.)
+    x0, y0: numpy.array((n0))
+        Arrays related to the spectrum raw support and intensity (resp.)
     x, y: numpy.array((n))
         Arrays related to spectrum modified support and intensity (resp.)
     attractors: list of ints
@@ -72,8 +72,8 @@ class Spectrum:
     attractors_params: dict
         Dictionary passed to scipy.signal.find_peaks for attractors
         determination. Could be a dictionary with Tkinter.Variable as values.
-    outliers: list of ints
-        Indices related to the outliers points
+    outliers_limit: numpy.array((n0))
+        Array related to the outliers limit associated to the raw data (x0, y0)
     baseline: Baseline object
         Baseline associated to the spectrum (to subract)
     baseline_history: list of list - DEPRECATED from v2024.2
@@ -134,7 +134,7 @@ class Spectrum:
         self.y = None
         self.attractors = None
         self.attractors_params = ATTRACTORS_PARAMS
-        self.outliers = None
+        self.outliers_limit = None
         self.baseline = BaseLine()
         self.bkg_model = None
         self.peak_models = []
@@ -265,6 +265,18 @@ class Spectrum:
             ind_max = closest_index(self.x0, self.range_max)
             self.x = self.x0[ind_min:ind_max + 1].copy()
             self.y = self.y0[ind_min:ind_max + 1].copy()
+
+    def calculate_outliers(self):
+        """ Return outliers points (x,y) coordinates """
+        x_outliers, y_outliers = None, None
+        if self.outliers_limit is not None:
+            x0, y0 = self.x0, self.y0
+            inds = np.where(y0 > self.outliers_limit)[0]
+            mask = (self.x.min() <= x0[inds]) * (x0[inds] <= self.x.max())
+            if np.any(mask):
+                inds = inds[mask]
+                x_outliers, y_outliers = x0[inds], y0[inds]
+        return x_outliers, y_outliers
 
     def normalize(self):
         """
@@ -604,10 +616,10 @@ class Spectrum:
                 is_ok = False
 
     def plot(self, ax,
-             show_attractors=True, show_outliers=True,
+             show_attractors=True, show_outliers=True, show_outliers_limit=True,
              show_negative_values=True, show_noise_level=True,
              show_baseline=True, show_background=True):
-        """ Plot the spectrum with the fitted models and Return the profiles """
+        """ Plot the spectrum with the peak models """
         lines = []
         x, y = self.x, self.y
         linewidth = 0.5
@@ -620,9 +632,16 @@ class Spectrum:
             inds = self.attractors
             ax.plot(x[inds], y[inds], 'go', ms=4, label="Attractors")
 
-        if show_outliers and self.outliers is not None:
-            inds = self.outliers
-            ax.plot(x[inds], y[inds], 'o', c='lime', label="Outliers")
+        if show_outliers:
+            x_outliers, y_outliers = self.calculate_outliers()
+            if x_outliers is not None:
+                ax.plot(x_outliers, y_outliers, 'o', c='lime', label='Outliers')
+
+        if show_outliers_limit and self.outliers_limit is not None:
+            imin = closest_index(self.x0, x[0])
+            imax = closest_index(self.x0, x[-1])
+            outliers_limit = self.outliers_limit[imin:imax + 1]
+            ax.plot(x, outliers_limit, 'r-', lw=2, label='Outliers limit')
 
         if show_negative_values:
             ax.plot(x[y < 0], y[y < 0], 'ro', ms=4, label="Negative values")
@@ -719,7 +738,7 @@ class Spectrum:
         """ Return a 'model_dict' dictionary from the spectrum attributes and
             Save it if a 'fname_json' is given """
 
-        excluded_keys = ['x0', 'y0', 'x', 'y',
+        excluded_keys = ['x0', 'y0', 'x', 'y', 'outliers_limit',
                          'peak_models', 'peak_index', 'bkg_model',
                          'result_fit', 'baseline']
         model_dict = {}
