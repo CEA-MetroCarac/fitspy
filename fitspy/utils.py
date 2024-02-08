@@ -96,8 +96,24 @@ def save_to_json(filename, dictionary, indent=3):
     indent: int, optional
         json keyword for indentation. See dedicated doc for more details
     """
+    json_dumps = json.dumps(dictionary, indent=indent)
+
+    # lists on a single line from https://stackoverflow.com/a/73748594/5964076
+    indent_ = ' ' * indent
+    starts = [x.start() for x in re.finditer(r'\[', json_dumps)]
+    ends = [x.start() + 1 for x in re.finditer(r'\]', json_dumps)]
+    origs = []
+    alters = []
+    for start, end in zip(starts, ends):
+        orig = json_dumps[start:end]
+        alter = orig.replace('\n', '').replace(indent_, '').replace(',', ', ')
+        origs.append(orig)
+        alters.append(alter)
+    for orig, alter in zip(origs, alters):
+        json_dumps = json_dumps.replace(orig, alter)
+
     with open(filename, 'w') as fid:
-        json.dump(dictionary, fid, indent=indent)
+        fid.write(json_dumps)
 
 
 def load_models_from_txt(fname, MODELS):
