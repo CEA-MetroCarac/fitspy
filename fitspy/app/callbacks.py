@@ -118,8 +118,7 @@ class Callbacks:
             if len(inds) > 0:
                 self.ax.plot(x0[inds], y0[inds], 'o', c='lime')
 
-        if self.figure_settings.params['plot_outliers_limit'].get() == 'On' \
-                and self.current_spectrum.outliers_limit is not None:
+        if self.current_spectrum.outliers_limit is not None:
             self.ax.plot(x0, self.current_spectrum.outliers_limit, 'r-', lw=2)
 
         self.canvas.draw()
@@ -235,13 +234,12 @@ class Callbacks:
 
         def proc():
             self.spectra.apply_model(model_dict, fnames, ncpus, fit_only)
+            self.colorize_from_fit_status(fnames)
+            self.reassign_current_spectrum(self.current_spectrum.fname)
+            self.update()
 
         Thread(target=proc).start()
-
         self.progressbar.show(self.spectra, nfiles)
-        self.colorize_from_fit_status(fnames)
-        self.reassign_current_spectrum(self.current_spectrum.fname)
-        self.update()
 
     def messagebox_continue(self, fnames):
         """ Open a messagebox if no models are found and return True/False
