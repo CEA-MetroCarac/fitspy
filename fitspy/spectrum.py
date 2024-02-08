@@ -572,7 +572,7 @@ class Spectrum:
         if 'fit_kws' in kwargs:
             fit_kws = kwargs['fit_kws']  # example: fit_kws={'xtol': 1.e-2}
             kwargs.pop('fit_kws')
-        if self.fit_params['method'] in ['Leastsq', 'Least_squares']:
+        if self.fit_params['method'] in ['leastsq', 'least_squares']:
             fit_kws.update({'xtol': self.fit_params['xtol']})
 
         self.result_fit = comp_model.fit(y, params, x=x, weights=weights,
