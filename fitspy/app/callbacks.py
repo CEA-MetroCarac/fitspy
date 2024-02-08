@@ -697,6 +697,7 @@ class Callbacks:
         params = self.fit_settings.params
         fit_params = self.current_spectrum.fit_params
         fit_params['fit_negative'] = params['fit_negative_values'].get() == 'On'
+        fit_params['fit_outliers'] = params['fit_outliers'].get() == 'On'
         fit_params['coef_noise'] = params['coef_noise'].get()
         fit_params['max_ite'] = params['maximum_iterations'].get()
         fit_params['fit_method'] = params['fit_method'].get()

@@ -487,8 +487,9 @@ class Spectrum:
             weights[y < 0] = 0
 
         if not self.fit_params['fit_outliers']:
-            if self.outliers is not None:
-                weights[self.outliers] = 0
+            x_outliers, _ = self.calculate_outliers()
+            if x_outliers is not None:
+                weights[np.where(np.isin(x, x_outliers))] = 0
 
         if self.fit_params['coef_noise'] > 0:
             delta = np.diff(y)
@@ -638,10 +639,9 @@ class Spectrum:
                 ax.plot(x_outliers, y_outliers, 'o', c='lime', label='Outliers')
 
         if show_outliers_limit and self.outliers_limit is not None:
-            imin = closest_index(self.x0, x[0])
-            imax = closest_index(self.x0, x[-1])
-            outliers_limit = self.outliers_limit[imin:imax + 1]
-            ax.plot(x, outliers_limit, 'r-', lw=2, label='Outliers limit')
+            imin, imax = list(self.x0).index(x[0]), list(self.x0).index(x[-1])
+            y_lim = self.outliers_limit[imin:imax + 1]  # pylint:disable=E1136
+            ax.plot(x, y_lim, 'r-', lw=2, label='Outliers limit')
 
         if show_negative_values:
             ax.plot(x[y < 0], y[y < 0], 'ro', ms=4, label="Negative values")
