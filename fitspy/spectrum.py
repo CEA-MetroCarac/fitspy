@@ -9,6 +9,7 @@ from copy import deepcopy
 import numpy as np
 import pandas as pd
 from scipy.signal import find_peaks
+from scipy.interpolate import interp1d
 from scipy.ndimage import uniform_filter1d
 from lmfit import Model, fit_report
 from lmfit.model import ModelResult
@@ -278,6 +279,19 @@ class Spectrum:
                 x_outliers, y_outliers = x0[inds], y0[inds]
         return x_outliers, y_outliers
 
+    @property
+    def y_no_outliers(self):
+        """ Return spectrum profile where outliers have been removed
+            and replaced by interpolated values """
+        x_outliers, y_outliers = self.calculate_outliers()
+        if x_outliers is None:
+            return self.y
+        else:
+            mask = ~np.isin(self.x, x_outliers)
+            x, y = self.x[mask], self.y[mask]  # coords without outliers
+            func_interp = interp1d(x, y, fill_value="extrapolate")
+            return func_interp(self.x)
+
     def normalize(self):
         """
         Normalize spectrum according to the 'Maximum' value or the nearest
@@ -285,10 +299,10 @@ class Spectrum:
         has been correctly defined (y_min value ~ 0)
         """
         if self.norm_mode == 'Maximum':
-            self.y *= 100. / self.y.max()
+            self.y *= 100. / self.y_no_outliers.max()
         elif self.norm_mode == 'Attractor':
             ind = closest_index(self.x[self.attractors], self.norm_position_ref)
-            self.y *= 100. / self.y[self.attractors][ind]
+            self.y *= 100. / self.y_no_outliers[self.attractors][ind]
 
     def attractors_calculation(self):
         """ Calculate attractors positions ordered wrt decreasing intensities"""
@@ -298,7 +312,7 @@ class Spectrum:
         else:
             params = self.attractors_params
 
-        attractors, _ = find_peaks(self.y, **params)
+        attractors, _ = find_peaks(self.y_no_outliers, **params)
         inds = np.argsort(self.y[attractors])
         self.attractors = attractors[inds[::-1]].astype(int).tolist()
 
@@ -389,7 +403,7 @@ class Spectrum:
         """
         dx = max(np.diff(self.x))
 
-        ampli = ampli or self.y[closest_index(self.x, x0)]
+        ampli = ampli or self.y_no_outliers[closest_index(self.x, x0)]
         fwhm = fwhm or dx
         fwhm_l = fwhm_l or dx
         fwhm_r = fwhm_r or dx
@@ -513,7 +527,7 @@ class Spectrum:
             for component in comp_model.components:
                 params = component.param_hints
                 ind = closest_index(x, params['x0']['value'])
-                params['ampli']['value'] = y[ind]
+                params['ampli']['value'] = self.y_no_outliers[ind]
                 for key in params.keys():
                     if key in ['fwhm', 'fwhm_l', 'fwhm_r']:
                         param = params[key]
@@ -580,7 +594,8 @@ class Spectrum:
 
     def auto_baseline(self):
         """ Calculate 'baseline.points' considering 'baseline.distance'"""
-        peaks, _ = find_peaks(-self.y, distance=self.baseline.distance)
+        peaks, _ = find_peaks(-self.y_no_outliers,
+                              distance=self.baseline.distance)
         self.baseline.points[0] = list(self.x[peaks])
         self.baseline.points[1] = list(self.y[peaks])
 
@@ -588,7 +603,7 @@ class Spectrum:
         """ Subtract the baseline to the spectrum
             if this has not been done previously """
         if not self.baseline.is_subtracted:
-            y = self.y if self.baseline.attached else None
+            y = self.y_no_outliers if self.baseline.attached else None
             self.y -= self.baseline.eval(x=self.x, y=y)
             self.baseline.is_subtracted = True
 
@@ -597,7 +612,7 @@ class Spectrum:
             5% of the maximum intensity peaks and nmax_nfev=400 """
         self.remove_models()
         self.attractors_calculation()
-        y = y0 = self.y.copy()
+        y = y0 = self.y_no_outliers.copy()
         dx = max(np.diff(self.x))
 
         is_ok = True
@@ -628,6 +643,7 @@ class Spectrum:
             linewidth = 1
 
         ax.plot(x, y, 'ko-', lw=linewidth, ms=1)
+        # ax.plot(x, self.y_no_outliers, 'k', ls='dotted', lw=linewidth)
 
         if show_attractors and self.attractors is not None:
             inds = self.attractors
