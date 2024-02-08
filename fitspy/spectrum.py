@@ -166,6 +166,8 @@ class Spectrum:
             self.fit_params['fit_negative'] = model_dict.pop('fit_negative')
         if 'max_ite' in keys:
             self.fit_params['max_ite'] = model_dict.pop('max_ite')
+        if 'xtol' in keys:
+            self.fit_params['xtol'] = model_dict.pop('xtol')
 
         for key in vars(self).keys():
             if key in keys:
