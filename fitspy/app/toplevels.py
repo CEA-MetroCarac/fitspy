@@ -6,17 +6,13 @@ from tkinter import Toplevel, Label, Entry, Button, Checkbutton, Text, Scrollbar
 from tkinter import IntVar, DoubleVar, StringVar, BooleanVar, W, E, END, RIGHT
 from tkinter.ttk import Combobox, Progressbar
 
-import matplotlib.pyplot as plt
 from matplotlib.colors import rgb2hex
 from lmfit import fit_report
 from lmfit.model import ModelResult
 
 from fitspy.app.utils import add, add_entry
-from fitspy.app.callbacks import FIT_METHODS
-from fitspy import PEAK_MODELS, BKG_MODELS, PEAK_PARAMS
-
-CMAP = plt.get_cmap("tab10")
-NCPUS = ['auto', 1, 2, 3, 4, 5, 6, 8, 10, 12, 14, 16, 20, 24, 28, 32]
+from fitspy import PEAK_MODELS, BKG_MODELS, PEAK_PARAMS, FIT_METHODS, CMAP, \
+    NCPUS
 
 
 class TabView:

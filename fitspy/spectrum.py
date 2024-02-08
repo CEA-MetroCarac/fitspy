@@ -21,12 +21,8 @@ from fitspy.utils import save_to_json, load_from_json
 from fitspy.app.utils import convert_dict_from_tk_variables
 from fitspy.app.utils import dict_has_tk_variable
 from fitspy.baseline import BaseLine
-from fitspy import PEAK_MODELS, PEAK_PARAMS, BKG_MODELS
-
-ATTRACTORS_PARAMS = {'distance': 20, 'prominence': None,
-                     'width': None, 'height': None, 'threshold': None}
-FIT_PARAMS = {'method': 'leastsq', 'fit_negative': False, 'fit_outliers': False,
-              'max_ite': 200, 'coef_noise': 1, 'xtol': 1.e-4}
+from fitspy import PEAK_MODELS, PEAK_PARAMS, BKG_MODELS, ATTRACTORS_PARAMS, \
+    FIT_PARAMS
 
 
 def create_model(model, model_name, prefix=None):
@@ -285,7 +281,7 @@ class Spectrum:
     def y_no_outliers(self):
         """ Return spectrum profile where outliers have been removed
             and replaced by interpolated values """
-        x_outliers, y_outliers = self.calculate_outliers()
+        x_outliers, _ = self.calculate_outliers()
         if x_outliers is None:
             return self.y
         else:

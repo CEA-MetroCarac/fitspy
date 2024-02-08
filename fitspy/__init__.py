@@ -1,5 +1,6 @@
 from pathlib import Path
 import shutil
+import matplotlib.pyplot as plt
 from lmfit.models import (ConstantModel, LinearModel, ParabolicModel,
                           ExponentialModel)
 
@@ -26,7 +27,18 @@ BKG_MODELS = {'None': None,
               'Parabolic': ParabolicModel,
               'Exponential': ExponentialModel}
 
-MODELS_NAMES = list(PEAK_MODELS.keys()) + list(BKG_MODELS.keys())
+# MODELS_NAMES = list(PEAK_MODELS.keys()) + list(BKG_MODELS.keys())
+
+FIT_METHODS = {'Leastsq': 'leastsq', 'Least_squares': 'least_squares',
+               'Nelder-Mead': 'nelder', 'SLSQP': 'slsqp'}
+FIT_PARAMS = {'method': 'leastsq', 'fit_negative': False, 'fit_outliers': False,
+              'max_ite': 200, 'coef_noise': 1, 'xtol': 1.e-4}
+ATTRACTORS_PARAMS = {'distance': 20, 'prominence': None,
+                     'width': None, 'height': None, 'threshold': None}
+NCPUS = ['auto', 1, 2, 3, 4, 5, 6, 8, 10, 12, 14, 16, 20, 24, 28, 32]
+CMAP = plt.get_cmap("tab10")
+
+################################################################################
 
 # create FITSPY_DIR if not exists
 Path.mkdir(FITSPY_DIR, exist_ok=True)

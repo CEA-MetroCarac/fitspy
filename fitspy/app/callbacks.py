@@ -10,17 +10,13 @@ from threading import Thread
 import glob
 from pathlib import Path
 import numpy as np
-import matplotlib.pyplot as plt
 
 from fitspy.spectra import Spectra
 from fitspy.spectra_map import SpectraMap
 from fitspy.spectrum import Spectrum
 from fitspy.utils import closest_index, check_or_rename
 from fitspy.utils import load_models_from_txt, load_models_from_py
-
-FIT_METHODS = {'Leastsq': 'leastsq', 'Least_squares': 'least_squares',
-               'Nelder-Mead': 'nelder', 'SLSQP': 'slsqp'}
-CMAP = plt.get_cmap("tab10")
+from fitspy import CMAP
 
 
 class Callbacks:
