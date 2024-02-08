@@ -36,11 +36,16 @@ def initializer(queue_incr):
 
 def fit_mp(spectra, ncpus, queue_incr):
     """ Multiprocessing fit function applied to spectra """
+
+    # models and fit_params are assumed to be consistent across all spectra ,
+    # the 2 dill.dumps are performed once to limit the CPU cost
+    peak_models_ = dill.dumps(spectra[0].peak_models)
+    bkg_models_ = dill.dumps(spectra[0].bkg_model)
+    fit_params = spectra[0].fit_params
+
     args = []
     for spectrum in spectra:
-        peak_models_ = dill.dumps(spectrum.peak_models)
-        bkg_models_ = dill.dumps(spectrum.bkg_model)
-        x, y, fit_params = spectrum.x, spectrum.y, spectrum.fit_params
+        x, y = spectrum.x, spectrum.y
         args.append((x, y, peak_models_, bkg_models_, fit_params))
 
     with ProcessPoolExecutor(initializer=initializer,
@@ -51,7 +56,6 @@ def fit_mp(spectra, ncpus, queue_incr):
     for result_fit_, spectrum in zip(results, spectra):
         spectrum.result_fit = dill.loads(result_fit_)
         spectrum.reassign_params()
-
 
 # import os
 # from concurrent.futures import ProcessPoolExecutor
