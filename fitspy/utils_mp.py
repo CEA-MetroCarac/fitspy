@@ -14,14 +14,17 @@ from fitspy.spectrum import Spectrum
 
 def fit(params):
     """ Fitting function used in multiprocessing """
-    x, y, peak_models_, bkg_models_, fit_params = params
+    x0, y0, x, y, peak_models_, bkg_models_, fit_params, outliers_limit = params
 
     spectrum = Spectrum()
+    spectrum.x0 = x0
+    spectrum.y0 = y0
     spectrum.x = x
     spectrum.y = y
     spectrum.peak_models = dill.loads(peak_models_)
     spectrum.bkg_model = dill.loads(bkg_models_)
     spectrum.fit_params = fit_params
+    spectrum.outliers_limit = outliers_limit
     spectrum.fit()
     shared_queue.put(1)
 
@@ -42,11 +45,12 @@ def fit_mp(spectra, ncpus, queue_incr):
     peak_models_ = dill.dumps(spectra[0].peak_models)
     bkg_models_ = dill.dumps(spectra[0].bkg_model)
     fit_params = spectra[0].fit_params
+    outliers_limit = spectra[0].outliers_limit
 
     args = []
     for spectrum in spectra:
-        x, y = spectrum.x, spectrum.y
-        args.append((x, y, peak_models_, bkg_models_, fit_params))
+        args.append((spectrum.x0, spectrum.y0, spectrum.x, spectrum.y,
+                     peak_models_, bkg_models_, fit_params, outliers_limit))
 
     with ProcessPoolExecutor(initializer=initializer,
                              initargs=(queue_incr,),
