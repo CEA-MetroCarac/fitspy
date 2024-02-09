@@ -35,9 +35,12 @@ def ex_gui_users_models(ncpus=1, dirname_res=None):
 
     appli.ncpus = ncpus
     appli.add_items(fnames=[DIRNAME / 'ordered_map.txt'])
+
+    appli.outliers_calculation()
+
     appli.load_model(fname_json=fname_json)
     appli.apply_model(fnames=appli.spectra.fnames[:5])
-    # appli.apply_model() # apply model to all the spectra
+    # appli.apply_model()  # apply the model to the 1520 spectra (could be long)
 
     # save and destroy for pytest
     if dirname_res is not None:

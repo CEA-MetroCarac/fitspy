@@ -41,7 +41,7 @@ def model_reconstruction_from_json():
 def model_reconstruction_from_csv():
     """ Example of 'inline' spectrum model reconstruction from '.csv' params"""
 
-    fname_csv = DATA / 'spectra_2' / 'InP-1_42-P21.csv'
+    fname_csv = DATA / 'spectra_2' / 'spectrum_2_1.csv'
 
     dfr = pd.read_csv(fname_csv, sep=';')
     peak_models = []

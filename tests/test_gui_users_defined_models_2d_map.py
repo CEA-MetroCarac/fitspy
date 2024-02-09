@@ -1,15 +1,17 @@
 import pytest
 from pytest import approx
 
-from examples.ex_gui_users_defined_models import ex_gui_users_models_from_txt
-from examples.ex_gui_users_defined_models import ex_gui_users_models_from_py
+from examples.ex_gui_users_defined_models_2d_map import \
+    ex_gui_users_models_from_txt
+from examples.ex_gui_users_defined_models_2d_map import \
+    ex_gui_users_models_from_py
 from utils import extract_results, display_is_ok
 
-REFS = [[520.1876881673046, 914.6124158904634, 9.567844475317354],
-        [520.0556606848833, 894.5345845967921, 9.952711474248666],
-        [519.9940849383077, 891.9396250396445, 9.841426352805783],
-        [520.0467482325055, 901.1376908860237, 9.648304792926787],
-        [520.0361487475782, 930.5679755394866, 9.522399137846483]]
+REFS = [[520.1831869201959, 914.2251483716625, 9.564640452707362],
+        [520.0392791068225, 891.6160584025431, 9.940131898953696],
+        [519.9866776205414, 885.66321943769, 9.707212537881095],
+        [520.0460423126672, 895.6053984636752, 9.604471066389609],
+        [520.027027026052, 932.8866912354766, 9.565131282488492]]
 
 
 @pytest.mark.skipif(not display_is_ok(), reason="DISPLAY problem")

@@ -12,8 +12,9 @@ def test_gui_peak_models_in_noise(tmp_path):
     results = extract_results(dirname_res=tmp_path)
     # print(results)
 
-    refs = [[183.96516988686062, 43.40369992828406, 88.2046106657544],
-            [184.892578, 0.0, 0.1]]
+    refs = [[183.97390206707158, 43.34103197326187, 88.17499327790364],
+            [183.9526502120302, 0.0, 0.1]]
+
 
     for result, reference in zip(results, refs):
         assert result == approx(reference, rel=1e-3)

@@ -17,7 +17,7 @@ def ex_gui_peak_models_in_noise(dirname_res=None):
     root = tk.Tk()
     appli = Appli(root)
 
-    fnames = [DIRNAME / "spectrum_1.txt", DIRNAME / "spectrum_2.txt"]
+    fnames = [DIRNAME / "spectrum_3_1.txt", DIRNAME / "spectrum_3_2.txt"]
     fname_json = DIRNAME / "model.json"
 
     appli.add_items(fnames=fnames)
