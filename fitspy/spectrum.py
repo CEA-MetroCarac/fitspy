@@ -18,8 +18,6 @@ from lmfit.models import ConstantModel, LinearModel, ParabolicModel, \
 
 from fitspy.utils import closest_index, fileparts, check_or_rename
 from fitspy.utils import save_to_json, load_from_json
-from fitspy.app.utils import convert_dict_from_tk_variables
-from fitspy.app.utils import dict_has_tk_variable
 from fitspy.baseline import BaseLine
 from fitspy import PEAK_MODELS, PEAK_PARAMS, BKG_MODELS, ATTRACTORS_PARAMS, \
     FIT_PARAMS
@@ -304,13 +302,7 @@ class Spectrum:
 
     def attractors_calculation(self):
         """ Calculate attractors positions ordered wrt decreasing intensities"""
-
-        if dict_has_tk_variable(self.attractors_params):
-            params = convert_dict_from_tk_variables(self.attractors_params)
-        else:
-            params = self.attractors_params
-
-        attractors, _ = find_peaks(self.y_no_outliers, **params)
+        attractors, _ = find_peaks(self.y_no_outliers, **self.attractors_params)
         inds = np.argsort(self.y[attractors])
         self.attractors = attractors[inds[::-1]].astype(int).tolist()
 
@@ -757,11 +749,8 @@ class Spectrum:
                          'result_fit', 'baseline']
         model_dict = {}
         for key, val in vars(self).items():
-            if key in excluded_keys:  # by-pass (x,y) coords and objects
-                continue
-            if isinstance(val, dict) and dict_has_tk_variable(val):
-                val = convert_dict_from_tk_variables(val)
-            model_dict[key] = val
+            if key not in excluded_keys:
+                model_dict[key] = val
 
         model_dict['baseline'] = dict(vars(self.baseline).items())
 

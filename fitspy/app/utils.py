@@ -5,9 +5,10 @@ import os
 import glob
 from itertools import groupby, count
 from tkinter import (LabelFrame, Frame, Label, Entry, Canvas, Scrollbar, Button,
-                     Listbox, Variable, StringVar)
+                     Listbox, Variable, StringVar, TclError)
 from tkinter import W, E, HORIZONTAL, EXTENDED, BOTTOM, X, Y, LEFT, RIGHT, END
 from tkinter import filedialog as fd
+from tkinter.messagebox import showerror
 
 from fitspy.utils import hsorted
 
@@ -65,7 +66,13 @@ def convert_dict_from_tk_variables(parent_dict, excluded_keys=None):
         elif isinstance(val, list):
             new_dict[key] = [x.get() for x in val]
         else:
-            new_dict[key] = val.get()
+            try:
+                new_dict[key] = val.get()
+            except TclError as error:
+                msg = str(error) + f" for {key}"
+                print("Error in parameter interpretation:", msg)
+                showerror(message=msg)
+                return
     return new_dict
 
 

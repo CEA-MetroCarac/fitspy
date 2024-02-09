@@ -18,6 +18,9 @@ from fitspy.utils import closest_index, check_or_rename
 from fitspy.utils import load_models_from_txt, load_models_from_py
 from fitspy import CMAP
 
+from fitspy.app.utils import convert_dict_from_tk_variables
+from fitspy.app.utils import dict_has_tk_variable
+
 
 class Callbacks:
     """
@@ -66,7 +69,7 @@ class Callbacks:
         self.ncpus = None
 
     def update_figure_settings(self):
-        """ Update attractors settings """
+        """ Update figure settings """
         x = self.root.winfo_pointerx()
         y = self.root.winfo_pointery()
         bind_fun = self.show_all if self.is_show_all else self.plot
@@ -595,10 +598,11 @@ class Callbacks:
 
     def update_attractors(self):
         """ Update attractors """
-        self.current_spectrum.attractors_params = \
-            self.attractors_settings.params
-        self.current_spectrum.attractors_calculation()
-        self.plot()
+        params = convert_dict_from_tk_variables(self.attractors_settings.params)
+        if params is not None:
+            self.current_spectrum.attractors_params = params
+            self.current_spectrum.attractors_calculation()
+            self.plot()
 
     def add_peaks_point(self, x, y):
         """ Add peak from the (x,y)-coordinates """
