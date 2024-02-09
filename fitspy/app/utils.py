@@ -44,14 +44,6 @@ def interactive_entry(root, var, fun, width=2):
     return entry
 
 
-def dict_has_tk_variable(dictionary):
-    """ Return 'True' if 'dictionary' has Tkinter.Variable as value """
-    for x in list(dictionary.values()):
-        if isinstance(x, Variable):
-            return True
-    return False
-
-
 def convert_dict_from_tk_variables(parent_dict, excluded_keys=None):
     """ Convert a dictionary from Tkinter.Variables to standard types
         (thanks to a recursive processing)   """

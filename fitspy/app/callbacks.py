@@ -19,7 +19,6 @@ from fitspy.utils import load_models_from_txt, load_models_from_py
 from fitspy import CMAP
 
 from fitspy.app.utils import convert_dict_from_tk_variables
-from fitspy.app.utils import dict_has_tk_variable
 
 
 class Callbacks:
@@ -422,9 +421,8 @@ class Callbacks:
                     self.canvas.draw_idle()
 
         if fig_settings['plot_outliers_limit'].get() == 'On':
-            _, spectra = self.spectra.get_objects(spectrum.fname)
-            if spectra.outliers_limit is not None:
-                self.ax.plot(spectrum.x, spectra.outliers_limit,
+            if spectrum.outliers_limit is not None:
+                self.ax.plot(spectrum.x, spectrum.outliers_limit,
                              'r', label="Outliers limit")
                 self.ax.legend()
 
@@ -881,6 +879,9 @@ class Callbacks:
                 if fname not in self.fileselector.filenames[0]:
                     self.fileselector.add_items(filenames=[fname])
 
+        attractors_params = self.attractors_settings.params
+        attractors_params = convert_dict_from_tk_variables(attractors_params)
+
         # create Spectrum or SpectramMap objects associated to the new items
         fname_first_item = None
         for fname in self.fileselector.filenames[0]:
@@ -898,7 +899,7 @@ class Callbacks:
 
                 spectrum = Spectrum()
                 spectrum.load_profile(fname)
-                spectrum.attractors_params = self.attractors_settings.params
+                spectrum.attractors_params = attractors_params
                 self.spectra.append(spectrum)
 
         self.update(fname=fname_first_item or self.fileselector.filenames[0][0])
