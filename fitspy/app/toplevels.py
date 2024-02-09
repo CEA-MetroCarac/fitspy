@@ -12,7 +12,7 @@ from lmfit.model import ModelResult
 
 from fitspy.app.utils import add, add_entry
 from fitspy import PEAK_MODELS, BKG_MODELS, PEAK_PARAMS, FIT_METHODS, CMAP, \
-    NCPUS
+    NCPUS, ATTRACTORS_PARAMS, FIT_PARAMS
 
 
 class TabView:
@@ -381,11 +381,12 @@ class AttractorsSettings(Settings):
 
     def __init__(self, root):
         super().__init__(root)
-        self.params = {'distance': IntVar(value=20),
-                       'prominence': IntVar(value=None),
-                       'width': IntVar(value=None),
-                       'height': IntVar(value=None),
-                       'threshold': IntVar(value=None)}
+        self.params = {
+            'distance': IntVar(value=ATTRACTORS_PARAMS['distance']),
+            'prominence': IntVar(value=ATTRACTORS_PARAMS['prominence']),
+            'width': IntVar(value=ATTRACTORS_PARAMS['width']),
+            'height': IntVar(value=ATTRACTORS_PARAMS['height']),
+            'threshold': IntVar(value=ATTRACTORS_PARAMS['threshold'])}
 
 
 class FitSettings(Settings):
@@ -393,13 +394,16 @@ class FitSettings(Settings):
 
     def __init__(self, root):
         super().__init__(root)
-        self.params = {'fit_negative_values': StringVar(value='Off'),
-                       'fit_outliers': StringVar(value='Off'),
-                       'coef_noise': DoubleVar(value=1),
-                       'maximum_iterations': IntVar(value=200),
-                       'fit_method': StringVar(value='Leastsq'),
-                       'xtol': DoubleVar(value=1.e-4),
-                       'ncpus': StringVar(value='auto')}
+        neg_value = int(FIT_PARAMS['fit_negative'])
+        outliers = int(FIT_PARAMS['fit_outliers'])
+        self.params = {
+            'fit_negative_values': StringVar(value=['Off', 'On'][neg_value]),
+            'fit_outliers': StringVar(value=['Off', 'On'][outliers]),
+            'coef_noise': DoubleVar(value=FIT_PARAMS['coef_noise']),
+            'maximum_iterations': IntVar(value=FIT_PARAMS['max_ite']),
+            'fit_method': StringVar(value=FIT_PARAMS['method']),
+            'xtol': DoubleVar(value=FIT_PARAMS['xtol']),
+            'ncpus': StringVar(value=FIT_PARAMS['ncpus'])}
 
     def frame_creation(self, bind_fun, excluded_keys=None):
         excluded_keys = ['fit_method', 'ncpus']
