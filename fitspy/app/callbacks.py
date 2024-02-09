@@ -156,9 +156,12 @@ class Callbacks:
 
         self.cids = [self.canvas.mpl_connect('button_press_event', on_press)]
 
-    def show_hide_results(self):
-        """ Show/Hide the results 'tabview' """
-        self.tabview.show_hide()
+    def show_hide_results(self, view):
+        """ Show/Hide the 'paramsview' or the 'statsview' """
+        if view == 'params':
+            self.paramsview.show_hide()
+        else:
+            self.statsview.show_hide()
         # Make 'Frame Peaks' enable to see the changes in the plot
         self.selected_frame = 'Peaks'
         self.fr_peaks.enable()
@@ -559,7 +562,8 @@ class Callbacks:
             spectrum, _ = self.spectra.get_objects(fname)
             spectrum.baseline.points = baseline_points.copy()
             spectrum.subtract_baseline()
-        self.tabview.delete()
+        self.paramsview.delete()
+        self.statsview.delete()
         self.ax.clear()
         self.plot()
 
@@ -624,7 +628,7 @@ class Callbacks:
         self.current_spectrum.add_peak_model(model_name, x0=x_sp[ind_min])
         self.current_spectrum.result_fit = lambda: None
 
-        self.tabview.update()
+        self.paramsview.update()
         self.plot()
 
     def del_peaks_point(self, x, _):
@@ -639,7 +643,7 @@ class Callbacks:
             self.current_spectrum.del_peak_model(ind_min)
             self.current_spectrum.result_fit = lambda: None
 
-        self.tabview.update()
+        self.paramsview.update()
         self.plot()
 
     def auto_peaks(self, model_name=None):
@@ -647,8 +651,8 @@ class Callbacks:
         if model_name is None:
             model_name = self.model.get()
         self.current_spectrum.auto_peaks(model_name)
-        self.tabview.update()
-        self.tabview.update_stats()
+        self.paramsview.update()
+        self.statsview.update()
         self.plot()
 
     def set_bkg_model(self):
@@ -656,7 +660,7 @@ class Callbacks:
         if self.current_spectrum is not None:
             self.current_spectrum.set_bkg_model(self.bkg_name.get())
             self.current_spectrum.result_fit = lambda: None
-            self.tabview.update()
+            self.paramsview.update()
             self.plot()
 
     def update_fit_settings(self):
@@ -735,7 +739,8 @@ class Callbacks:
             self.set_spectrum_range(delete_tabview=False)
         self.show_plot = True
         self.reassign_current_spectrum(current_fname)
-        self.tabview.delete()
+        self.paramsview.delete()
+        self.statsview.delete()
 
     def normalize(self):
         """ Normalize all spectra from maximum or attractor position """
@@ -756,7 +761,8 @@ class Callbacks:
         self.show_plot = True
         self.colorize_from_fit_status(fnames=self.spectra.fnames)
         self.reassign_current_spectrum(current_fname)
-        self.tabview.delete()
+        self.paramsview.delete()
+        self.statsview.delete()
 
     def reinit(self, fnames=None):
         """ Reinitialize the spectrum """
@@ -778,7 +784,8 @@ class Callbacks:
             spectrum.baseline.is_subtracted = False
 
         self.colorize_from_fit_status(fnames=fnames)
-        self.tabview.delete()
+        self.paramsview.delete()
+        self.statsview.delete()
         self.set_range()
         self.ax.clear()
         self.plot()
@@ -802,7 +809,8 @@ class Callbacks:
             self.current_spectrum.remove_models()
             self.delete_baseline()
             if delete_tabview:  # expensive operation when doing a lot of times
-                self.tabview.delete()
+                self.paramsview.delete()
+                self.statsview.delete()
             self.ax.clear()
             self.plot()
 
@@ -949,11 +957,12 @@ class Callbacks:
         self.set_range()
         self.set_baseline()
         self.update_attractors()
-        self.tabview.spectrum = self.current_spectrum
-        self.tabview.bkg_name = self.bkg_name
-        self.tabview.plot = self.plot
-        self.tabview.update()
-        self.tabview.update_stats()
+        self.paramsview.spectrum = self.current_spectrum
+        self.paramsview.bkg_name = self.bkg_name
+        self.paramsview.plot = self.plot
+        self.paramsview.update()
+        self.statsview.spectrum = self.current_spectrum
+        self.statsview.update()
         self.show_plot = True
         self.plot()
 

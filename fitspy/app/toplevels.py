@@ -15,26 +15,39 @@ from fitspy import PEAK_MODELS, BKG_MODELS, PEAK_PARAMS, FIT_METHODS, CMAP, \
     NCPUS, ATTRACTORS_PARAMS, FIT_PARAMS
 
 
-class TabView:
-    """ Class for spectra models fit results and parameters displaying """
+class ResultView:
+    """ Master class used by ParamsView and StatsView """
 
     def __init__(self, root):
 
         self.frame = Toplevel(root)
-        self.frame_stats = Toplevel(root)
 
         # hide the frames
         self.frame.withdraw()
-        self.frame_stats.withdraw()
         self.hidden = True
 
         # make the frame remain on top until destroyed and disable closing
         self.frame.attributes('-topmost', 'true')
         self.frame.protocol("WM_DELETE_WINDOW", lambda *args: None)
-        self.frame_stats.attributes('-topmost', 'true')
-        self.frame_stats.protocol("WM_DELETE_WINDOW", lambda *args: None)
 
         self.spectrum = None
+
+    def show_hide(self):
+        """ Show/Hide the TopLevel frame """
+        if not self.hidden:
+            self.frame.withdraw()
+            self.hidden = True
+        else:
+            self.frame.deiconify()
+            self.hidden = False
+
+
+class ParamsView(ResultView):
+    """ Class for models parameters displaying """
+
+    def __init__(self, root):
+        super().__init__(root)
+
         self.params = None
         self.peak_models = None
         self.peak_models_delete = None
@@ -44,11 +57,6 @@ class TabView:
         self.show_bounds = BooleanVar(value=False)
         self.show_expr = BooleanVar(value=False)
         self.bkg_name = StringVar(value='None')
-
-        vsbar = Scrollbar(self.frame_stats, orient='vertical')
-        vsbar.pack(side=RIGHT, fill='y')
-        self.text = Text(self.frame_stats, yscrollcommand=vsbar.set)
-        vsbar.config(command=self.text.yview)
 
     def add_entry(self, arg, row, col, i, key, param):
         """ Add Tk.Entry at (row, col) linked to params[i][key][arg] """
@@ -253,30 +261,35 @@ class TabView:
             if self.show_expr.get():
                 self.add_entry('expr', row + 1, col, i, key, param)
 
-    def update_stats(self):
-        """ Update the statistics """
-        self.text.delete(1.0, END)
-        if isinstance(self.spectrum.result_fit, ModelResult):
-            self.text.insert(END, fit_report(self.spectrum.result_fit))
-            self.text.pack()
-
     def delete(self):
         """ Delete all the values contained in frames """
-        self.text.delete(1.0, END)
         for widget in self.frame.winfo_children():
             widget.destroy()
         self.set_header()
 
-    def show_hide(self):
-        """ Show/Hide the TopLevel frame """
-        if not self.hidden:
-            self.frame.withdraw()
-            self.frame_stats.withdraw()
-            self.hidden = True
-        else:
-            self.frame.deiconify()
-            self.frame_stats.deiconify()
-            self.hidden = False
+
+class StatsView(ResultView):
+    """ Class for fit statistics displaying """
+
+    def __init__(self, root):
+        super().__init__(root)
+
+        vsbar = Scrollbar(self.frame, orient='vertical')
+        vsbar.pack(side=RIGHT, fill='y')
+        self.text = Text(self.frame, yscrollcommand=vsbar.set)
+        vsbar.config(command=self.text.yview)
+
+    def update(self):
+        """ Update the statistics """
+        self.text.delete(1.0, END)
+        if self.spectrum is not None:
+            if isinstance(self.spectrum.result_fit, ModelResult):
+                self.text.insert(END, fit_report(self.spectrum.result_fit))
+                self.text.pack()
+
+    def delete(self):
+        """ Delete all the values contained in frames """
+        self.text.delete(1.0, END)
 
 
 class ProgressBar:
@@ -471,11 +484,11 @@ if __name__ == '__main__':
     my_spectrum.peak_models = models
 
     my_root = tk.Tk()
-    tabview = TabView(my_root)
-    tabview.hidden = True
-    tabview.spectrum = my_spectrum
-    tabview.plot = print
-    tabview.set_header()
-    tabview.update()
-    tabview.show_hide()
+    paramsview = ParamsView(my_root)
+    paramsview.hidden = True
+    paramsview.spectrum = my_spectrum
+    paramsview.plot = print
+    paramsview.set_header()
+    paramsview.update()
+    paramsview.show_hide()
     my_root.mainloop()

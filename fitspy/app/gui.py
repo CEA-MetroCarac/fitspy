@@ -29,7 +29,7 @@ from fitspy import PEAK_MODELS, BKG_MODELS, PEAK_PARAMS, SETTINGS_FNAME
 
 from fitspy.app.utils import add, interactive_entry as entry
 from fitspy.app.utils import ToggleFrame, ScrollbarFrame, FilesSelector
-from fitspy.app.toplevels import TabView, ProgressBar
+from fitspy.app.toplevels import ParamsView, StatsView, ProgressBar
 from fitspy.app.toplevels import AttractorsSettings, FitSettings, FigureSettings
 from fitspy.app.callbacks import Callbacks
 
@@ -52,8 +52,10 @@ class GUI(Callbacks):
         Tkinter.TopLevel derivative object for attractors parameters setting
     fit_settings: FitSettings obj
         Tkinter.TopLevel derivative object for fitting parameters setting
-    tabview: TabView obj
-        Tkinter.TopLevel derivative object for fitting results models displaying
+    paramsview: ParamsView obj
+        Tkinter.TopLevel derivative object for fitting models params displaying
+    statsview: StatsView obj
+        Tkinter.TopLevel derivative object for fitting stats results displaying
     progressbar: ProgressBar obj
         Tkinter.TopLevel derivative object with progression bar
     range_min, range_max: Tkinter.DoubleVars
@@ -100,7 +102,8 @@ class GUI(Callbacks):
         self.figure_settings = FigureSettings(self.root)
         self.attractors_settings = AttractorsSettings(self.root)
         self.fit_settings = FitSettings(self.root)
-        self.tabview = TabView(self.root)
+        self.paramsview = ParamsView(self.root)
+        self.statsview = StatsView(self.root)
         self.progressbar = ProgressBar(self.root)
 
         # Spectrum parameters
@@ -293,32 +296,35 @@ class GUI(Callbacks):
         add(self.fr_peaks, next(row), 0, W + E)
 
         fr = self.fr_peaks
-        add(Button(fr, text='Auto', command=self.auto_peaks), 0, 0)
-        add(Button(fr, text="Parameters", width=16,
-                   command=self.show_hide_results), 0, 1, cspan=2)
-        add(Button(fr, text='Fit Settings',
-                   command=self.update_fit_settings), 0, 3)
 
         def update_cbox(cbox, models):
             cbox['value'] = list(models.keys())
 
-        add(Label(fr, text='Peak model :'), 1, 0, E)
+        add(Label(fr, text='Peak model :'), 0, 0, E)
         cbox1 = Combobox(fr, values=list(PEAK_MODELS.keys()),
                          postcommand=lambda: update_cbox(cbox1, PEAK_MODELS),
                          textvariable=self.model, width=16)
-        add(cbox1, 1, 1, cspan=2)
+        add(cbox1, 0, 1, cspan=2)
         add(Button(fr, text="Load",
-                   command=lambda: self.load_user_model('PEAK_MODELS')), 1, 3)
+                   command=lambda: self.load_user_model('PEAK_MODELS')), 0, 3)
 
-        add(Label(fr, text='BKG model :'), 2, 0, E)
+        add(Label(fr, text='BKG model :'), 1, 0, E)
         cbox2 = Combobox(fr, values=list(BKG_MODELS.keys()),
                          postcommand=lambda: update_cbox(cbox2, BKG_MODELS),
                          textvariable=self.bkg_name, width=16)
-        add(cbox2, 2, 1, cspan=2)
+        add(cbox2, 1, 1, cspan=2)
         cbox2.bind('<<ComboboxSelected>>',
                    lambda _: self.set_bkg_model())
         add(Button(fr, text="Load",
-                   command=lambda: self.load_user_model('BKG_MODELS')), 2, 3)
+                   command=lambda: self.load_user_model('BKG_MODELS')), 1, 3)
+
+        add(Button(fr, text="Parameters",
+                   command=lambda: self.show_hide_results('params')), 2, 0)
+        add(Button(fr, text="Stats",
+                   command=lambda: self.show_hide_results('stats')), 2, 1)
+        add(Button(fr, text='Auto', command=self.auto_peaks), 2, 2)
+        add(Button(fr, text='Fit Settings',
+                   command=self.update_fit_settings), 2, 3)
 
         add(Button(fr, text=" Fit ", command=self.fit), 3, 0)
         add(Button(fr, text=" Fit All ", command=self.fit_all), 3, 1)
