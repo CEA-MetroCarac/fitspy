@@ -233,14 +233,12 @@ class Callbacks:
         nfiles = len(fnames)
         ncpus = self.get_ncpus(nfiles=nfiles)
 
-        def proc():
-            self.spectra.apply_model(model_dict, fnames, ncpus, fit_only)
-            self.colorize_from_fit_status(fnames)
-            self.reassign_current_spectrum(self.current_spectrum.fname)
-            self.update()
-
-        Thread(target=proc).start()
+        args = (model_dict, fnames, ncpus, fit_only)
+        Thread(target=self.spectra.apply_model, args=args).start()
         self.progressbar.show(self.spectra, nfiles)
+        self.colorize_from_fit_status(fnames)
+        self.reassign_current_spectrum(self.current_spectrum.fname)
+        self.update()
 
     def messagebox_continue(self, fnames):
         """ Open a messagebox if no models are found and return True/False
