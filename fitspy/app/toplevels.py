@@ -414,20 +414,20 @@ class FitSettings(Settings):
             'fit_outliers': StringVar(value=['Off', 'On'][outliers]),
             'coef_noise': DoubleVar(value=FIT_PARAMS['coef_noise']),
             'maximum_iterations': IntVar(value=FIT_PARAMS['max_ite']),
-            'fit_method': StringVar(value=FIT_PARAMS['method']),
+            'method': StringVar(value=FIT_PARAMS['method']),
             'xtol': DoubleVar(value=FIT_PARAMS['xtol']),
             'ncpus': StringVar(value=FIT_PARAMS['ncpus'])}
 
     def frame_creation(self, bind_fun, excluded_keys=None):
-        excluded_keys = ['fit_method', 'ncpus']
+        excluded_keys = ['method', 'ncpus']
         super().frame_creation(bind_fun, excluded_keys=excluded_keys)
 
         count = itertools.count(start=len(self.params) - len(excluded_keys))
 
         k = next(count)
-        add(Label(self.frame, text='fit method'), k, 0, E)
+        add(Label(self.frame, text='method'), k, 0, E)
         add(Combobox(self.frame, values=list(FIT_METHODS.keys()),
-                     textvariable=self.params['fit_method'], width=12), k, 1, W)
+                     textvariable=self.params['method'], width=12), k, 1, W)
 
         k = next(count)
         add(Label(self.frame, text='Number of CPUs'), k, 0, E)

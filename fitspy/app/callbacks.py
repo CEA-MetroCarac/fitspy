@@ -700,7 +700,7 @@ class Callbacks:
         fit_params['fit_outliers'] = params['fit_outliers'].get() == 'On'
         fit_params['coef_noise'] = params['coef_noise'].get()
         fit_params['max_ite'] = params['maximum_iterations'].get()
-        fit_params['fit_method'] = params['fit_method'].get()
+        fit_params['method'] = params['method'].get()
         fit_params['xtol'] = params['xtol'].get()
 
         model_dict = self.current_spectrum.save()
