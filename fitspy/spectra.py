@@ -5,9 +5,11 @@ Class dedicated to handle 'Spectrum' objects contained in a list managed by
 import os
 import sys
 import time
+from pathlib import Path
 from threading import Thread
 from multiprocessing import Queue
 import numpy as np
+import pandas as pd
 import matplotlib.pyplot as plt
 
 from fitspy.spectrum import Spectrum
@@ -98,11 +100,31 @@ class Spectra(list):
         if fnames is None:
             fnames = self.fnames
 
+        from fitspy.spectra_map import SpectraMap
+
+        results = []
         for fname in fnames:
-            spectrum, _ = self.get_objects(fname)
+            spectrum, spectra = self.get_objects(fname)
             if hasattr(spectrum.result_fit, "success"):
                 spectrum.save_params(dirname_res)
                 spectrum.save_stats(dirname_res)
+                name = Path(spectrum.fname).name
+                x, y = None, None
+                if isinstance(spectra, SpectraMap):
+                    x, y = spectra.spectrum_coords(spectrum)
+                result = spectrum.result_fit.best_values
+                result.update({'name': name, 'x': x, 'y': y})
+                results.append(result)
+
+        dfr = pd.DataFrame(results).round(3)
+
+        # reindex columns according to the parameters names
+        dfr = dfr.reindex(sorted(dfr.columns), axis=1)
+        param_names = np.asarray([name[4:] for name in dfr.columns])
+        dfr = dfr.iloc[:, list(np.argsort(param_names, kind='stable'))]
+
+        fname = Path(dirname_res) / "results.csv"
+        dfr.to_csv(fname, sep=';', index=False)
 
     def save_figures(self, dirname_fig, fnames=None, bounds=None):
         """
