@@ -124,7 +124,7 @@ class Callbacks:
         def on_press(event):
             """ Highlight spectra close to the mouse click position """
             if self.lines is not None and event.inaxes == self.ax:
-                fselector.lbox[0].selection_clear(0, END)
+                fselector.lbox.selection_clear(0, END)
                 # reassign standard properties to the previous nearest lines
                 for line in self.nearest_lines:
                     line.set(linewidth=0.2, color='k', zorder=0)
@@ -132,21 +132,21 @@ class Callbacks:
                 self.nearest_lines, labels = [], []
                 for i, line in enumerate(self.lines):
                     if line.contains(event)[0]:
-                        fselector.lbox[0].selection_set(i)
+                        fselector.select_item(i)
                         if len(self.nearest_lines) < 10:
                             color = CMAP(len(self.nearest_lines))
                             line.set(linewidth=1, color=color, zorder=1)
                             self.nearest_lines.append(line)
-                            label = os.path.basename(fselector.filenames[0][i])
+                            label = os.path.basename(fselector.filenames[i])
                             labels.append(label)
                         else:
                             title = "The nearest lines exceed 10.\n"
                             title += "  Show the first 10 ones"
                         # adapt the scrollbar cursor position to the first line
                         if len(self.nearest_lines) == 1:
-                            cursor_position = i / len(fselector.filenames[0])
-                            fselector.lbox[0].yview_moveto(cursor_position)
-                            fselector.lbox[0].update()
+                            cursor_position = i / len(fselector.filenames)
+                            fselector.lbox.yview_moveto(cursor_position)
+                            fselector.lbox.update()
                 self.ax.legend(self.nearest_lines, labels, title=title, loc=1)
                 self.canvas.draw()
 
@@ -176,8 +176,7 @@ class Callbacks:
                 os.makedirs(dirname_res)
 
         if os.path.isdir(dirname_res):
-            self.spectra.save_results(dirname_res,
-                                      self.fileselector.filenames[0])
+            self.spectra.save_results(dirname_res, self.fileselector.filenames)
 
     def save_figures(self, dirname_fig=None):
         """ Save all spectra figures in .png files """
@@ -190,7 +189,7 @@ class Callbacks:
         if os.path.isdir(dirname_fig):
             bounds = (self.ax.get_xlim(), self.ax.get_ylim())
             self.spectra.save_figures(dirname_fig,
-                                      fnames=self.fileselector.filenames[0],
+                                      fnames=self.fileselector.filenames,
                                       bounds=bounds)
 
     def load_model(self, fname_json=None):
@@ -223,12 +222,11 @@ class Callbacks:
             return
 
         if fnames is None:
-            fnames = self.fileselector.filenames[0]
+            fnames = self.fileselector.filenames
 
         if selection:
-            fnames = self.fileselector.filenames[0]
-            fnames = [fnames[i]
-                      for i in self.fileselector.lbox[0].curselection()]
+            fnames = self.fileselector.filenames
+            fnames = [fnames[i] for i in self.fileselector.lbox.curselection()]
 
         nfiles = len(fnames)
         ncpus = self.get_ncpus(nfiles=nfiles)
@@ -279,16 +277,16 @@ class Callbacks:
 
     def save_selection(self, fname_json=None):
         """ Save selected spectra models in a .json file """
-        inds = self.fileselector.lbox[0].curselection()
+        inds = self.fileselector.lbox.curselection()
         if len(inds) == 0:
             showerror(message='No files have been selected')
             return
-        fnames = [self.fileselector.filenames[0][i] for i in inds]
+        fnames = [self.fileselector.filenames[i] for i in inds]
         self.save(fnames, fname_json=fname_json)
 
     def save_all(self, fname_json=None):
         """ Save all spectra models in a .json file """
-        fnames = self.fileselector.filenames[0]
+        fnames = self.fileselector.filenames
         self.save(fnames, fname_json=fname_json)
 
     def reload(self, fname_json=None):
@@ -301,8 +299,8 @@ class Callbacks:
             fselector = self.fileselector
 
             # remove previous loads
-            fselector.lbox[0].delete(0, END)
-            fselector.filenames[0] = []
+            fselector.lbox.delete(0, END)
+            fselector.filenames = []
 
             for spectra_map in self.spectra.spectra_maps:
                 spectra_map.frame.destroy()
@@ -315,9 +313,9 @@ class Callbacks:
                 spectra_map.plot_map(spectra_map.ax)
 
             for fname in self.spectra.fnames:
-                fselector.lbox[0].insert(END, os.path.basename(fname))
-                fselector.filenames[0].append(fname)
-            fselector.lbox[0].select_set(0)
+                fselector.lbox.insert(END, os.path.basename(fname))
+                fselector.filenames.append(fname)
+            fselector.lbox.select_set(0)
             self.update()
 
     def plot(self):
@@ -552,9 +550,8 @@ class Callbacks:
             return
 
         if fnames is None:
-            fselector = self.fileselector
-            fnames = fselector.filenames[0]
-            fnames = [fnames[i] for i in fselector.lbox[0].curselection()]
+            fnames = self.fileselector.filenames
+            fnames = [fnames[i] for i in self.fileselector.lbox.curselection()]
 
         for fname in fnames:
             spectrum, _ = self.spectra.get_objects(fname)
@@ -670,17 +667,17 @@ class Callbacks:
     def colorize_from_fit_status(self, fnames=None):
         """ Colorize the fileselector items from the fit success status """
         if fnames is None:
-            fnames = self.fileselector.filenames[0]
+            fnames = self.fileselector.filenames
 
         for fname in fnames:
-            ind_fselector = self.fileselector.filenames[0].index(fname)
+            ind_fselector = self.fileselector.filenames.index(fname)
             spectrum, _ = self.spectra.get_objects(fname)
             result_fit = spectrum.result_fit
             if hasattr(result_fit, 'success'):
                 color = 'Lime' if result_fit.success else 'Orange'
             else:
                 color = 'white'
-            self.fileselector.lbox[0].itemconfig(ind_fselector, {'bg': color})
+            self.fileselector.lbox.itemconfig(ind_fselector, {'bg': color})
 
     def fit(self, fnames=None, selection=True):
         """ Fit the peaks """
@@ -765,9 +762,8 @@ class Callbacks:
     def reinit(self, fnames=None):
         """ Reinitialize the spectrum """
         if fnames is None:
-            fselector = self.fileselector
-            fnames = fselector.filenames[0]
-            fnames = [fnames[i] for i in fselector.lbox[0].curselection()]
+            fnames = self.fileselector.filenames
+            fnames = [fnames[i] for i in self.fileselector.lbox.curselection()]
 
         for fname in fnames:
             spectrum, _ = self.spectra.get_objects(fname)
@@ -794,9 +790,8 @@ class Callbacks:
 
     def reassign_current_spectrum(self, fname):
         """ Reassign the current spectrum from 'fname' """
-        ind = self.fileselector.filenames[0].index(fname)
-        self.fileselector.lbox[0].selection_clear(0, END)
-        self.fileselector.lbox[0].selection_set(ind)
+        ind = self.fileselector.filenames.index(fname)
+        self.fileselector.select_item(ind)
         self.current_spectrum, _ = self.spectra.get_objects(fname)
         self.ax.clear()
         self.plot()
@@ -845,16 +840,16 @@ class Callbacks:
         """ Delete items from spectra selected in the 'fileselector'
             or passed as argument """
         fselector = self.fileselector
-        fnames_fselector = fselector.filenames[0]
+        fnames_fselector = fselector.filenames
 
         if isinstance(fnames, list):
             for fname in fnames:
                 if fname in fnames_fselector:
                     ind = fnames_fselector.index(fname)
-                    self.fileselector.lbox[0].delete(ind)
-                    self.fileselector.filenames[0].pop(ind)
+                    self.fileselector.lbox.delete(ind)
+                    self.fileselector.filenames.pop(ind)
 
-        fnames_fselector = fselector.filenames[0]
+        fnames_fselector = fselector.filenames
         for fname_spectra in self.spectra.fnames:
             if fname_spectra not in fnames_fselector:
                 spectrum, spectra = self.spectra.get_objects(fname_spectra)
@@ -865,7 +860,7 @@ class Callbacks:
         for spectra in self.spectra.spectra_maps:
             spectra.plot_map_update()
 
-        if len(fselector.lbox[0].curselection()) == 0:
+        if len(fselector.lbox.curselection()) == 0:
             self.remove()
             self.ax.clear()
             self.canvas.draw()
@@ -882,7 +877,7 @@ class Callbacks:
         """ Add new items from a 'fnames' list """
         if isinstance(fnames, list):
             for fname in fnames:
-                if fname not in self.fileselector.filenames[0]:
+                if fname not in self.fileselector.filenames:
                     self.fileselector.add_items(filenames=[fname])
 
         attractors_params = self.attractors_settings.params
@@ -890,7 +885,7 @@ class Callbacks:
 
         # create Spectrum or SpectramMap objects associated to the new items
         fname_first_item = None
-        for fname in self.fileselector.filenames[0]:
+        for fname in self.fileselector.filenames:
             if fname not in self.spectra.fnames:
 
                 # 2D-map detection
@@ -908,7 +903,7 @@ class Callbacks:
                 spectrum.attractors_params = attractors_params
                 self.spectra.append(spectrum)
 
-        self.update(fname=fname_first_item or self.fileselector.filenames[0][0])
+        self.update(fname=fname_first_item or self.fileselector.filenames[0])
 
     def update_markers(self, fname):
         """  Markers management in 2D-maps """
@@ -935,16 +930,16 @@ class Callbacks:
             or passed as argument """
 
         if isinstance(fname, str):
-            if fname not in self.fileselector.filenames[0]:
+            if fname not in self.fileselector.filenames:
                 self.fileselector.add_items(filenames=[fname])
-            ind = self.fileselector.filenames[0].index(fname)
-            self.fileselector.lbox[0].selection_clear(0, END)
-            self.fileselector.lbox[0].selection_set(ind)
-            self.fileselector.lbox[0].see(ind)
+            ind = self.fileselector.filenames.index(fname)
+            self.fileselector.select_item(ind)
+
         else:
             # get fname from the first cursor selection
-            curselection = self.fileselector.lbox[0].curselection()
-            fname = self.fileselector.filenames[0][curselection[0]]
+            ind = self.fileselector.lbox.curselection()[0]
+            fname = self.fileselector.filenames[ind]
+            self.fileselector.select_item(ind, selection_clear=False)
 
         if "X=" in fname:
             self.update_markers(fname)
@@ -975,9 +970,9 @@ class Callbacks:
         spectra_map.plot_map(spectra_map.ax)
 
         # remove 2D-map filename in the fileselector
-        ind = self.fileselector.filenames[0].index(fname)
-        self.fileselector.lbox[0].delete(ind)
-        self.fileselector.filenames[0].pop(ind)
+        ind = self.fileselector.filenames.index(fname)
+        self.fileselector.lbox.delete(ind)
+        self.fileselector.filenames.pop(ind)
 
         # add each spectra related to the 2D-map
         fnames = [spectrum.fname for spectrum in spectra_map]

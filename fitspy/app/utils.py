@@ -5,7 +5,7 @@ import os
 import glob
 from itertools import groupby, count
 from tkinter import (LabelFrame, Frame, Label, Entry, Canvas, Scrollbar, Button,
-                     Listbox, Variable, StringVar, TclError)
+                     Listbox, TclError)
 from tkinter import W, E, HORIZONTAL, EXTENDED, BOTTOM, X, Y, LEFT, RIGHT, END
 from tkinter import filedialog as fd
 from tkinter.messagebox import showerror
@@ -199,214 +199,159 @@ class FilesSelector:
 
     Attributes
     ----------
-    ninputs: int
-        Number of inputs to consider
     lbox: list of Listbox object
-        List of 'ninputs'-Listbox associated to the selected files
+        Listbox associated to the selected files
     filenames: list of str
-        List of 'ninputs'-list of filenames to work with
-    files_extension: iterable of str
-        Extension used for the files selection
-    self.dirname_res: str
-        Directory pathname where to find results associated to the files
+        List of of filenames to work with
 
     Parameters
     ----------
     root: Tk.widget
         The main window associated to the FileSelector
-    ninputs: int, optional
-        Number of inputs to consider
-    files_extensions: str, optional
-        Extension used for files selection.
-    dirname_results: str, optional
-        Directory pathname where to find results associated to the files
-        'DEFAULT' value refers to './results' directory associated to the 'file'
-        location
     lbox_size: list of 2 ints, optional
         Size (width, height) of the Listbox 'lbox'. Default value is [30, 15]
-    options: dict, optional
-        Dictionary of options
-    tab_options: Frame object
-        Tab dedicated to options parameters settings
     """
 
-    def __init__(self, root,
-                 ninputs=1,
-                 files_extensions='*.txt',
-                 dirname_results='DEFAULT',
-                 lbox_size=None,
-                 options=None, tab_options=None):
+    def __init__(self, root, lbox_size=None):
 
         lbox_size = lbox_size or [30, 15]
-        if options is None:
-            options = {}
 
-        self.ninputs = ninputs
-        self.lbox = []
-        self.options = options
+        self.filenames = []
 
-        self.filenames = [[] for _ in range(ninputs)]
+        # create buttons and listbox
 
-        self.options['files_extension'] = files_extensions
-        self.options['dirname_results'] = dirname_results
+        Button(root, text="Select Files",
+               command=self.select_files). \
+            grid(column=0, row=0, padx=0, pady=5)
+        Button(root, text="Select Dir.",
+               command=self.select_dir). \
+            grid(column=1, row=0, padx=0, pady=5)
+        Button(root, text="Remove",
+               command=self.remove). \
+            grid(column=2, row=0, padx=0, pady=5)
+        Button(root, text="Remove all",
+               command=self.remove_all). \
+            grid(column=3, row=0, padx=0, pady=5)
 
-        # create buttons/listbox associated to each input
-        for i in range(self.ninputs):
-            inc = 3 * i
+        Button(root, text="▲", command=lambda: self.move('up')). \
+            grid(column=1, row=1, pady=0, sticky=E)
+        Button(root, text="▼", command=lambda: self.move('down')). \
+            grid(column=2, row=1, pady=0, sticky=W)
 
-            Button(root, text="Select Files",
-                   command=lambda ind=i: self.select_files(ind)). \
-                grid(column=0, row=0 + inc, padx=0, pady=5)
-            Button(root, text="Select Dir.",
-                   command=lambda ind=i: self.select_dir(ind)). \
-                grid(column=1, row=0 + inc, padx=0, pady=5)
-            Button(root, text="Remove",
-                   command=lambda ind=i: self.remove(ind)). \
-                grid(column=2, row=0 + inc, padx=0, pady=5)
-            Button(root, text="Remove all",
-                   command=lambda ind=i: self.remove_all(ind)). \
-                grid(column=3, row=0 + inc, padx=0, pady=5)
+        lbox_frame = Frame(root)
+        lbox_frame.grid(column=0, row=2, padx=5, pady=0, columnspan=4)
+        sbar_v = Scrollbar(lbox_frame)
+        sbar_h = Scrollbar(lbox_frame, orient=HORIZONTAL)
+        self.lbox = Listbox(lbox_frame,
+                            width=lbox_size[0],
+                            height=lbox_size[1],
+                            selectmode=EXTENDED,
+                            activestyle="underline",
+                            exportselection=False,
+                            yscrollcommand=sbar_v.set,
+                            xscrollcommand=sbar_h.set)
 
-            if i == 0:
-                Button(root, text="▲", command=lambda: self.move('up')). \
-                    grid(column=1, row=1 + inc, pady=0, sticky=E)
-                Button(root, text="▼", command=lambda: self.move('down')). \
-                    grid(column=2, row=1 + inc, pady=0, sticky=W)
+        sbar_v.config(command=self.lbox.yview)
+        sbar_h.config(command=self.lbox.xview)
 
-            lbox_frame = Frame(root)
-            lbox_frame.grid(column=0, row=2 + inc, padx=5, pady=0, columnspan=4)
-            sbar_v = Scrollbar(lbox_frame)
-            sbar_h = Scrollbar(lbox_frame, orient=HORIZONTAL)
-            self.lbox.append(Listbox(lbox_frame,
-                                     width=lbox_size[0],
-                                     height=lbox_size[1],
-                                     selectmode=EXTENDED,
-                                     exportselection=False,
-                                     yscrollcommand=sbar_v.set,
-                                     xscrollcommand=sbar_h.set))
-
-            sbar_v.config(command=self.lbox[i].yview)
-            sbar_h.config(command=self.lbox[i].xview)
-
-            sbar_h.pack(side=BOTTOM, fill=X)
-            self.lbox[i].pack(side=LEFT, fill=Y)
-            sbar_v.pack(side=RIGHT, fill=Y)
-
-        # Options Tab
-        if tab_options is not None:
-            frame = LabelFrame(tab_options, text='Files options')
-            frame.grid(column=0, row=0, padx=5, pady=5)
-
-            Label(frame, text='files extensions :'). \
-                grid(column=0, row=0, padx=5, pady=5, sticky=E)
-            self.files_extension = StringVar(
-                value=self.options['files_extension'])
-            Entry(frame, textvariable=self.files_extension, width=20). \
-                grid(column=1, row=0, padx=5, pady=5, sticky=W)
-
-            Label(frame, text='dirname results :'). \
-                grid(column=0, row=1, padx=5, pady=5, sticky=E)
-            self.dirname_res = StringVar(value=self.options['dirname_results'])
-            Entry(frame, textvariable=self.dirname_res, width=20). \
-                grid(column=1, row=1, padx=5, pady=5, sticky=W)
-
-    def set_options(self):
-        """ Set files options """
-        self.options['files_extension'] = self.files_extension.get()
-        self.options['dirname_results'] = self.dirname_res.get()
-
-    def synchronize(self):
-        """ Cursor selection synchronization between Listbox """
-        indices = self.lbox[0].curselection()
-        for i in range(self.ninputs):
-            self.lbox[i].selection_clear(0, END)
-            for ind in indices:
-                self.lbox[i].selection_set(ind)
+        sbar_h.pack(side=BOTTOM, fill=X)
+        self.lbox.pack(side=LEFT, fill=Y)
+        sbar_v.pack(side=RIGHT, fill=Y)
 
     def move(self, key):
         """ Move cursor selection according to key value (up or down) """
         increment = {'up': -1, 'down': 1, 'none': 0}
-        indices = self.lbox[0].curselection()
+        indices = self.lbox.curselection()
         if not indices:
             return
         ind = min(indices)  # working with several indices has no sense
         if len(indices) > 1:
             key = 'none'
         elif (key == 'up' and ind == 0) or \
-                (key == 'down' and ind == len(self.filenames[0]) - 1):
+                (key == 'down' and ind == len(self.filenames) - 1):
             return
-        for i in range(self.ninputs):
-            self.lbox[i].selection_clear(0, END)
-            self.lbox[i].selection_set(ind + increment[key])
+        ind += increment[key]
+        self.select_item(ind)
 
-        self.synchronize()
-        self.lbox[0].event_generate('<<ListboxSelect>>')
+        self.lbox.event_generate('<<ListboxSelect>>')
 
-    def add_items(self, i=0, filenames=None, ind_start=None):
+    def add_items(self, filenames=None, ind_start=None):
         """ Add items from a 'filenames' list """
 
-        ind_start = ind_start or len(self.filenames[i])
+        ind_start = ind_start or len(self.filenames)
 
         for fname in hsorted(filenames):
-            self.lbox[i].insert(END, os.path.basename(fname))
-            self.filenames[i].append(fname)
+            self.lbox.insert(END, os.path.basename(fname))
+            self.filenames.append(fname)
 
         # select the first new item
-        for k in range(self.ninputs):
-            self.lbox[i].selection_clear(0, END)
-            self.lbox[k].select_set(ind_start)
+        self.select_item(ind_start)
 
-        self.synchronize()
-
-    def select_files(self, i=0, filenames=None):
+    def select_files(self, filenames=None):
         """ Add items from selected files """
 
         if filenames is None:
-            files_ext = self.options['files_extension']
-            filetypes = (('', files_ext), ('All files', '*.*'))
+            filetypes = (('', '*.txt'), ('All files', '*.*'))
             filenames = fd.askopenfilenames(title='Select file(s)',
                                             filetypes=filetypes)
-        self.add_items(i=i, filenames=filenames)
+        self.add_items(filenames=filenames)
 
-        self.lbox[0].event_generate('<<ListboxAdd>>')
+        self.lbox.event_generate('<<ListboxAdd>>')
 
-    def select_dir(self, i=0, dirname=None):
+    def select_dir(self, dirname=None):
         """ Add items from a directory """
         if dirname is None:
             dirname = fd.askdirectory(title='Select directory')
 
-        ind_start = len(self.filenames[i])
-        for files_ext in self.options['files_extension'].split():
-            filenames = glob.glob(os.path.join(dirname, files_ext))
-            self.add_items(i, filenames, ind_start=ind_start)
+        ind_start = len(self.filenames)
+        filenames = glob.glob(os.path.join(dirname, '*.txt'))
+        self.add_items(filenames, ind_start=ind_start)
 
-        self.lbox[0].event_generate('<<ListboxAdd>>')
+        self.lbox.event_generate('<<ListboxAdd>>')
 
-    def remove(self, i=0):
+    def remove(self):
         """ Remove selected items """
-        selected_items = self.lbox[i].curselection()
+        selected_items = self.lbox.curselection()
 
         # deleting one by one item is too long when working with a big selection
         groups = groupby(selected_items, key=lambda n, c=count(): n - next(c))
         groups = [list(g) for _, g in groups]
         for group in groups:
-            for k in range(self.ninputs):
-                self.lbox[k].delete(group[0], group[-1])
+            self.lbox.delete(group[0], group[-1])
 
         for selected_item in reversed(selected_items):
-            for k in range(self.ninputs):
-                self.filenames[k].pop(selected_item)
+            self.filenames.pop(selected_item)
 
         # reselect the first item
-        for k in range(self.ninputs):
-            self.lbox[k].select_set(0)
+        self.select_item(0)
 
-        self.synchronize()
-        self.lbox[0].event_generate('<<ListboxRemove>>')
+        self.lbox.event_generate('<<ListboxRemove>>')
 
-    def remove_all(self, i=0):
+    def remove_all(self):
         """ Remove all items """
-        self.lbox[i].delete(0, END)
-        self.filenames[i] = []
-        self.synchronize()
-        self.lbox[0].event_generate('<<ListboxRemoveAll>>')
+        self.lbox.delete(0, END)
+        self.filenames = []
+
+        self.lbox.event_generate('<<ListboxRemoveAll>>')
+
+    def select_item(self, index, selection_clear=True):
+        """ Select item in the listbox """
+        if selection_clear:
+            self.lbox.selection_clear(0, END)
+        self.lbox.selection_set(index)
+        self.lbox.activate(index)
+        self.lbox.selection_anchor(index)
+        self.lbox.see(index)
+
+
+if __name__ == '__main__':
+    from tkinter import Tk
+
+    my_root = Tk()
+    fselector = FilesSelector(my_root)
+    fnames = []
+    for i in range(20):
+        fnames.append(f"File_______________________________{i}")
+    fselector.add_items(fnames)
+    fselector.select_item(15)
+    my_root.mainloop()

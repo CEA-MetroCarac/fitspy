@@ -183,10 +183,10 @@ class GUI(Callbacks):
         #######################
 
         self.fileselector = FilesSelector(root=frame_files, lbox_size=[50, 9])
-        self.fileselector.lbox[0].bind('<<ListboxSelect>>', self.update)
-        self.fileselector.lbox[0].bind('<<ListboxAdd>>', self.add_items)
-        self.fileselector.lbox[0].bind('<<ListboxRemove>>', self.delete)
-        self.fileselector.lbox[0].bind('<<ListboxRemoveAll>>', self.delete_all)
+        self.fileselector.lbox.bind('<<ListboxSelect>>', self.update)
+        self.fileselector.lbox.bind('<<ListboxAdd>>', self.add_items)
+        self.fileselector.lbox.bind('<<ListboxRemove>>', self.delete)
+        self.fileselector.lbox.bind('<<ListboxRemoveAll>>', self.delete_all)
 
         # SPECTRA PROCESSING frame
         ##########################
@@ -391,7 +391,6 @@ class GUI(Callbacks):
                 spectra_map.ax_slider.set_visible(False)
                 label1.grid(row=1, column=0, sticky=W)
                 cbox1.grid(row=1, column=1, padx=5)
-                update_labels()
             update_map()
 
         def update_map(vmin=None, vmax=None):
@@ -470,7 +469,7 @@ class GUI(Callbacks):
             if event.inaxes == ax:
 
                 xy_map = spectra_map.xy_map
-                fnames = self.fileselector.filenames[0]
+                fnames = self.fileselector.filenames
 
                 # update marker
                 if spectra_map.marker is not None:
@@ -487,11 +486,11 @@ class GUI(Callbacks):
                 if fname in fnames:
                     ind = fnames.index(fname)
                     self.update(fname)
-                    self.fileselector.lbox[0].selection_clear(0, END)
-                    self.fileselector.lbox[0].selection_set(ind)
+                    self.fileselector.lbox.selection_clear(0, END)
+                    self.fileselector.lbox.selection_set(ind)
                     cursor_position = ind / len(fnames)
-                    self.fileselector.lbox[0].yview_moveto(cursor_position)
-                    self.fileselector.lbox[0].update()
+                    self.fileselector.lbox.yview_moveto(cursor_position)
+                    self.fileselector.lbox.update()
                 else:
                     self.ax.clear()
                     self.canvas.draw()
