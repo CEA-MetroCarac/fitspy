@@ -163,9 +163,14 @@ class Spectrum:
         if 'xtol' in keys:
             self.fit_params['xtol'] = model_dict.pop('xtol')
 
-        for key in vars(self).keys():
-            if key in keys:
-                setattr(self, key, model_dict[key])
+        for key, val in vars(self).items():
+            if isinstance(val, dict):
+                for key2 in val.keys():
+                    if key2 in model_dict[key].keys():
+                        val[key2] = model_dict[key][key2]
+            else:
+                if key in keys:
+                    setattr(self, key, model_dict[key])
 
         if 'peak_models' in keys:
             self.peak_index = itertools.count(start=1)
