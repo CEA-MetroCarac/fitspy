@@ -109,19 +109,26 @@ class Spectra(list):
                 spectrum.save_params(dirname_res)
                 spectrum.save_stats(dirname_res)
                 name = Path(spectrum.fname).name
+                success = spectrum.result_fit.success
                 x, y = None, None
                 if isinstance(spectra, SpectraMap):
                     x, y = spectra.spectrum_coords(spectrum)
-                result = spectrum.result_fit.best_values
-                result.update({'name': name, 'x': x, 'y': y})
-                results.append(result)
+                res = spectrum.result_fit.best_values
+                res.update({'name': name, 'success': success, 'x': x, 'y': y})
+                results.append(res)
 
         dfr = pd.DataFrame(results).round(3)
 
         # reindex columns according to the parameters names
         dfr = dfr.reindex(sorted(dfr.columns), axis=1)
-        param_names = np.asarray([name[4:] for name in dfr.columns])
-        dfr = dfr.iloc[:, list(np.argsort(param_names, kind='stable'))]
+        names = []
+        for name in dfr.columns:
+            if name in ['name', 'success', 'x', 'y']:
+                name = '0' + name  # to be in the 4 first columns
+            elif '_' in name:
+                name = 'z' + name[4:]  # model peak parameters to be at the end
+            names.append(name)
+        dfr = dfr.iloc[:, list(np.argsort(names, kind='stable'))]
 
         fname = Path(dirname_res) / "results.csv"
         dfr.to_csv(fname, sep=';', index=False)
