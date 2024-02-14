@@ -232,8 +232,10 @@ class Callbacks:
         ncpus = self.get_ncpus(nfiles=nfiles)
 
         args = (model_dict, fnames, ncpus, fit_only)
-        Thread(target=self.spectra.apply_model, args=args).start()
+        thread = Thread(target=self.spectra.apply_model, args=args)
+        thread.start()
         self.progressbar.show(self.spectra, nfiles)
+        thread.join()
         self.colorize_from_fit_status(fnames)
         self.reassign_current_spectrum(self.current_spectrum.fname)
         self.update()
