@@ -537,12 +537,15 @@ class Appli(GUI):
     ----------
     root: Tkinter.Tk object
         Root window
+    force_terminal_exit: bool
+        Key to force terminal session to exit after 'root' destroying
     """
 
-    def __init__(self, root, size="1550x950"):
+    def __init__(self, root, size="1550x950", force_terminal_exit=True):
         root.title("Fitspy")
         root.geometry(size)
         self.root = root
+        self.force_terminal_exit = force_terminal_exit
         self.root.protocol("WM_DELETE_WINDOW", self.on_closing)
 
         super().__init__()
@@ -551,7 +554,8 @@ class Appli(GUI):
         """ To quit 'properly' the application """
         if messagebox.askokcancel("Quit", "Would you like to quit ?"):
             self.root.destroy()
-            os._exit(1)  # to exit properly from a terminal session
+            if self.force_terminal_exit:
+                os._exit(1)  # to force terminal to exit
 
 
 def fitspy_launcher(fname_json=None):
