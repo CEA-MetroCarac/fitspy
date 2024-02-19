@@ -183,7 +183,8 @@ class Spectra(list):
         model_dict = load_from_json(fname_json)[ind]
         return model_dict
 
-    def apply_model(self, model_dict, fnames=None, ncpus=1, fit_only=False):
+    def apply_model(self, model_dict, fnames=None, ncpus=1, fit_only=False,
+                    show_progressbar=True):
         """
         Apply 'model' to all or part of the spectra
 
@@ -199,6 +200,8 @@ class Spectra(list):
             Number of CPU to use during the fit processing
         fit_only: bool, optional
             Activation key to process only fitting
+        show_progressbar: bool, optional
+            Activation key to show the progress bar
         """
         if fnames is None:
             fnames = self.fnames
@@ -213,7 +216,7 @@ class Spectra(list):
             spectra.append(spectrum)
 
         queue_incr = Queue()
-        args = (queue_incr, len(fnames), ncpus)
+        args = (queue_incr, len(fnames), ncpus, show_progressbar)
         thread = Thread(target=self.progressbar, args=args)
         thread.start()
 
@@ -227,7 +230,7 @@ class Spectra(list):
         self.pbar_index = 0  # reinitialize pbar_index after the calculation
         thread.join()
 
-    def progressbar(self, queue_incr, ntot, ncpus):
+    def progressbar(self, queue_incr, ntot, ncpus, show_progressbar):
         """ Progress bar """
         self.pbar_index = 0
         pbar = "\r[{:100}] {:.0f}% {}/{} {:.2f}s " + f"ncpus={ncpus}"
@@ -238,8 +241,10 @@ class Spectra(list):
             cursor = "*" * int(percent)
             exec_time = time.time() - t0
             msg = pbar.format(cursor, percent, self.pbar_index, ntot, exec_time)
-            sys.stdout.write(msg)
-        print()
+            if show_progressbar:
+                sys.stdout.write(msg)
+        if show_progressbar:
+            print()
 
     def save(self, fname_json, fnames=None):
         """
