@@ -164,7 +164,7 @@ class Callbacks:
             self.statsview.show_hide()
         # Make 'Frame Peaks' enable to see the changes in the plot
         self.selected_frame = 'Peaks'
-        self.fr_peaks.enable()
+        self.fr_fit.enable()
         self.fr_baseline.disable()
 
     def save_results(self, dirname_res=None):
@@ -478,20 +478,20 @@ class Callbacks:
             the 'Baseline' and 'Peaks' LabelFrames for enabling/disabling """
         frame = event.widget.config()['text'][-1]
         if frame == "Baseline":
-            self.fr_peaks.disable()
+            self.fr_fit.disable()
             if self.selected_frame != "Baseline":
                 self.fr_baseline.enable()
                 self.selected_frame = "Baseline"
             else:
                 self.fr_baseline.disable()
                 self.selected_frame = None
-        elif frame == "Peaks":
+        elif frame == "Fitting":
             self.fr_baseline.disable()
-            if self.selected_frame != "Peaks":
-                self.fr_peaks.enable()
-                self.selected_frame = "Peaks"
+            if self.selected_frame != "Fitting":
+                self.fr_fit.enable()
+                self.selected_frame = "Fitting"
             else:
-                self.fr_peaks.disable()
+                self.fr_fit.disable()
                 self.selected_frame = None
 
     def add_baseline_point(self, x, y):

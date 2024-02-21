@@ -267,8 +267,8 @@ class GUI(Callbacks):
         order_entry.bind("<KeyRelease>",
                          lambda event: self.update_baseline('order_max'))
 
-        add(Button(fr, text="Subtract",
-                   command=self.subtract_baseline), 4, 0, padx=10)
+        add(Button(fr, text="Subtract Selec.",
+                   command=self.subtract_baseline), 4, 0)
         add(Button(fr, text="Subtract All",
                    command=self.subtract_baseline_to_all), 4, 1)
         add(Button(fr, text="Delete",
@@ -290,12 +290,12 @@ class GUI(Callbacks):
         add(Button(fr, text="Apply to all",
                    command=self.normalize), 1, 0, cspan=3)
 
-        # Peaks fitting
+        # Fitting
 
-        self.fr_peaks = ToggleFrame(frame_proc_sbar, text='Peaks', font=FONT)
-        add(self.fr_peaks, next(row), 0, W + E)
+        self.fr_fit = ToggleFrame(frame_proc_sbar, text='Fitting', font=FONT)
+        add(self.fr_fit, next(row), 0, W + E)
 
-        fr = self.fr_peaks
+        fr = self.fr_fit
 
         def update_cbox(cbox, models):
             cbox['value'] = list(models.keys())
@@ -326,13 +326,13 @@ class GUI(Callbacks):
         add(Button(fr, text='Fit Settings',
                    command=self.update_fit_settings), 2, 3)
 
-        add(Button(fr, text=" Fit ", command=self.fit), 3, 0)
+        add(Button(fr, text=" Fit Selec.", command=self.fit), 3, 0)
         add(Button(fr, text=" Fit All ", command=self.fit_all), 3, 1)
         add(Button(fr, text="Remove", command=self.remove), 3, 2)
-        add(Button(fr, text="Save (.csv)", command=self.save_results), 3, 3)
+        add(Button(fr, text="Save Results", command=self.save_results), 3, 3)
 
-        self.fr_peaks.disable()
-        self.fr_peaks.bind("<Button-1>", self.on_press_baseline_peaks)
+        self.fr_fit.disable()
+        self.fr_fit.bind("<Button-1>", self.on_press_baseline_peaks)
 
         # Models : saving/reloading
 
