@@ -470,9 +470,42 @@ class Spectrum:
         self.bkg_model.name2 = bkg_name
 
     def fit(self, fit_method=None, fit_negative=None, fit_outliers=None,
-            max_ite=None, reinit_guess=True, coef_noise=None, xtol=None,
+            max_ite=None, coef_noise=None, xtol=None, reinit_guess=True,
             **kwargs):
-        """ Fit the Spectrum models """
+        """
+        Fit the peaks and background models
+
+        Parameters
+        ----------
+        fit_method: str, optional
+            Method passed to lmfit.fit() like ‘leastsq’, ‘least_squares’,
+            ‘nelder’, ‘slsqp’, ... (see the lmfit documentation).
+            Default value is 'leastsq'.
+        fit_negative: bool, optional
+            Activation key to take into account negative values during the fit.
+            Default value is False.
+        fit_outliers: bool, optional
+            Activation key to take into account outliers during the fit.
+            Default value is False.
+        max_ite: int, optional
+            Number of maximum iterations (1 iteration corresponds to 1 gradient
+            descent of all the variables).
+            Default value is 200.
+        coef_noise: float, optional
+            Multiplication factor associated with the estimated noise level.
+            Default value is 1.
+        xtol: float, optional
+            Relative tolerance associated with the ‘leastsq’ and the
+            ‘least_squares’ fit algorithm.
+            Default value is 0.0001.
+        reinit_guess: bool, optional
+            Key to adapt initial values for 'ampli' and 'fwhm', 'fwhm_l' or
+            'fwhm_r' to the spectrum intensity at the corresponding point 'x0'.
+            Default value is True.
+        kwargs: dict, optional
+            Dictionary of optional arguments passed to lmfit.fit()
+        """
+        # """  """
         # update class attributes
         if fit_method is not None:
             self.fit_params['method'] = fit_method
