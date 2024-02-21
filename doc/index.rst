@@ -11,6 +11,7 @@ Welcome to Fitspy's documentation!
    user_guide/fitting.rst
    user_guide/workflow.rst
    user_guide/gui.rst
+   user_guide/outputs.rst
 
 
 .. toctree::

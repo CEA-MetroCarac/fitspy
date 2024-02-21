@@ -1,5 +1,5 @@
-Input data files formats
-========================
+Input data files
+================
 
 
 Two types of input data can be interpreted:

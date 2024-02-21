@@ -15,8 +15,8 @@ The files selection is realized with the following widget:
 
 :code:`Select Files` enables to load spectra (as '.txt' files) selected individually or by block while :code:`Select Dir.` loads all spectra that are contained in a selected directory.
 
-Once loaded in the GUI, if `Fitspy` detects that a '.txt' file corresponds to a 2D-map input data file (via the tabulation :code:`\t` as first character), this one is expanded.
-That is to say that each spectra of the 2D-map appears individually in the files selection widget according to the 2D-map file basename and the (X) and (Y) spectrum coordinates in the grid as prefix::
+**2D-map**: Once loaded in the GUI, if `Fitspy` detects that a '.txt' file corresponds to a 2D-map input data file (via the tabulation :code:`\t` as first character), this one is expanded.
+That is to say that each spectrum of the 2D-map appears individually in the files selection widget according to the 2D-map file basename and the (X) and (Y) spectrum coordinates in the grid as prefix::
 
     {basename} X={X} Y={Y}
 
@@ -28,7 +28,7 @@ A  2D-map figure is also opened to facilitate both the spectrum selection and th
    :align:   center
    :width:   50%
 
-   interactive 2D-map figure resulting from a `fully defined ordered acquisition grid <https://github.com/CEA-MetroCarac/fitspy/tree/main/examples/data/2D_maps/ordered_map.txt>`_
+   interactive 2D-map figure resulting from this `fully defined ordered acquisition grid <https://github.com/CEA-MetroCarac/fitspy/tree/main/examples/data/2D_maps/ordered_map.txt>`_
 
 
 
@@ -122,7 +122,7 @@ To be effective, the user should press on :code:`Apply to all`.
 Fitting
 -------
 
-.. figure::  ../_static/peaks.png
+.. figure::  ../_static/fitting.png
    :align:   center
 
 .. raw:: html
@@ -134,10 +134,10 @@ Fitting
 :code:`Auto` can be used for the automatic determination of peaks, considering the selected :code:`Peak model`.
 
 
-For manual peaks positioning by the user, each :code:`Peak model` (to be chosen between **Gaussian**, **Lorentzian**, **Asymetric Gaussian**, **Asymetric Lorentzian**, **Pseudovoigt** or Custom models, see `here <peak_models.html>`_) is applied when left-clicking in the figure. (A right-click in the figure removes the nearest peak).
+For manual peaks positioning by the user, each :code:`Peak model` (to be chosen between **Gaussian**, **Lorentzian**, **Asymetric Gaussian**, **Asymetric Lorentzian**, **Pseudovoigt** or as a **user-defined model**, see `here <peak_models.html>`_) is applied when left-clicking in the figure. (A right-click in the figure removes the nearest peak).
 
 
-:code:`Fit` and :code:`Fit All` perform the fitting based on the conditions defined in the :code:`Fit Settings` widget:
+:code:`Fit Selec.` and :code:`Fit All` perform the fitting based on the conditions defined in the :code:`Fit Settings` widget:
 
 .. figure::  ../_static/fit_settings.png
    :align:   center
@@ -146,15 +146,16 @@ For manual peaks positioning by the user, each :code:`Peak model` (to be chosen 
 
    <br>
 
-`maximum iterations` can be used to limit the number of iterations, saving CPU time processing consequently.
+:code:`maximum iterations` and :code:`xtol` can be used to limit the number of iterations, saving CPU time processing consequently.
 (An iteration corresponds to a gradient descent attached to all the fit parameters).
 
 Spectrum fit success or failure (related to reaching a fit convergence criterion before reaching the `maxmimum iterations`) is displayed in green or orange (resp.) in the file selector widget.
 
 **It is worth noting that performing several successive fits on a spectrum may slightly change the fitted parameters.**
 
-:code:`Parameters` allows the visualization of parameters values and statistics related to the fitting process.
-The :code:`Parameters` widget can be used to interact with each of the spectra (deleting or labeling peak models, redefining models).
+:code:`Stats` opens a frame that reports the statistics related to the fitting process.
+
+The :code:`Parameters` widget can be used to interact with each of the spectra (deleting or labeling peak models, redefining models, ...).
 By default, all parameters are considered as free but may be fixed during the fitting using the right-handed selection boxes.
 
 .. figure::  ../_static/parameters.png
@@ -166,9 +167,9 @@ By default, all parameters are considered as free but may be fixed during the fi
 
 Bounds and fit constraints can be addressed by activating the dedicated selectors located at the top of the parameters widget.
 
-**Bounding** consists in giving left and right parameters bounds.<br>
+**Bounding** consists in giving left and right parameters bounds.
 
-**Constraints** relies on expressions that can be parameters-dependent, using the prefix defined in the 2nd column.<br>
+**Constraints** relies on literal expressions that can be parameters-dependent, using the prefix defined in the 2nd column.
 The example below shows how to constrain the second fitted peak to be half the amplitude of the first one.
 
 .. figure::  ../_static/fit_constraint.png
@@ -178,8 +179,7 @@ The example below shows how to constrain the second fitted peak to be half the a
 
    <br>
 
-:code:`Save (.csv)` consists of saving the fitted parameters and related statistics in a
-folder predefined by the user, respectively in a .csv and a .txt file using the spectrum file basename.
+:code:`Save Results` consists of saving the fitted parameters and related statistics in a folder predefined by the user, respectively in a .csv and a .txt file using the spectrum file basename (See `here <outputs.html#fit-results>`_  for more details).
 
 
 Models
@@ -199,9 +199,9 @@ The **Models** frame is used to save and replay a full spectra processing as-is.
 :code:`Reload` replays exactly the spectra processing related to the imported *.json*.
 This implies that all the files defined in the *.json*  are reachable when reloading.
 
-:code:`Load Model` consists of reloading the spectrum model (baseline and peaks definition, ...) but **not the spectrum file itself**, related to the first model saved in the *.json*.
+:code:`Load Model` consists of reloading the first spectrum model (baseline and peaks definition, ...) but **not the spectrum file itself**, related to the first model saved in the *.json*.
 
-:code:`Apply to Sel.` or :code:`Apply to All` allows applying the loaded model to the spectra selected in the files selection widget, or to all the spectra (resp.).
+:code:`Apply to Sel.` or :code:`Apply to All` allows applying **strictly** *(ie without considering the parameters defined in the GUI)* the loaded model to the spectra selected in the files selection widget, or to all the spectra (resp.).
 
 
 Main Figure
@@ -211,7 +211,7 @@ The main Figure widget displays the loaded spectra and allows manipulation of ba
 
 The standard navigation toolbar from *Matplotlib* allows panning, zooming and saving the current figure.
 The function associated with the |home|
-icon has been reconfigured to allow spectra rescaling.
+icon has been reconfigured to allow the figure rescaling on the current displayed spectrum.
 
 .. |home| image:: ../_static/home.png
 
@@ -233,7 +233,7 @@ icon has been reconfigured to allow spectra rescaling.
 
 :code:`Save All (.png)` (at the bottom) allows saving all the spectra figures in .png format. (Be cautious with 2D-maps as they can generate a large number of figures).
 
-Note that to ease copy/paste, :code:`CTRL+C` allows putting the current figure in the clipboard (only available on Windows).
+Note that to ease copy/paste, :code:`CTRL+C` allows putting the current figure in the clipboard. **(Only available on Windows).**
 
 
 2D-map Figures
@@ -241,11 +241,14 @@ Note that to ease copy/paste, :code:`CTRL+C` allows putting the current figure i
 
 The 2D-map Figure widgets allow easy selection of spectra and interaction with the cursor selection of the files selector widget.
 
-By default, the full range of integrated spectra intensity is displayed.
-A range slider in the figure allows specifying the summation bounds.
-Once peaks have been defined, the corresponding model parameters can be also visualized in the 2D-map figures.
+By default, the full range of integrated spectra intensity is displayed with a range slider in the figure that allows specifying the summation bounds.
+
+Once fitted, the parameters values can be visualized in the 2D-map figures.
+
+All the maps displayed in the 2D-map Figure can be exported in a .csv file by clicking on the :code:`Export (.csv)` button.
+
 
 .. figure:: ../_static/2d-map_intensity_fwhm.png
    :align:   center
 
-   left: intensity field in a 2D-map figure (default mode). right: FWHM values associated to 'Peak I' (obtained after fitting).
+   left: intensity field in a 2D-map figure (default mode). right: amplitude values associated to the 2nd peak (obtained after fitting).

@@ -24,7 +24,7 @@ This feature allows to adapt the baseline points to the spectrum notably when pr
    :align:   center
 
 
-Note that to minimize the impact of noise in the baseline attached-points definition, a smoothing can be considered on the spectra intensities before linking. This smoothing is based on a gaussian filtering considering :code:`sigma` as the standard deviation.
+Note that to minimize the impact of noise in the baseline attached-points definition, a smoothing can be considered on the spectra intensities before linking. This smoothing is based on a gaussian filtering considering :code:`sigma` (in pixel) as the standard deviation.
 
 
 Background model
@@ -63,13 +63,14 @@ Example of two models defined in python::
     BKG_MODELS.update({"Linear_2": linear})
     BKG_MODELS.update({"Exponential_2": exponential})
 
-Through the GUI, the corresponding *'.txt'* or *'.py'* files can be loaded via the button :code:`Load` located to the right of the **BKG_MODEL** combobox.
+Through the GUI, the corresponding *'.txt'* or *'.py'* files can be loaded via the button :code:`Load` located to the right of the **BKG model** combobox.
 
 In python, the users models can be loaded by the related functions :func:`~fitspy.utils.load_models_from_txt` and :func:`~fitspy.utils.load_models_from_py`.
 *(See example in* `ex_gui_users_defined_models.py <https://github.com/CEA-MetroCarac/fitspy/tree/main/examples/ex_gui_users_defined_models.py>`_ *)*
 
 For recurrent use, the user-defined models can be defined in files named :code:`bkg_models.txt` or :code:`bkg_models.py` to put in :code:`%HOMEUSER%/Fitspy`.
 
+The variable associated with the support must necessarily be used in expressions under the term :code:`x` and the mathematical functions must be designated according to the terminology defined in the `asteval <https://newville.github.io/asteval/basics.html#built-in-functions>`_ package.
 
 Note that in the examples given above, the resulting :code:`Linear_1`, :code:`Linear_2` models yield identical results to those obtained from the predefined :code:`Linear` model, when converged.
 The same for :code:`Exponential_1`, :code:`Exponential_2` and :code:`Exponential`.
@@ -77,9 +78,8 @@ The same for :code:`Exponential_1`, :code:`Exponential_2` and :code:`Exponential
 .. warning::
     Unlike predefined models, user-defined models do not have associated functions to determine their initial values for the fitting.
 
-    **All the parameters are initialized to 1.**
+    **All the parameters are initialized to 1.** This can lead to wrong convergence.
 
-    This can lead to wrong convergence.
     To prevent this, it is advisable to review the model parameters using appropriate multiplier coefficients.
 
     Example: for a x-range in [0, 1000], the Exponential functions should be rather defined as :code:`ampli * exp(-coef * x / 1000)`

@@ -1,7 +1,7 @@
 Peak models
 ===========
 
-As for the background models, the peak models in `Fitspy` are issued either from predefined models, or by he user-defined models.
+As for the background models, the peak models in `Fitspy` are issued either from **predefined models**, or by **user-defined models**.
 
 
 Predefined models
@@ -80,17 +80,13 @@ Example of a model defined in python::
 
 where in the examples given above, the resulting :code:`Gaussian_1`, :code:`Gaussian_2` and :code:`Gaussian_3` yield identical results to those obtained from the predefined :code:`Gaussian` model.
 
-As with the background models:
+The users models must be defined with the same parameters that those used in the predefined models concerning the peak position and amplitude (:code:`x` and :code:`ampli`). Concerning the width of the peak models, it is recommended (but not required) to use the :code:`fwhm` (or derived parameter). Extra parameters can also be used but in such cases, it is important to know that these parameters will be initialized to 1 before the fitting process and will be not subject to any range limitations.
 
-Through the GUI, the corresponding *'.txt'* or *'.py'* files can be loaded via the button :code:`Load` located to the right of the **MODEL** combobox.
+Similarly to the background models:
+
+Through the GUI, the corresponding *'.txt'* or *'.py'* files can be loaded via the button :code:`Load` located to the right of the **Peak model** combobox.
 
 In python, the users models can be loaded by the functions :func:`~fitspy.utils.load_models_from_txt` and :func:`~fitspy.utils.load_models_from_py`.
 *(See example in* `ex_gui_users_defined_models.py <https://github.com/CEA-MetroCarac/fitspy/tree/main/examples/ex_gui_users_defined_models.py>`_ *)*
 
 For recurrent use, the user-defined models can be defined in files named :code:`peak_models.txt` or :code:`peak_models.py` to put in :code:`%HOMEUSER%/Fitspy`.
-
-
-.. warning::
-    The users models can be defined with parameters that differ from those used in the predefined models. In such cases, these parameters are initialized to 1 for the fitting process and are not subject to any range limitations.
-
-    However, it is strongly recommended to use the same parameters as much as possible as those used in the predefined models.

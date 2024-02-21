@@ -2,11 +2,11 @@ Workflow
 ========
 
 
-all the spectra fitting operations can be realized both by the GUI or by python scripts.
+All the spectra fitting operations can be realized both through the GUI or by python scripts.
 
 However, although python scripts can be very practical when working with repetitive actions (like batches in the case of parametric studies for instance), from a practical point of view, it is easier:
 
-- 1/ to use the GUI to define **visually** a `Fitspy` model then
+- 1/ to use the GUI to define a `Fitspy` model **visually**, then
 
 - 2/ to apply it to new data sets.
 
@@ -28,12 +28,12 @@ GUI Mode
 - (`2 <gui.html?overall_settings.html>`_) *Define the* :code:`X-range`
 - (`3 <gui.html?baseline.html>`_) *Click on the* :code:`Baseline` *panel to activate it (if not)*
 - (`4 <gui.html?baseline.html>`_) *Select baseline points on the main figure* **(*)**
-- (`5 <gui.html?baseline.html>`_) :code:`subtract` the baseline to the selected spectra *or* :code:`subtract All` the baseline(s)
-- (`6 <gui.html?fitting.html>`_) **Click on the** :code:`Peaks` **panel to activate it (if not)**
+- (`5 <gui.html?baseline.html>`_) :code:`Subtract Selec.` the baseline to the selected spectra *or* :code:`Subtract All` the baseline(s)
+- (`6 <gui.html?fitting.html>`_) **Click on the** :code:`Fitting` **panel to activate it (if not)**
 - (`7 <gui.html?fitting.html>`_) **Select a** :code:`Peak model`
 - (`8 <gui.html?fitting>`_) *Select a peak point on the main figure* **(*)**
 - (`9 <gui.html?fitting>`_) *Add a background* (:code:`BKG model`) *to be fitted*
-- (`11 <gui.html?fitting>`_) *Use* :code:`Parameters` *to see the results and to set bounds and constraints for a new fitting*
+- (`10 <gui.html?fitting>`_) *Use* :code:`Parameters` *to see the results and to set bounds and constraints for a new fitting*
 - (`13 <gui.html?models>`_) :code:`Save Select` *or* :code:`Save All` *the `Models` in a `.json` file (to be replayed later)*
 
 **(*)** *use left/right click on the figure to add/delete a baseline or a peak point*
@@ -41,22 +41,21 @@ GUI Mode
 Once saved, a `Fitspy` model enables to recover a previous state (as-it, if all the spectra defined in the model can be loaded again) as follows:
 
 - (`14 <gui.html?fitting>`_) :code:`Reload` *the `Fitspy` model (`.json` file)*
-- (`10 <gui.html?fitting>`_) :code:`Fit` **or** :code:`Fit All` **the selected spectrum/spectra**
-- (`12 <fitting.html>`_) :code:`Save (.csv)` **the fitting parameters**
+- (`11 <gui.html?fitting>`_) :code:`Fit Selec.` **or** :code:`Fit All` **the spectra**
+- (`12 <fitting.html>`_) :code:`Save Results` (**fitted parameters** and **statistics**)
 
 Or, after removing all spectra in the file selector widget (:code:`Remove All`), the `Fitspy` model can be apply to another data set as follows:
 
 - (`1 <gui.html?files_selection.html>`_) **Select file(s) from** :code:`Select Files`  **or**  :code:`Select Dir`
-- (`13 <gui.html?models>`_) :code:`Load Model` *(associated to the first `spectra` if several)
-- (`13 <gui.html?models>`_) :code:`Apply to Sel.` *or* :code:`Apply to All`
-- (`10 <gui.html?fitting>`_) :code:`Fit` **or** :code:`Fit All` **the selected spectrum/spectra**
-- (`12 <fitting.html>`_) :code:`Save (.csv)` **the fitting parameters**
+- (`15 <gui.html?models>`_) :code:`Load Model` *(associated to the first `spectra` if several)
+- (`16 <gui.html?models>`_) :code:`Apply to Sel.` *or* :code:`Apply to All`
+- (`12 <fitting.html>`_) :code:`Save Results` (**fitted parameters** and **statistics**)
 
 
 Scripting Mode
 --------------
 
-Although it is more recommended to use the GUI to define **visually** a `Fitspy` model, here is a partial example of how to do it by script::
+Although it is more recommended to use the GUI to define a `Fitspy` model **visually** , here is a partial example of how to do it by script::
 
     from fitspy.spectrum import Spectrum
 
