@@ -423,8 +423,10 @@ class Callbacks:
 
         if fig_settings['plot_outliers_limit'].get() == 'On':
             if spectrum.outliers_limit is not None:
-                self.ax.plot(spectrum.x, spectrum.outliers_limit,
-                             'r', label="Outliers limit")
+                x, x0 = spectrum.x, list(spectrum.x0)
+                imin, imax = x0.index(x[0]), x0.index(x[-1])
+                y_outliers_limit = spectrum.outliers_limit[imin:imax + 1]
+                self.ax.plot(x, y_outliers_limit, 'r', label="Outliers limit")
                 self.ax.legend()
 
         if fig_settings['plot_residual'].get() == 'On':
