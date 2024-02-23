@@ -1,3 +1,15 @@
+|docs|_  |github|_  |pypi|_ 
+
+.. |docs| image:: https://img.shields.io/badge/%F0%9F%95%AE-docs-green.svg
+.. _docs: https://cea-metrocarac.github.io/fitspy/doc/index.html
+
+.. |github| image:: https://img.shields.io/badge/GitHub-GPL--3.0-informational
+.. _github: https://github.dev/CEA-MetroCarac/fitspy
+
+.. |pypi| image:: https://badge.fury.io/py/libertem.svg
+.. _pypi: https://pypi.org/project/fitspy/
+
+
 <p align="center" width="100%">
     <img align="center" width=250 src=https://cea-metrocarac.github.io/fitspy/logo.png>
 </p>
@@ -17,26 +29,23 @@ acquisitions.
 
 </p>
 
-The fitting algorithm has multiprocessing capabilities and relies on
-the [lmfit](https://github.com/lmfit/lmfit-py) library.<br>
-Bounds and constraints can be set on each peaks models parameter.
+The predefined peak models considered in Fitspy are  `Gaussian`, `Lorentzian`, `Asymetric Gaussian`, `Asymetric Lorentzian` and `Pseudovoigt`.
 
-The predefined peak models considered in Fitspy are :
-
-* `Gaussian`
-* `Lorentzian`
-* `Asymetric Gaussian`
-* `Asymetric Lorentzian`
-* `Pseudovoigt`
-
-A `constant`, `linear`, `parabolic` or `exponential` background model can
-also be added in the fitting.
+A `constant`, `linear`, `parabolic` or `exponential` background model can also be added in the fitting.
 
 In both cases, `user-defined models` can be added.
 
-All actions allowed with the GUI can be executed in script mode (see
-examples [here](https://github.com/CEA-MetroCarac/fitspy/tree/main/examples)).
+Fitspy main features:
+
+- Fitspy uses the [lmfit](https://github.com/lmfit/lmfit-py) library to fit the spectra
+- The fit processing can be multi-threaded
+- Bounds and constraints can be set on each peaks models parameter.
+- From an automatic noise level estimation, according to the local noise, peak models can be automatically deactivated.
+- Fitspy also includes automatic outlier detection to be excluded during the fitting process.
+
+All actions allowed with the GUI can be executed in script mode (see examples [here](https://github.com/CEA-MetroCarac/fitspy/tree/main/examples)).
 These actions (like baseline and peaks definition, parameters constraints, ...) can be saved in a `Fitspy model` and replayed as-is or applied to other new spectra datasets.
+
 
 ### Installation
 
