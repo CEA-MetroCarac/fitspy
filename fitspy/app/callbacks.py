@@ -112,9 +112,10 @@ class Callbacks:
         for spectrum in self.spectra.all:
             x0, y0 = spectrum.x0, spectrum.y0
             self.lines.append(self.ax.plot(x0, y0, 'k-', lw=0.2, zorder=0)[0])
-            inds = np.where(y0 > spectrum.outliers_limit)[0]
-            if len(inds) > 0:
-                self.ax.plot(x0[inds], y0[inds], 'o', c='lime')
+            if spectrum.outliers_limit is not None:
+                inds = np.where(y0 > spectrum.outliers_limit)[0]
+                if len(inds) > 0:
+                    self.ax.plot(x0[inds], y0[inds], 'o', c='lime')
 
         if self.current_spectrum.outliers_limit is not None:
             self.ax.plot(x0, self.current_spectrum.outliers_limit, 'r-', lw=2)
