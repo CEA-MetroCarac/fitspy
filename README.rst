@@ -22,9 +22,14 @@
 **Fitspy** is a generic tool dedicated to **fit** **sp**ectra in **py**thon
 with a GUI that aims to be as simple and intuitive to use as possible.
 
-<p align="center" width="100%">
-    <img align="center" width="75%" src=https://cea-metrocarac.github.io/fitspy/fitspy.png>
-</p>
+
+.. figure::  https://cea-metrocarac.github.io/fitspy/fitspy.png
+   :align:   center
+   :width:   75%
+
+.. raw:: html
+
+   <br>
 
 Processed spectra may be independent of each other or may result from 2D-maps
 acquisitions.
