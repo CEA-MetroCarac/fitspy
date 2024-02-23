@@ -11,7 +11,7 @@
 
 
 
-.. figure::  https://cea-metrocarac.github.io/fitspy/logo.png
+.. image::  https://cea-metrocarac.github.io/fitspy/logo.png
    :align:   center
    :width:   250
 
@@ -19,7 +19,7 @@
 
    <br>
 
-**Fitspy** is a generic tool dedicated to **fit sp**ectra in **py**thon with a GUI that aims to be as simple and intuitive to use as possible.
+**Fitspy** is a generic tool dedicated to **fit sp**\ ectra in **py**\ thon with a GUI that aims to be as simple and intuitive to use as possible.
 
 
 .. figure::  https://cea-metrocarac.github.io/fitspy/fitspy.png
@@ -33,7 +33,7 @@
 Processed spectra may be independent of each other or may result from 2D-maps
 acquisitions.
 
-.. figure::  https://cea-metrocarac.github.io/fitspy/2d-map.png>
+.. figure::  https://cea-metrocarac.github.io/fitspy/2d-map.png
    :align:   center
    :width:   75%
 
@@ -64,13 +64,14 @@ These actions (like baseline and peaks definition, parameters constraints, ...) 
 Installation
 ------------
 
+::
     pip install fitspy
 
 
 Tests and examples execution
 ----------------------------
 
-
+::
     pip install pytest
     git clone https://github.com/CEA-MetroCarac/fitspy.git
     cd fitspy
@@ -85,7 +86,6 @@ Quick start
 Launch the application:
 
 ::
-
     fitspy
 
 
@@ -104,6 +104,7 @@ Then, from the top to the bottom of the right panel:
 - *(Optional)* **Save** the **Model** in a .json file (to be replayed later)
 
 See the `documentation <https://cea-metrocarac.github.io/fitspy/doc/index.html>`_ for more details.
+
 
 Authors information
 -------------------
