@@ -21,8 +21,9 @@
 .. raw:: html
 
     <p align="center" width="100%">
-    <img align="center" width="75%" src=https://cea-metrocarac.github.io/fitspy/fitspy.png>
+    <img align="center" width="90%" src=https://cea-metrocarac.github.io/fitspy/fitspy.png>
     </p>
+    </br>
 
 Processed spectra may be independent of each other or may result from 2D-maps
 acquisitions.
@@ -30,7 +31,7 @@ acquisitions.
 .. raw:: html
 
     <p align="center" width="100%">
-    <img align="center" width="30%" src=https://cea-metrocarac.github.io/fitspy/2d-map.png> <br>
+    <img align="center" width="40%" src=https://cea-metrocarac.github.io/fitspy/2d-map.png> <br>
     <em>Example of fitspy 2D-map frame interacting with the main GUI.</em> 
     </p>
 
