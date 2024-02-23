@@ -10,9 +10,14 @@
 .. _pypi: https://pypi.org/project/fitspy/
 
 
-<p align="center" width="100%">
-    <img align="center" width=250 src=https://cea-metrocarac.github.io/fitspy/logo.png>
-</p>
+
+.. figure::  https://cea-metrocarac.github.io/fitspy/logo.png
+   :align:   center
+   :width:   250
+
+.. raw:: html
+
+   <br>
 
 **Fitspy** is a generic tool dedicated to **fit** **sp**ectra in **py**thon
 with a GUI that aims to be as simple and intuitive to use as possible.
