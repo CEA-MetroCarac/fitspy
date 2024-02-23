@@ -10,11 +10,6 @@
 .. _pypi: https://pypi.org/project/fitspy/
 
 
-
-.. image::  https://cea-metrocarac.github.io/fitspy/logo.png
-   :align:   center
-   :width:   250
-
 .. raw:: html
 
     <p align="center" width="100%">
@@ -24,27 +19,22 @@
 
 **Fitspy** is a generic tool dedicated to **fit sp**\ ectra in **py**\ thon with a GUI that aims to be as simple and intuitive to use as possible.
 
-
-.. figure::  https://cea-metrocarac.github.io/fitspy/fitspy.png
-   :align:   center
-   :width:   75%
-
 .. raw:: html
-
-   <br>
+    <p align="center" width="100%">
+    <img align="center" width="75%" src=https://cea-metrocarac.github.io/fitspy/fitspy.png>
+    </p>
+    <br>
 
 Processed spectra may be independent of each other or may result from 2D-maps
 acquisitions.
 
-.. figure::  https://cea-metrocarac.github.io/fitspy/2d-map.png
-   :align:   center
-   :width:   75%
-
-   Example of fitspy 2D-map frame interacting with the main GUI.
-
 .. raw:: html
 
-   <br>
+    <p align="center" width="100%">
+    <img align="center" width="30%" src=https://cea-metrocarac.github.io/fitspy/2d-map.png> <br>
+    <em>Example of fitspy 2D-map frame interacting with the main GUI.</em> 
+    </p>
+    <br>
 
 The predefined peak models considered in Fitspy are  :code:`Gaussian`, :code:`Lorentzian`, :code:`Asymetric Gaussian`, :code:`Asymetric Lorentzian` and :code:`Pseudovoigt`.
 
@@ -67,14 +57,16 @@ These actions (like baseline and peaks definition, parameters constraints, ...) 
 Installation
 ------------
 
-::
+.. code-block::
+
     pip install fitspy
 
 
 Tests and examples execution
 ----------------------------
 
-::
+.. code-block::
+
     pip install pytest
     git clone https://github.com/CEA-MetroCarac/fitspy.git
     cd fitspy
@@ -88,9 +80,9 @@ Quick start
 
 Launch the application:
 
-::
-    fitspy
+.. code-block::
 
+    fitspy
 
 Then, from the top to the bottom of the right panel:
 
@@ -109,17 +101,7 @@ Then, from the top to the bottom of the right panel:
 
 .. raw:: html
 
-    - `Select` file(s)
-    - <span style="color: rgba(0, 0, 0, 0.3);">*(Optional)* Define the **X-range**</span>
-    - Define the baseline to `subtract` *(left or right click on the figure to add or delete (resp.) a baseline point)*
-    - <span style="color: rgba(0, 0, 0, 0.3);">*(Optional)* Normalize the spectrum/spectra</span>
-    - Click on the `Fitting` panel to activate it
-    - Select `Peak model` and add peaks *(left or right click on the figure to add or delete (resp.) a peak)*
-    - <span style="color: rgba(0, 0, 0, 0.3);">*(Optional)* Add a background (**BKG model**) to be fitted</span>
-    - <span style="color: rgba(0, 0, 0, 0.3);">*(Optional)* Use **Parameters** to set bounds and constraints</span>
-    - `Fit` the selected spectrum/spectra
-    - <span style="color: rgba(0, 0, 0, 0.3);">*(Optional)* **Save** the parameters in **.csv** format</span>
-    - <span style="color: rgba(0, 0, 0, 0.3);">*(Optional)* **Save** the **Model** in a .json file (to be replayed later)</span>
+    <span style="color: rgba(0, 0, 0, 0.3);">*(Optional)* Define the **X-range**</span>
 
 
 See the `documentation <https://cea-metrocarac.github.io/fitspy/doc/index.html>`_ for more details.
