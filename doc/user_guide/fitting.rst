@@ -9,7 +9,7 @@ However, to facilitate the convergence of the fitting process, the signal can be
 Noise level
 -----------
 
-After **baseline subtraction**, to avoid spending time in fitting peak models amidst noise, models in the 'noise regions' are disabled.
+After **baseline subtraction**, to avoid spending time in fitting peak models amidst noise, models in the 'noisy regions' are disabled.
 
 A global noise level associated to each spectrum is first estimated (as the median of the absolute amplitudes of oscillating parts of the spectrum).
 
@@ -63,7 +63,7 @@ In the GUI, when the maximum number is reached without meeting the convergence c
 Weighting
 ~~~~~~~~~
 
-Similarly to noise areas of outliers, the presence of negative values in the profiles to be fitted, resulting notably from baseline or background removal, can adversely affect the quality of results. To mitigate the impact of these negative values during the fit, a weight of '0' can be assigned to them. This is achieved through the **'fit negative values : Off'** option in the GUI or by the :code:`fit_negative` parameter passed to :func:`~fitspy.spectrum.Spectrum.fit`.
+Similarly to noisy areas of outliers, the presence of negative values in the profiles to be fitted, resulting notably from baseline or background removal, can adversely affect the quality of results. To mitigate the impact of these negative values during the fit, a weight of '0' can be assigned to them. This is achieved through the **'fit negative values : Off'** option in the GUI or by the :code:`fit_negative` parameter passed to :func:`~fitspy.spectrum.Spectrum.fit`.
 
 (The same with :code:`fit_outliers` for outliers and :code:`coef_noise` to bypass regions defined mainly by noise).
 

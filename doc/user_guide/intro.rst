@@ -35,12 +35,24 @@ Therefore, the features of `Fitspy` make it an ideal tool for quickly fitting a 
 Install and launching
 ---------------------
 
-For a basic install (*ie* without the examples, tests and the related datasets)::
+
+if python is not already installed in your PC:
+
+    * Download a python.exe from `<https://www.python.org/downloads/>`_
+    * Launch the python.exe (ensure to check the box **Add python.exe to PATH** before proceeding with the installation)
+
+in a command prompt (like **cmd**, accessible from the Windows search bar):
+
+
+* For a **basic install** and launching::
 
     pip install fitspy
     fitspy
 
-For a full install and examples and tests execution::
+*(If an error message is returned upon executing the first line, it likely indicates that python.exe is not included in your PATHs. In this case, (re)launch your python.exe and choose "modify" to select* **Add python.exe to PATH**)
+
+
+* For a **full install** with data sets, examples and tests (requiring `git <https://git-scm.com/downloads>`_)::
 
     git clone https://github.com/CEA-MetroCarac/fitspy.git
     fitspy
