@@ -15,15 +15,14 @@
     <p align="center" width="100%">
     <img align="center" width=250 src=https://cea-metrocarac.github.io/fitspy/logo.png>
     </p>
-    <br>
 
 **Fitspy** is a generic tool dedicated to **fit sp**\ ectra in **py**\ thon with a GUI that aims to be as simple and intuitive to use as possible.
 
 .. raw:: html
+
     <p align="center" width="100%">
     <img align="center" width="75%" src=https://cea-metrocarac.github.io/fitspy/fitspy.png>
     </p>
-    <br>
 
 Processed spectra may be independent of each other or may result from 2D-maps
 acquisitions.
@@ -34,7 +33,6 @@ acquisitions.
     <img align="center" width="30%" src=https://cea-metrocarac.github.io/fitspy/2d-map.png> <br>
     <em>Example of fitspy 2D-map frame interacting with the main GUI.</em> 
     </p>
-    <br>
 
 The predefined peak models considered in Fitspy are  :code:`Gaussian`, :code:`Lorentzian`, :code:`Asymetric Gaussian`, :code:`Asymetric Lorentzian` and :code:`Pseudovoigt`.
 
@@ -97,11 +95,6 @@ Then, from the top to the bottom of the right panel:
 - :code:`Fit` the selected spectrum/spectra
 - *(Optional)* **Save** the parameters in **.csv** format
 - *(Optional)* **Save** the **Model** in a .json file (to be replayed later)
-
-
-.. raw:: html
-
-    <span style="color: rgba(0, 0, 0, 0.3);">*(Optional)* Define the **X-range**</span>
 
 
 See the `documentation <https://cea-metrocarac.github.io/fitspy/doc/index.html>`_ for more details.
