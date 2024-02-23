@@ -2,8 +2,8 @@ Release Notes
 =============
 
 
-Version 2024.3
---------------
+Version 2024.3 (February 23, 2024)
+----------------------------------
 
 New features:
 
