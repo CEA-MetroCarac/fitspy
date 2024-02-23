@@ -17,7 +17,10 @@
 
 .. raw:: html
 
-   <br>
+    <p align="center" width="100%">
+    <img align="center" width=250 src=https://cea-metrocarac.github.io/fitspy/logo.png>
+    </p>
+    <br>
 
 **Fitspy** is a generic tool dedicated to **fit sp**\ ectra in **py**\ thon with a GUI that aims to be as simple and intuitive to use as possible.
 
@@ -102,6 +105,22 @@ Then, from the top to the bottom of the right panel:
 - :code:`Fit` the selected spectrum/spectra
 - *(Optional)* **Save** the parameters in **.csv** format
 - *(Optional)* **Save** the **Model** in a .json file (to be replayed later)
+
+
+.. raw:: html
+
+    - `Select` file(s)
+    - <span style="color: rgba(0, 0, 0, 0.3);">*(Optional)* Define the **X-range**</span>
+    - Define the baseline to `subtract` *(left or right click on the figure to add or delete (resp.) a baseline point)*
+    - <span style="color: rgba(0, 0, 0, 0.3);">*(Optional)* Normalize the spectrum/spectra</span>
+    - Click on the `Fitting` panel to activate it
+    - Select `Peak model` and add peaks *(left or right click on the figure to add or delete (resp.) a peak)*
+    - <span style="color: rgba(0, 0, 0, 0.3);">*(Optional)* Add a background (**BKG model**) to be fitted</span>
+    - <span style="color: rgba(0, 0, 0, 0.3);">*(Optional)* Use **Parameters** to set bounds and constraints</span>
+    - `Fit` the selected spectrum/spectra
+    - <span style="color: rgba(0, 0, 0, 0.3);">*(Optional)* **Save** the parameters in **.csv** format</span>
+    - <span style="color: rgba(0, 0, 0, 0.3);">*(Optional)* **Save** the **Model** in a .json file (to be replayed later)</span>
+
 
 See the `documentation <https://cea-metrocarac.github.io/fitspy/doc/index.html>`_ for more details.
 
