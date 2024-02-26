@@ -461,8 +461,10 @@ class Callbacks:
                 action = 'add' if event.button == 1 else 'del'
                 # frame = self.selected_frame.get()
                 frame = self.selected_frame
-                if frame in ['Baseline', 'Peaks']:
-                    eval(f"self.{action}_{frame.lower()}_point")(x, y)
+                if frame == 'Baseline':
+                    eval(f"self.{action}_baseline_point")(x, y)
+                elif frame == 'Fitting':
+                    eval(f"self.{action}_peaks_point")(x, y)
 
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
