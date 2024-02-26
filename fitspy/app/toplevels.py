@@ -27,7 +27,7 @@ class ResultView:
         self.hidden = True
 
         # make the frame remain on top until destroyed and disable closing
-        self.frame.attributes('-topmost', 'true')
+        # self.frame.attributes('-topmost', 'true')
         self.frame.protocol("WM_DELETE_WINDOW", lambda *args: None)
 
         self.spectrum = None
@@ -299,7 +299,7 @@ class ProgressBar:
         self.frame = Toplevel(root,
                               highlightbackground="black",
                               highlightthickness=1)
-        self.frame.attributes('-topmost', 'true')
+        # self.frame.attributes('-topmost', 'true')
         self.frame.overrideredirect(True)
         self.frame.withdraw()
 
