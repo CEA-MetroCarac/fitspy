@@ -6,7 +6,7 @@
 .. |github| image:: https://img.shields.io/badge/GitHub-GPL--3.0-informational
 .. _github: https://github.dev/CEA-MetroCarac/fitspy
 
-.. |pypi| image:: https://badge.fury.io/py/libertem.svg
+.. |pypi| image:: https://img.shields.io/pypi/v/fitspy?label=pypi%20package
 .. _pypi: https://pypi.org/project/fitspy/
 
 
