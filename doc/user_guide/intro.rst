@@ -41,12 +41,12 @@ if python is not already installed in your PC:
     * Download a python.exe from `<https://www.python.org/downloads/>`_
     * Launch the python.exe (ensure to check the box **Add python.exe to PATH** before proceeding with the installation)
 
-in a command prompt (like **cmd**, accessible from the Windows search bar):
+in a command prompt (like **cmd** or **powershell**, accessible from the Windows search bar):
 
 
-* For a **basic install** and launching::
+* For a **basic install/upgrade** and launching::
 
-    pip install fitspy
+    pip install fitspy --upgrade
     fitspy
 
 *(If an error message is returned upon executing the first line, it likely indicates that python.exe is not included in your PATHs. In this case, (re)launch your python.exe and choose "modify" to select* **Add python.exe to PATH**)

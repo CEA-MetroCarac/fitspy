@@ -75,6 +75,10 @@ Overall settings
 The attractors points are calculated using scipy.signal.find_peaks() based on the parameters defined in :code:`Settings`.
 Refer to `scipy.signal.find_peaks <https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.find_peaks.html>`_ for more details.
 
+:code:`Outliers Calc` allows defining a line (called in `Fitspy` **outliers_limit**) from which values above are considered as outliers.
+This line is defined as corresponding to the envelope of the spectra multiplied by the :code:`coef` factor.
+Consequently, the spectra loaded at the time of defining this line must be consistent with each other. (See `here <fitting.html#outliers>`_ for more details).
+
 
 Baseline
 --------
