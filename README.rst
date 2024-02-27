@@ -11,10 +11,8 @@
 
 
 .. image:: https://cea-metrocarac.github.io/fitspy/logo.png
-
     :target: https://cea-metrocarac.github.io/fitspy/logo.png
     :align: center
-    :width: 250
 
 **Fitspy** is a generic tool dedicated to **fit sp**\ ectra in **py**\ thon with a GUI that aims to be as simple and intuitive to use as possible.
 
