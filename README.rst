@@ -1,3 +1,5 @@
+.. -*- mode: rst -*-
+
 |docs|_  |github|_  |pypi|_ 
 
 .. |docs| image:: https://img.shields.io/badge/%F0%9F%95%AE-docs-green.svg
