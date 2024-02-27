@@ -11,6 +11,7 @@
 
 
 .. image::
+    
     :target: https://cea-metrocarac.github.io/fitspy/logo.png
     :align: center
     :width: 250
