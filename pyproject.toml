@@ -54,3 +54,8 @@ namespaces = false
 [tool.pytest.ini_options]
 minversion = "6.0"
 testpaths = ["tests"]
+
+[project.urls]
+Homepage = "https://github.dev/CEA-MetroCarac/fitspy"
+Documentation = "https://cea-metrocarac.github.io/fitspy/doc/index.html"
+
