@@ -10,8 +10,8 @@
 .. _pypi: https://pypi.org/project/fitspy/
 
 
-.. image::
-    
+.. image:: https://cea-metrocarac.github.io/fitspy/logo.png
+
     :target: https://cea-metrocarac.github.io/fitspy/logo.png
     :align: center
     :width: 250
