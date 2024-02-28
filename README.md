@@ -11,7 +11,7 @@ https://cea-metrocarac.github.io/fitspy/doc/index.html)
 </p>
 
 
-**Fitspy** is a generic tool dedicated to **fit sp**\ ectra in **py**\ thon with a GUI that aims to be as simple and intuitive to use as possible.
+**Fitspy** is a generic tool dedicated to **fit sp**ectra in **py**thon with a GUI that aims to be as simple and intuitive to use as possible.
 
 <p align="center" width="100%">
     <img align="center" width="75%" src=https://cea-metrocarac.github.io/fitspy/fitspy.png>
@@ -59,7 +59,8 @@ pip install pytest
 git clone https://github.com/CEA-MetroCarac/fitspy.git
 cd fitspy
 pytest
-python example/ex_gui_auto_decomposition.py
+python examples/ex_gui_auto_decomposition.py
+python examples/ex_.......
 ```
 
 *(See the [documentation](https://cea-metrocarac.github.io/fitspy/doc/user_guide/intro.html#install-and-launching) for more details)*
