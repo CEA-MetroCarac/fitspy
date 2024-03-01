@@ -51,6 +51,8 @@ Convergence criterion
 The convergence criterion is most often associated with a threshold to be reached on the calculated residual during the minimization procedure (gradient descent). Each fitting method used by **`lmfit`** has its own way of specifying this criterion.
 For :code:`Leastsq` and :code:`Least_squares` the :code:`xtol` parameter can be pass to the fit function (see the `scipy <https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.least_squares.html>`_ documentation for more details about this parameter). Otherwise, for the other fitting methods, in scripting mode, tolerance criteria can be passed through the :code:`fit_kws` in the :code:`kwargs` arguments of the :func:`~fitspy.spectrum.Spectrum.fit` function (in a format compatible with the fit method).
 
+This convergence criterion naturally has a significant impact on performance. (Refer to the section `above <fitting.html#performance>`_).
+
 
 Maximum number of iterations
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -102,3 +104,37 @@ Models parameters coupling
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Similarly, in the :code:`Parameters` widget, constraints can be associated with each parameter, by activating the :code:`show expressions` box and providing the constraints as explained `here <gui.html#fitting>`_.
+
+
+Performance
+-----------
+
+The performance varies depending on factors such as the number of spectra to handle, the number of points per spectrum, the number of peaks to fit, the :code:`xtol` convergence criterion,... and, of course, the machine 's performance, including its multiprocessing capabilities.
+
+Here is an example of the performance obtained from applying the `Fitspy` `model.json <https://github.com/CEA-MetroCarac/fitspy/blob/main/examples/data/2D_maps/model.json>`_ (which includes the baseline removal and fitting 5 peak models per spectrum) to all **1520 spectra** related to the example `ex_gui_users_defined_models_2d_map.py <https://github.com/CEA-MetroCarac/fitspy/tree/main/examples/ex_gui_users_defined_models_2d_map.py>`_.
+
+.. list-table:: Performance
+   :widths: 25 50 5 5
+   :header-rows: 1
+   :align: center
+
+   * - Machine
+     - Number of processors
+     - :code:`xtol`
+     - CPU time (s)
+   * - PC Windows
+     - 8 (Intel(R) Core(TM) i5-10400H CPU @ 2.60GHz)
+     - 0.01
+     - 175
+   * - Windows server
+     - 36 (Intel(R) Xeon(R) Gold 6154 CPU @ 3.00GHz)
+     - 0.01
+     - 6
+   * - Windows server
+     - 36 (Intel(R) Xeon(R) Gold 6154 CPU @ 3.00GHz)
+     - 0.001
+     - 10
+   * - Windows server
+     - 36 (Intel(R) Xeon(R) Gold 6154 CPU @ 3.00GHz)
+     - 0.0001
+     - 18
