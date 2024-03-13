@@ -1,9 +1,8 @@
-[![PyPI](https://img.shields.io/pypi/v/fitspy?label=pypi%20package)](
-https://pypi.org/project/fitspy/)
-[![Github](https://img.shields.io/badge/GitHub-GPL--3.0-informational)](
-https://github.dev/CEA-MetroCarac/fitspy)
-[![Doc](https://img.shields.io/badge/%F0%9F%95%AE-docs-green.svg)](
-https://cea-metrocarac.github.io/fitspy/doc/index.html)
+[![PyPI](https://img.shields.io/pypi/v/fitspy?label=pypi%20package)](https://pypi.org/project/fitspy/)
+[![Github](https://img.shields.io/badge/GitHub-GPL--3.0-informational)](https://github.dev/CEA-MetroCarac/fitspy)
+[![Doc](https://img.shields.io/badge/%F0%9F%95%AE-docs-green.svg)](https://cea-metrocarac.github.io/fitspy/doc/index.html)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.10812333.svg)](https://doi.org/10.5281/zenodo.10812333)
+
 
 
 <p align="center" width="100%">
@@ -92,7 +91,12 @@ Then, from the top to the bottom of the right panel:
 *(See the [documentation](https://cea-metrocarac.github.io/fitspy/doc/user_guide/workflow.html) for more details)*
 
 
-### Authors information
+## Acknowledgements
+
+This work, carried out on the CEA - Platform for Nanocharacterisation (PFNC), was supported by the “Recherche Technologique de Base” program of the French National Research Agency (ANR).
+
+
+## Authors information
 
 
 In case you use the results of this code in an article, please cite:
