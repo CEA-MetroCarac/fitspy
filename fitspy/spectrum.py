@@ -662,7 +662,8 @@ class Spectrum:
     def plot(self, ax,
              show_attractors=True, show_outliers=True, show_outliers_limit=True,
              show_negative_values=True, show_noise_level=True,
-             show_baseline=True, show_background=True):
+             show_baseline=True, show_background=True,
+             show_peak_models=True, show_result=True):
         """ Plot the spectrum with the peak models """
         lines = []
         x, y = self.x, self.y
@@ -670,7 +671,7 @@ class Spectrum:
         if hasattr(self.result_fit, 'success') and self.result_fit.success:
             linewidth = 1
 
-        ax.plot(x, y, 'ko-', lw=linewidth, ms=1)
+        ax.plot(x, y, 'ko-', lw=0.5, ms=1)
         # ax.plot(x, self.y_no_outliers, 'k', ls='dotted', lw=linewidth)
 
         if show_attractors and self.attractors is not None:
@@ -721,10 +722,11 @@ class Spectrum:
             y_peak = peak_model.eval(params, x=x)
             y_peaks += y_peak
 
-            line, = ax.plot(x, y_peak, lw=linewidth)
-            lines.append(line)
+            if show_peak_models:
+                line, = ax.plot(x, y_peak, lw=linewidth)
+                lines.append(line)
 
-        if hasattr(self.result_fit, 'success'):
+        if show_result and hasattr(self.result_fit, 'success'):
             y_fit = y_bkg + y_peaks
             ax.plot(x, y_fit, 'b', lw=linewidth, label="Fitted profile")
 
