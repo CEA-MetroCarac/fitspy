@@ -28,7 +28,7 @@ def fun(x):
 
 
 def gen_spectrum():
-    x = np.arange(100)
+    x = np.arange(100).astype(float)
     y0 = fun(x)
     y1 = 0.3 * np.exp(-((x - 30) ** 2) / 50)
     y2 = 0.5 * np.exp(-((x - 70) ** 2) / 50)
@@ -52,10 +52,12 @@ def baseline(attached=True):
     for x, y in zip(bl_x, bl_y):
         spectrum.baseline.add_point(x, y)
 
+    spectrum.baseline.attached = attached
+
     fig, ax = plt.subplots(1, 2, figsize=(10, 4), sharey=True)
     fig.tight_layout()
 
-    spectrum.plot(ax[0])
+    spectrum.plot(ax[0], show_noise_level=False, show_result=False)
     if attached:
         spectrum.baseline.plot(ax[0], x=spectrum.x, y=spectrum.y)
         points_0 = spectrum.baseline.points
@@ -68,14 +70,14 @@ def baseline(attached=True):
     ax[0].axhline(y=0, c='k', ls='dotted')
     ax[0].axis('off')
 
-    spectrum.subtract_baseline(attached=attached)
-    model_0 = spectrum.create_model(0, 'Gaussian', x0=30, ampli=.3)
-    model_1 = spectrum.create_model(1, 'Gaussian', x0=70, ampli=.5)
-    spectrum.models += [model_0, model_1]
+    spectrum.subtract_baseline()
+    model_0 = spectrum.create_peak_model(0, 'Gaussian', x0=30, ampli=.3)
+    model_1 = spectrum.create_peak_model(1, 'Gaussian', x0=70, ampli=.5)
+    spectrum.peak_models += [model_0, model_1]
     spectrum.fit()
-    spectrum.result_fit = None
 
-    spectrum.plot(ax[1])
+    spectrum.plot(ax[1], show_noise_level=False, show_result=False,
+                  show_negative_values=False, show_baseline=False)
     ax[1].axhline(y=0, c='k', ls='dotted')
     ax[1].set_ylim(-0.2, 0.8)
     ax[1].axis('off')
@@ -94,19 +96,19 @@ def bkg_model():
     fig, ax = plt.subplots(1, 2, figsize=(10, 4), sharey=True)
     fig.tight_layout()
 
-    spectrum.plot(ax[0])
+    spectrum.plot(ax[0], show_noise_level=False)
     ax[0].axhline(y=0, c='k', ls='dotted')
     ax[0].axis('off')
 
-    model_0 = spectrum.create_model(0, 'Gaussian', x0=30, ampli=.3)
-    model_1 = spectrum.create_model(1, 'Gaussian', x0=70, ampli=.5)
-    spectrum.models += [model_0, model_1]
+    model_0 = spectrum.create_peak_model(0, 'Gaussian', x0=30, ampli=.3)
+    model_1 = spectrum.create_peak_model(1, 'Gaussian', x0=70, ampli=.5)
+    spectrum.peak_models += [model_0, model_1]
     spectrum.set_bkg_model('Exponential')
 
     spectrum.fit()
-    spectrum.result_fit = None
 
-    spectrum.plot(ax[1])
+    spectrum.plot(ax[1], show_noise_level=False, show_baseline=False,
+                  show_result=False)
     ax[1].plot(spectrum.x, np.zeros_like(spectrum.x), ls='dotted')
     ax[1].axhline(y=0, c='k', ls='dotted')
     ax[1].set_ylim(-0.2, 0.8)
@@ -117,11 +119,11 @@ def bkg_model():
                                        transform=fig.transFigure,
                                        mutation_scale=60))
 
-    plt.savefig("_static/gen_figures_bkg.png")
+    # plt.savefig("_static/gen_figures_bkg.png")
 
 
 # logo()
-baseline(attached=False)
-baseline(attached=True)
+# baseline(attached=False)
+# baseline(attached=True)
 bkg_model()
 plt.show()
