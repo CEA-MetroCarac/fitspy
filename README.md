@@ -1,5 +1,5 @@
 [![PyPI](https://img.shields.io/pypi/v/fitspy?label=pypi%20package)](https://pypi.org/project/fitspy/)
-[![Github](https://img.shields.io/badge/GitHub-GPL--3.0-informational)](https://github.dev/CEA-MetroCarac/fitspy)
+[![Github](https://img.shields.io/badge/GitHub-GPL--3.0-informational)](https://github.com/CEA-MetroCarac/fitspy)
 [![Doc](https://img.shields.io/badge/%F0%9F%95%AE-docs-green.svg)](https://cea-metrocarac.github.io/fitspy/doc/index.html)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.10812333.svg)](https://doi.org/10.5281/zenodo.10812333)
 [![status](https://joss.theoj.org/papers/971a02868d903c0b7c0cbc3d1cd3d139/status.svg)](https://joss.theoj.org/papers/971a02868d903c0b7c0cbc3d1cd3d139)
