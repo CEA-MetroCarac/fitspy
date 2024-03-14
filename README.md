@@ -2,7 +2,7 @@
 [![Github](https://img.shields.io/badge/GitHub-GPL--3.0-informational)](https://github.dev/CEA-MetroCarac/fitspy)
 [![Doc](https://img.shields.io/badge/%F0%9F%95%AE-docs-green.svg)](https://cea-metrocarac.github.io/fitspy/doc/index.html)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.10812333.svg)](https://doi.org/10.5281/zenodo.10812333)
-
+[![status](https://joss.theoj.org/papers/971a02868d903c0b7c0cbc3d1cd3d139/status.svg)](https://joss.theoj.org/papers/971a02868d903c0b7c0cbc3d1cd3d139)
 
 
 <p align="center" width="100%">
@@ -41,7 +41,6 @@ Fitspy main features:
 All actions allowed with the GUI can be executed in script mode (see examples [here](https://github.com/CEA-MetroCarac/fitspy/tree/main/examples)).
 These actions (like baseline and peaks definition, parameters constraints, ...) can be saved in a `Fitspy model` and replayed as-is or applied to other new spectra datasets.
 
-
 ## Installation
 
 ```
@@ -49,7 +48,6 @@ pip install fitspy
 ```
 
 *(See the [documentation](https://cea-metrocarac.github.io/fitspy/doc/user_guide/intro.html#install-and-launching) for more details)*
-
 
 ## Tests and examples execution
 
@@ -63,7 +61,6 @@ python examples/ex_.......
 ```
 
 *(See the [documentation](https://cea-metrocarac.github.io/fitspy/doc/user_guide/intro.html#install-and-launching) for more details)*
-
 
 ## Quick start
 
@@ -87,17 +84,13 @@ Then, from the top to the bottom of the right panel:
 - *(Optional)* **Save** the parameters in **.csv** format
 - *(Optional)* **Save** the **Model** in a .json file (to be replayed later)
 
-
 *(See the [documentation](https://cea-metrocarac.github.io/fitspy/doc/user_guide/workflow.html) for more details)*
-
 
 ## Acknowledgements
 
 This work, carried out on the CEA - Platform for Nanocharacterisation (PFNC), was supported by the “Recherche Technologique de Base” program of the French National Research Agency (ANR).
 
-
-## Authors information
-
+## Citations
 
 In case you use the results of this code in an article, please cite:
 
