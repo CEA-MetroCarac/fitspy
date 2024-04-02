@@ -100,7 +100,7 @@ In practice, when performing repeated analyses, users familiar with Python may f
 2. save the model
 3. apply the model to several datasets using a Python script
 
-This approach has recently been used by [@wafer] to process tens of thousands of PhotoLuminescence and Raman spectra acquired on wafers, taking advantage of the parallelism capabilities offered by `Fitpsy` (see \autoref{fig:wafer}).
+This approach has recently been used by Meyer [@wafer] to process tens of thousands of PhotoLuminescence and Raman spectra acquired on wafers, taking advantage of the parallelism capabilities offered by `Fitpsy` (see \autoref{fig:wafer}).
 
 ![Example of a `Fitpsy` application used in photoluminescence to characterize exciton intensities on a wafer [@wafer].\label{fig:wafer}](https://cea-metrocarac.github.io/fitspy/2d-map-PL.png){width=85%}
 
