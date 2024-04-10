@@ -48,7 +48,7 @@ In the vein of generic tools like `Fityk` [@Fityk] or `PRISMA`  [@PRISMA], `Fits
 
 * **Simple GUI**: `Fitspy` has been designed to be as intuitive and simple to use as possible (subjective criterion).
 
-To the author's knowledge, although many open-source softwares are much more advanced in certain aspects mentioned, none of them seem to encompass all the functionalities described above. Therefore, the features of `Fitspy` make it an ideal tool for quickly fitting a few spectra through its GUI or for fitting several thousand of spectra (or more) by Python batches, as can occur in the context of large-scale parametric studies [@wafer].
+To the author's knowledge, although other open-source software packages are much more advanced in certain aspects mentioned, none of them seem to encompass all the functionalities described above. Therefore, the features of `Fitspy` make it an ideal tool for quickly fitting a few spectra through its GUI or for fitting several thousand of spectra (or more) by Python batches, as can occur in the context of large-scale parametric studies [@wafer].
 
 # `Fitspy` workflow short description
 
@@ -91,7 +91,7 @@ At the end of the fit, the fit parameters and the statistics returned by `lmfit`
 
 All the processing steps previously described constitute a model in the sense of the `Fitspy` application that can be saved (in a .json file) and easily replayed as-is or applied to other spectra datasets.
 
-In terms of visualization, the GUI allows the user to display all of the spectra simultaneously (`Show All` mode) or, when a spectrum is selected, to display the corresponding fit decomposition and its residual. Figure titles and axis names can be customized and peak models labeled.
+In terms of visualisation, the GUI allows the user to display all of the spectra simultaneously (`Show All` mode) or, when a spectrum is selected, to display the corresponding fit decomposition and its residual. Figure titles and axis names can be customised and peak models labeled.
 
 All the actions described above can be performed through Python scripts without using the GUI.
 In practice, when performing repeated analyses, users familiar with Python may find it helpful to use `Fitspy` as follows:
@@ -102,7 +102,7 @@ In practice, when performing repeated analyses, users familiar with Python may f
 
 This approach has recently been used by Meyer [@wafer] to process tens of thousands of PhotoLuminescence and Raman spectra acquired on wafers, taking advantage of the parallelism capabilities offered by `Fitpsy` (see \autoref{fig:wafer}).
 
-![Example of a `Fitpsy` application used in photoluminescence to characterize exciton intensities on a wafer [@wafer].\label{fig:wafer}](https://cea-metrocarac.github.io/fitspy/2d-map-PL.png){width=85%}
+![Example of a `Fitpsy` application used in photoluminescence to characterise exciton intensities on a wafer [@wafer].\label{fig:wafer}](https://cea-metrocarac.github.io/fitspy/2d-map-PL.png){width=85%}
 
 # Acknowledgements
 
