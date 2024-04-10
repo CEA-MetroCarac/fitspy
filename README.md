@@ -90,6 +90,8 @@ Then, from the top to the bottom of the right panel:
 
 This work, carried out on the CEA - Platform for Nanocharacterisation (PFNC), was supported by the “Recherche Technologique de Base” program of the French National Research Agency (ANR).
 
+Warm thanks to the [JOSS](https://joss.theoj.org/) reviewers ([@maurov](https://github.com/maurov) and [@FCMeng](https://github.com/FCMeng)) and editor ([@phibeck](https://github.com/phibeck)) for their contributions to enhancing Fitspy.
+
 ## Citations
 
 In case you use the results of this code in an article, please cite:
