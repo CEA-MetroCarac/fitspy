@@ -1,0 +1,26 @@
+cff-version: "1.2.0"
+authors:
+- family-names: Quéméré
+  given-names: Patrick
+  orcid: "https://orcid.org/0009-0008-6936-1249"
+doi: 10.5281/zenodo.10812332
+message: If you use this software, please cite our article in the
+  Journal of Open Source Software.
+preferred-citation:
+  authors:
+  - family-names: Quéméré
+    given-names: Patrick
+    orcid: "https://orcid.org/0009-0008-6936-1249"
+  date-published: 2024-04-15
+  doi: 10.21105/joss.05868
+  issn: 2475-9066
+  issue: 96
+  journal: Journal of Open Source Software
+  publisher:
+    name: Open Journals
+  start: 5868
+  title: "Fitspy: A Python package for spectral decomposition"
+  type: article
+  url: "https://joss.theoj.org/papers/10.21105/joss.05868"
+  volume: 9
+title: "Fitspy: A Python package for spectral decomposition"
