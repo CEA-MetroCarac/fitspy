@@ -96,6 +96,6 @@ Warm thanks to the [JOSS](https://joss.theoj.org/) reviewers ([@maurov](https://
 
 In case you use the results of this code in an article, please cite:
 
-- Quéméré P., (2024). Fitspy: A python package for spectral decomposition. *Journal of Open Source Software. (submitted)*
+- Quéméré P., (2024). Fitspy: A python package for spectral decomposition. Journal of Open Source Software. doi: [10.21105/joss.05868](https://doi.org/10.21105/joss.05868)
 
-- Newville M., (2014). LMFIT: Non-Linear Least-Square Minimization and Curve-Fitting for Python. Zenodo. doi: 10.5281/zenodo.11813.
+- Newville M., (2014). LMFIT: Non-Linear Least-Square Minimization and Curve-Fitting for Python. Zenodo. doi: [10.5281/zenodo.11813](https://doi.org/10.5281/zenodo.11813).
