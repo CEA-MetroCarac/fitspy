@@ -9,6 +9,7 @@ from tkinter import filedialog as fd
 from threading import Thread
 import glob
 from pathlib import Path
+from copy import deepcopy
 import numpy as np
 
 from fitspy.spectra import Spectra
@@ -215,8 +216,7 @@ class Callbacks:
     def apply_model(self, model_dict=None, fnames=None, selection=False,
                     fit_only=False):
         """ Apply model to the selected spectra """
-
-        model_dict = model_dict or self.model_dict
+        model_dict = model_dict or deepcopy(self.model_dict)
 
         if model_dict is None:
             showerror(message='No model has been loaded')
