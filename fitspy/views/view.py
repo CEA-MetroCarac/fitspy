@@ -20,12 +20,13 @@ class View(QMainWindow):
         layout.addWidget(self.plot_area)
 
         self.main_settings_dock = QDockWidget("Main Settings", self)
-        self.main_settings_dock.setWidget(SettingsView())
+        self.settings_view = SettingsView()
+        self.main_settings_dock.setWidget(self.settings_view)
         self.main_settings_dock.setFloating(False)
 
         self.setCentralWidget(central_widget)
         self.addDockWidget(Qt.RightDockWidgetArea, self.main_settings_dock)
-    
+
     def createActions(self):
         self.actNew = QAction(QIcon("icons/new.png"), "&New", self)
         self.actNew.setShortcut("Ctrl+N")
