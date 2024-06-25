@@ -9,6 +9,11 @@ class View(QMainWindow):
         self.init_ui()
 
     def init_ui(self):
+        self.resize(600, 400)
+        self.setWindowTitle("Fitspy")
+        statusBar = self.statusBar()
+        # statusBar.showMessage(self.windowTitle())
+
         central_widget = QWidget()
         layout = QVBoxLayout(central_widget)
 

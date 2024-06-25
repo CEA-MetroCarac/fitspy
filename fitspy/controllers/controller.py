@@ -4,22 +4,10 @@ from .settings_controller import SettingsController
 
 class Controller:
     def __init__(self):
-        # super().__init__()
-        # self.resize(800, 600)
-        # self.setWindowTitle("Fitspy")
-        # self.view = View()
-        
-        # self.model = Model()
-        # self.setCentralWidget(self.view)
-
         self.view = View()
         self.model = Model()
-
         self.settings_controller = SettingsController(self.view.settings_view)
         self.setupActions()
-
-        # statusBar = self.statusBar()
-        # statusBar.showMessage(self.windowTitle())   # Définition du message initial
 
     def setupActions(self):
         self.view.actNew.triggered.connect(self.newDocument)
