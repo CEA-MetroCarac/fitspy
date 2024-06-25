@@ -7,10 +7,10 @@ class Controller:
         self.view = View()
         self.model = Model()
         self.settings_controller = SettingsController(self.view.settings_view)
-        self.setupActions()
+        self.setup_actions()
 
-    def setupActions(self):
-        self.view.actNew.triggered.connect(self.newDocument)
+    def setup_actions(self):
+        # self.view.actNew.triggered.connect(self.newDocument)
         # self.view.actExit.triggered.connect(self.close)
         self.view.togglePlotFit.stateChanged.connect(self.model.toggle_plot_fit)
         self.view.togglePlotNegValues.stateChanged.connect(self.model.toggle_plot_neg_values)
@@ -25,7 +25,3 @@ class Controller:
         self.view.residualCoeff.textChanged.connect(self.model.update_residual_coeff)
         self.view.xLabel.textChanged.connect(self.model.update_x_label)
         self.view.yLabel.textChanged.connect(self.model.update_y_label)
-
-
-    def newDocument(self):
-        print("New document is requested")
