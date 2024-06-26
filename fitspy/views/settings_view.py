@@ -1,7 +1,6 @@
+from PySide6.QtCore import Signal, Qt
 from PySide6.QtWidgets import QListWidget, QWidget, QVBoxLayout, QPushButton
-from PySide6.QtCore import Signal
-from PySide6.QtGui import QDragEnterEvent, QDropEvent
-
+from PySide6.QtGui import QDragEnterEvent, QDropEvent, QPainter, QPalette
 class FileDropListWidget(QListWidget):
     filesDropped = Signal(list)
     
@@ -32,6 +31,23 @@ class FileDropListWidget(QListWidget):
             event.acceptProposedAction()
         else:
             super().dropEvent(event)
+
+    def paintEvent(self, event):
+        super().paintEvent(event)
+        if self.count() == 0:  # Check if the list is empty
+            # Initialize a QPainter instance for drawing
+            painter = QPainter(self.viewport())
+            painter.save()
+            
+            # Set the pen color and font if needed
+            painter.setPen(self.palette().color(QPalette.Disabled, QPalette.Text))
+            
+            # Draw the hint text in the center of the widget
+            rect = self.rect()
+            text = "Drag and Drop Files Here"
+            painter.drawText(rect, Qt.AlignCenter, text)
+            
+            painter.restore()
 
 class SettingsView(QWidget):
     def __init__(self):
