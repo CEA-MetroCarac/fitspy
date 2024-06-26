@@ -1,3 +1,4 @@
+from pathlib import Path
 from PySide6.QtCore import QObject, Signal
 
 class SettingsModel(QObject):
@@ -13,10 +14,16 @@ class SettingsModel(QObject):
         for file in files:
             if file not in self._files:
                 self._files.append(file)
-                file_added = True 
+                file_added = True
 
         if file_added:
             self.filesChanged.emit(self._files)
+
+    def set_folder(self, folder):
+        """loads all *.txt files from a folder path"""
+        folder_path = Path(folder)
+        files = [str(file) for file in folder_path.iterdir() if file.suffix == ".txt"]
+        self.set_files(files)
 
     def remove_file(self, files):
         for file in files:

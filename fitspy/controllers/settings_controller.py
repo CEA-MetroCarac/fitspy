@@ -29,6 +29,12 @@ class SettingsController:
         if file_paths:
             self.model.set_files(file_paths)
 
+    def load_folder(self):
+        """Loads all *.txt files from a chosen folder."""
+        folder_path = self.open_folder_dialog()
+        if folder_path:
+            self.model.set_folder(folder_path)
+
     def remove_selected_item(self):
         """Remove selected items from the model and refresh view."""
         files_to_del = self.view.file_list.selectedItems()
@@ -55,3 +61,12 @@ class SettingsController:
             filter="*.txt"
         )
         return file_paths
+    
+    def open_folder_dialog(self):
+        """Open a folder dialog and return the selected folder path."""
+        folder_path = QFileDialog.getExistingDirectory(
+            parent=self.view,
+            caption="Select Folder",
+            dir=""
+        )
+        return folder_path

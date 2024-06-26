@@ -37,9 +37,9 @@ class View(QMainWindow):
         self.actNew.setShortcut("Ctrl+N")
         self.actNew.setStatusTip("New document")
 
-        self.actOpen = QAction(QIcon("icons/open.png"), "&Open...", self)
+        self.actOpen = QAction(QIcon("icons/open.png"), "&Open Folder", self)
         self.actOpen.setShortcut("Ctrl+O")
-        self.actOpen.setStatusTip("Open file")
+        self.actOpen.setStatusTip("Open folder")
 
         self.actSave = QAction(QIcon("icons/save.png"), "&Save", self)
         self.actSave.setShortcut("Ctrl+S")
