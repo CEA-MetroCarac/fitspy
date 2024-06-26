@@ -3,7 +3,7 @@ from PySide6.QtWidgets import QListWidget, QWidget, QVBoxLayout, QPushButton
 from PySide6.QtGui import QDragEnterEvent, QDropEvent, QPainter, QPalette
 class FileDropListWidget(QListWidget):
     filesDropped = Signal(list)
-    
+
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setAcceptDrops(True)
@@ -25,8 +25,6 @@ class FileDropListWidget(QListWidget):
     def dropEvent(self, event: QDropEvent):
         if event.mimeData().hasUrls():
             file_paths = [url.toLocalFile() for url in event.mimeData().urls()]
-            for file_path in file_paths:
-                self.addItem(file_path)
             self.filesDropped.emit(file_paths)  # Emit the signal with the list of dropped file paths
             event.acceptProposedAction()
         else:
@@ -38,15 +36,15 @@ class FileDropListWidget(QListWidget):
             # Initialize a QPainter instance for drawing
             painter = QPainter(self.viewport())
             painter.save()
-            
+
             # Set the pen color and font if needed
             painter.setPen(self.palette().color(QPalette.Disabled, QPalette.Text))
-            
+
             # Draw the hint text in the center of the widget
             rect = self.rect()
-            text = "Drag and Drop Files Here"
+            text = "Drag and Drop File(s) Here"
             painter.drawText(rect, Qt.AlignCenter, text)
-            
+
             painter.restore()
 
 class SettingsView(QWidget):
