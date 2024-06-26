@@ -10,6 +10,7 @@ class SettingsController:
     def setup_actions(self):
         """Connect UI actions to controller methods."""
         self.view.open_file.clicked.connect(self.load_files)
+        self.view.open_dir.clicked.connect(self.load_folder)
         self.view.file_list.filesDropped.connect(self.updateModelWithFiles)
         self.view.remove_selected.clicked.connect(self.remove_selected_item)
         self.view.remove_all.clicked.connect(self.remove_all_items)
@@ -61,7 +62,7 @@ class SettingsController:
             filter="*.txt"
         )
         return file_paths
-    
+
     def open_folder_dialog(self):
         """Open a folder dialog and return the selected folder path."""
         folder_path = QFileDialog.getExistingDirectory(
