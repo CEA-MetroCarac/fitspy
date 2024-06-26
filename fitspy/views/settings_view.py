@@ -52,27 +52,24 @@ class SettingsView(QWidget):
     def __init__(self):
         super().__init__()
 
-        # Create and set layout for this widget
         layout = QVBoxLayout()
         self.setLayout(layout)
 
-        # Open Files button
+        buttons_layout = QHBoxLayout()
+
         self.open_file = QPushButton("Open Files")
-        layout.addWidget(self.open_file)
+        buttons_layout.addWidget(self.open_file)
 
-        # Horizontal layout for remove buttons
-        remove_buttons_layout = QHBoxLayout()
+        self.open_dir = QPushButton("Open Dir.")
+        buttons_layout.addWidget(self.open_dir)
 
-        # Remove Selected button
-        self.remove_selected = QPushButton("Remove Selected")
-        remove_buttons_layout.addWidget(self.remove_selected)
+        self.remove_selected = QPushButton("Remove")
+        buttons_layout.addWidget(self.remove_selected)
 
-        # Remove All button
         self.remove_all = QPushButton("Remove All")
-        remove_buttons_layout.addWidget(self.remove_all)
+        buttons_layout.addWidget(self.remove_all)
 
-        # Add the horizontal layout to the main vertical layout
-        layout.addLayout(remove_buttons_layout)
+        layout.addLayout(buttons_layout)
 
         self.file_list = FileDropListWidget()
         layout.addWidget(self.file_list)
