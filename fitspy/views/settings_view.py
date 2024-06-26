@@ -1,6 +1,8 @@
 from PySide6.QtCore import Signal, Qt
-from PySide6.QtWidgets import QListWidget, QWidget, QVBoxLayout, QPushButton, QHBoxLayout
+from PySide6.QtWidgets import QListWidget, QWidget, QVBoxLayout, QPushButton, QHBoxLayout, QGroupBox, QLabel, QLineEdit, QCheckBox
 from PySide6.QtGui import QDragEnterEvent, QDropEvent, QPainter, QPalette
+from .settings import OverallSettings, BaselineSettings, NormalizationSettings, FittingSettings, ModelsSettings
+
 class FileDropListWidget(QListWidget):
     filesDropped = Signal(list)
 
@@ -52,9 +54,6 @@ class SettingsView(QWidget):
     def __init__(self):
         super().__init__()
 
-        layout = QVBoxLayout()
-        self.setLayout(layout)
-
         buttons_layout = QHBoxLayout()
 
         self.open_file = QPushButton("Open Files")
@@ -69,7 +68,43 @@ class SettingsView(QWidget):
         self.remove_all = QPushButton("Remove All")
         buttons_layout.addWidget(self.remove_all)
 
-        layout.addLayout(buttons_layout)
-
         self.file_list = FileDropListWidget()
+
+        self.show_all = QPushButton("Show All")
+        self.auto_eval = QPushButton("Auto Eval")
+        self.auto_eval_all = QPushButton("Auto Eval All")
+        self.save_settings = QPushButton("Save Settings")
+        self.reset = QPushButton("Reset")
+        self.reset_all = QPushButton("Reset All")
+
+        # First row of buttons
+        first_row_layout = QHBoxLayout()
+        first_row_layout.addWidget(self.show_all)
+        first_row_layout.addWidget(self.auto_eval)
+        first_row_layout.addWidget(self.auto_eval_all)
+
+        # Second row of buttons
+        second_row_layout = QHBoxLayout()
+        second_row_layout.addWidget(self.save_settings)
+        second_row_layout.addWidget(self.reset)
+        second_row_layout.addWidget(self.reset_all)
+
+        # Settings widgets
+        self.overall_settings = OverallSettings()
+        self.baseline_settings = BaselineSettings()
+        self.normalization_settings = NormalizationSettings()
+        self.fitting_settings = FittingSettings()
+        self.models_settings = ModelsSettings()
+
+        # Main layout
+        layout = QVBoxLayout()
+        self.setLayout(layout)
+        layout.addLayout(buttons_layout)
         layout.addWidget(self.file_list)
+        layout.addLayout(first_row_layout)
+        layout.addLayout(second_row_layout)
+        layout.addWidget(self.overall_settings)
+        layout.addWidget(self.baseline_settings)
+        layout.addWidget(self.normalization_settings)
+        layout.addWidget(self.fitting_settings)
+        layout.addWidget(self.models_settings)
