@@ -1,6 +1,6 @@
 from PySide6.QtCore import Signal, Qt
 from PySide6.QtWidgets import QListWidget, QWidget, QVBoxLayout, QPushButton
-from PySide6.QtGui import QDragEnterEvent, QDropEvent, QPainter, QPalette
+from PySide6.QtGui import QDragEnterEvent, QDropEvent, QPainter, QPalette, QPen, QBrush
 class FileDropListWidget(QListWidget):
     filesDropped = Signal(list)
 
@@ -9,6 +9,7 @@ class FileDropListWidget(QListWidget):
         self.setAcceptDrops(True)
         self.setDragDropMode(QListWidget.DropOnly)
         self.setSelectionMode(QListWidget.ExtendedSelection)
+        self.setSelectionRectVisible(True)
 
     def dragEnterEvent(self, event: QDragEnterEvent):
         if event.mimeData().hasUrls():
