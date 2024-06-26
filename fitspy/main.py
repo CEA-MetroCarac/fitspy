@@ -1,3 +1,4 @@
+# TODO snake_case everywhere or camelCase everywhere ? Python is snake_case, Qt is camelCase
 import sys
 from PySide6.QtWidgets import QApplication
 from controllers.controller import Controller
