@@ -1,4 +1,4 @@
-from PySide6.QtWidgets import QApplication, QWidget, QVBoxLayout, QDoubleSpinBox
+from PySide6.QtWidgets import QWidget, QVBoxLayout, QDoubleSpinBox
 
 class FloatInput(QWidget):
     def __init__(self, min_value=-999.0, max_value=999.0, decimals=2, step=1.0):
@@ -19,6 +19,7 @@ class FloatInput(QWidget):
         self.setLayout(layout)
 
 if __name__ == "__main__":
+    from PySide6.QtWidgets import QApplication
     app = QApplication([])
     default_widget = FloatInput()
     default_widget.show()

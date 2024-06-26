@@ -2,9 +2,6 @@ class Model:
     def __init__(self):
         pass
 
-    def newDocument(self):
-        print("New document is requested")
-
     def toggle_plot_fit(self, state):
         if state == 2:  # Qt.Checked
             print("Plot Fit is checked")
