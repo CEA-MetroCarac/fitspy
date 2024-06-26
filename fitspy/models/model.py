@@ -59,14 +59,5 @@ class Model:
         else:
             print("Show Peaks Labels is unchecked")
 
-    def update_title(self, text):
-        print("Title is changed to", text)
-
     def update_residual_coeff(self, text):
         print("Residual coefficient is changed to", text)
-
-    def update_x_label(self, text):
-        print("X label is changed to", text)
-
-    def update_y_label(self, text):
-        print("Y label is changed to", text)

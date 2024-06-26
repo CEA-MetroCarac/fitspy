@@ -21,7 +21,4 @@ class Controller:
         self.view.togglePlotBackground.stateChanged.connect(self.model.toggle_plot_background)
         self.view.togglePlotResidual.stateChanged.connect(self.model.toggle_plot_residuals)
         self.view.toggleShowPeaksLabels.stateChanged.connect(self.model.toggle_show_peaks_labels)
-        self.view.title.textChanged.connect(self.model.update_title)
         self.view.residualCoeff.textChanged.connect(self.model.update_residual_coeff)
-        self.view.xLabel.textChanged.connect(self.model.update_x_label)
-        self.view.yLabel.textChanged.connect(self.model.update_y_label)

@@ -2,6 +2,7 @@ from PySide6.QtCore import Qt
 from PySide6.QtGui import QAction, QIcon
 from PySide6.QtWidgets import QMainWindow, QVBoxLayout, QLineEdit, QLabel, QDockWidget, QWidget, QWidgetAction, QCheckBox, QHBoxLayout
 from .settings_view import SettingsView
+from .plot_view import PlotView
 
 class View(QMainWindow):
     def __init__(self):
@@ -20,8 +21,7 @@ class View(QMainWindow):
         self.createActions()
         self.createMenuBar()
 
-        self.plot_area = QLabel("Plot Area", alignment=Qt.AlignCenter)
-        self.plot_area.setStyleSheet("border: 1px solid black;")
+        self.plot_area = PlotView()
         layout.addWidget(self.plot_area)
 
         self.main_settings_dock = QDockWidget("Main Settings", self)
@@ -163,52 +163,3 @@ class View(QMainWindow):
         # self.coefResidual.setToolTip("Coefficient for residual")
         # figureSettingsAction9.setDefaultWidget(self.coefResidual)
         # self.figure_menu.addAction(figureSettingsAction9)
-
-        # Create a QLineEdit for title
-        figureSettingsAction11 = QWidgetAction(self)
-        label = QLabel("Title:")
-        self.title = QLineEdit(self)
-        self.title.setText("DEFAULT")
-        self.title.setFixedWidth(70)  # Set a fixed width
-
-        layout = QHBoxLayout()
-        layout.setContentsMargins(0, 0, 0, 2)
-        layout.addWidget(label)
-        layout.addWidget(self.title)
-
-        widget = QWidget()
-        widget.setLayout(layout)
-        figureSettingsAction11.setDefaultWidget(widget)
-        self.figure_menu.addAction(figureSettingsAction11)
-
-        # Create a QLineEdit for xlabel
-        figureSettingsAction12 = QWidgetAction(self)
-        label = QLabel("X Label:")
-        self.xLabel = QLineEdit(self)
-        self.xLabel.setFixedWidth(70)  # Set a fixed width
-
-        layout = QHBoxLayout()
-        layout.setContentsMargins(0, 0, 0, 2)
-        layout.addWidget(label)
-        layout.addWidget(self.xLabel)
-
-        widget = QWidget()
-        widget.setLayout(layout)
-        figureSettingsAction12.setDefaultWidget(widget)
-        self.figure_menu.addAction(figureSettingsAction12)
-
-        # Create a QLineEdit for ylabel
-        figureSettingsAction13 = QWidgetAction(self)
-        label = QLabel("Y Label:")
-        self.yLabel = QLineEdit(self)
-        self.yLabel.setFixedWidth(70)  # Set a fixed width
-
-        layout = QHBoxLayout()
-        layout.setContentsMargins(0, 0, 0, 0)
-        layout.addWidget(label)
-        layout.addWidget(self.yLabel)
-
-        widget = QWidget()
-        widget.setLayout(layout)
-        figureSettingsAction13.setDefaultWidget(widget)
-        self.figure_menu.addAction(figureSettingsAction13)
