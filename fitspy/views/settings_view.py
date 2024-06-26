@@ -1,6 +1,6 @@
 from PySide6.QtCore import Signal, Qt
-from PySide6.QtWidgets import QListWidget, QWidget, QVBoxLayout, QPushButton
-from PySide6.QtGui import QDragEnterEvent, QDropEvent, QPainter, QPalette, QPen, QBrush
+from PySide6.QtWidgets import QListWidget, QWidget, QVBoxLayout, QPushButton, QHBoxLayout
+from PySide6.QtGui import QDragEnterEvent, QDropEvent, QPainter, QPalette
 class FileDropListWidget(QListWidget):
     filesDropped = Signal(list)
 
@@ -56,17 +56,23 @@ class SettingsView(QWidget):
         layout = QVBoxLayout()
         self.setLayout(layout)
 
-        # Select Files button
-        self.select_files = QPushButton("Select Files")
-        layout.addWidget(self.select_files)
+        # Open Files button
+        self.open_file = QPushButton("Open Files")
+        layout.addWidget(self.open_file)
+
+        # Horizontal layout for remove buttons
+        remove_buttons_layout = QHBoxLayout()
 
         # Remove Selected button
         self.remove_selected = QPushButton("Remove Selected")
-        layout.addWidget(self.remove_selected)
+        remove_buttons_layout.addWidget(self.remove_selected)
 
         # Remove All button
         self.remove_all = QPushButton("Remove All")
-        layout.addWidget(self.remove_all)
+        remove_buttons_layout.addWidget(self.remove_all)
+
+        # Add the horizontal layout to the main vertical layout
+        layout.addLayout(remove_buttons_layout)
 
         self.file_list = FileDropListWidget()
         layout.addWidget(self.file_list)

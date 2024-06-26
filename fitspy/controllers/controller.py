@@ -10,7 +10,8 @@ class Controller:
         self.setup_actions()
 
     def setup_actions(self):
-        self.view.actOpen.triggered.connect(self.settings_controller.load_folder)
+        self.view.actOpenFiles.triggered.connect(self.settings_controller.load_files)
+        self.view.actOpenFolder.triggered.connect(self.settings_controller.load_folder)
         self.view.actExit.triggered.connect(self.view.close)
         self.view.togglePlotFit.stateChanged.connect(self.model.toggle_plot_fit)
         self.view.togglePlotNegValues.stateChanged.connect(self.model.toggle_plot_neg_values)

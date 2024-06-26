@@ -33,15 +33,18 @@ class View(QMainWindow):
         self.addDockWidget(Qt.RightDockWidgetArea, self.main_settings_dock)
 
     def createActions(self):
-        self.actNew = QAction(QIcon("icons/new.png"), "&New", self)
+        self.actNew = QAction(QIcon("icons/new.png"), "&New NOT IMPLEMENTED", self)
         self.actNew.setShortcut("Ctrl+N")
         self.actNew.setStatusTip("New document")
 
-        self.actOpen = QAction(QIcon("icons/open.png"), "&Open Folder", self)
-        self.actOpen.setShortcut("Ctrl+O")
-        self.actOpen.setStatusTip("Open folder")
+        self.actOpenFiles = QAction(QIcon("icons/open.png"), "&Open File(s)", self)
+        self.actOpenFiles.setStatusTip("Open file(s)")
 
-        self.actSave = QAction(QIcon("icons/save.png"), "&Save", self)
+        self.actOpenFolder = QAction(QIcon("icons/open.png"), "&Open Folder", self)
+        self.actOpenFolder.setShortcut("Ctrl+O")
+        self.actOpenFolder.setStatusTip("Open folder")
+
+        self.actSave = QAction(QIcon("icons/save.png"), "&Save NOT IMPLEMENTED", self)
         self.actSave.setShortcut("Ctrl+S")
         self.actSave.setStatusTip("Save File")
 
@@ -59,7 +62,8 @@ class View(QMainWindow):
         self.file = menuBar.addMenu("&File")
         self.file.addAction(self.actNew)
         self.file.addSeparator()
-        self.file.addAction(self.actOpen)
+        self.file.addAction(self.actOpenFiles)
+        self.file.addAction(self.actOpenFolder)
         self.file.addAction(self.actSave)
         self.file.addSeparator()
         self.file.addAction(self.actExit)
