@@ -7,7 +7,7 @@ class FileDropListWidget(QListWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setAcceptDrops(True)
-        self.setDragDropMode(QListWidget.DragDrop)
+        self.setDragDropMode(QListWidget.DropOnly)
         self.setSelectionMode(QListWidget.ExtendedSelection)
 
     def dragEnterEvent(self, event: QDragEnterEvent):
@@ -58,7 +58,6 @@ class SettingsView(QWidget):
         # Select Files button
         self.select_files = QPushButton("Select Files")
         layout.addWidget(self.select_files)
-        # self.select_files.clicked.connect(self.load_files)
 
         # Remove Selected button
         self.remove_selected = QPushButton("Remove Selected")
