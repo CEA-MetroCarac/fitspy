@@ -2,7 +2,7 @@ from .plot_model import PlotModel
 
 class Model:
     def __init__(self):
-        self.plot_model = PlotModel()
+        pass
 
     def toggle_plot_fit(self, state):
         if state == 2:  # Qt.Checked

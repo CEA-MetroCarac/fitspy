@@ -56,8 +56,8 @@ class SettingsView(QWidget):
 
         buttons_layout = QHBoxLayout()
 
-        self.open_file = QPushButton("Open Files")
-        buttons_layout.addWidget(self.open_file)
+        self.load_file = QPushButton("Load Files")
+        buttons_layout.addWidget(self.load_file)
 
         self.open_dir = QPushButton("Open Dir.")
         buttons_layout.addWidget(self.open_dir)

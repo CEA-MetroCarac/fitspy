@@ -24,28 +24,7 @@ class PlotView(QWidget):
         self.layout.addWidget(self.canvas)
 
     def display_figure(self, fig):
+        if fig is None:
+            fig = Figure()
+        fig.tight_layout()
         self._init_canvas_and_toolbar(fig)
-# class PlotView(QWidget):
-#     def __init__(self):
-#         super().__init__()
-
-#         # Create a figure and add a subplot
-#         self.figure = Figure()
-#         self.canvas = FigureCanvas(self.figure)
-#         self.ax = self.figure.add_subplot(111)
-
-#         # Create a toolbar for the plot
-#         self.toolbar = NavigationToolbar2QT(self.canvas, self)
-
-#         # Create and set layout for this widget
-#         layout = QVBoxLayout()
-#         layout.addWidget(self.toolbar)
-#         layout.addWidget(self.canvas)
-#         self.setLayout(layout)
-
-#         # Set the title of the plot
-#         self.ax.set_title("DEFAULT")
-
-#         # Set the labels of the plot
-#         self.ax.set_xlabel("X Label")
-#         self.ax.set_ylabel("Y Label")

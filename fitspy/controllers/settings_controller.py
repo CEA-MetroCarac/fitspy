@@ -1,32 +1,44 @@
 from PySide6.QtWidgets import QFileDialog
+from PySide6.QtCore import Signal, QObject
 from models.settings_model import SettingsModel
 
-class SettingsController:
+class SettingsController(QObject):
+    selectionChanged = Signal(list)
+
     def __init__(self, view):
+        super().__init__()
         self.view = view
         self.model = SettingsModel()
         self.setup_actions()
 
     def setup_actions(self):
         """Connect UI actions to controller methods."""
-        self.view.open_file.clicked.connect(self.load_files)
+        self.view.file_list.itemSelectionChanged.connect(self.on_selection_change)
+        self.view.load_file.clicked.connect(self.load_files)
         self.view.open_dir.clicked.connect(self.load_folder)
-        self.view.file_list.filesDropped.connect(self.updateModelWithFiles)
+        self.view.file_list.filesDropped.connect(self.model.set_files)
         self.view.remove_selected.clicked.connect(self.remove_selected_item)
         self.view.remove_all.clicked.connect(self.remove_all_items)
-        self.model.filesChanged.connect(self.on_files_changed)
+        self.model.filesChanged.connect(self.on_files_change)
 
-    def on_files_changed(self, files):
+    def on_selection_change(self):
+        """Update the selected item in the model."""
+        selected_files = [item.text() for item in self.view.file_list.selectedItems()]
+        self.selectionChanged.emit(selected_files)
+
+    def on_files_change(self, files):
         print("Files changed:", files)
-        self.refresh_view()
 
-    def updateModelWithFiles(self, file_paths):
-        """Append new files to model and refresh view."""
-        self.model.set_files(file_paths)
+        self.refresh_view()
+        self.view.file_list.setCurrentRow(0)  # Select the first item
+
+    def select_all_files(self):
+        """Select all items in the list widget."""
+        self.view.file_list.selectAll()
 
     def load_files(self):
         """Open file dialog and update model with selected files."""
-        file_paths = self.open_file_dialog()
+        file_paths = self.load_file_dialog()
         if file_paths:
             self.model.set_files(file_paths)
 
@@ -53,7 +65,7 @@ class SettingsController:
         for file_path in self.model.get_files():
             self.view.file_list.addItem(file_path)
 
-    def open_file_dialog(self):
+    def load_file_dialog(self):
         """Open a file dialog and return the selected file paths."""
         file_paths, _ = QFileDialog.getOpenFileNames(
             parent=self.view,

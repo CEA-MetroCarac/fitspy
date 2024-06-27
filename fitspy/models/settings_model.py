@@ -14,8 +14,7 @@ class SettingsModel(QObject):
         for file in files:
             if file not in self._files:
                 self._files.append(file)
-                file_added = True
-
+                file_added = True           
         if file_added:
             self.filesChanged.emit(self._files)
 

@@ -1,12 +1,14 @@
 from views.view import View
 from models.model import Model
 from .settings_controller import SettingsController
+from .plot_controller import PlotController
 
 class Controller:
     def __init__(self):
         self.view = View()
         self.model = Model()
         self.settings_controller = SettingsController(self.view.settings_view)
+        self.plot_controller = PlotController(self.view.plot_view)
         self.setup_actions()
 
     def setup_actions(self):
@@ -24,7 +26,8 @@ class Controller:
         self.view.toggleShowPeaksLabels.stateChanged.connect(self.model.toggle_show_peaks_labels)
         self.view.residualCoeff.textChanged.connect(self.model.update_residual_coeff)
         self.view.settings_view.show_all.clicked.connect(self.show_all_plot)
+        self.settings_controller.selectionChanged.connect(self.plot_controller.update_plot)
 
     def show_all_plot(self):
-        fig = self.model.plot_model.show_all()
-        self.view.plot_view.display_figure(fig)
+        # Select all files in the list
+        self.settings_controller.select_all_files()
