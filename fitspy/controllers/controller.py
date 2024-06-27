@@ -25,9 +25,5 @@ class Controller:
         self.view.togglePlotResidual.stateChanged.connect(self.model.toggle_plot_residuals)
         self.view.toggleShowPeaksLabels.stateChanged.connect(self.model.toggle_show_peaks_labels)
         self.view.residualCoeff.textChanged.connect(self.model.update_residual_coeff)
-        self.view.settings_view.show_all.clicked.connect(self.show_all_plot)
+        self.view.settings_view.show_all.clicked.connect(self.settings_controller.select_all_files)
         self.settings_controller.selectionChanged.connect(self.plot_controller.update_fig)
-
-    def show_all_plot(self):
-        # Select all files in the list
-        self.settings_controller.select_all_files()
