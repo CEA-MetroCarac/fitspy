@@ -24,7 +24,5 @@ class PlotView(QWidget):
         self.layout.addWidget(self.canvas)
 
     def display_figure(self, fig):
-        if fig is None:
-            fig = Figure()
         fig.tight_layout()
         self._init_canvas_and_toolbar(fig)

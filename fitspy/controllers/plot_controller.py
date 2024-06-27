@@ -10,5 +10,5 @@ class PlotController():
     def setup_actions(self):
         self.model.figureChanged.connect(self.view.display_figure)
 
-    def update_plot(self, selected_files):
-        self.model.update_plot(selected_files)
+    def update_fig(self, selected_files):
+        self.model.update_fig(selected_files)
