@@ -23,3 +23,8 @@ class Controller:
         self.view.togglePlotResidual.stateChanged.connect(self.model.toggle_plot_residuals)
         self.view.toggleShowPeaksLabels.stateChanged.connect(self.model.toggle_show_peaks_labels)
         self.view.residualCoeff.textChanged.connect(self.model.update_residual_coeff)
+        self.view.settings_view.show_all.clicked.connect(self.show_all_plot)
+
+    def show_all_plot(self):
+        fig = self.model.plot_model.show_all()
+        self.view.plot_view.display_figure(fig)

@@ -1,6 +1,8 @@
+from .plot_model import PlotModel
+
 class Model:
     def __init__(self):
-        pass
+        self.plot_model = PlotModel()
 
     def toggle_plot_fit(self, state):
         if state == 2:  # Qt.Checked

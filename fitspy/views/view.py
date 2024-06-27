@@ -21,8 +21,8 @@ class View(QMainWindow):
         self.createActions()
         self.createMenuBar()
 
-        self.plot_area = PlotView()
-        layout.addWidget(self.plot_area)
+        self.plot_view = PlotView()
+        layout.addWidget(self.plot_view)
 
         self.main_settings_dock = QDockWidget("Main Settings", self)
         self.settings_view = SettingsView()
