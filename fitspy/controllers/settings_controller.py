@@ -5,14 +5,12 @@ from models.settings_model import SettingsModel
 class SettingsController(QObject):
     selectionChanged = Signal(list)
 
-    def __init__(self, view, plot_controller):
+    def __init__(self, view):
         super().__init__()
         self.view = view
         self.model = SettingsModel()
-        self.plot_controller = plot_controller
-        self.setup_actions()
 
-    def setup_actions(self):
+    def setup_actions(self, plot_controller):
         """Connect UI actions to controller methods."""
         self.view.file_list.itemSelectionChanged.connect(self.on_selection_change)
         self.view.load_file.clicked.connect(self.load_files)
@@ -20,8 +18,14 @@ class SettingsController(QObject):
         self.view.file_list.filesDropped.connect(self.model.set_files)
         self.view.remove_selected.clicked.connect(self.remove_selected_item)
         self.view.remove_all.clicked.connect(self.model.clear_files)
-        self.model.frame_map_requested.connect(self.plot_controller.frame_map_init)
+        self.model.frame_map_requested.connect(plot_controller.frame_map_init)
+        self.model.spectra_map_init.connect(plot_controller.spectra_map_init)
+        self.model.spectrum_requested.connect(plot_controller.spectrum_init)
         self.model.files_changed.connect(self.refresh_view)
+
+    def extend_files(self, files):
+        """Add files to the file list widget."""
+        self.model.extend_files(files)
 
     def select_all_files(self):
         """Select all items in the list widget."""

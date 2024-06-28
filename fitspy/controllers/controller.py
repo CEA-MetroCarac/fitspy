@@ -7,8 +7,13 @@ class Controller:
     def __init__(self):
         self.view = View()
         self.model = Model()
+
         self.plot_controller = PlotController(self.view.plot_view)
-        self.settings_controller = SettingsController(self.view.settings_view, self.plot_controller)
+        self.settings_controller = SettingsController(self.view.settings_view)
+
+        self.plot_controller.setup_actions(self.settings_controller)
+        self.settings_controller.setup_actions(self.plot_controller)
+
         self.setup_actions()
 
     def setup_actions(self):

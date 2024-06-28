@@ -1,5 +1,6 @@
+# TODO: no data in frame_map_view
 import os
-from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QTabWidget
+from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QTabWidget
 from PySide6.QtCore import Qt
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas

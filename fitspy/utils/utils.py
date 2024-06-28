@@ -149,3 +149,8 @@ def load_models_from_py(fname):
     """ Load models from '.py' file (See the documentation for more details) """
     if Path(fname).exists():
         runpy.run_path(fname)
+
+def is_2d_map(fname):
+    """ Check if the file is a 2D-map """
+    with open(fname, 'r') as fid:
+        return fid.readline().startswith("\t")
