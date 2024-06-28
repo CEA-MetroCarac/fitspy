@@ -7,7 +7,7 @@ class PlotView(QWidget):
         super().__init__(parent)
         self.layout = QVBoxLayout(self)
         self._init_canvas_and_toolbar(Figure())
-
+        
     def _init_canvas_and_toolbar(self, fig):
         # If canvas or toolbar exists, remove them
         if hasattr(self, 'canvas'):

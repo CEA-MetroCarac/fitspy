@@ -19,7 +19,7 @@ class SettingsController(QObject):
         self.view.file_list.filesDropped.connect(self.model.set_files)
         self.view.remove_selected.clicked.connect(self.remove_selected_item)
         self.view.remove_all.clicked.connect(self.model.clear_files)
-        self.model.filesChanged.connect(self.on_files_change)
+        self.model.filesChanged.connect(self.refresh_view)
 
     def select_all_files(self):
         """Select all items in the list widget."""
@@ -30,13 +30,6 @@ class SettingsController(QObject):
         Emits a signal with the selected files."""
         selected_files = [item.text() for item in self.view.file_list.selectedItems()]
         self.selectionChanged.emit(selected_files)  # Used to connect selection change to plot update via main controller
-
-    def on_files_change(self, files):
-        """Triggered when the loaded files in model change."""
-        print("Files changed:", files)
-
-        self.refresh_view()
-        self.view.file_list.setCurrentRow(0)  # Select the first item
 
     def load_files(self):
         """Open file dialog and update model with selected files."""
@@ -57,11 +50,14 @@ class SettingsController(QObject):
             files_to_del = [item.text() for item in files_to_del]
             self.model.remove_file(files_to_del)
 
-    def refresh_view(self):
+    def refresh_view(self, files):
         """Refresh the file list widget with the files from the model."""
+        # print("Files changed:", files)
         self.view.file_list.clear()
         for file_path in self.model.get_files():
             self.view.file_list.addItem(file_path)
+
+        self.view.file_list.setCurrentRow(0)
 
     def load_file_dialog(self):
         """Open a file dialog and return the selected file paths."""

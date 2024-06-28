@@ -8,12 +8,13 @@ class PlotModel(QObject):
     def __init__(self):
         super().__init__()
         self.fig = None
-    
+        self.spectra_maps = []
+
     def update_fig(self, selected_files):
         # PLACEHOLDER
         print("Selected files:", selected_files)
         self.fig = Figure()
-        
+
         if not selected_files:
             self.figureChanged.emit(self.fig)
         else:
