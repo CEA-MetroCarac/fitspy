@@ -2,6 +2,8 @@ from matplotlib.backends.backend_qtagg import FigureCanvas, NavigationToolbar2QT
 from matplotlib.figure import Figure
 from PySide6.QtWidgets import QWidget, QVBoxLayout
 
+from .frame_map import FrameMap
+
 class PlotView(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -22,6 +24,10 @@ class PlotView(QWidget):
         self.toolbar = NavigationToolbar2QT(self.canvas, self)
         self.layout.addWidget(self.toolbar)
         self.layout.addWidget(self.canvas)
+
+    def frame_map_init(self, spectra_map):
+        self.frame_map_window = FrameMap(spectra_map)
+        self.frame_map_window.show()
 
     def display_figure(self, fig):
         fig.tight_layout()

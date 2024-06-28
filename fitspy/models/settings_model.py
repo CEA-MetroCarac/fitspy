@@ -5,19 +5,12 @@ from PySide6.QtCore import QObject, Signal
 from utils import SpectraMap
 
 class SettingsModel(QObject):
-    filesChanged = Signal(list)  # Signal to emit when the files list changes
+    files_changed = Signal(list)
+    frame_map_requested = Signal(object)
 
     def __init__(self):
         super().__init__()
         self._files = []
-
-    def frame_map_creation(self, spectra_map):
-        xy_map = spectra_map.xy_map
-
-        if spectra_map.marker is not None:
-            [x.remove() for x in spectra_map.marker]
-        
-        # TODO
 
 
     def create_map(self, file):
@@ -26,10 +19,7 @@ class SettingsModel(QObject):
 
         spectra_map = SpectraMap()
         spectra_map.create_map(file)
-        # TODO spectra_maps should be in plot_model
-        # self.spectra_maps.append(spectra_map)
-        # self.frame_map_creation(spectra_map)
-        # spectra_map.plot_map(spectra_map.ax)
+        self.frame_map_requested.emit(spectra_map)
 
         # remove 2D-map filename in the fileselector
         self._files.remove(file)
@@ -39,7 +29,7 @@ class SettingsModel(QObject):
         
         # update the file list widget
         self._files.extend(fnames)
-        self.filesChanged.emit(self._files)
+        self.files_changed.emit(self._files)
 
     def set_files(self, files):
         file_added = False
@@ -57,7 +47,7 @@ class SettingsModel(QObject):
                         pass
                         # TODO sepctrum creation, load_profile... 
         if file_added:
-            self.filesChanged.emit(self._files)
+            self.files_changed.emit(self._files)
 
     def set_folder(self, folder):
         """loads all *.txt files from a folder path"""
@@ -68,11 +58,11 @@ class SettingsModel(QObject):
     def remove_file(self, files):
         for file in files:
             self._files.remove(file)
-        self.filesChanged.emit(self._files)
+        self.files_changed.emit(self._files)
 
     def clear_files(self):
         self._files = []
-        self.filesChanged.emit(self._files)  # Emit signal when files list is cleared
+        self.files_changed.emit(self._files)  # Emit signal when files list is cleared
 
     def get_files(self):
         return self._files

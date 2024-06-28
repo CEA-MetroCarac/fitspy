@@ -12,3 +12,7 @@ class PlotController():
 
     def update_fig(self, selected_files):
         self.model.update_fig(selected_files)
+
+    def frame_map_init(self, spectra_map):
+        print("Frame map creation")
+        self.view.frame_map_init(spectra_map)

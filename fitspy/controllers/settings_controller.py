@@ -5,10 +5,11 @@ from models.settings_model import SettingsModel
 class SettingsController(QObject):
     selectionChanged = Signal(list)
 
-    def __init__(self, view):
+    def __init__(self, view, plot_controller):
         super().__init__()
         self.view = view
         self.model = SettingsModel()
+        self.plot_controller = plot_controller
         self.setup_actions()
 
     def setup_actions(self):
@@ -19,7 +20,8 @@ class SettingsController(QObject):
         self.view.file_list.filesDropped.connect(self.model.set_files)
         self.view.remove_selected.clicked.connect(self.remove_selected_item)
         self.view.remove_all.clicked.connect(self.model.clear_files)
-        self.model.filesChanged.connect(self.refresh_view)
+        self.model.frame_map_requested.connect(self.plot_controller.frame_map_init)
+        self.model.files_changed.connect(self.refresh_view)
 
     def select_all_files(self):
         """Select all items in the list widget."""
