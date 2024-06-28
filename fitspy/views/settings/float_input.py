@@ -18,6 +18,12 @@ class FloatInput(QWidget):
         layout.addWidget(self.floatSpinBox)
         self.setLayout(layout)
 
+    def setValue(self, value):
+        self.floatSpinBox.setValue(value)
+
+    def value(self):
+        return self.floatSpinBox.value()
+
 if __name__ == "__main__":
     from PySide6.QtWidgets import QApplication
     app = QApplication([])

@@ -18,6 +18,7 @@ class SettingsController(QObject):
         self.view.file_list.filesDropped.connect(self.model.set_files)
         self.view.remove_selected.clicked.connect(self.remove_selected_item)
         self.view.remove_all.clicked.connect(self.model.clear_files)
+        self.view.overall_settings.attractors_settings_dialog.parametersUpdated.connect(plot_controller.set_settings)
         self.model.frame_map_requested.connect(plot_controller.frame_map_init)
         self.model.spectra_map_init.connect(plot_controller.spectra_map_init)
         self.model.spectrum_requested.connect(plot_controller.spectrum_init)

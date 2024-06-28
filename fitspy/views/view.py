@@ -5,8 +5,9 @@ from .settings_view import SettingsView
 from .plot_view import PlotView
 
 class View(QMainWindow):
-    def __init__(self):
+    def __init__(self, attractors_settings):
         super().__init__()
+        self.attractors_settings = attractors_settings
         self.init_ui()
 
     def init_ui(self):
@@ -25,7 +26,7 @@ class View(QMainWindow):
         layout.addWidget(self.plot_view)
 
         self.main_settings_dock = QDockWidget("Main Settings", self)
-        self.settings_view = SettingsView()
+        self.settings_view = SettingsView(self.attractors_settings)
         self.main_settings_dock.setWidget(self.settings_view)
         self.main_settings_dock.setFloating(False)
 

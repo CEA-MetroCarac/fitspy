@@ -8,11 +8,11 @@ class PlotModel(QObject):
     figureChanged = Signal(Figure)
     extendFiles = Signal(list)
 
-    def __init__(self):
+    def __init__(self, attractors_settings):
         super().__init__()
         self.fig = None
         self.spectra = Spectra()
-        self.spectra_maps = []
+        self.attractors_params = attractors_settings
 
     def update_fig(self, selected_files):
         print("Selected files:", selected_files)
@@ -24,7 +24,10 @@ class PlotModel(QObject):
             ax = self.fig.add_subplot(111)
             for fname in selected_files:
                 current_spectrum, _ = self.spectra.get_objects(fname)
-                lines = current_spectrum.plot(ax)
+                current_spectrum.attractors_params = self.attractors_params
+                current_spectrum.attractors_calculation()
+                lines = current_spectrum.plot(ax,
+                                              show_attractors=True,)
 
 
             self.figureChanged.emit(self.fig)
@@ -34,7 +37,6 @@ class PlotModel(QObject):
         print("Spectrum creation")
         spectrum = Spectrum()
         spectrum.load_profile(file)
-        # spectrum.attractors_params = attractors_params
         self.spectra.append(spectrum)
 
     def spectra_map_init(self, file):
