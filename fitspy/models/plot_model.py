@@ -8,27 +8,35 @@ class PlotModel(QObject):
     figureChanged = Signal(Figure)
     extendFiles = Signal(list)
 
-    def __init__(self, attractors_settings):
+    def __init__(self, settings):
         super().__init__()
         self.fig = None
         self.spectra = Spectra()
-        self.attractors_params = attractors_settings
+        self.settings = settings
 
     def update_fig(self, selected_files):
-        print("Selected files:", selected_files)
-        self.fig = Figure()
+        """ Update the figure with the selected files """
+        # Clear the existing figure before plotting anew
+        if self.fig is not None:
+            self.fig.clear()
+        else:
+            self.fig = Figure()
 
         if not selected_files:
             self.figureChanged.emit(self.fig)
         else:
             ax = self.fig.add_subplot(111)
+            show_attractors = self.settings["attractors_params"]["enabled"]
             for fname in selected_files:
                 current_spectrum, _ = self.spectra.get_objects(fname)
-                current_spectrum.attractors_params = self.attractors_params
+
+                attractors_params_copy = self.settings["attractors_params"].copy()
+                attractors_params_copy.pop("enabled", False)
+
+                current_spectrum.attractors_params = attractors_params_copy
                 current_spectrum.attractors_calculation()
                 lines = current_spectrum.plot(ax,
-                                              show_attractors=True,)
-
+                                              show_attractors=show_attractors,)
 
             self.figureChanged.emit(self.fig)
 

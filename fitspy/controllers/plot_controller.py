@@ -1,17 +1,19 @@
 from models.plot_model import PlotModel
 
 class PlotController():
-    def __init__(self, view, attractors_settings):
+    def __init__(self, view, settings):
         super().__init__()
         self.view = view
-        self.model = PlotModel(attractors_settings)
+        self.model = PlotModel(settings)
 
     def setup_actions(self, settings_controller):
         self.model.figureChanged.connect(self.view.display_figure)
         self.model.extendFiles.connect(settings_controller.extend_files)
 
-    def set_settings(self, settings):
-        self.model.attractors_params = settings
+    def set_settings(self, settings, selected_files):
+        for key, value in settings.items():
+            self.model.settings[key] = value
+        self.update_fig(selected_files)
 
     def update_fig(self, selected_files):
         self.model.update_fig(selected_files)

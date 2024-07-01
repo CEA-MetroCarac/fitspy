@@ -8,10 +8,10 @@ class Controller:
     def __init__(self):
         config = toml.load("fitspy/config.toml")
 
-        self.view = View(config["attractors_params"])
+        self.view = View(config)
         self.model = Model()
 
-        self.plot_controller = PlotController(self.view.plot_view, config["attractors_params"])
+        self.plot_controller = PlotController(self.view.plot_view, config)
         self.settings_controller = SettingsController(self.view.settings_view)
 
         self.plot_controller.setup_actions(self.settings_controller)

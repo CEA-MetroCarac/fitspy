@@ -51,7 +51,7 @@ class FileDropListWidget(QListWidget):
             painter.restore()
 
 class SettingsView(QWidget):
-    def __init__(self, attractors_settings):
+    def __init__(self, settings):
         super().__init__()
 
         buttons_layout = QHBoxLayout()
@@ -90,7 +90,7 @@ class SettingsView(QWidget):
         second_row_layout.addWidget(self.reset_all)
 
         # Settings widgets
-        self.overall_settings = OverallSettings(attractors_settings)
+        self.overall_settings = OverallSettings(settings["attractors_params"])
         self.baseline_settings = BaselineSettings()
         self.normalization_settings = NormalizationSettings()
         self.fitting_settings = FittingSettings()

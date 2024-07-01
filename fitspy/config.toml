@@ -1,4 +1,5 @@
 [attractors_params]
+enabled = true
 distance = 20
 prominence = 0
 width = 0
