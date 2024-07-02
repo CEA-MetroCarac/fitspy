@@ -137,6 +137,7 @@ class Spectrum:
         self.peak_index = itertools.count(start=1)
         self.fit_params = FIT_PARAMS
         self.result_fit = lambda: None
+        self.plot_elements = {}
 
     def set_attributes(self, model_dict):
         """Set attributes from a dictionary (obtained from a .json reloading)"""
@@ -658,79 +659,120 @@ class Spectrum:
             y = y0 - self.result_fit.best_fit
             if y.max() < 0.05 * y0.max():
                 is_ok = False
+    
+    def set_main_line(self, ax, linewidth=0.5):
+        x,y = self.x, self.y
+        main_line, = ax.plot(x, y, 'ko-', lw=linewidth, ms=1)
+        self.plot_elements['main_line'] = main_line
 
-    def plot(self, ax,
-             show_attractors=True, show_outliers=True, show_outliers_limit=True,
-             show_negative_values=True, show_noise_level=True,
-             show_baseline=True, show_background=True,
-             show_peak_models=True, show_result=True):
-        """ Plot the spectrum with the peak models """
-        lines = []
-        x, y = self.x, self.y
-        linewidth = 0.5
-        if hasattr(self.result_fit, 'success') and self.result_fit.success:
-            linewidth = 1
+    def set_attractors(self, ax, ms=4):
+        self.attractors_calculation()
+        if self.attractors is not None:
+            x,y,inds = self.x, self.y, self.attractors
+            attractors, = ax.plot(x[inds], y[inds], 'go', ms=ms, label="Attractors")
+            self.plot_elements['attractors'] = attractors
 
-        ax.plot(x, y, 'ko-', lw=0.5, ms=1)
-        # ax.plot(x, self.y_no_outliers, 'k', ls='dotted', lw=linewidth)
+    def set_outliers(self, ax):
+        """ Set outliers points in the spectrum """
+        x_outliers, y_outliers = self.calculate_outliers()
+        if x_outliers is not None:
+            outliers, = ax.plot(x_outliers, y_outliers, 'o', c='lime', label='Outliers')
+            self.plot_elements['outliers'] = outliers
 
-        if show_attractors and self.attractors is not None:
-            inds = self.attractors
-            ax.plot(x[inds], y[inds], 'go', ms=4, label="Attractors")
+    def set_outliers_limit(self, ax):
+        """ Set outliers limit in the spectrum """
+        if self.outliers_limit is not None:
+            imin, imax = list(self.x0).index(self.x[0]), list(self.x0).index(self.x[-1])
+            y_lim = self.outliers_limit[imin:imax + 1]
+            outliers_limit, = ax.plot(self.x, y_lim, 'r-', lw=2, label='Outliers limit')
+            self.plot_elements['outliers_limit'] = outliers_limit
 
-        if show_outliers:
-            x_outliers, y_outliers = self.calculate_outliers()
-            if x_outliers is not None:
-                ax.plot(x_outliers, y_outliers, 'o', c='lime', label='Outliers')
+    def set_negative_values(self, ax):
+        """ Set negative values in the spectrum """
+        negative_values, = ax.plot(self.x[self.y < 0], self.y[self.y < 0], 'ro', ms=4, label='Negative values')
+        self.plot_elements['negative_values'] = negative_values
 
-        if show_outliers_limit and self.outliers_limit is not None:
-            imin, imax = list(self.x0).index(x[0]), list(self.x0).index(x[-1])
-            y_lim = self.outliers_limit[imin:imax + 1]  # pylint:disable=E1136
-            ax.plot(x, y_lim, 'r-', lw=2, label='Outliers limit')
+    def set_noise_level(self, ax):
+        """ Set noise level in the spectrum """
+        ampli_noise = np.median(np.abs(self.y[:-1] - self.y[1:]) / 2)
+        y_noise_level = self.fit_params['coef_noise'] * ampli_noise
+        noise_level = ax.hlines(y=y_noise_level, xmin=self.x[0], xmax=self.x[-1], colors='r',
+                                linestyles='dashed', lw=0.5, label="Noise level")
+        self.plot_elements['noise_level'] = noise_level
 
-        if show_negative_values:
-            ax.plot(x[y < 0], y[y < 0], 'ro', ms=4, label="Negative values")
+    def set_baseline(self, ax):
+        """ Set the baseline in the spectrum """
+        if self.baseline.is_subtracted:
+            baseline = self.baseline.plot(ax, x=self.x, show_all=False)
+            self.plot_elements['baseline'] = baseline
 
-        if show_noise_level:
-            ampli_noise = np.median(np.abs(y[:-1] - y[1:]) / 2)
-            y_noise_level = self.fit_params['coef_noise'] * ampli_noise
-            ax.hlines(y=y_noise_level, xmin=x[0], xmax=x[-1], colors='r',
-                      linestyles='dashed', lw=0.5, label="Noise level")
-
-        if show_baseline and self.baseline.is_subtracted:
-            self.baseline.plot(ax, x=x, show_all=False)
-
-        y_bkg = np.zeros_like(x)
+    def set_background(self, ax, flag=True):
+        """ Set the background in the spectrum """
         if self.bkg_model is not None:
-            y_bkg = self.bkg_model.eval(self.bkg_model.make_params(), x=x)
+            self.y_bkg = self.bkg_model.eval(self.bkg_model.make_params(), x=self.x)
+        else:
+            self.y_bkg = np.zeros_like(self.x)
+        if flag:
+            background, = ax.plot(self.x, self.y_bkg, 'k--', lw=0.5, label="Background")
+            self.plot_elements['background'] = background
 
-        if show_background and self.bkg_model is not None:
-            line, = ax.plot(x, y_bkg, 'k--', lw=linewidth, label="Background")
-            lines.append(line)
-
-        ax.set_prop_cycle(None)
-        y_peaks = np.zeros_like(x)
+    def set_peak_models(self, ax, flag=True):
+        """ Set the peak models in the spectrum """
+        self.y_peaks = np.zeros_like(self.x)
+        peak_lines = []
         for peak_model in self.peak_models:
-            # remove temporarily 'expr' that can be related to another model
             param_hints_orig = deepcopy(peak_model.param_hints)
             for key, _ in peak_model.param_hints.items():
                 peak_model.param_hints[key]['expr'] = ''
             params = peak_model.make_params()
-            # rassign 'expr'
             peak_model.param_hints = param_hints_orig
 
-            y_peak = peak_model.eval(params, x=x)
-            y_peaks += y_peak
+            y_peak = peak_model.eval(params, x=self.x)
+            self.y_peaks += y_peak
+            if flag:
+                peak_line, = ax.plot(self.x, y_peak, lw=0.5)
+                peak_lines.append(peak_line)
+        self.plot_elements['peak_models'] = peak_lines
 
-            if show_peak_models:
-                line, = ax.plot(x, y_peak, lw=linewidth)
-                lines.append(line)
+    def plot(self, ax,
+         show_attractors=True, show_outliers=True, show_outliers_limit=True,
+         show_negative_values=True, show_noise_level=True,
+         show_baseline=True, show_background=True,
+         show_peak_models=True, show_result=True):
+        """Plot the spectrum with the peak models"""
+        plot_elements = {}
+        linewidth = 1 if hasattr(self.result_fit, 'success') and self.result_fit.success else 0.5
+
+        self.set_main_line(ax, linewidth)
+
+        if show_attractors:
+            self.set_attractors(ax)
+
+        if show_outliers:
+            self.set_outliers(ax)
+
+        if show_outliers_limit:
+            self.set_outliers_limit(ax)
+
+        if show_negative_values:
+            self.set_negative_values(ax)
+
+        if show_noise_level:
+            self.set_noise_level(ax)
+
+        if show_baseline:
+            self.set_baseline(ax)
+
+        self.set_background(ax, show_background)
+
+        self.set_peak_models(ax, show_peak_models)
 
         if show_result and hasattr(self.result_fit, 'success'):
-            y_fit = y_bkg + y_peaks
-            ax.plot(x, y_fit, 'b', lw=linewidth, label="Fitted profile")
+            y_fit = self.y_bkg + self.y_peaks
+            result, = ax.plot(self.x, y_fit, 'b', lw=linewidth, label="Fitted profile")
+            plot_elements['result'] = result
 
-        return lines
+        # return plot_elements
 
     def plot_residual(self, ax, factor=1):
         """ Plot the residual x factor obtained after fitting """

@@ -6,6 +6,7 @@ from utils import Spectrum, Spectra, SpectraMap
 
 class PlotModel(QObject):
     figureChanged = Signal(Figure)
+    elementVisibilityToggled = Signal()
     extendFiles = Signal(list)
 
     def __init__(self, settings):
@@ -13,10 +14,13 @@ class PlotModel(QObject):
         self.fig = None
         self.spectra = Spectra()
         self.settings = settings
+        self.selected_files = []
 
     def update_fig(self, selected_files):
         """ Update the figure with the selected files """
-        # Clear the existing figure before plotting anew
+        self.selected_files = selected_files
+
+        # Clear the existing figure before plotting a new
         if self.fig is not None:
             self.fig.clear()
         else:
@@ -34,11 +38,48 @@ class PlotModel(QObject):
                 attractors_params_copy.pop("enabled", False)
 
                 current_spectrum.attractors_params = attractors_params_copy
-                current_spectrum.attractors_calculation()
-                lines = current_spectrum.plot(ax,
-                                              show_attractors=show_attractors,)
+                current_spectrum.plot(ax, show_attractors=show_attractors)
 
             self.figureChanged.emit(self.fig)
+
+    def toggle_element_visibility(self, element_key):
+        """Toggle the visibility of a plot element for given spectra.
+        
+        Args:
+            element_key (str): Can be 'main_line', 'attractors', 'outliers', 'outliers_limit', 'negative_values', 'noise_level', 'baseline', 'background', 'peak_models' or 'result'.
+        """
+        if not self.fig.axes:
+            return
+
+        ax = self.fig.axes[0]
+        canvas = self.fig.canvas
+        updated_elements = set()
+
+        # Save the initial canvas background
+        background = canvas.copy_from_bbox(self.fig.bbox)
+
+        for fname in self.selected_files:
+            spectrum, _ = self.spectra.get_objects(fname)
+            if spectrum and element_key in spectrum.plot_elements:
+                elements = spectrum.plot_elements[element_key]
+                if not isinstance(elements, (list, tuple)):
+                    elements = [elements]
+
+                for element in elements:
+                    element.set_visible(not element.get_visible())
+                    updated_elements.add(element)
+
+        # Restore the background
+        canvas.restore_region(background)
+
+        # Redraw only the elements that were toggled
+        for element in updated_elements:
+            ax.draw_artist(element)
+
+        # Blit the updated regions
+        canvas.blit(self.fig.bbox)
+
+        self.elementVisibilityToggled.emit()
 
     def spectrum_init(self, file):
         """ Create a Spectrum object from a file and add it to the spectra list """
@@ -61,3 +102,17 @@ class PlotModel(QObject):
 
         # update the file list widget
         self.extendFiles.emit(fnames)
+
+    def set_outliers_coeff(self, value):
+        """ Set the outliers coefficient """
+        self.settings["outliers_coef"] = value
+        print("Outliers coefficient set to:", value)
+
+    def outliers_calculation(self):
+        """ Calculate the outliers (limit) """
+        coef = float(self.outliers_coef.get())
+        self.spectra.outliers_limit_calculation(coef=coef)
+        # if self.is_show_all:
+        #     self.show_all()
+        # else:
+        #     self.plot()

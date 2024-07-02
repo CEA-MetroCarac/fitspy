@@ -8,8 +8,8 @@ from matplotlib.widgets import RangeSlider
 from parse import Parser
 
 from fitspy.utils import closest_index
-from fitspy.spectra import Spectra
-from fitspy.spectrum import Spectrum
+from .spectra import Spectra
+from .spectrum import Spectrum
 
 POLICY = "{name}  X={x}  Y={y}"
 PARSER = Parser(POLICY)

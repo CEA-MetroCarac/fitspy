@@ -1,12 +1,15 @@
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QDoubleSpinBox
+from PySide6.QtCore import Signal
 
 class FloatInput(QWidget):
+    valueChanged = Signal(float)
+
     def __init__(self, min_value=-999.0, max_value=999.0, decimals=2, step=1.0):
         super().__init__()
         self.min_value = min_value
         self.max_value = max_value
         self.decimals = decimals
-        self.step = step  # Add step as an instance variable
+        self.step = step
         self.initUI()
 
     def initUI(self):
@@ -17,6 +20,8 @@ class FloatInput(QWidget):
         self.floatSpinBox.setSingleStep(self.step)  # Set the step size
         layout.addWidget(self.floatSpinBox)
         self.setLayout(layout)
+
+        self.floatSpinBox.valueChanged.connect(self.valueChanged.emit)
 
     def setValue(self, value):
         self.floatSpinBox.setValue(value)

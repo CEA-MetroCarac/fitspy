@@ -3,7 +3,8 @@ from PySide6.QtCore import Signal
 from .float_input import FloatInput
 
 class AttractorsSettingsDialog(QDialog):
-    parametersUpdated = Signal(dict)
+    params_updated = Signal(dict)
+    toggle_element_visibility = Signal(str)
 
     def __init__(self, attractors_settings, enabled):
         super().__init__()
@@ -50,7 +51,7 @@ class AttractorsSettingsDialog(QDialog):
             "enabled": enabled
         }
     }
-        self.parametersUpdated.emit(params)
+        self.params_updated.emit(params)
         self.accept()
 
 class OverallSettings(QGroupBox):
@@ -62,7 +63,12 @@ class OverallSettings(QGroupBox):
         self.attractors_layout = QHBoxLayout()
         self.attractors = QCheckBox("Attractors")
         self.attractors.setChecked(attractors_settings["enabled"])
-        self.attractors.stateChanged.connect(lambda state: self.update_attractors_enabled(state))
+
+        # Create the dialog once and keep it for toggling visibility
+        self.attractors_settings_dialog = AttractorsSettingsDialog(attractors_settings, self.attractors.isChecked)
+        self.attractors_settings_dialog.setVisible(False)
+
+        self.attractors.stateChanged.connect(lambda: self.attractors_settings_dialog.toggle_element_visibility.emit("attractors"))
         self.attractors_layout.addWidget(self.attractors)
         self.attractors_settings = QPushButton("Attractors Settings")
         self.attractors_settings.clicked.connect(self.toggle_attractors_settings_dialog)
@@ -76,23 +82,6 @@ class OverallSettings(QGroupBox):
         self.outliers_layout.addWidget(QLabel("Coef:"))
         self.outliers_layout.addWidget(self.outliers_coeff)
         self.layout.addLayout(self.outliers_layout)
-
-        # Create the dialog once and keep it for toggling visibility
-        self.attractors_settings_dialog = AttractorsSettingsDialog(attractors_settings, self.attractors.isChecked)
-        self.attractors_settings_dialog.setVisible(False)  # Initially hidden
-
-    def update_attractors_enabled(self, state):
-        # Fetch current settings from the dialog
-        current_settings = {
-            "distance": self.attractors_settings_dialog.distance_input.value(),
-            "prominence": self.attractors_settings_dialog.prominence_input.value(),
-            "width": self.attractors_settings_dialog.width_input.value(),
-            "height": self.attractors_settings_dialog.height_input.value(),
-            "threshold": self.attractors_settings_dialog.threshold_input.value(),
-            "enabled": state == 2  # Update the enabled state based on the checkbox
-        }
-        # Emit the updated parameters
-        self.attractors_settings_dialog.parametersUpdated.emit({"attractors_params": current_settings})
 
     def toggle_attractors_settings_dialog(self):
         # Toggle the visibility of the dialog

@@ -18,13 +18,17 @@ class SettingsController(QObject):
         self.view.file_list.filesDropped.connect(self.model.set_files)
         self.view.remove_selected.clicked.connect(self.remove_selected_item)
         self.view.remove_all.clicked.connect(self.model.clear_files)
-        self.view.overall_settings.attractors_settings_dialog.parametersUpdated.connect(
-            lambda params: plot_controller.set_settings(params, [item.text() for item in self.view.file_list.selectedItems()])
-        )
+        self.view.overall_settings.attractors_settings_dialog.toggle_element_visibility.connect(plot_controller.toggle_element_visibility)
+        self.view.overall_settings.attractors_settings_dialog.params_updated.connect(plot_controller.update_attractors)
+        # self.view.overall_settings.outliers_coeff.valueChanged.connect(lambda value: plot_controller.set_settings({"outliers_params": {"coeff":value}},[item.text() for item in self.view.file_list.selectedItems()]))
         self.model.frame_map_requested.connect(plot_controller.frame_map_init)
         self.model.spectra_map_init.connect(plot_controller.spectra_map_init)
         self.model.spectrum_requested.connect(plot_controller.spectrum_init)
         self.model.files_changed.connect(self.refresh_view)
+
+    def get_selected_files(self):
+        """Return the list of selected files."""
+        return [item.text() for item in self.view.file_list.selectedItems()]
 
     def extend_files(self, files):
         """Add files to the file list widget."""
