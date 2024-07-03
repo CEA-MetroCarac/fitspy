@@ -19,7 +19,7 @@ class SettingsController(QObject):
         self.view.remove_selected.clicked.connect(self.remove_selected_item)
         self.view.remove_all.clicked.connect(self.model.clear_files)
         self.view.overall_settings.attractors_settings_dialog.toggle_element_visibility.connect(plot_controller.toggle_element_visibility)
-        self.view.overall_settings.attractors_settings_dialog.params_updated.connect(plot_controller.update_attractors)
+        self.view.overall_settings.attractors_settings_dialog.params_updated.connect(plot_controller.set_settings)
         # self.view.overall_settings.outliers_coeff.valueChanged.connect(lambda value: plot_controller.set_settings({"outliers_params": {"coeff":value}},[item.text() for item in self.view.file_list.selectedItems()]))
         self.model.frame_map_requested.connect(plot_controller.frame_map_init)
         self.model.spectra_map_init.connect(plot_controller.spectra_map_init)
