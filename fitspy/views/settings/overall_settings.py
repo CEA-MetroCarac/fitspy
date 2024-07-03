@@ -13,8 +13,7 @@ class AttractorsSettingsDialog(QDialog):
         layout = QFormLayout()
 
         # Create and add settings fields
-        self.distance_input = FloatInput()
-        self.distance_input.setValue(attractors_settings["distance"])
+        self.distance_input = FloatInput(default=attractors_settings["distance"])
         layout.addRow("Distance:", self.distance_input)
 
         self.prominence_input = FloatInput()
@@ -42,7 +41,7 @@ class AttractorsSettingsDialog(QDialog):
     def update_parameters(self):
         enabled = self.enabled()
         params = {
-        "attractors_params": {
+        "attractors": {
             "distance": self.distance_input.value(),
             "prominence": self.prominence_input.value(),
             "width": self.width_input.value(),
@@ -55,8 +54,9 @@ class AttractorsSettingsDialog(QDialog):
         self.accept()
 
 class OverallSettings(QGroupBox):
-    def __init__(self, attractors_settings):
+    def __init__(self, settings):
         super().__init__("Overall Settings")
+        attractors_settings = settings["attractors"]
         self.layout = QVBoxLayout()
         self.setLayout(self.layout)
 
@@ -78,7 +78,7 @@ class OverallSettings(QGroupBox):
         self.outliers_layout = QHBoxLayout()
         self.calc_outliers = QPushButton("Outliers Calc.")
         self.outliers_layout.addWidget(self.calc_outliers)
-        self.outliers_coeff = FloatInput()
+        self.outliers_coeff = FloatInput(default=settings["outliers"]["coef"], step=0.1)
         self.outliers_layout.addWidget(QLabel("Coef:"))
         self.outliers_layout.addWidget(self.outliers_coeff)
         self.layout.addLayout(self.outliers_layout)

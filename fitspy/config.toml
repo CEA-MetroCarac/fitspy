@@ -1,4 +1,4 @@
-[attractors_params]
+[attractors]
 enabled = true
 distance = 20
 prominence = 0
@@ -6,5 +6,5 @@ width = 0
 height = 0
 threshold = 0
 
-[outliers_params]
-coeff = 1.5
+[outliers]
+coef = 1.5

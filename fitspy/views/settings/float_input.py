@@ -4,8 +4,9 @@ from PySide6.QtCore import Signal
 class FloatInput(QWidget):
     valueChanged = Signal(float)
 
-    def __init__(self, min_value=-999.0, max_value=999.0, decimals=2, step=1.0):
+    def __init__(self,default=0 , min_value=-999.0, max_value=999.0, decimals=2, step=1.0):
         super().__init__()
+        self.default = default
         self.min_value = min_value
         self.max_value = max_value
         self.decimals = decimals
@@ -22,6 +23,7 @@ class FloatInput(QWidget):
         self.setLayout(layout)
 
         self.floatSpinBox.valueChanged.connect(self.valueChanged.emit)
+        self.setValue(self.default)
 
     def setValue(self, value):
         self.floatSpinBox.setValue(value)

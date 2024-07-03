@@ -90,7 +90,7 @@ class SettingsView(QWidget):
         second_row_layout.addWidget(self.reset_all)
 
         # Settings widgets
-        self.overall_settings = OverallSettings(settings["attractors_params"])
+        self.overall_settings = OverallSettings(settings)
         self.baseline_settings = BaselineSettings()
         self.normalization_settings = NormalizationSettings()
         self.fitting_settings = FittingSettings()

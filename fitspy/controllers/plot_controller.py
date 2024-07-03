@@ -14,7 +14,15 @@ class PlotController():
     def set_settings(self, settings):
         for key, value in settings.items():
             self.model.settings[key] = value
-        print("Settings updated"+str(self.model.settings))
+
+            if key == "outliers":
+                self.model.outliers_calc()
+
+        # print("Settings updated"+str(self.model.settings))
+        self.update_fig(self.model.selected_files)
+
+    def outliers_calc(self):
+        self.model.outliers_calc()
         self.update_fig(self.model.selected_files)
 
     def toggle_element_visibility(self, element_key):

@@ -29,11 +29,11 @@ class PlotModel(QObject):
             self.figureChanged.emit(self.fig, None, None)
         else:
             ax = self.fig.add_subplot(111)
-            show_attractors = self.settings["attractors_params"]["enabled"]
+            show_attractors = self.settings["attractors"]["enabled"]
             for fname in selected_files:
                 current_spectrum, _ = self.spectra.get_objects(fname)
 
-                attractors_params_copy = self.settings["attractors_params"].copy()
+                attractors_params_copy = self.settings["attractors"].copy()
                 attractors_params_copy.pop("enabled", False)
 
                 current_spectrum.attractors_params = attractors_params_copy
@@ -106,16 +106,7 @@ class PlotModel(QObject):
         # update the file list widget
         self.extendFiles.emit(fnames)
 
-    def set_outliers_coeff(self, value):
-        """ Set the outliers coefficient """
-        self.settings["outliers_coef"] = value
-        print("Outliers coefficient set to:", value)
-
-    def outliers_calculation(self):
+    def outliers_calc(self):
         """ Calculate the outliers (limit) """
-        coef = float(self.outliers_coef.get())
+        coef = float(self.settings["outliers"]["coef"])
         self.spectra.outliers_limit_calculation(coef=coef)
-        # if self.is_show_all:
-        #     self.show_all()
-        # else:
-        #     self.plot()
