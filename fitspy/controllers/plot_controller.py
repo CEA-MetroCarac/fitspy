@@ -35,4 +35,5 @@ class PlotController():
         self.model.spectrum_init(file)
 
     def update_fig(self, selected_files):
-        self.model.update_fig(selected_files)
+        xlim, ylim = self.view.get_view_limits()
+        self.model.update_fig(selected_files, xlim, ylim)

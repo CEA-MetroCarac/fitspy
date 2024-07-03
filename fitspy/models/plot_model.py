@@ -5,7 +5,7 @@ import numpy as np
 from utils import Spectrum, Spectra, SpectraMap
 
 class PlotModel(QObject):
-    figureChanged = Signal(Figure)
+    figureChanged = Signal(Figure, tuple, tuple)
     elementVisibilityToggled = Signal()
     extendFiles = Signal(list)
 
@@ -16,18 +16,17 @@ class PlotModel(QObject):
         self.settings = settings
         self.selected_files = []
 
-    def update_fig(self, selected_files):
+    def update_fig(self, selected_files, xlim=None, ylim=None):
         """ Update the figure with the selected files """
         self.selected_files = selected_files
 
-        # Clear the existing figure before plotting a new
         if self.fig is not None:
             self.fig.clear()
         else:
             self.fig = Figure()
 
         if not selected_files:
-            self.figureChanged.emit(self.fig)
+            self.figureChanged.emit(self.fig, None, None)
         else:
             ax = self.fig.add_subplot(111)
             show_attractors = self.settings["attractors_params"]["enabled"]
@@ -40,7 +39,11 @@ class PlotModel(QObject):
                 current_spectrum.attractors_params = attractors_params_copy
                 current_spectrum.plot(ax, show_attractors=show_attractors)
 
-            self.figureChanged.emit(self.fig)
+            if xlim and ylim:
+                ax.set_xlim(xlim)
+                ax.set_ylim(ylim)
+
+            self.figureChanged.emit(self.fig, xlim, ylim)
 
     def toggle_element_visibility(self, element_key):
         """Toggle the visibility of a plot element for given spectra.
