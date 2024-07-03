@@ -13,24 +13,24 @@ class AttractorsSettingsDialog(QDialog):
         layout = QFormLayout()
 
         # Create and add settings fields
-        self.distance_input = FloatInput(default=attractors_settings["distance"])
-        layout.addRow("Distance:", self.distance_input)
+        self.distance_input = FloatInput(default=attractors_settings["distance"], label="Distance:")
+        layout.addRow(self.distance_input)
 
-        self.prominence_input = FloatInput()
+        self.prominence_input = FloatInput(label="Prominence:")
         self.prominence_input.setValue(attractors_settings["prominence"])
-        layout.addRow("Prominence:", self.prominence_input)
+        layout.addRow(self.prominence_input)
 
-        self.width_input = FloatInput()
+        self.width_input = FloatInput(label="Width:")
         self.width_input.setValue(attractors_settings["width"])
-        layout.addRow("Width:", self.width_input)
+        layout.addRow(self.width_input)
 
-        self.height_input = FloatInput()
+        self.height_input = FloatInput(label="Height:")
         self.height_input.setValue(attractors_settings["height"])
-        layout.addRow("Height:", self.height_input)
+        layout.addRow(self.height_input)
 
-        self.threshold_input = FloatInput()
+        self.threshold_input = FloatInput(label="Threshold:")
         self.threshold_input.setValue(attractors_settings["threshold"])
-        layout.addRow("Threshold:", self.threshold_input)
+        layout.addRow(self.threshold_input)
 
         self.apply_button = QPushButton("Apply")
         self.apply_button.clicked.connect(self.update_parameters)
@@ -78,8 +78,7 @@ class OverallSettings(QGroupBox):
         self.outliers_layout = QHBoxLayout()
         self.calc_outliers = QPushButton("Outliers Calc.")
         self.outliers_layout.addWidget(self.calc_outliers)
-        self.outliers_coeff = FloatInput(default=settings["outliers"]["coef"], step=0.1)
-        self.outliers_layout.addWidget(QLabel("Coef:"))
+        self.outliers_coeff = FloatInput(default=settings["outliers"]["coef"], step=0.1, label="Coef:")
         self.outliers_layout.addWidget(self.outliers_coeff)
         self.layout.addLayout(self.outliers_layout)
 
