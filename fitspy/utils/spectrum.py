@@ -8,10 +8,8 @@ import itertools
 from copy import deepcopy
 import numpy as np
 import pandas as pd
-from scipy.signal import find_peaks
 from scipy.interpolate import interp1d
 from scipy.ndimage import uniform_filter1d
-from lmfit import Model, fit_report
 from lmfit.model import ModelResult
 from lmfit.models import ConstantModel, LinearModel, ParabolicModel, \
     ExponentialModel, ExpressionModel  # pylint:disable=unused-import
@@ -38,6 +36,7 @@ def create_model(model, model_name, prefix=None):
     elif isinstance(model, type):
         model = model()
     else:
+        from lmfit import Model
         model = Model(model, independent_vars=['x'], prefix=prefix)
     model.name2 = model_name
     return model
@@ -308,6 +307,7 @@ class Spectrum:
 
     def attractors_calculation(self):
         """ Calculate attractors positions ordered wrt decreasing intensities"""
+        from scipy.signal import find_peaks
         attractors, _ = find_peaks(self.y_no_outliers, **self.attractors_params)
         inds = np.argsort(self.y[attractors])
         self.attractors = attractors[inds[::-1]].astype(int).tolist()
@@ -450,6 +450,8 @@ class Spectrum:
         if bkg_name == 'None':
             self.bkg_model = None
         else:
+            from lmfit import Model
+
             bkg_model = BKG_MODELS[bkg_name]
             if isinstance(bkg_model, type):
                 self.bkg_model = bkg_model()
@@ -623,6 +625,7 @@ class Spectrum:
 
     def auto_baseline(self):
         """ Calculate 'baseline.points' considering 'baseline.distance'"""
+        from scipy.signal import find_peaks
         peaks, _ = find_peaks(-self.y_no_outliers,
                               distance=self.baseline.distance)
         self.baseline.points[0] = list(self.x[peaks])
@@ -815,6 +818,7 @@ class Spectrum:
 
     def save_stats(self, dirname_stats):
         """ Save statistics in a '.txt' file located in 'dirname_stats' """
+        from lmfit import fit_report
         if isinstance(self.result_fit, ModelResult):
             _, name, _ = fileparts(self.fname)
             fname_stats = os.path.join(dirname_stats, name + '_stats.txt')

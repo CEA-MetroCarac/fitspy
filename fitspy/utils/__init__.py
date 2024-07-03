@@ -1,5 +1,3 @@
-from .spectra_map import SpectraMap
+from .utils import is_2d_map
 from .spectrum import Spectrum
 from .spectra import Spectra
-
-from .utils import *

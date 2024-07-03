@@ -6,9 +6,6 @@ import re
 import json
 from pathlib import Path
 import runpy
-import numpy as np
-from lmfit.models import ExpressionModel
-
 
 def closest_item(element_list, value):
     """ Return the closest element in the given list """
@@ -17,6 +14,7 @@ def closest_item(element_list, value):
 
 def closest_index(element_list, value):
     """Return the closest element index in the given list """
+    import numpy as np
     if value == np.inf:
         return np.argmax(element_list)
 
@@ -129,6 +127,7 @@ def load_models_from_txt(fname, MODELS):
     MODELS: dict
         Dictionary corresponding to fitspy.PEAK_MODELS or fitspy.BKG_MODELS
     """
+    from lmfit.models import ExpressionModel
     if Path(fname).exists():
         with open(fname, 'r') as fid:
             for line in fid.readlines():

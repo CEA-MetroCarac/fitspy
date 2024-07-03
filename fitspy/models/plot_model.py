@@ -1,8 +1,7 @@
 from PySide6.QtCore import QObject, Signal
 from matplotlib.figure import Figure
-import numpy as np
 
-from utils import Spectrum, Spectra, SpectraMap
+from utils import Spectra, Spectrum
 
 class PlotModel(QObject):
     figureChanged = Signal(Figure, tuple, tuple)
@@ -94,6 +93,7 @@ class PlotModel(QObject):
     def spectra_map_init(self, file):
         """ Create a Spectra object from a file and add it to the spectra list """
         print("Spectra map creation")
+        from utils.spectra_map import SpectraMap
 
         spectra_map = SpectraMap()
         spectra_map.create_map(file)

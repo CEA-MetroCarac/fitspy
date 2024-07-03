@@ -12,7 +12,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
-from .spectrum import Spectrum
+from . import Spectrum
 from fitspy.utils import fileparts, save_to_json, load_from_json
 from fitspy.utils_mp import fit_mp
 
