@@ -21,7 +21,6 @@ class View(QMainWindow):
 
         self.createActions()
         self.createMenuBar()
-
         self.plot_view = PlotView()
         layout.addWidget(self.plot_view)
 
@@ -160,11 +159,3 @@ class View(QMainWindow):
         widget.setLayout(layout)
         figureSettingsAction10.setDefaultWidget(widget)
         self.figure_menu.addAction(figureSettingsAction10)
-        # figureSettingsAction9 = QWidgetAction(self)
-        # self.coefResidual = QDoubleSpinBox(self)
-        # self.coefResidual.setRange(0, 1)
-        # self.coefResidual.setSingleStep(0.1)
-        # self.coefResidual.setValue(0.5)
-        # self.coefResidual.setToolTip("Coefficient for residual")
-        # figureSettingsAction9.setDefaultWidget(self.coefResidual)
-        # self.figure_menu.addAction(figureSettingsAction9)
