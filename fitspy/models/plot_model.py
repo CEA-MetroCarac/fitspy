@@ -4,45 +4,36 @@ from matplotlib.figure import Figure
 from utils import Spectra, Spectrum
 
 class PlotModel(QObject):
-    figureChanged = Signal(Figure, tuple, tuple)
+    axChanged = Signal(object, tuple, tuple)
     elementVisibilityToggled = Signal()
     extendFiles = Signal(list)
 
     def __init__(self, settings):
         super().__init__()
-        self.fig = None
+        self.fig = Figure()
         self.spectra = Spectra()
         self.settings = settings
         self.selected_files = []
 
     def update_fig(self, selected_files, xlim=None, ylim=None):
-        """ Update the figure with the selected files """
-        self.selected_files = selected_files
-
-        if self.fig is not None:
-            self.fig.clear()
-        else:
-            self.fig = Figure()
-
+        """Update the axes with the selected files."""
         if not selected_files:
-            self.figureChanged.emit(self.fig, None, None)
+            self.axChanged.emit(None, None, None)
         else:
             ax = self.fig.add_subplot(111)
             show_attractors = self.settings["attractors"]["enabled"]
             for fname in selected_files:
                 current_spectrum, _ = self.spectra.get_objects(fname)
-
                 attractors_params_copy = self.settings["attractors"].copy()
                 attractors_params_copy.pop("enabled", False)
-
                 current_spectrum.attractors_params = attractors_params_copy
                 current_spectrum.plot(ax, show_attractors=show_attractors)
 
             if xlim and ylim:
                 ax.set_xlim(xlim)
                 ax.set_ylim(ylim)
-
-            self.figureChanged.emit(self.fig, xlim, ylim)
+                
+            self.axChanged.emit(ax, xlim, ylim)
 
     def toggle_element_visibility(self, element_key):
         """Toggle the visibility of a plot element for given spectra.

@@ -42,12 +42,12 @@ class CustomNavigationToolbar(NavigationToolbar2QT):
             super().home(*args)
 
     def add_custom_buttons(self):
-        self.baseline_mode = QAction('Baseline', self)
+        self.baseline_mode = QAction('Baseline points', self)
         self.baseline_mode.setCheckable(True)  # Make the action checkable
         self.baseline_mode.triggered.connect(lambda: self.on_mode_toggle(self.baseline_mode, self.fitting_mode))
         self.addAction(self.baseline_mode)
 
-        self.fitting_mode = QAction('Fitting', self)
+        self.fitting_mode = QAction('Peaks points', self)
         self.fitting_mode.setCheckable(True)
         self.fitting_mode.triggered.connect(lambda: self.on_mode_toggle(self.fitting_mode, self.baseline_mode))
         self.addAction(self.fitting_mode)
@@ -89,13 +89,16 @@ class PlotView(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.layout = QVBoxLayout(self)
+        self.fig = Figure(layout='tight')
+        self.ax = self.fig.add_subplot(111)
         self.canvas = None
         self.toolbar = None
         self.original_xlim = None
         self.original_ylim = None
-        self._init_canvas_and_toolbar(Figure())
+        self._init_canvas_and_toolbar()
 
-    def _init_canvas_and_toolbar(self, fig):
+    def _init_canvas_and_toolbar(self):
+        fig = self.fig
         # Create and add new canvas and toolbar if they don't exist
         if self.canvas is None:
             self.canvas = FigureCanvas(fig)
@@ -129,23 +132,34 @@ class PlotView(QWidget):
         self.frame_map_window = FrameMap(spectra_map)
         self.frame_map_window.show()
 
-    def display_figure(self, fig, xlim=None, ylim=None):
-        fig.tight_layout()
+    def display_figure(self, ax, xlim=None, ylim=None):
+        # TODO Fix display_figure
+        if ax is not None:
+            
+            # set data of each line in ax to the corresponding line in self.ax
+            print(f"Updating figure with {len(ax.lines)} lines")
+            self.ax.clear()
+            # self.ax.__dict__ = ax.__dict__.copy()
+            for line in ax.lines:
+                self.ax.plot(line.get_xdata(), line.get_ydata(), label=line.get_label())
+
+            self.canvas.draw()
+
+            if xlim and ylim:
+                self.set_view_limits(xlim, ylim)
+            else:
+                self.store_original_view_limits()
+        # fig.tight_layout()
 
         # TOOLBAR WORKING (else clause)
         # self._init_canvas_and_toolbar(fig)
 
         # TOOLBAR NOT WORKING
-        fig.set_size_inches(self.canvas.figure.get_size_inches())  # Set figure size to match current canvas size
-        self.canvas.figure = fig
-        fig.canvas = self.canvas  # Needed for blitting
-        self.canvas.draw_idle()
-        self.toolbar.update_canvas(fig.canvas)
-
-        if xlim and ylim:
-            self.set_view_limits(xlim, ylim)
-        else:
-            self.store_original_view_limits()
+        # fig.set_size_inches(self.canvas.figure.get_size_inches())  # Set figure size to match current canvas size
+        # self.canvas.figure = fig
+        # fig.canvas = self.canvas  # Needed for blitting
+        # self.canvas.draw_idle()
+        # self.toolbar.update_canvas(self.canvas)
 
     def get_view_limits(self):
         if hasattr(self, 'canvas') and self.canvas.figure.axes:

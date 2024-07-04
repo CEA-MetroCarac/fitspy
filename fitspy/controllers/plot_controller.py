@@ -7,7 +7,7 @@ class PlotController():
         self.model = PlotModel(settings)
 
     def setup_actions(self, settings_controller):
-        self.model.figureChanged.connect(self.view.display_figure)
+        self.model.axChanged.connect(self.view.display_figure)
         self.model.elementVisibilityToggled.connect(self.view.update_element_visibility)
         self.model.extendFiles.connect(settings_controller.extend_files)
 
