@@ -374,10 +374,12 @@ class Callbacks:
             line_bkg_visible = show_background and spectrum.bkg_model
 
             # baseline plotting
-            if not spectrum.baseline.is_subtracted:
-                x = spectrum.x
-                y = spectrum.y if spectrum.baseline.attached else None
-                spectrum.baseline.plot(self.ax, x=x, y=y)
+            baseline = spectrum.baseline
+            if not baseline.is_subtracted:
+                x, y = spectrum.x, None
+                if baseline.attached or baseline.mode == 'Semi-Auto':
+                    y = spectrum.y
+                baseline.plot(self.ax, x=x, y=y)
 
             self.ax.legend()
             self.tmp = None
@@ -499,12 +501,18 @@ class Callbacks:
                 self.fr_fit.disable()
                 self.selected_frame = None
 
+    def baseline_error_message(self, fnames):
+        """ Show an error message associated with the baseline """
+        msg = "A baseline has already been subtracted to the profiles:\n"
+        msg += "\n".join([f"  - {Path(fname).name}" for fname in fnames])
+        msg += "\n\nTo create or subtract a new baseline from these profiles," \
+               " they must be reinitialized."
+        showerror(message=msg)
+
     def add_baseline_point(self, x, y):
         """ Add baseline point from the (x,y)-coordinate """
         if self.current_spectrum.baseline.is_subtracted:
-            msg = "A baseline has already be subtracted to the profile.\n"
-            msg += "Reinitialize the profile to create a new baseline."
-            showerror(message=msg)
+            self.baseline_error_message([self.current_spectrum.fname])
         else:
             self.current_spectrum.baseline.add_point(x, y)
             self.plot()
@@ -524,16 +532,22 @@ class Callbacks:
 
     def update_baseline(self, key):
         """ Update a baseline attribute"""
+        spectrum = self.current_spectrum
+        if spectrum.baseline.is_subtracted:
+            self.baseline_error_message([spectrum.fname])
+            eval(f"self.baseline_{key}.set(spectrum.baseline.{key})")
+            return
+
         val = eval(f"self.baseline_{key}").get()
         setattr(self.current_spectrum.baseline, key, val)
         self.plot()
 
     def set_baseline(self):
         """ Set baseline properties from the baseline to the appli """
-        self.baseline_mode.set(self.current_spectrum.baseline.mode)
-        self.baseline_order_max.set(self.current_spectrum.baseline.order_max)
-        self.baseline_sigma.set(self.current_spectrum.baseline.sigma)
-        self.baseline_attached.set(self.current_spectrum.baseline.attached)
+        spectrum = self.current_spectrum  # pylint:disable=unused-variable
+        attrs = ['mode', 'coef', 'order_max', 'sigma', 'attached']
+        for attr in attrs:
+            eval(f'self.baseline_{attr}.set(spectrum.baseline.{attr})')
 
     def load_baseline(self, fname=None):
         """ Load a baseline from a row-column .txt file """
@@ -544,26 +558,33 @@ class Callbacks:
             self.current_spectrum.baseline.load_baseline(fname)
             self.plot()
 
-    def auto_baseline(self):
-        """ Define baseline from automatic points selection """
-        self.current_spectrum.baseline.distance = self.baseline_distance.get()
-        self.current_spectrum.auto_baseline()
-        self.plot()
-
     def subtract_baseline(self, fnames=None):
         """ Subtract the current baseline """
-        baseline_points = self.current_spectrum.baseline.points
-        if len(baseline_points[0]) == 0:
+        baseline = self.current_spectrum.baseline
+        if baseline.mode != 'Semi-Auto' and len(baseline.points[0]) == 0:
             return
 
         if fnames is None:
             fnames = self.fileselector.filenames
             fnames = [fnames[i] for i in self.fileselector.lbox.curselection()]
 
+        # check the subtract(s) can be done
+        fnames_not_ok = []
         for fname in fnames:
             spectrum, _ = self.spectra.get_objects(fname)
-            spectrum.baseline.points = baseline_points.copy()
+            if spectrum.baseline.is_subtracted:
+                fnames_not_ok.append(fname)
+        if len(fnames_not_ok) > 0:
+            self.baseline_error_message(fnames_not_ok)
+            return
+
+        for fname in fnames:
+            spectrum, _ = self.spectra.get_objects(fname)
+            for key, value in vars(baseline).items():
+                if key not in ['is_subtracted']:
+                    setattr(spectrum.baseline, key, value)
             spectrum.subtract_baseline()
+
         self.paramsview.delete()
         self.statsview.delete()
         self.ax.clear()
@@ -706,6 +727,7 @@ class Callbacks:
         fit_params['xtol'] = params['xtol'].get()
 
         model_dict = self.current_spectrum.save()
+        model_dict.pop('baseline')  # to not affect previous works on baseline
         self.apply_model(model_dict=model_dict, fnames=fnames, fit_only=True,
                          selection=selection)
 
@@ -818,8 +840,8 @@ class Callbacks:
         """ Fit spectrum after evaluating baseline and peaks automatically """
         if fnames is None:
             fnames = [self.current_spectrum.fname]
-        self.auto_baseline()
-        self.subtract_baseline(fnames=[self.current_spectrum.fname])
+        self.current_spectrum.baseline.mode = 'Semi-Auto'
+        self.subtract_baseline(fnames=fnames)
         self.auto_peaks(model_name=model_name)
         self.fit(fnames=fnames)
 

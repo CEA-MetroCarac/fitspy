@@ -10,13 +10,13 @@ def test_auto_decomposition():
 
     # refs = []
     # for i in range(3):
-    #     ampli = spectra[i].models[0].param_hints['ampli']['value']
+    #     ampli = spectra[i].peak_models[0].param_hints['ampli']['value']
     #     refs.append([np.sum(spectra[i].y), ampli])
     # print(refs)
 
-    refs = [[896641.9940061372, 28142.739608259562],
-            [890727.8824949837, 18900.368843277593],
-            [737968.1326228122, 9618.511108857907]]
+    refs = [[695742.9828417138, 28035.104052186613],
+            [645910.1509814768, 18783.270429923425],
+            [588544.9856527029, 8125.02943468474]]
 
     assert len(spectra) > 0
     for spectrum, ref in zip(spectra, refs):

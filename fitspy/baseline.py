@@ -6,6 +6,8 @@ import numpy as np
 import pandas as pd
 from scipy.interpolate import interp1d
 from scipy.ndimage import gaussian_filter1d
+from scipy import sparse
+from scipy.linalg import cholesky
 
 from fitspy.utils import closest_index
 
@@ -18,6 +20,13 @@ class BaseLine:
     ----------
     points: list of 2 lists
         List of the (x,y) baseline points coordinates
+    mode: str
+        Mode used to determine the baseline, among 'Semi-Auto' (semi-automatic
+        baseline determination), 'Linear' (piecewise linear decomposition based
+        on users points definition) and 'Polynomial'. Default mode is 'Linear'
+    coef: int
+        Smoothing coefficient used in the 'Semi-Auto' mode.
+        The larger coef is, the smoother the resulting baseline
     order_max: int
         Maximum order of the baseline polynomial evaluation
     distance: float
@@ -31,16 +40,20 @@ class BaseLine:
     is_subtracted: bool
         Key used to indicate whether the baseline has been subtracted from the
         spectrum
+    y_eval: numpy.ndarray(n)
+        The baseline profile resulting from the 'eval' function
     """
 
     def __init__(self):
         self.points = [[], []]
         self.mode = "Linear"
+        self.coef = 5
         self.order_max = 1
         self.distance = 100
         self.sigma = 0
         self.attached = True
         self.is_subtracted = False
+        self.y_eval = None
 
     def add_point(self, x, y):
         """ Add point in the baseline """
@@ -77,24 +90,39 @@ class BaseLine:
     def eval(self, x, y=None):
         """ Evaluate the baseline on a 'x' support and a 'y' attached profile
             possibly smoothed with a gaussian filter """
+        assert self.mode in ['Semi-Auto', 'Linear', 'Polynomial']
 
-        # use the original points or the attached points to an y-profile
-        points = self.points if y is None else self.attach_points(x, y)
-
-        if len(points[1]) == 1:
-            return points[1] * np.ones_like(x)
-
-        if self.mode == 'Linear':
-            func_interp = interp1d(points[0], points[1],
-                                   fill_value="extrapolate")
-            return func_interp(x)
-
-        else:
+        if self.mode == 'Semi-Auto':
             with warnings.catch_warnings():
                 warnings.simplefilter("ignore")
-                order = min(self.order_max, len(points[0]) - 1)
-                coefs = np.polyfit(points[0], points[1], order)
-            return np.polyval(coefs, x)
+                mask = y > 0
+                self.y_eval = arpls(y[mask], coef=self.coef)
+                if False in mask:
+                    func_interp = interp1d(x[mask], self.y_eval,
+                                           fill_value="extrapolate")
+                    self.y_eval = func_interp(x)
+
+        else:
+
+            # use the original points or the attached points to an y-profile
+            points = self.points if y is None else self.attach_points(x, y)
+
+            if len(points[1]) == 1:
+                self.y_eval = points[1] * np.ones_like(x)
+
+            elif self.mode == 'Linear':
+                func_interp = interp1d(points[0], points[1],
+                                       fill_value="extrapolate")
+                self.y_eval = func_interp(x)
+
+            else:  # self.mode == 'Polynomial'
+                with warnings.catch_warnings():
+                    warnings.simplefilter("ignore")
+                    order = min(self.order_max, len(points[0]) - 1)
+                    coefs = np.polyfit(points[0], points[1], order)
+                    self.y_eval = np.polyval(coefs, x)
+
+        return self.y_eval
 
     def plot(self, ax, x=None, y=None, label="Baseline", show_all=True):
         """
@@ -116,7 +144,7 @@ class BaseLine:
             Activation key to display the primary baseline components (before
             attachment)
         """
-        if len(self.points[0]) == 0:
+        if len(self.points[0]) == 0 and self.mode != 'Semi-Auto':
             return
 
         # use the original points or the attached points to an y-profile
@@ -132,3 +160,59 @@ class BaseLine:
         if show_all:
             ax.plot(self.points[0], self.points[1], 'ko--', mfc='none')
             ax.plot(points[0], points[1], 'go', mfc='none')
+
+
+def arpls(y, coef=4, ratio=0.05, itermax=10):
+    r"""
+    Asymmetrically Reweighted Penalized Least Squares smoothing extracted from:
+    https://irfpy.irf.se/projects/ica/_modules/irfpy/ica/baseline.html#arpls
+
+    Original article
+    ----------------
+
+    Sung-June Baek, Aaron Park, Young-Jin Ahna and Jaebum Choo,
+    Analyst, 2015, 140, 250 (2015), https://doi.org/10.1039/C4AN01061B
+
+    Parameters
+    ----------
+    y: numpy.ndarray(n)
+        input data (i.e. spectrum intensity)
+    coef: float, optional
+        parameter that can be adjusted by user.
+        The larger coef is, the smoother the resulting background, y_smooth
+    ratio: float, optional
+        wheighting deviations: 0 < ratio < 1, smaller values allow less negative
+        values
+    itermax: int, optional
+        number of iterations to perform
+
+    Returns
+    -------
+    y_smooth: numpy.ndarray(n)
+        the fitted background
+    """
+    # pylint:disable=invalid-name, unused-variable
+
+    N = len(y)
+    D = sparse.eye(N, format='csc')
+    # workaround: numpy.diff( ,2) does not work with sparse matrix
+    D = D[1:] - D[:-1]
+    D = D[1:] - D[:-1]
+
+    H = 10 ** coef * D.T * D
+    w = np.ones(N)
+    for i in range(itermax):
+        W = sparse.diags(w, 0, shape=(N, N))
+        WH = sparse.csc_matrix(W + H)
+        C = sparse.csc_matrix(cholesky(WH.todense()))
+        y_smooth = sparse.linalg.spsolve(C, sparse.linalg.spsolve(C.T, w * y))
+        d = y - y_smooth
+        dn = d[d < 0]
+        m = np.mean(dn)
+        s = np.std(dn)
+        wt = 1. / (1 + np.exp(2 * (d - (2 * s - m)) / s))
+        if np.linalg.norm(w - wt) / np.linalg.norm(w) < ratio:
+            break
+        w = wt
+
+    return y_smooth

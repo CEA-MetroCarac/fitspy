@@ -270,6 +270,7 @@ class Spectra(list):
         for i, fname in enumerate(fnames):
             spectrum, _ = self.get_objects(fname)
             dict_spectra[i] = spectrum.save()
+            dict_spectra[i]['baseline'].pop('y_eval')
 
         save_to_json(fname_json, dict_spectra, indent=3)
 

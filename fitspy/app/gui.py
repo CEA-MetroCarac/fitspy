@@ -5,9 +5,9 @@ import os
 import platform
 import warnings
 
-from tkinter import (Tk, Toplevel, Frame, LabelFrame, Label, Radiobutton,
+from tkinter import (Tk, Toplevel, Frame, LabelFrame, Label, Radiobutton, Scale,
                      Entry, Text, Button, Checkbutton, messagebox, W, E, END,
-                     IntVar, DoubleVar, StringVar, BooleanVar)
+                     HORIZONTAL, IntVar, DoubleVar, StringVar, BooleanVar)
 from tkinter.ttk import Combobox
 from tkinter import filedialog as fd
 from tkinter.messagebox import askyesno
@@ -68,6 +68,12 @@ class GUI(Callbacks):
         Activation keyword for spectrum peaks association when adding
     outliers_coef: Tkinter.DoubleVar
         Coefficient applied to the outliers limits
+    baseline_mode: Tkinter.StringVar
+        Method associated with the baseline determination method ('Semi-Auto',
+        'Linear' or 'Polynomial')
+    baseline_coef: Tkinter.IntVar
+        Smoothing coefficient used when calculating the baseline with the
+        'Semi-Auto' algorithm
     baseline_attached: Tkinter.BooleanVar
         Activation keyword for baseline points attachment to the spectra
     baseline_sigma: Tkinter.IntVar
@@ -117,6 +123,7 @@ class GUI(Callbacks):
         self.baseline_sigma = IntVar(value=0)
         self.baseline_distance = IntVar(value=500)
         self.baseline_mode = StringVar(value='Linear')
+        self.baseline_coef = IntVar(value=5)
         self.baseline_order_max = IntVar(value=2)
 
         # normalization parameters
@@ -239,40 +246,42 @@ class GUI(Callbacks):
         add(self.fr_baseline, next(row), 0, W + E)
 
         fr = self.fr_baseline
-        add(Button(fr, text="Import", command=self.load_baseline), 0, 0)
-        add(Button(fr, text="Auto", command=self.auto_baseline), 0, 1, W)
-        add(Label(fr, text="Min distance :"), 0, 1, E)
-        add(Entry(fr, textvariable=self.baseline_distance, width=4), 0, 2, W)
-
-        add(Checkbutton(fr, variable=self.baseline_attached, text='Attached',
-                        command=lambda: self.update_baseline('attached')), 1, 0)
-
-        baseline_sigma = self.baseline_sigma
-        add(Label(fr, text="Sigma (smoothing) :"), 1, 1, E)
-        sigma_entry = entry(fr, baseline_sigma, self.update_baseline, width=4)
-        add(sigma_entry, 1, 2, W)
-        sigma_entry.bind("<KeyRelease>",
-                         lambda event: self.update_baseline('sigma'))
 
         var_mode = self.baseline_mode
         var_order = self.baseline_order_max
-        modes = ["Linear", "Polynomial"]
-        texts = ["Linear", "Polynomial - Order :"]
+        var_coef = self.baseline_coef
+        modes = ["Semi-Auto", "Linear", "Polynomial"]
+        texts = ["Semi-Auto :", "Linear", "Polynomial - Order :"]
         add(Radiobutton(fr, text=texts[0], variable=var_mode, value=modes[0],
-                        command=lambda: self.update_baseline('mode')), 2, 0)
+                        command=lambda: self.update_baseline('mode')), 0, 0)
+        add(Scale(fr, variable=var_coef, orient=HORIZONTAL,
+                  from_=0, to=10, showvalue=False,
+                  command=lambda _: self.update_baseline('coef')), 0, 1, W)
+        add(Button(fr, text="Import", command=self.load_baseline), 0, 2)
         add(Radiobutton(fr, text=texts[1], variable=var_mode, value=modes[1],
-                        command=lambda: self.update_baseline('mode')), 2, 1)
+                        command=lambda: self.update_baseline('mode')), 1, 0)
+        add(Radiobutton(fr, text=texts[2], variable=var_mode, value=modes[2],
+                        command=lambda: self.update_baseline('mode')), 1, 1)
         order_entry = Entry(fr, textvariable=var_order, width=2)
-        add(order_entry, 2, 2, W)
+        add(order_entry, 1, 2, W)
         order_entry.bind("<KeyRelease>",
                          lambda event: self.update_baseline('order_max'))
 
+        add(Checkbutton(fr, variable=self.baseline_attached, text='Attached',
+                        command=lambda: self.update_baseline('attached')), 2, 0)
+        baseline_sigma = self.baseline_sigma
+        add(Label(fr, text="Sigma (smoothing) :"), 2, 1, E)
+        sigma_entry = entry(fr, baseline_sigma, self.update_baseline, width=4)
+        add(sigma_entry, 2, 2, W)
+        sigma_entry.bind("<KeyRelease>",
+                         lambda event: self.update_baseline('sigma'))
+
         add(Button(fr, text="Subtract Selec.",
-                   command=self.subtract_baseline), 4, 0)
+                   command=self.subtract_baseline), 3, 0)
         add(Button(fr, text="Subtract All",
-                   command=self.subtract_baseline_to_all), 4, 1)
+                   command=self.subtract_baseline_to_all), 3, 1)
         add(Button(fr, text="Delete",
-                   command=self.delete_baseline), 4, 2)
+                   command=self.delete_baseline), 3, 2)
 
         self.fr_baseline.enable()
         self.fr_baseline.bind("<Button-1>", self.on_press_baseline_peaks)

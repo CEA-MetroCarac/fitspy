@@ -6,6 +6,7 @@ import re
 import csv
 import itertools
 from copy import deepcopy
+import warnings
 import numpy as np
 import pandas as pd
 from scipy.signal import find_peaks
@@ -164,7 +165,7 @@ class Spectrum:
             self.fit_params['xtol'] = model_dict.pop('xtol')
 
         for key, val in vars(self).items():
-            if key in keys:
+            if key in keys and key != 'baseline':
                 if isinstance(val, dict) and key:
                     for key2 in val.keys():
                         if key2 in model_dict[key].keys():
@@ -192,7 +193,6 @@ class Spectrum:
             self.bkg_model.param_hints = deepcopy(param_hints)
 
         if 'baseline' in keys:
-            self.baseline = BaseLine()
             for key in vars(self.baseline).keys():
                 if key in model_dict['baseline'].keys():
                     setattr(self.baseline, key, model_dict['baseline'][key])
@@ -340,6 +340,7 @@ class Spectrum:
         peak_model: lmfit.Model
         """
         # pylint:disable=unused-argument, unused-variable
+
         peak_model = PEAK_MODELS[model_name]
         prefix = f'm{index:02d}_'
         peak_model = create_model(peak_model, model_name, prefix)
@@ -347,15 +348,14 @@ class Spectrum:
         kwargs_ = {'min': -np.inf, 'max': np.inf, 'vary': True, 'expr': None}
         kwargs_ampli = {'min': 0, 'max': np.inf, 'vary': True, 'expr': None}
         kwargs_fwhm = {'min': 0, 'max': 200, 'vary': True, 'expr': None}
-        kwargs_fwhm_l = {'min': 0, 'max': 200, 'vary': True, 'expr': None}
-        kwargs_fwhm_r = {'min': 0, 'max': 200, 'vary': True, 'expr': None}
         kwargs_x0 = {'min': x0 - 20, 'max': x0 + 20, 'vary': True, 'expr': None}
         kwargs_alpha = {'min': 0, 'max': 1, 'vary': True, 'expr': None}
 
         for name in peak_model.param_names:
             name = name[4:]  # remove prefix 'mXX_'
+            name2 = name.split('_')[0]  # remove '_l' or '_r'
             if name in PEAK_PARAMS:
-                value, kwargs = eval(name), eval('kwargs_' + name)
+                value, kwargs = eval(name), eval('kwargs_' + name2)
             else:
                 value, kwargs = 1, kwargs_
             peak_model.set_param_hint(name, value=value, **kwargs)
@@ -621,18 +621,20 @@ class Spectrum:
                     param['vary'] = vary_init[next(i)]
 
     def auto_baseline(self):
-        """ Calculate 'baseline.points' considering 'baseline.distance'"""
-        peaks, _ = find_peaks(-self.y_no_outliers,
-                              distance=self.baseline.distance)
-        self.baseline.points[0] = list(self.x[peaks])
-        self.baseline.points[1] = list(self.y[peaks])
+        """ set baseline.mode to 'Semi-Auto """
+        msg = "Method auto_baseline() will be deprecated.\n"
+        msg += "Set spectrum.baseline.mode attribute to 'Semi-Auto' instead."
+        warnings.warn(msg, DeprecationWarning, stacklevel=2)
+        self.baseline.mode = 'Semi-Auto'
 
     def subtract_baseline(self):
         """ Subtract the baseline to the spectrum
             if this has not been done previously """
         if not self.baseline.is_subtracted:
-            y = self.y_no_outliers if self.baseline.attached else None
-            self.y -= self.baseline.eval(x=self.x, y=y)
+            x, y = self.x, None
+            if self.baseline.attached or self.baseline.mode == 'Semi-Auto':
+                y = self.y_no_outliers
+            self.y -= self.baseline.eval(x=x, y=y)
             self.baseline.is_subtracted = True
 
     def auto_peaks(self, model_name):
@@ -656,7 +658,7 @@ class Spectrum:
             self.fit(reinit_guess=False)
             is_ok = self.result_fit.success
             y = y0 - self.result_fit.best_fit
-            if y.max() < 0.05 * y0.max():
+            if y.max() < 0.1 * y0.max():
                 is_ok = False
 
     def plot(self, ax,
@@ -698,7 +700,7 @@ class Spectrum:
                       linestyles='dashed', lw=0.5, label="Noise level")
 
         if show_baseline and self.baseline.is_subtracted:
-            self.baseline.plot(ax, x=x, show_all=False)
+            ax.plot(x, self.baseline.y_eval, 'g', label="Baseline")
 
         y_bkg = np.zeros_like(x)
         if self.bkg_model is not None:
@@ -786,7 +788,7 @@ class Spectrum:
 
         excluded_keys = ['x0', 'y0', 'x', 'y', 'outliers_limit',
                          'peak_models', 'peak_index', 'bkg_model',
-                         'result_fit', 'baseline']
+                         'result_fit', 'baseline', 'attractors']
         model_dict = {}
         for key, val in vars(self).items():
             if key not in excluded_keys:
@@ -809,7 +811,9 @@ class Spectrum:
             model_dict['result_fit_success'] = self.result_fit.success
 
         if fname_json is not None:
-            save_to_json(fname_json, model_dict)
+            model_dict_json = model_dict.copy()
+            model_dict_json['baseline'].pop('y_eval')
+            save_to_json(fname_json, model_dict_json)
 
         return model_dict
 
