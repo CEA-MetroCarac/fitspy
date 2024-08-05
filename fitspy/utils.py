@@ -155,41 +155,6 @@ def load_models_from_py(fname):
         runpy.run_path(fname)
 
 
-# def converter(fname, fname_res=None):
-#     """ Convert input data using HyperSpy from different formats (.spx, .emd,
-#         .dm3, ...) to .txt fitspy compatible format """
-#
-#     if fname_res is None:
-#         fname_res = Path(fname).with_suffix(".txt")
-#
-#     try:
-#         import hyperspy.api as hs
-#     except ImportError:
-#         raise ImportError('hyperspy must be installed')
-#
-#     signal = hs.load(fname)
-#     support = signal.axes_manager[-1].axis
-#
-#     # 1D spectrum
-#     if signal.data.ndim == 1:
-#         with open(fname_res, mode='w') as fid:
-#             fid.write('#support\t#intensity')
-#             for x, intensity in zip(support, signal.data):
-#                 fid.write(f"\n{x}\t{intensity}")
-#
-#     # 2D map
-#     elif signal.data.ndim == 3:
-#         with open(fname_res, mode='w') as fid:
-#             fid.write("\t\t" + "\t".join(map(str, support)))
-#             for i in range(signal.data.shape[0]):
-#                 for j in range(signal.data.shape[1]):
-#                     intens = signal.data[i, j, :]
-#                     fid.write(f"\n{i}\t{j}\t" + "\t".join(map(str, intens)))
-#
-#     else:
-#         raise NotImplementedError
-
-
 def get_dim(fname):
     """ Return the dimension (1, 2 or None) of the spectrum/spectra field """
 
