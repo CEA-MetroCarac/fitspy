@@ -15,9 +15,7 @@ from fitspy.spectrum import Spectrum
 def fit(params):
     """ Fitting function used in multiprocessing """
     (x0, y0, x, y, peak_models_, bkg_models_,
-     fit_params, outliers_limit, fit_only) = params
-
-    res = ()
+     fit_params, baseline_params, outliers_limit, fit_only) = params
 
     spectrum = Spectrum()
     spectrum.x0 = x0
@@ -30,11 +28,14 @@ def fit(params):
     spectrum.outliers_limit = outliers_limit
 
     if not fit_only:
+        for attr, value in baseline_params.items():
+            setattr(spectrum.baseline, attr, value)
         spectrum.preprocess()
-        res += (spectrum.x, spectrum.y, spectrum.baseline.y_eval)
-
     spectrum.fit()
-    res += (dill.dumps(spectrum.result_fit),)
+
+    res = (dill.dumps(spectrum.result_fit),)
+    if not fit_only:
+        res += (spectrum.x, spectrum.y, spectrum.baseline.y_eval)
 
     shared_queue.put(1)
 
@@ -55,25 +56,26 @@ def fit_mp(spectra, ncpus, queue_incr, fit_only):
     peak_models_ = dill.dumps(spectra[0].peak_models)
     bkg_models_ = dill.dumps(spectra[0].bkg_model)
     fit_params = spectra[0].fit_params
+    baseline_params = vars(spectra[0].baseline)
     outliers_limit = spectra[0].outliers_limit
 
     args = []
     for spectrum in spectra:
         args.append((spectrum.x0, spectrum.y0, spectrum.x, spectrum.y,
-                     peak_models_, bkg_models_, fit_params, outliers_limit,
-                     fit_only))
+                     peak_models_, bkg_models_, fit_params,
+                     baseline_params, outliers_limit, fit_only))
 
     with ProcessPoolExecutor(initializer=initializer,
                              initargs=(queue_incr,),
                              max_workers=ncpus) as executor:
-        results = tuple(executor.map(fit, args))
+        results = executor.map(fit, args)
 
     for res, spectrum in zip(results, spectra):
+        spectrum.result_fit = dill.loads(res[0])
         if not fit_only:
-            spectrum.x = res[0]
-            spectrum.y = res[1]
-            spectrum.baseline.y_eval = res[2]
-        spectrum.result_fit = dill.loads(res[-1])
+            spectrum.x = res[1]
+            spectrum.y = res[2]
+            spectrum.baseline.y_eval = res[3]
         spectrum.reassign_params()
 
 # import os
