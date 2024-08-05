@@ -237,11 +237,6 @@ class Spectrum:
     def load_profile(self, fname, xmin=None, xmax=None):
         """ Load profile from 'fname' with 1 header line and 2 (x,y) columns"""
 
-        if xmin is not None:
-            self.range_min = xmin
-        if xmax is not None:
-            self.range_max = xmax
-
         # raw profile loading
         if self.x0 is None:
             x0, y0 = get_1d_profile(fname)
@@ -253,17 +248,20 @@ class Spectrum:
 
             self.fname = fname
 
-        # (re)initialization or cropping
+        if xmin is not None:
+            self.range_min = xmin
+        if xmax is not None:
+            self.range_max = xmax
+
         if self.range_min is None:
             self.range_min = self.x0.min()
+        if self.range_max is None:
             self.range_max = self.x0.max()
-            self.x = self.x0.copy()
-            self.y = self.y0.copy()
-        else:
-            ind_min = closest_index(self.x0, self.range_min)
-            ind_max = closest_index(self.x0, self.range_max)
-            self.x = self.x0[ind_min:ind_max + 1].copy()
-            self.y = self.y0[ind_min:ind_max + 1].copy()
+
+        ind_min = closest_index(self.x0, self.range_min)
+        ind_max = closest_index(self.x0, self.range_max)
+        self.x = self.x0[ind_min:ind_max + 1].copy()
+        self.y = self.y0[ind_min:ind_max + 1].copy()
 
     def calculate_outliers(self):
         """ Return outliers points (x,y) coordinates """
