@@ -693,7 +693,7 @@ class Spectrum:
             ax.hlines(y=y_noise_level, xmin=x[0], xmax=x[-1], colors='r',
                       linestyles='dashed', lw=0.5, label="Noise level")
 
-        if show_baseline and self.baseline.is_subtracted:
+        if show_baseline and self.baseline.y_eval is not None:
             ax.plot(x, self.baseline.y_eval, 'g', label="Baseline")
 
         y_bkg = np.zeros_like(x)
