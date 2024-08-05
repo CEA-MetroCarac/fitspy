@@ -211,8 +211,6 @@ class Spectra(list):
             spectrum, _ = self.get_objects(fname)
             spectrum.set_attributes(model_dict)
             spectrum.fname = fname  # reassign the correct fname
-            if not fit_only:
-                spectrum.preprocess()
             spectra.append(spectrum)
 
         queue_incr = Queue()
@@ -222,10 +220,12 @@ class Spectra(list):
 
         if ncpus == 1:
             for spectrum in spectra:
+                if not fit_only:
+                    spectrum.preprocess()
                 spectrum.fit()
                 queue_incr.put(1)
         else:
-            fit_mp(spectra, ncpus, queue_incr)
+            fit_mp(spectra, ncpus, queue_incr, fit_only)
 
         self.pbar_index = 0  # reinitialize pbar_index after the calculation
         thread.join()
