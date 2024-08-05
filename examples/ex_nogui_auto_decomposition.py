@@ -23,10 +23,10 @@ def auto_decomposition(verbosity=True, show_plots=False):
     spectra_list = []
     for fname in fnames:
         spectrum = Spectrum()
-        spectrum.load_profile(fname)
+        spectrum.load_profile(fname, xmin=55)
         spectrum.auto_baseline()
         spectrum.subtract_baseline()
-        spectrum.auto_peaks(model_name="LorentzianAsym")
+        spectrum.auto_peaks(model_name="Lorentzian")
         # spectrum.fit() # fit is already performed during auto_peaks processing
         spectra_list.append(spectrum)
 
