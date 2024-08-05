@@ -626,8 +626,10 @@ class Spectrum:
             x, y = self.x, None
             if self.baseline.attached or self.baseline.mode == 'Semi-Auto':
                 y = self.y_no_outliers
-            self.y -= self.baseline.eval(x=x, y=y)
-            self.baseline.is_subtracted = True
+            self.baseline.eval(x=x, y=y)
+            if self.baseline.y_eval is not None:
+                self.y -= self.baseline.y_eval
+                self.baseline.is_subtracted = True
 
     def auto_peaks(self, model_name):
         """ Create automatically 'model_name' peak-models in the limit of
