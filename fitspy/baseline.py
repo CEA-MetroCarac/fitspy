@@ -107,7 +107,10 @@ class BaseLine:
             # use the original points or the attached points to an y-profile
             points = self.points if y is None else self.attach_points(x, y)
 
-            if len(points[1]) == 1:
+            if len(points[1]) == 0:
+                self.y_eval = None
+
+            elif len(points[1]) == 1:
                 self.y_eval = points[1] * np.ones_like(x)
 
             elif self.mode == 'Linear':
