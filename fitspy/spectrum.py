@@ -230,9 +230,8 @@ class Spectrum:
         subtract_baseline() and normalize() """
 
         self.load_profile(self.fname)
-        if self.baseline.is_subtracted:
-            self.baseline.is_subtracted = False
-            self.subtract_baseline()
+        self.baseline.is_subtracted = False
+        self.subtract_baseline()
         self.normalize()
 
     def load_profile(self, fname, xmin=None, xmax=None):
@@ -620,9 +619,6 @@ class Spectrum:
 
     def auto_baseline(self):
         """ set baseline.mode to 'Semi-Auto """
-        msg = "Method auto_baseline() will be deprecated.\n"
-        msg += "Set spectrum.baseline.mode attribute to 'Semi-Auto' instead."
-        warnings.warn(msg, DeprecationWarning, stacklevel=2)
         self.baseline.mode = 'Semi-Auto'
 
     def subtract_baseline(self):

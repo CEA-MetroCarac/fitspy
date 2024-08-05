@@ -14,7 +14,10 @@ from fitspy.spectrum import Spectrum
 
 def fit(params):
     """ Fitting function used in multiprocessing """
-    x0, y0, x, y, peak_models_, bkg_models_, fit_params, outliers_limit = params
+    (x0, y0, x, y, peak_models_, bkg_models_,
+     fit_params, outliers_limit, fit_only) = params
+
+    res = ()
 
     spectrum = Spectrum()
     spectrum.x0 = x0
@@ -25,10 +28,17 @@ def fit(params):
     spectrum.bkg_model = dill.loads(bkg_models_)
     spectrum.fit_params = fit_params
     spectrum.outliers_limit = outliers_limit
+
+    if not fit_only:
+        spectrum.preprocess()
+        res += (spectrum.x, spectrum.y, spectrum.baseline.y_eval)
+
     spectrum.fit()
+    res += (dill.dumps(spectrum.result_fit),)
+
     shared_queue.put(1)
 
-    return dill.dumps(spectrum.result_fit)
+    return res
 
 
 def initializer(queue_incr):
@@ -37,10 +47,10 @@ def initializer(queue_incr):
     shared_queue = queue_incr
 
 
-def fit_mp(spectra, ncpus, queue_incr):
+def fit_mp(spectra, ncpus, queue_incr, fit_only):
     """ Multiprocessing fit function applied to spectra """
 
-    # models and fit_params are assumed to be consistent across all spectra ,
+    # models and fit_params are assumed to be consistent across all spectra,
     # the 2 dill.dumps are performed once to limit the CPU cost
     peak_models_ = dill.dumps(spectra[0].peak_models)
     bkg_models_ = dill.dumps(spectra[0].bkg_model)
@@ -50,15 +60,20 @@ def fit_mp(spectra, ncpus, queue_incr):
     args = []
     for spectrum in spectra:
         args.append((spectrum.x0, spectrum.y0, spectrum.x, spectrum.y,
-                     peak_models_, bkg_models_, fit_params, outliers_limit))
+                     peak_models_, bkg_models_, fit_params, outliers_limit,
+                     fit_only))
 
     with ProcessPoolExecutor(initializer=initializer,
                              initargs=(queue_incr,),
                              max_workers=ncpus) as executor:
         results = tuple(executor.map(fit, args))
 
-    for result_fit_, spectrum in zip(results, spectra):
-        spectrum.result_fit = dill.loads(result_fit_)
+    for res, spectrum in zip(results, spectra):
+        if not fit_only:
+            spectrum.x = res[0]
+            spectrum.y = res[1]
+            spectrum.baseline.y_eval = res[2]
+        spectrum.result_fit = dill.loads(res[-1])
         spectrum.reassign_params()
 
 # import os
