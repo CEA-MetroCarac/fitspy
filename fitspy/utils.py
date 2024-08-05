@@ -5,9 +5,13 @@ import os
 import re
 import json
 from pathlib import Path
+import importlib
+import itertools
 import runpy
 import numpy as np
+import pandas as pd
 from lmfit.models import ExpressionModel
+from rsciio import IO_PLUGINS
 
 
 def closest_item(element_list, value):
@@ -149,3 +153,127 @@ def load_models_from_py(fname):
     """ Load models from '.py' file (See the documentation for more details) """
     if Path(fname).exists():
         runpy.run_path(fname)
+
+
+# def converter(fname, fname_res=None):
+#     """ Convert input data using HyperSpy from different formats (.spx, .emd,
+#         .dm3, ...) to .txt fitspy compatible format """
+#
+#     if fname_res is None:
+#         fname_res = Path(fname).with_suffix(".txt")
+#
+#     try:
+#         import hyperspy.api as hs
+#     except ImportError:
+#         raise ImportError('hyperspy must be installed')
+#
+#     signal = hs.load(fname)
+#     support = signal.axes_manager[-1].axis
+#
+#     # 1D spectrum
+#     if signal.data.ndim == 1:
+#         with open(fname_res, mode='w') as fid:
+#             fid.write('#support\t#intensity')
+#             for x, intensity in zip(support, signal.data):
+#                 fid.write(f"\n{x}\t{intensity}")
+#
+#     # 2D map
+#     elif signal.data.ndim == 3:
+#         with open(fname_res, mode='w') as fid:
+#             fid.write("\t\t" + "\t".join(map(str, support)))
+#             for i in range(signal.data.shape[0]):
+#                 for j in range(signal.data.shape[1]):
+#                     intens = signal.data[i, j, :]
+#                     fid.write(f"\n{i}\t{j}\t" + "\t".join(map(str, intens)))
+#
+#     else:
+#         raise NotImplementedError
+
+
+def get_dim(fname):
+    """ Return the dimension (1, 2 or None) of the spectrum/spectra field """
+
+    dim = None
+
+    if Path(fname).suffix in ['.txt', '.csv']:
+        with open(fname, 'r') as fid:
+            dim = 2 if fid.readline()[0] == "\t" else 1
+
+    else:
+        reader = get_reader_from_rsciio(fname)
+        if reader is not None:
+            data = reader.file_reader(fname)[0]['data']
+            if data.ndim == 1:
+                dim = 1
+            elif data.ndim == 3:  # 2D-map
+                dim = 2
+
+    return dim
+
+
+def get_reader_from_rsciio(fname):
+    """ Return the reader object using the Rosettasciio library """
+    sfx = Path(fname).suffix[1:].lower()
+    rdrs = [rdr for rdr in IO_PLUGINS if sfx in rdr["file_extensions"]]
+    if len(rdrs) == 1:
+        reader = rdrs[0]
+        return importlib.import_module(reader["api"])
+    else:
+        return None
+
+
+def get_x_data_from_rsciio(fname):
+    """ Return the spectrum/spectra support ('x') and the related intensities
+        ('data') using the Rosettasciio library """
+
+    reader = get_reader_from_rsciio(fname)
+
+    if reader is None:
+        raise NotImplementedError(f"unreadable file {fname}")
+
+    fdict = reader.file_reader(fname)[0]
+    data = fdict['data']
+    axis = fdict['axes'][0]
+    x = axis['offset'] + axis['scale'] * np.arange(axis['size'])
+
+    return x, data
+
+
+def get_1d_profile(fname):
+    """ Return the spectrum support ('x0') and its intensity ('y0') """
+
+    if Path(fname).suffix in ['.txt', '.csv']:
+        dfr = pd.read_csv(fname,
+                          sep=r'\s+|\t|,|;| ', engine='python',
+                          skiprows=1, usecols=[0, 1],
+                          names=['x0', 'y0'])
+        x0 = dfr['x0'].to_numpy()
+        y0 = dfr['y0'].to_numpy()
+    else:
+        x0, y0 = get_x_data_from_rsciio(fname)
+        if y0.ndim != 1:
+            raise IOError(f"incorrect dimension associated with {fname}")
+
+    return x0, y0
+
+
+def get_2d_map(fname):
+    r""" Return the array related to a 2D-map.
+        For more details about the array shape, see:
+        https://cea-metrocarac.github.io/fitspy/doc/user_guide/input_data.html#d-map-spectra"
+        """
+    if Path(fname).suffix in ['.txt', '.csv']:
+        dfr = pd.read_csv(fname, sep='\t', header=None)
+        arr = dfr.to_numpy()
+    else:
+        x, data = get_x_data_from_rsciio(fname)
+        if data.ndim == 3:
+            shape = data.shape
+            inds_i, inds_j = range(shape[1]), range(shape[2])
+            inds = np.array(list(itertools.product(inds_i, inds_j)))
+            data = data.reshape(shape[0], shape[1] * shape[2])
+            arr = np.vstack((np.hstack(([0, 0], x)), np.hstack((inds, data.T))))
+        else:
+            raise IOError(f"incorrect dimension associated with {fname}")
+
+    return arr

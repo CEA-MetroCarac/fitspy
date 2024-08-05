@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 from matplotlib.widgets import RangeSlider
 from parse import Parser
 
-from fitspy.utils import closest_index
+from fitspy.utils import closest_index, get_2d_map
 from fitspy.spectra import Spectra
 from fitspy.spectrum import Spectrum
 
@@ -70,11 +70,9 @@ class SpectraMap(Spectra):
         self.xrange = None
 
     def create_map(self, fname):
-        """ Create map from .txt file issued from labspec files conversion """
+        """ Create map """
 
-        self.fname = fname
-        dfr = pd.read_csv(fname, sep='\t', header=None)
-        arr = dfr.to_numpy()
+        arr = get_2d_map(fname)
 
         x_map = x = list(np.sort(np.unique(arr[1:, 1])))
         y_map = y = list(np.sort(np.unique(arr[1:, 0])))
@@ -112,6 +110,7 @@ class SpectraMap(Spectra):
             self.append(spectrum)
             coords.append([vals[1], vals[0]])
 
+        self.fname = fname
         self.xy_map = (x_map, y_map)
         self.shape_map = (len(self.xy_map[1]), len(self.xy_map[0]))
         self.extent = [xmin, xmax, ymin, ymax]

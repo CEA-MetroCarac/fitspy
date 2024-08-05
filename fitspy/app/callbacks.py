@@ -15,7 +15,7 @@ import numpy as np
 from fitspy.spectra import Spectra
 from fitspy.spectra_map import SpectraMap
 from fitspy.spectrum import Spectrum
-from fitspy.utils import closest_index, check_or_rename
+from fitspy.utils import get_dim, closest_index, check_or_rename
 from fitspy.utils import load_models_from_txt, load_models_from_py
 from fitspy import CMAP
 
@@ -917,20 +917,25 @@ class Callbacks:
         for fname in self.fileselector.filenames:
             if fname not in self.spectra.fnames:
 
-                # 2D-map detection
-                if os.path.isfile(fname):
-                    with open(fname, 'r') as fid:
-                        if fid.readline()[0] == "\t":
-                            self.create_map(fname)
-                            return
+                dim = get_dim(fname)
 
-                if fname_first_item is None:
-                    fname_first_item = fname
+                if dim is None:
+                    msg = "The file {} can not be interpreted by fitspy"
+                    showerror(message=msg.format(Path(fname).name))
+                    return
 
-                spectrum = Spectrum()
-                spectrum.load_profile(fname)
-                spectrum.attractors_params = attractors_params
-                self.spectra.append(spectrum)
+                elif dim == 2:
+                    self.create_map(fname)
+                    return
+
+                else:  # dim == 1
+                    if fname_first_item is None:
+                        fname_first_item = fname
+
+                    spectrum = Spectrum()
+                    spectrum.load_profile(fname)
+                    spectrum.attractors_params = attractors_params
+                    self.spectra.append(spectrum)
 
         self.update(fname=fname_first_item or self.fileselector.filenames[0])
 

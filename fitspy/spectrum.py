@@ -8,7 +8,6 @@ import itertools
 from copy import deepcopy
 import warnings
 import numpy as np
-import pandas as pd
 from scipy.signal import find_peaks
 from scipy.interpolate import interp1d
 from scipy.ndimage import uniform_filter1d
@@ -17,6 +16,7 @@ from lmfit.model import ModelResult
 from lmfit.models import ConstantModel, LinearModel, ParabolicModel, \
     ExponentialModel, ExpressionModel  # pylint:disable=unused-import
 
+from fitspy.utils import get_1d_profile
 from fitspy.utils import closest_index, fileparts, check_or_rename
 from fitspy.utils import save_to_json, load_from_json
 from fitspy.baseline import BaseLine
@@ -245,16 +245,14 @@ class Spectrum:
 
         # raw profile loading
         if self.x0 is None:
-            self.fname = fname
-            dfr = pd.read_csv(self.fname, sep=r'\s+|\t|,|;| ', engine='python',
-                              skiprows=1, usecols=[0, 1], names=['x0', 'y0'])
-            x0 = dfr['x0'].to_numpy()
-            y0 = dfr['y0'].to_numpy()
+            x0, y0 = get_1d_profile(fname)
 
             # reordering
             inds = np.argsort(x0)
             self.x0 = x0[inds]
             self.y0 = y0[inds]
+
+            self.fname = fname
 
         # (re)initialization or cropping
         if self.range_min is None:

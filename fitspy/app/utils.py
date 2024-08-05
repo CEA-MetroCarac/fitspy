@@ -291,9 +291,7 @@ class FilesSelector:
         """ Add items from selected files """
 
         if filenames is None:
-            filetypes = (('', '*.txt'), ('All files', '*.*'))
-            filenames = fd.askopenfilenames(title='Select file(s)',
-                                            filetypes=filetypes)
+            filenames = fd.askopenfilenames(title='Select file(s)')
         self.add_items(filenames=filenames)
 
         self.lbox.event_generate('<<ListboxAdd>>')
