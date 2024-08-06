@@ -20,6 +20,7 @@ from fitspy.utils import load_models_from_txt, load_models_from_py
 from fitspy import CMAP
 
 from fitspy.app.utils import convert_dict_from_tk_variables
+from fitspy.app.utils import is_convertible_to_float
 
 
 class Callbacks:
@@ -737,34 +738,41 @@ class Callbacks:
 
     def set_spectrum_range(self, delete_tabview=True):
         """ Set range to the current spectrum """
-        self.current_spectrum.range_min = float(self.range_min.get())
-        self.current_spectrum.range_max = float(self.range_max.get())
-        self.current_spectrum.load_profile(self.current_spectrum.fname)
-        self.set_range()
+        if is_convertible_to_float(self.range_min.get()):
+            self.current_spectrum.range_min = float(self.range_min.get())
+
+        if is_convertible_to_float(self.range_max.get()):
+            self.current_spectrum.range_max = float(self.range_max.get())
+
         self.remove(delete_tabview=delete_tabview)
+        self.current_spectrum.load_profile(self.current_spectrum.fname)
+        self.update_attractors()
 
     def set_range(self):
         """ Set range from the spectrum to the appli """
-        self.range_min.set(self.current_spectrum.x[0])
-        self.range_max.set(self.current_spectrum.x[-1])
-        self.current_spectrum.attractors_calculation()
+        self.range_min.set(self.current_spectrum.range_min)
+        self.range_max.set(self.current_spectrum.range_max)
 
     def apply_range_to_all(self):
         """ Apply the appli range to all the spectra """
-        range_min = float(self.range_min.get())
-        range_max = float(self.range_max.get())
-        self.range_min.set(range_min)
-        self.range_max.set(range_max)
 
-        self.show_plot = False
-        current_fname = self.current_spectrum.fname
-        for spectrum in self.spectra.all:
-            self.current_spectrum = spectrum
-            self.set_spectrum_range(delete_tabview=False)
-        self.show_plot = True
-        self.reassign_current_spectrum(current_fname)
+        if is_convertible_to_float(self.range_min.get()):
+            range_min = float(self.range_min.get())
+            for spectrum in self.spectra.all:
+                spectrum.range_min = range_min
+
+        if is_convertible_to_float(self.range_max.get()):
+            range_max = float(self.range_max.get())
+            for spectrum in self.spectra.all:
+                spectrum.range_max = range_max
+
+        self.current_spectrum.load_profile(self.current_spectrum.fname)
+        self.update_attractors()
+
         self.paramsview.delete()
         self.statsview.delete()
+        self.ax.clear()
+        self.plot()
 
     def normalize(self):
         """ Normalize all spectra from maximum or attractor position """
@@ -829,7 +837,8 @@ class Callbacks:
         """ Remove all the features (spectrum attributes, baseline, tabview) """
         if self.current_spectrum is not None:
             self.current_spectrum.remove_models()
-            self.delete_baseline()
+            self.current_spectrum.baseline.points = [[], []]
+            self.current_spectrum.attractors = []
             if delete_tabview:  # expensive operation when doing a lot of times
                 self.paramsview.delete()
                 self.statsview.delete()
@@ -979,6 +988,7 @@ class Callbacks:
             self.update_markers(fname)
 
         self.current_spectrum, _ = self.spectra.get_objects(fname)
+        self.current_spectrum.load_profile(fname)
 
         self.show_plot = False
         self.set_range()

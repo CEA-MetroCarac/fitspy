@@ -113,8 +113,8 @@ class GUI(Callbacks):
         self.progressbar = ProgressBar(self.root)
 
         # Spectrum parameters
-        self.range_min = DoubleVar(value=-1)
-        self.range_max = DoubleVar(value=99999)
+        self.range_min = StringVar(value="None")
+        self.range_max = StringVar(value="None")
         self.attractors = BooleanVar(value=True)
         self.outliers_coef = DoubleVar(value=1.5)
 
