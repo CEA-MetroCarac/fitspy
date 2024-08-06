@@ -6,7 +6,6 @@ import re
 import csv
 import itertools
 from copy import deepcopy
-import warnings
 import numpy as np
 from scipy.signal import find_peaks
 from scipy.interpolate import interp1d
@@ -253,15 +252,17 @@ class Spectrum:
         if xmax is not None:
             self.range_max = xmax
 
-        if self.range_min is None:
-            self.range_min = self.x0.min()
-        if self.range_max is None:
-            self.range_max = self.x0.max()
-
-        ind_min = closest_index(self.x0, self.range_min)
-        ind_max = closest_index(self.x0, self.range_max)
-        self.x = self.x0[ind_min:ind_max + 1].copy()
-        self.y = self.y0[ind_min:ind_max + 1].copy()
+        if self.range_min is None and self.range_max is None:
+            self.x = self.x0.copy()
+            self.y = self.y0.copy()
+        else:
+            ind_min, ind_max = 0, len(self.x0)
+            if self.range_min is not None:
+                ind_min = closest_index(self.x0, self.range_min)
+            if self.range_max is not None:
+                ind_max = closest_index(self.x0, self.range_max)
+            self.x = self.x0[ind_min:ind_max + 1].copy()
+            self.y = self.y0[ind_min:ind_max + 1].copy()
 
     def calculate_outliers(self):
         """ Return outliers points (x,y) coordinates """
