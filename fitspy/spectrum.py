@@ -226,17 +226,18 @@ class Spectrum:
 
     def preprocess(self):
         """ Preprocess the spectrum: call successively load_profile(),
-        subtract_baseline() and normalize() """
-
+            apply_range(), attractors_calculation(), subtract_baseline() and
+            normalize() """
         self.load_profile(self.fname)
+        self.apply_range()
+        self.attractors_calculation()
         self.baseline.is_subtracted = False
         self.subtract_baseline()
         self.normalize()
 
-    def load_profile(self, fname, xmin=None, xmax=None):
+    def load_profile(self, fname):
         """ Load profile from 'fname' with 1 header line and 2 (x,y) columns"""
 
-        # raw profile loading
         if self.x0 is None:
             x0, y0 = get_1d_profile(fname)
 
@@ -247,22 +248,26 @@ class Spectrum:
 
             self.fname = fname
 
-        if xmin is not None:
-            self.range_min = xmin
-        if xmax is not None:
-            self.range_max = xmax
+        self.x = self.x0.copy()
+        self.y = self.y0.copy()
 
-        if self.range_min is None and self.range_max is None:
-            self.x = self.x0.copy()
-            self.y = self.y0.copy()
-        else:
-            ind_min, ind_max = 0, len(self.x0)
+    def apply_range(self, range_min=None, range_max=None):
+        """ Apply range to the raw spectrum (and the baseline.y_eval) """
+
+        self.range_min = range_min or self.range_min
+        self.range_max = range_max or self.range_max
+
+        if self.range_min is not None or self.range_max is not None:
+            ind_min, ind_max = 0, len(self.x)
             if self.range_min is not None:
-                ind_min = closest_index(self.x0, self.range_min)
+                ind_min = closest_index(self.x, self.range_min)
             if self.range_max is not None:
-                ind_max = closest_index(self.x0, self.range_max)
-            self.x = self.x0[ind_min:ind_max + 1].copy()
-            self.y = self.y0[ind_min:ind_max + 1].copy()
+                ind_max = closest_index(self.x, self.range_max)
+
+            self.x = self.x[ind_min:ind_max + 1]
+            self.y = self.y[ind_min:ind_max + 1]
+            if self.baseline.y_eval is not None:
+                self.baseline.y_eval = self.baseline.y_eval[ind_min:ind_max + 1]
 
     def calculate_outliers(self):
         """ Return outliers points (x,y) coordinates """
@@ -695,8 +700,6 @@ class Spectrum:
                       linestyles='dashed', lw=0.5, label="Noise level")
 
         if show_baseline and self.baseline.is_subtracted:
-            if self.baseline.y_eval is None:
-                self.baseline.eval(x, self.y_no_outliers)
             ax.plot(x, self.baseline.y_eval, 'g', label="Baseline")
 
         y_bkg = np.zeros_like(x)

@@ -23,7 +23,8 @@ def auto_decomposition(verbosity=True, show_plots=False):
     spectra_list = []
     for fname in fnames:
         spectrum = Spectrum()
-        spectrum.load_profile(fname, xmin=55)
+        spectrum.load_profile(fname)
+        spectrum.apply_range(range_min=55)
         spectrum.auto_baseline()
         spectrum.subtract_baseline()
         spectrum.auto_peaks(model_name="Lorentzian")
@@ -54,6 +55,7 @@ def auto_decomposition(verbosity=True, show_plots=False):
 
             # Fitted spectra
             ax1.set_title('Flattened + Attractors + Fitted')
+            spectrum.preprocess()
             spectrum.plot(ax=ax1)
             ax1.legend()
 
