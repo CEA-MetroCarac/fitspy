@@ -745,8 +745,8 @@ class Callbacks:
             self.current_spectrum.range_max = float(self.range_max.get())
 
         self.remove(delete_tabview=delete_tabview)
-        self.current_spectrum.load_profile(self.current_spectrum.fname)
-        self.update_attractors()
+        self.current_spectrum.preprocess()
+        self.plot()
 
     def set_range(self):
         """ Set range from the spectrum to the appli """
@@ -766,9 +766,7 @@ class Callbacks:
             for spectrum in self.spectra.all:
                 spectrum.range_max = range_max
 
-        self.current_spectrum.load_profile(self.current_spectrum.fname)
-        self.update_attractors()
-
+        self.current_spectrum.preprocess()
         self.paramsview.delete()
         self.statsview.delete()
         self.ax.clear()
@@ -942,8 +940,9 @@ class Callbacks:
                         fname_first_item = fname
 
                     spectrum = Spectrum()
-                    spectrum.load_profile(fname)
+                    spectrum.fname = fname
                     spectrum.attractors_params = attractors_params
+                    spectrum.preprocess()
                     self.spectra.append(spectrum)
 
         self.update(fname=fname_first_item or self.fileselector.filenames[0])
@@ -988,7 +987,7 @@ class Callbacks:
             self.update_markers(fname)
 
         self.current_spectrum, _ = self.spectra.get_objects(fname)
-        self.current_spectrum.load_profile(fname)
+        self.current_spectrum.preprocess()
 
         self.show_plot = False
         self.set_range()
