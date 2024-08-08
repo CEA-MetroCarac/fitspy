@@ -3,6 +3,8 @@ Module containing different basic models (gaussian, lorentzian, ...)
 """
 import numpy as np
 
+np.seterr(divide='ignore', invalid='ignore')
+
 
 def gaussian(x, ampli, fwhm, x0):
     r"""
