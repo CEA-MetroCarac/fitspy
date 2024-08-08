@@ -30,7 +30,7 @@ from fitspy import PEAK_MODELS, BKG_MODELS, PEAK_PARAMS, SETTINGS_FNAME
 from fitspy.app.utils import add, interactive_entry as entry
 from fitspy.app.utils import ToggleFrame, ScrollbarFrame, FilesSelector
 from fitspy.app.toplevels import ParamsView, StatsView, ProgressBar
-from fitspy.app.toplevels import AttractorsSettings, FitSettings, FigureSettings
+from fitspy.app.toplevels import FitSettings, FigureSettings
 from fitspy.app.callbacks import Callbacks
 
 FONT = ('Helvetica', 8, 'bold')
