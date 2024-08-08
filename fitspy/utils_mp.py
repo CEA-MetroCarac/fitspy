@@ -14,7 +14,7 @@ from fitspy.spectrum import Spectrum
 
 def fit(params):
     """ Fitting function used in multiprocessing """
-    (x0, y0, x, y, peak_models_, bkg_models_,
+    (x0, y0, x, y, range_min, range_max, peak_models_, bkg_models_,
      fit_params, baseline_params, outliers_limit, fit_only) = params
 
     spectrum = Spectrum()
@@ -22,6 +22,8 @@ def fit(params):
     spectrum.y0 = y0
     spectrum.x = x
     spectrum.y = y
+    spectrum.range_min = range_min
+    spectrum.range_max = range_max
     spectrum.peak_models = dill.loads(peak_models_)
     spectrum.bkg_model = dill.loads(bkg_models_)
     spectrum.fit_params = fit_params
@@ -62,6 +64,7 @@ def fit_mp(spectra, ncpus, queue_incr, fit_only):
     args = []
     for spectrum in spectra:
         args.append((spectrum.x0, spectrum.y0, spectrum.x, spectrum.y,
+                     spectrum.range_min, spectrum.range_max,
                      peak_models_, bkg_models_, fit_params,
                      baseline_params, outliers_limit, fit_only))
 
