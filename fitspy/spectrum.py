@@ -258,16 +258,14 @@ class Spectrum:
         self.range_max = range_max or self.range_max
 
         if self.range_min is not None or self.range_max is not None:
-            ind_min, ind_max = 0, len(self.x)
-            if self.range_min is not None:
-                ind_min = closest_index(self.x, self.range_min)
-            if self.range_max is not None:
-                ind_max = closest_index(self.x, self.range_max)
+            mask = np.logical_and(self.x >= (self.range_min or -np.inf),
+                                  self.x <= (self.range_max or np.inf))
 
-            self.x = self.x[ind_min:ind_max + 1]
-            self.y = self.y[ind_min:ind_max + 1]
+            self.x = self.x[mask]
+            self.y = self.y[mask]
+
             if self.baseline.y_eval is not None:
-                self.baseline.y_eval = self.baseline.y_eval[ind_min:ind_max + 1]
+                self.baseline.y_eval = self.baseline.y_eval[mask]
 
     def calculate_outliers(self):
         """ Return outliers points (x,y) coordinates """
