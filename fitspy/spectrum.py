@@ -818,13 +818,14 @@ class Spectrum:
         return model_dict
 
     @staticmethod
-    def load(fname_json):
+    def load(fname_json, preprocess=False):
         """ Return a Spectrum object created from a .json file reloading """
 
         model_dict = load_from_json(fname_json)
 
         spectrum = Spectrum()
         spectrum.set_attributes(model_dict)
-        spectrum.preprocess()
+        if preprocess:
+            spectrum.preprocess()
 
         return spectrum

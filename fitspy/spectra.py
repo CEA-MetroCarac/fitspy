@@ -275,7 +275,7 @@ class Spectra(list):
         save_to_json(fname_json, dict_spectra, indent=3)
 
     @staticmethod
-    def load(fname_json):
+    def load(fname_json, preprocess=False):
         """ Return a Spectra object from a .json file """
 
         dict_spectra = load_from_json(fname_json)
@@ -297,12 +297,14 @@ class Spectra(list):
                 for spectrum in spectra_map:
                     if fname == spectrum.fname:
                         spectrum.set_attributes(dict_spectra[i])
-                        spectrum.preprocess()
+                        if preprocess:
+                            spectrum.preprocess()
                         break
             else:
                 spectrum = Spectrum()
                 spectrum.set_attributes(dict_spectra[i])
-                spectrum.preprocess()
+                if preprocess:
+                    spectrum.preprocess()
                 spectra.append(spectrum)
 
         return spectra
