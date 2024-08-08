@@ -113,8 +113,8 @@ class GUI(Callbacks):
         self.progressbar = ProgressBar(self.root)
 
         # Spectrum parameters
-        self.range_min = StringVar(value="None")
-        self.range_max = StringVar(value="None")
+        self.range_min = StringVar(value="")
+        self.range_max = StringVar(value="")
         self.attractors = BooleanVar(value=True)
         self.outliers_coef = DoubleVar(value=1.5)
 
@@ -220,8 +220,8 @@ class GUI(Callbacks):
         add(Label(fr, text='X-range :'), 0, 0)
         entry_min = Entry(fr, textvariable=self.range_min, w=9)
         entry_max = Entry(fr, textvariable=self.range_max, w=9)
-        entry_min.bind("<Return>", lambda event: self.set_spectrum_range())
-        entry_max.bind("<Return>", lambda event: self.set_spectrum_range())
+        entry_min.bind("<Return>", lambda event: self.apply_range())
+        entry_max.bind("<Return>", lambda event: self.apply_range())
         add(entry_min, 0, 1)
         add(entry_max, 0, 2)
         add(Button(fr, text="Apply to all",

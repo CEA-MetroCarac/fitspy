@@ -736,7 +736,12 @@ class Callbacks:
         """ Fit the peaks for all the spectra """
         self.fit(fnames=self.spectra.fnames, selection=False)
 
-    def set_spectrum_range(self, delete_tabview=True):
+    def set_range(self):
+        """ Set range from the spectrum to the appli """
+        self.range_min.set(self.current_spectrum.range_min or "")
+        self.range_max.set(self.current_spectrum.range_max or "")
+
+    def apply_range(self, delete_tabview=True):
         """ Set range to the current spectrum """
         if is_convertible_to_float(self.range_min.get()):
             self.current_spectrum.range_min = float(self.range_min.get())
@@ -747,11 +752,6 @@ class Callbacks:
         self.remove(delete_tabview=delete_tabview)
         self.current_spectrum.preprocess()
         self.plot()
-
-    def set_range(self):
-        """ Set range from the spectrum to the appli """
-        self.range_min.set(self.current_spectrum.range_min)
-        self.range_max.set(self.current_spectrum.range_max)
 
     def apply_range_to_all(self):
         """ Apply the appli range to all the spectra """
