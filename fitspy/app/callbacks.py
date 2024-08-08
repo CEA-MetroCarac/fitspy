@@ -357,7 +357,6 @@ class Callbacks:
         self.ax.set_ylabel(fig_settings['y_label'].get(), fontsize=18)
 
         if fig_settings['plot_fit'].get() == 'On':
-            show_attractors = self.attractors.get()
             show_outliers = fig_settings['plot_outliers'].get() == 'On'
             show_outl_limit = fig_settings['plot_outliers_limit'].get() == 'On'
             show_neg_values = fig_settings['plot_negative_values'].get() == 'On'
@@ -365,7 +364,6 @@ class Callbacks:
             show_baseline = fig_settings['plot_baseline'].get() == 'On'
             show_background = fig_settings['plot_background'].get() == 'On'
             self.lines = spectrum.plot(self.ax,
-                                       show_attractors=show_attractors,
                                        show_outliers=show_outliers,
                                        show_outliers_limit=show_outl_limit,
                                        show_negative_values=show_neg_values,
@@ -600,18 +598,6 @@ class Callbacks:
         self.current_spectrum.baseline.points = [[], []]
         self.plot()
 
-    # def update_attractors(self):
-    #     """ Update attractors """
-    #     if self.attractors.get():
-    #         self.current_spectrum.attractors_calculation()
-    #     self.plot()
-
-    def update_attractors_settings(self):
-        """ Update attractors settings """
-        x = self.root.winfo_pointerx()
-        y = self.root.winfo_pointery()
-        self.attractors_settings.update(x, y, bind_fun=self.update_attractors)
-
     def load_user_model(self, model):
         """Load users model from file to be added to PEAK_MODELS or BKG_MODEL"""
         fname = fd.askopenfilename(title='Select file',
@@ -622,24 +608,13 @@ class Callbacks:
             else:
                 load_models_from_py(fname)
 
-    def update_attractors(self):
-        """ Update attractors """
-        params = convert_dict_from_tk_variables(self.attractors_settings.params)
-        if params is not None:
-            self.current_spectrum.attractors_params = params
-            self.current_spectrum.attractors_calculation()
-            self.plot()
-
     def add_peaks_point(self, x, y):
         """ Add peak from the (x,y)-coordinates """
 
         # to take into account the strong aspect ratio in the axis represent.
         ratio = 1. / self.ax.get_data_ratio() ** 2
 
-        if self.attractors.get():
-            inds = self.current_spectrum.attractors
-        else:
-            inds = range(len(self.current_spectrum.x))
+        inds = range(len(self.current_spectrum.x))
 
         x_sp, y_sp = self.current_spectrum.x, self.current_spectrum.y
         dist_min = np.inf
@@ -772,27 +747,36 @@ class Callbacks:
         self.ax.clear()
         self.plot()
 
-    def normalize(self):
-        """ Normalize all spectra from maximum or attractor position """
-        norm_mode = self.normalize_mode.get().split()[0]
-        norm_position_ref = self.attractor_position.get()
+    def update_normalize_status(self):
+        """ Update 'normalize_status' to all the spectra """
+        for spectrum in self.spectra.all:
+            spectrum.normalize_status = self.normalize_status.get()
 
-        if norm_mode == "Attractor" and norm_position_ref == -1:
-            print('you must define an attractor position >= 0')
-            return
+        if self.current_spectrum is not None:
+            self.current_spectrum.preprocess()
+            self.paramsview.delete()
+            self.statsview.delete()
+            self.ax.clear()
+            self.plot()
 
-        self.show_plot = False
-        current_fname = self.current_spectrum.fname
-        for self.current_spectrum in self.spectra.all:
-            self.current_spectrum.norm_mode = norm_mode
-            self.current_spectrum.norm_position_ref = norm_position_ref
-            self.current_spectrum.normalize()
-            self.remove(delete_tabview=False)
-        self.show_plot = True
-        self.colorize_from_fit_status(fnames=self.spectra.fnames)
-        self.reassign_current_spectrum(current_fname)
-        self.paramsview.delete()
-        self.statsview.delete()
+    def update_normalize_range(self):
+        """ Update the normalization ranges to all the spectra """
+        if is_convertible_to_float(self.normalize_range_min.get()):
+            normalize_range_min = float(self.normalize_range_min.get())
+            for spectrum in self.spectra.all:
+                spectrum.normalize_range_min = normalize_range_min
+
+        if is_convertible_to_float(self.normalize_range_max.get()):
+            normalize_range_max = float(self.normalize_range_max.get())
+            for spectrum in self.spectra.all:
+                spectrum.normalize_range_max = normalize_range_max
+
+        if self.current_spectrum is not None:
+            self.current_spectrum.preprocess()
+            self.paramsview.delete()
+            self.statsview.delete()
+            self.ax.clear()
+            self.plot()
 
     def reinit(self, fnames=None):
         """ Reinitialize the spectrum """
@@ -836,7 +820,6 @@ class Callbacks:
         if self.current_spectrum is not None:
             self.current_spectrum.remove_models()
             self.current_spectrum.baseline.points = [[], []]
-            self.current_spectrum.attractors = []
             if delete_tabview:  # expensive operation when doing a lot of times
                 self.paramsview.delete()
                 self.statsview.delete()
@@ -916,9 +899,6 @@ class Callbacks:
                 if fname not in self.fileselector.filenames:
                     self.fileselector.add_items(filenames=[fname])
 
-        attractors_params = self.attractors_settings.params
-        attractors_params = convert_dict_from_tk_variables(attractors_params)
-
         # create Spectrum or SpectramMap objects associated to the new items
         fname_first_item = None
         for fname in self.fileselector.filenames:
@@ -941,7 +921,6 @@ class Callbacks:
 
                     spectrum = Spectrum()
                     spectrum.fname = fname
-                    spectrum.attractors_params = attractors_params
                     spectrum.preprocess()
                     self.spectra.append(spectrum)
 
@@ -992,7 +971,6 @@ class Callbacks:
         self.show_plot = False
         self.set_range()
         self.set_baseline()
-        self.update_attractors()
         self.paramsview.spectrum = self.current_spectrum
         self.paramsview.bkg_name = self.bkg_name
         self.paramsview.plot = self.plot

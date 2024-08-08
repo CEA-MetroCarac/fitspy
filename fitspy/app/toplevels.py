@@ -12,7 +12,7 @@ from lmfit.model import ModelResult
 
 from fitspy.app.utils import add, add_entry
 from fitspy import PEAK_MODELS, BKG_MODELS, PEAK_PARAMS, FIT_METHODS, CMAP, \
-    NCPUS, ATTRACTORS_PARAMS, FIT_PARAMS
+    NCPUS, FIT_PARAMS
 
 
 class ResultView:
@@ -387,19 +387,6 @@ class Settings:
         else:
             self.frame.deiconify()
             self.hidden = False
-
-
-class AttractorsSettings(Settings):
-    """ Class for attractors parameters setting """
-
-    def __init__(self, root):
-        super().__init__(root)
-        self.params = {
-            'distance': IntVar(value=ATTRACTORS_PARAMS['distance']),
-            'prominence': IntVar(value=ATTRACTORS_PARAMS['prominence']),
-            'width': IntVar(value=ATTRACTORS_PARAMS['width']),
-            'height': IntVar(value=ATTRACTORS_PARAMS['height']),
-            'threshold': IntVar(value=ATTRACTORS_PARAMS['threshold'])}
 
 
 class FitSettings(Settings):

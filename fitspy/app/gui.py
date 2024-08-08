@@ -48,8 +48,6 @@ class GUI(Callbacks):
         Axes and canvas related to the 2D-map figure displaying
     figure_settings: FigureSettings obj
         Tkinter.TopLevel derivative object for figure parameters setting
-    attractors_settings: AttractorsSettings obj
-        Tkinter.TopLevel derivative object for attractors parameters setting
     fit_settings: FitSettings obj
         Tkinter.TopLevel derivative object for fitting parameters setting
     paramsview: ParamsView obj
@@ -58,14 +56,8 @@ class GUI(Callbacks):
         Tkinter.TopLevel derivative object for fitting stats results displaying
     progressbar: ProgressBar obj
         Tkinter.TopLevel derivative object with progression bar
-    range_min, range_max: Tkinter.DoubleVars
+    range_min, range_max: Tkinter.StringVars
         Range associated to the spectrum support
-    normalize_mode: Tkinter.StringVar
-        Type of normalization ('Maximum' or 'Attractor')
-    attractor_position: Tkinter.IntVar
-        Reference position in case of 'Attractor' normalize_mode
-    attractors: Tkinter.BooleanVar
-        Activation keyword for spectrum peaks association when adding
     outliers_coef: Tkinter.DoubleVar
         Coefficient applied to the outliers limits
     baseline_mode: Tkinter.StringVar
@@ -85,6 +77,10 @@ class GUI(Callbacks):
         Type of baseline ('Linear' or 'Polynomial')
     baseline_order_max: Tkinter.IntVar
         Max polynomial order to consider when plotting/removing the baseline
+    normalize_status: Tkinter.BooleanVar
+        Activation keyword for spectrum profiles normalization
+    normalize_range_min, normalize_range_max: Tkinter.StringVars
+        Ranges for searching the maximum value used in the normalization
     model: Tkinter.StringVar
         Spectrum peak base model name among 'Gaussian', 'Lorentzian',
         'GaussianAsym' and 'LorentzianAsym'
@@ -106,7 +102,6 @@ class GUI(Callbacks):
 
         # TopLevels linked to the application
         self.figure_settings = FigureSettings(self.root)
-        self.attractors_settings = AttractorsSettings(self.root)
         self.fit_settings = FitSettings(self.root)
         self.paramsview = ParamsView(self.root)
         self.statsview = StatsView(self.root)
@@ -115,7 +110,6 @@ class GUI(Callbacks):
         # Spectrum parameters
         self.range_min = StringVar(value="")
         self.range_max = StringVar(value="")
-        self.attractors = BooleanVar(value=True)
         self.outliers_coef = DoubleVar(value=1.5)
 
         # Baseline parameters
@@ -127,8 +121,9 @@ class GUI(Callbacks):
         self.baseline_order_max = IntVar(value=2)
 
         # normalization parameters
-        self.normalize_mode = StringVar(value='Maximum')
-        self.attractor_position = IntVar(value=-1)
+        self.normalize_status = BooleanVar(value=False)
+        self.normalize_range_min = StringVar(value="")
+        self.normalize_range_max = StringVar(value="")
 
         # Peaks parameters
         self.model = StringVar(value='Lorentzian')
@@ -227,11 +222,6 @@ class GUI(Callbacks):
         add(Button(fr, text="Apply to all",
                    command=self.apply_range_to_all), 0, 3)
 
-        add(Checkbutton(fr, text='Attractors', variable=self.attractors,
-                        command=self.update_attractors), 1, 0, E, cspan=2)
-        add(Button(fr, text='Attractors Settings',
-                   command=self.update_attractors_settings), 1, 2, cspan=2)
-
         add(Button(fr, text='Outliers Calc.',
                    command=self.outliers_calculation), 2, 0, E, cspan=2)
         add(Label(fr, text='coef :'), 2, 2, E)
@@ -291,13 +281,15 @@ class GUI(Callbacks):
         fr = LabelFrame(frame_proc_sbar, text="Normalization", font=FONT)
         add(fr, next(row), 0, W + E)
 
-        var = self.normalize_mode
-        vals = ["Maximum", "Attractor near :"]
-        add(Radiobutton(fr, text=vals[0], variable=var, value=vals[0]), 0, 0)
-        add(Radiobutton(fr, text=vals[1], variable=var, value=vals[1]), 0, 1, E)
-        add(Entry(fr, textvariable=self.attractor_position, width=8), 0, 2, W)
-        add(Button(fr, text="Apply to all",
-                   command=self.normalize), 1, 0, cspan=3)
+        add(Checkbutton(fr, text='Normalize', variable=self.normalize_status,
+                        command=self.update_normalize_status), 0, 0, E)
+        add(Label(fr, text='X-range :'), 0, 1)
+        entry_min = Entry(fr, textvariable=self.normalize_range_min, w=9)
+        entry_max = Entry(fr, textvariable=self.normalize_range_max, w=9)
+        entry_min.bind("<Return>", lambda event: self.update_normalize_range())
+        entry_max.bind("<Return>", lambda event: self.update_normalize_range())
+        add(entry_min, 0, 2)
+        add(entry_max, 0, 3)
 
         # Fitting
 
@@ -512,7 +504,7 @@ class GUI(Callbacks):
         for key, val in vars(self).items():
             if isinstance(val, (BooleanVar, IntVar, StringVar)):
                 dict_attrs[key] = val.get()
-        for pfx in ['attractors', 'fit', 'figure']:
+        for pfx in ['fit', 'figure']:
             key = f"{pfx}_settings"
             dict_attrs[key] = {}
             obj = eval(f"self.{key}")

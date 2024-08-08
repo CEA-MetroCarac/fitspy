@@ -31,8 +31,7 @@ FIT_METHODS = {'Leastsq': 'leastsq', 'Least_squares': 'least_squares',
                'Nelder-Mead': 'nelder', 'SLSQP': 'slsqp'}
 FIT_PARAMS = {'method': 'leastsq', 'fit_negative': False, 'fit_outliers': False,
               'max_ite': 200, 'coef_noise': 1, 'xtol': 1.e-4, 'ncpus': 'auto'}
-ATTRACTORS_PARAMS = {'distance': 20, 'prominence': 0, 'width': 0, 'height': 0,
-                     'threshold': 0}
+
 NCPUS = ['auto', 1, 2, 3, 4, 5, 6, 8, 10, 12, 14, 16, 20, 24, 28, 32]
 CMAP = plt.get_cmap("tab10")
 
