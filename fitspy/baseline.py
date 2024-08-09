@@ -45,11 +45,10 @@ class BaseLine:
     """
 
     def __init__(self):
-        self.points = [[], []]
-        self.mode = "Linear"
+        self.mode = None
         self.coef = 5
+        self.points = [[], []]
         self.order_max = 1
-        self.distance = 100
         self.sigma = 0
         self.attached = True
         self.is_subtracted = False
@@ -90,9 +89,12 @@ class BaseLine:
     def eval(self, x, y=None):
         """ Evaluate the baseline on a 'x' support and a 'y' attached profile
             possibly smoothed with a gaussian filter """
-        assert self.mode in ['Semi-Auto', 'Linear', 'Polynomial']
+        assert self.mode in [None, 'Semi-Auto', 'Linear', 'Polynomial']
 
-        if self.mode == 'Semi-Auto':
+        if self.mode is None:
+            self.y_eval = None
+
+        elif self.mode == 'Semi-Auto':
             with warnings.catch_warnings():
                 warnings.simplefilter("ignore")
                 mask = y > 0
@@ -147,6 +149,9 @@ class BaseLine:
             Activation key to display the primary baseline components (before
             attachment)
         """
+        if self.mode is None:
+            return
+
         if len(self.points[0]) == 0 and self.mode != 'Semi-Auto':
             return
 

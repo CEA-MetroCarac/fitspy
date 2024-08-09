@@ -114,7 +114,7 @@ class GUI(Callbacks):
         self.baseline_attached = BooleanVar(value=True)
         self.baseline_sigma = IntVar(value=0)
         self.baseline_distance = IntVar(value=500)
-        self.baseline_mode = StringVar(value='Linear')
+        self.baseline_mode = StringVar(value="Semi-Auto")
         self.baseline_coef = IntVar(value=5)
         self.baseline_order_max = IntVar(value=2)
 
@@ -264,10 +264,10 @@ class GUI(Callbacks):
         sigma_entry.bind("<KeyRelease>",
                          lambda event: self.update_baseline('sigma'))
 
-        add(Button(fr, text="Subtract Selec.",
-                   command=self.subtract_baseline), 3, 0)
-        add(Button(fr, text="Subtract All",
-                   command=self.subtract_baseline_to_all), 3, 1)
+        add(Button(fr, text="Subtract to Sel.",
+                   command=self.subtract_baseline), 3, 0, cspan=2)
+        # add(Button(fr, text="Apply to All",
+        #            command=self.subtract_baseline_to_all), 3, 1)
         add(Button(fr, text="Delete",
                    command=self.delete_baseline), 3, 2)
 
@@ -525,6 +525,7 @@ class GUI(Callbacks):
                         var.set(val)
                 except AttributeError:
                     pass
+        self.baseline_mode.set(None)
 
 
 class Appli(GUI):

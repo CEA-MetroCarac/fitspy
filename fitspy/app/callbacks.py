@@ -19,7 +19,6 @@ from fitspy.utils import get_dim, closest_index, check_or_rename
 from fitspy.utils import load_models_from_txt, load_models_from_py
 from fitspy import CMAP
 
-from fitspy.app.utils import convert_dict_from_tk_variables
 from fitspy.app.utils import is_convertible_to_float
 
 
@@ -499,21 +498,28 @@ class Callbacks:
                 self.fr_fit.disable()
                 self.selected_frame = None
 
-    def baseline_error_message(self, fnames):
+    def baseline_subtract_message(self):
         """ Show an error message associated with the baseline """
-        msg = "A baseline has already been subtracted to the profiles:\n"
-        msg += "\n".join([f"  - {Path(fname).name}" for fname in fnames])
-        msg += "\n\nTo create or subtract a new baseline from these profiles," \
-               " they must be reinitialized."
-        showerror(message=msg)
+        msg = "A baseline has already been subtracted to the spectrum."
+        msg += "\nFurther action requires to reinitialize the spectrum."
+        msg += "\n\nContinue ?"
+        return askyesno(message=msg)
 
     def add_baseline_point(self, x, y):
         """ Add baseline point from the (x,y)-coordinate """
+        if self.current_spectrum.baseline.mode not in ['Linear', 'Polynomial']:
+            return
+
         if self.current_spectrum.baseline.is_subtracted:
-            self.baseline_error_message([self.current_spectrum.fname])
-        else:
-            self.current_spectrum.baseline.add_point(x, y)
-            self.plot()
+            if not self.baseline_subtract_message():
+                return
+            self.current_spectrum.load_profile(self.current_spectrum.fname)
+            self.current_spectrum.apply_range()
+            self.current_spectrum.baseline.is_subtracted = False
+            self.current_spectrum.baseline.points = [[], []]
+
+        self.current_spectrum.baseline.add_point(x, y)
+        self.plot()
 
     def del_baseline_point(self, x, _):
         """ Delete the closest baseline 'x'-point """
@@ -530,14 +536,14 @@ class Callbacks:
 
     def update_baseline(self, key):
         """ Update a baseline attribute"""
-        spectrum = self.current_spectrum
-        if spectrum.baseline.is_subtracted:
-            self.baseline_error_message([spectrum.fname])
-            eval(f"self.baseline_{key}.set(spectrum.baseline.{key})")
-            return
+        if self.current_spectrum.baseline.is_subtracted:
+            if not self.baseline_subtract_message():
+                return
 
         val = eval(f"self.baseline_{key}").get()
         setattr(self.current_spectrum.baseline, key, val)
+
+        self.current_spectrum.preprocess()
         self.plot()
 
     def set_baseline(self):
@@ -549,16 +555,23 @@ class Callbacks:
 
     def load_baseline(self, fname=None):
         """ Load a baseline from a row-column .txt file """
+        if self.current_spectrum.baseline.is_subtracted:
+            if not self.baseline_subtract_message():
+                return
+
         if fname is None:
             fname = fd.askopenfilename(title='Select file')
 
         if os.path.isfile(fname):
             self.current_spectrum.baseline.load_baseline(fname)
+            self.current_spectrum.preprocess()
             self.plot()
 
     def subtract_baseline(self, fnames=None):
         """ Subtract the current baseline """
         baseline = self.current_spectrum.baseline
+        if baseline.mode is None:
+            return
         if baseline.mode != 'Semi-Auto' and len(baseline.points[0]) == 0:
             return
 
@@ -566,35 +579,21 @@ class Callbacks:
             fnames = self.fileselector.filenames
             fnames = [fnames[i] for i in self.fileselector.lbox.curselection()]
 
-        # check the subtract(s) can be done
-        fnames_not_ok = []
-        for fname in fnames:
-            spectrum, _ = self.spectra.get_objects(fname)
-            if spectrum.baseline.is_subtracted:
-                fnames_not_ok.append(fname)
-        if len(fnames_not_ok) > 0:
-            self.baseline_error_message(fnames_not_ok)
-            return
-
         for fname in fnames:
             spectrum, _ = self.spectra.get_objects(fname)
             for key, value in vars(baseline).items():
-                if key not in ['is_subtracted']:
-                    setattr(spectrum.baseline, key, value)
-            spectrum.subtract_baseline()
+                setattr(spectrum.baseline, key, value)
+            spectrum.preprocess()
 
         self.paramsview.delete()
         self.statsview.delete()
         self.ax.clear()
         self.plot()
 
-    def subtract_baseline_to_all(self):
-        """ Subtract baseline to all the spectra """
-        self.subtract_baseline(fnames=self.spectra.fnames)
-
     def delete_baseline(self):
         """ Delete the current baseline """
         self.current_spectrum.baseline.points = [[], []]
+        self.current_spectrum.baseline.mode = None
         self.plot()
 
     def load_user_model(self, model):
@@ -965,7 +964,7 @@ class Callbacks:
             self.update_markers(fname)
 
         self.current_spectrum, _ = self.spectra.get_objects(fname)
-        self.current_spectrum.preprocess()
+        # self.current_spectrum.preprocess()
 
         self.show_plot = False
         self.set_range()
