@@ -964,7 +964,7 @@ class Callbacks:
             self.update_markers(fname)
 
         self.current_spectrum, _ = self.spectra.get_objects(fname)
-        # self.current_spectrum.preprocess()
+        self.current_spectrum.preprocess()
 
         self.show_plot = False
         self.set_range()
