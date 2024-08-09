@@ -42,8 +42,6 @@ class GUI(Callbacks):
 
     Attributes
     ----------
-    frame_map: Tkinter.TopLevel
-        Frame used to display the 2D-map field (integrated spectrum intensities)
     ax_map, canvas_map: Matplotlib.Axes, FigureCanvasTkAgg
         Axes and canvas related to the 2D-map figure displaying
     figure_settings: FigureSettings obj
@@ -362,7 +360,6 @@ class GUI(Callbacks):
     def frame_map_creation(self, spectra_map):
         """ Create a frame_map Tkinter.Toplevel() and related 'ax' and 'canvas'
             as spectra_map attributes """
-
         frame_map = Toplevel(self.root)
         frame_map.title(os.path.basename(spectra_map.fname))
         frame_map.protocol("WM_DELETE_WINDOW", lambda *args: None)
@@ -555,8 +552,6 @@ class Appli(GUI):
         """ To quit 'properly' the application """
         if messagebox.askokcancel("Quit", "Would you like to quit ?"):
             self.root.destroy()
-            if self.force_terminal_exit:
-                os._exit(1)  # to force terminal to exit
 
 
 def fitspy_launcher(fname_json=None):
