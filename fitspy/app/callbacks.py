@@ -214,8 +214,7 @@ class Callbacks:
         else:
             return int(ncpus)
 
-    def apply_model(self, model_dict=None, fnames=None, selection=False,
-                    fit_only=False):
+    def apply_model(self, model_dict=None, fnames=None, selection=False):
         """ Apply model to the selected spectra """
         model_dict = model_dict or deepcopy(self.model_dict)
 
@@ -233,7 +232,7 @@ class Callbacks:
         nfiles = len(fnames)
         ncpus = self.get_ncpus(nfiles=nfiles)
 
-        args = (model_dict, fnames, ncpus, fit_only)
+        args = (model_dict, fnames, ncpus)
         thread = Thread(target=self.spectra.apply_model, args=args)
         thread.start()
         self.progressbar.show(self.spectra, nfiles)
@@ -704,7 +703,7 @@ class Callbacks:
 
         model_dict = self.current_spectrum.save()
         model_dict.pop('baseline')  # to not affect previous works on baseline
-        self.apply_model(model_dict=model_dict, fnames=fnames, fit_only=True,
+        self.apply_model(model_dict=model_dict, fnames=fnames,
                          selection=selection)
 
     def fit_all(self):

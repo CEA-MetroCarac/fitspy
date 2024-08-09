@@ -298,7 +298,6 @@ class Spectrum:
         if self.normalize_status:
             xmin = self.normalize_range_min or -np.inf
             xmax = self.normalize_range_max or np.inf
-            print(xmin, xmax)
             mask = np.logical_and(self.x >= xmin, self.x <= xmax)
             self.y *= 100 / self.y_no_outliers[mask].max()
 

@@ -183,7 +183,7 @@ class Spectra(list):
         model_dict = load_from_json(fname_json)[ind]
         return model_dict
 
-    def apply_model(self, model_dict, fnames=None, ncpus=1, fit_only=False,
+    def apply_model(self, model_dict, fnames=None, ncpus=1,
                     show_progressbar=True):
         """
         Apply 'model' to all or part of the spectra
@@ -198,8 +198,6 @@ class Spectra(list):
             If None, apply the model to all the spectra
         ncpus: int, optional
             Number of CPU to use during the fit processing
-        fit_only: bool, optional
-            Activation key to process only fitting
         show_progressbar: bool, optional
             Activation key to show the progress bar
         """
@@ -220,12 +218,11 @@ class Spectra(list):
 
         if ncpus == 1:
             for spectrum in spectra:
-                if not fit_only:
-                    spectrum.preprocess()
+                spectrum.preprocess()
                 spectrum.fit()
                 queue_incr.put(1)
         else:
-            fit_mp(spectra, ncpus, queue_incr, fit_only)
+            fit_mp(spectra, ncpus, queue_incr)
 
         self.pbar_index = 0  # reinitialize pbar_index after the calculation
         thread.join()

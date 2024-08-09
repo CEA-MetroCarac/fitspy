@@ -10,22 +10,17 @@ from concurrent.futures import ProcessPoolExecutor
 import dill
 
 
-def fit(params):
+def fit(spectrum_):
     """ Fitting function used in multiprocessing """
-    spectrum_, fit_only = params
 
     spectrum = dill.loads(spectrum_)
-    if not fit_only:
-        spectrum.preprocess()
+    spectrum.preprocess()
     spectrum.fit()
-
-    res = (dill.dumps(spectrum.result_fit),)
-    if not fit_only:
-        res += (spectrum.x, spectrum.y, spectrum.baseline.y_eval)
 
     shared_queue.put(1)
 
-    return res
+    return (spectrum.x, spectrum.y, spectrum.baseline.y_eval,
+            dill.dumps(spectrum.result_fit))
 
 
 def initializer(queue_incr):
@@ -34,11 +29,11 @@ def initializer(queue_incr):
     shared_queue = queue_incr
 
 
-def fit_mp(spectra, ncpus, queue_incr, fit_only):
+def fit_mp(spectra, ncpus, queue_incr):
     """ Multiprocessing fit function applied to spectra """
     args = []
     for spectrum in spectra:
-        args.append((dill.dumps(spectrum), fit_only))
+        args.append(dill.dumps(spectrum))
 
     with ProcessPoolExecutor(initializer=initializer,
                              initargs=(queue_incr,),
@@ -46,9 +41,8 @@ def fit_mp(spectra, ncpus, queue_incr, fit_only):
         results = executor.map(fit, args)
 
     for res, spectrum in zip(results, spectra):
-        spectrum.result_fit = dill.loads(res[0])
-        if not fit_only:
-            spectrum.x = res[1]
-            spectrum.y = res[2]
-            spectrum.baseline.y_eval = res[3]
+        spectrum.x = res[0]
+        spectrum.y = res[1]
+        spectrum.baseline.y_eval = res[2]
+        spectrum.result_fit = dill.loads(res[3])
         spectrum.reassign_params()
