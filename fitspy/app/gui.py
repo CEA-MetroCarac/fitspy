@@ -262,8 +262,7 @@ class GUI(Callbacks):
         sigma_entry.bind("<KeyRelease>", self.apply_baseline_settings)
 
         add(Button(fr, text="Apply to All",
-                   command=self.apply_baseline_settings_to_all), 3, 1)
-        # add(Button(fr, text="Subtract", command=self.subtract_baseline), 3, 1)
+                   command=self.apply_baseline_settings_to_all), 3, 1, W)
 
         self.fr_baseline.enable()
         self.fr_baseline.bind("<Button-1>", self.on_press_baseline_peaks)

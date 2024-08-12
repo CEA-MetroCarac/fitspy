@@ -16,7 +16,7 @@ from lmfit.models import ConstantModel, LinearModel, ParabolicModel, \
 
 from fitspy.utils import get_1d_profile
 from fitspy.utils import closest_index, fileparts, check_or_rename
-from fitspy.utils import save_to_json, load_from_json
+from fitspy.utils import save_to_json, load_from_json, eval_noise_amplitude
 from fitspy.baseline import BaseLine
 from fitspy import PEAK_MODELS, PEAK_PARAMS, BKG_MODELS, FIT_PARAMS
 
@@ -520,18 +520,12 @@ class Spectrum:
             weights[y < 0] = 0
 
         if not self.fit_params['fit_outliers']:
-            # TODO: pas d'option, on ne fit pas les outliers -> prendre
-            #  y_no_outliers
             x_outliers, _ = self.calculate_outliers()
             if x_outliers is not None:
                 weights[np.where(np.isin(x, x_outliers))] = 0
 
         if self.fit_params['coef_noise'] > 0:
-            # TODO : faire une fonction
-            delta = np.diff(y)
-            delta1, delta2 = delta[:-1], delta[1:]
-            mask = np.sign(delta1) * np.sign(delta2) == -1
-            ampli_noise = np.median(np.abs(delta1[mask] - delta2[mask]) / 2)
+            ampli_noise = eval_noise_amplitude(y)
             noise_level = self.fit_params['coef_noise'] * ampli_noise
             weights[y < noise_level] = 0
 
@@ -685,8 +679,7 @@ class Spectrum:
             ax.plot(x[y < 0], y[y < 0], 'ro', ms=4, label="Negative values")
 
         if show_noise_level:
-            ampli_noise = np.median(np.abs(y[:-1] - y[1:]) / 2)
-            # TODO: faire une fonction de calcul du bruit
+            ampli_noise = eval_noise_amplitude(y)
             y_noise_level = self.fit_params['coef_noise'] * ampli_noise
             ax.hlines(y=y_noise_level, xmin=x[0], xmax=x[-1], colors='r',
                       linestyles='dashed', lw=0.5, label="Noise level")

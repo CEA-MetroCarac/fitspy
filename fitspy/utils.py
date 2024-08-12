@@ -242,3 +242,12 @@ def get_2d_map(fname):
             raise IOError(f"incorrect dimension associated with {fname}")
 
     return arr
+
+
+def eval_noise_amplitude(y):
+    """ Evaluate the noise amplitude wrt oscillations at every other point """
+    delta = np.diff(y)
+    delta1, delta2 = delta[:-1], delta[1:]
+    mask = np.sign(delta1) * np.sign(delta2) == -1
+    ampli_noise = np.median(np.abs(delta1[mask] - delta2[mask]) / 2)
+    return ampli_noise
