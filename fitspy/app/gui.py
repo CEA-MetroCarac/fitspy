@@ -75,7 +75,7 @@ class GUI(Callbacks):
         Type of baseline ('Linear' or 'Polynomial')
     baseline_order_max: Tkinter.IntVar
         Max polynomial order to consider when plotting/removing the baseline
-    normalize_status: Tkinter.BooleanVar
+    normalize: Tkinter.BooleanVar
         Activation keyword for spectrum profiles normalization
     normalize_range_min, normalize_range_max: Tkinter.StringVars
         Ranges for searching the maximum value used in the normalization
@@ -105,8 +105,8 @@ class GUI(Callbacks):
         self.statsview = StatsView(self.root)
 
         # Spectrum parameters
-        self.range_min = StringVar(value="")
-        self.range_max = StringVar(value="")
+        self.range_min = DoubleVar()
+        self.range_max = DoubleVar()
         self.outliers_coef = DoubleVar(value=1.5)
 
         # Baseline parameters
@@ -118,7 +118,7 @@ class GUI(Callbacks):
         self.baseline_order_max = IntVar(value=2)
 
         # normalization parameters
-        self.normalize_status = BooleanVar(value=False)
+        self.normalize = BooleanVar(value=False)
         self.normalize_range_min = StringVar(value="")
         self.normalize_range_max = StringVar(value="")
 
@@ -175,7 +175,9 @@ class GUI(Callbacks):
         self.preserve_axis = BooleanVar(value=False)
         add(Checkbutton(frame_visu, variable=self.preserve_axis,
                         text='Preserve axis'), 2, 0)
-
+        self.subtract_baseline = BooleanVar(value=True)
+        add(Checkbutton(frame_visu, variable=self.subtract_baseline,
+                        text='Subtract baseline', command=self.plot), 2, 0, E)
         # FILES SELECTION frame
         #######################
 
@@ -260,8 +262,8 @@ class GUI(Callbacks):
         sigma_entry.bind("<KeyRelease>", self.apply_baseline_settings)
 
         add(Button(fr, text="Apply to All",
-                   command=self.apply_baseline_settings_to_all), 3, 0)
-        add(Button(fr, text="Subtract", command=self.subtract_baseline), 3, 1)
+                   command=self.apply_baseline_settings_to_all), 3, 1)
+        # add(Button(fr, text="Subtract", command=self.subtract_baseline), 3, 1)
 
         self.fr_baseline.enable()
         self.fr_baseline.bind("<Button-1>", self.on_press_baseline_peaks)
@@ -271,8 +273,8 @@ class GUI(Callbacks):
         fr = LabelFrame(frame_proc, text="Normalization", font=FONT)
         add(fr, next(row), 0, W + E)
 
-        add(Checkbutton(fr, text='Normalize', variable=self.normalize_status,
-                        command=self.update_normalize_status), 0, 0, E)
+        add(Checkbutton(fr, text='Normalize', variable=self.normalize,
+                        command=self.update_normalize), 0, 0, E)
         add(Label(fr, text='X-range :'), 0, 1)
         entry_min = Entry(fr, textvariable=self.normalize_range_min, w=9)
         entry_max = Entry(fr, textvariable=self.normalize_range_max, w=9)

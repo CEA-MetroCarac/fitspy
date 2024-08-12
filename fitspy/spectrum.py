@@ -55,7 +55,7 @@ class Spectrum:
         Arrays related to the spectrum raw support and intensity (resp.)
     x, y: numpy.array((n))
         Arrays related to spectrum modified support and intensity (resp.)
-    normalize_status: bool
+    normalize: bool
         Activation keyword for the spectrum profile normalization
     normalize_range_min, normalize_range_max: floats
         Ranges for searching the maximum value used in the normalization
@@ -113,15 +113,13 @@ class Spectrum:
         self.fname = None
         self.range_min = None
         self.range_max = None
-        self.norm_mode = None
-        self.norm_position_ref = None
         self.x0 = None
         self.y0 = None
         self.x = None
         self.y = None
         self.outliers_limit = None
         self.baseline = BaseLine()
-        self.normalize_status = False
+        self.normalize = False
         self.normalize_range_min = None
         self.normalize_range_max = None
         self.bkg_model = None
@@ -215,25 +213,26 @@ class Spectrum:
 
         if "norm_mode" in keys:
             if model_dict["norm_mode"] == 'Maximum':
-                self.normalize_status = True
+                self.normalize = True
             else:  # 'Attractors'
                 norm_position_ref = model_dict["norm_position_ref"]
                 if norm_position_ref is not None:
                     x, _ = get_1d_profile(self.fname)
                     # consider 10 pts around 'norm_position_ref' (to simplify)
                     delta = np.abs(10 * (x[1] - x[0]))
-                    self.normalize_status = True
+                    self.normalize = True
                     self.normalize_range_min = norm_position_ref - delta
                     self.normalize_range_max = norm_position_ref + delta
 
     def preprocess(self):
         """ Preprocess the spectrum: call successively load_profile(),
-            apply_range(), subtract_baseline() and normalize() """
+            apply_range(), eval_baseline(), subtract_baseline() and
+            normalization() """
         self.load_profile(self.fname)
         self.apply_range()
         self.eval_baseline()
         self.subtract_baseline()
-        self.normalize()
+        self.normalization()
 
     def load_profile(self, fname):
         """ Load profile from 'fname' with 1 header line and 2 (x,y) columns"""
@@ -263,6 +262,8 @@ class Spectrum:
 
             self.x = self.x0[mask].copy()
             self.y = self.y0[mask].copy()
+            self.range_min = self.x.min()
+            self.range_max = self.x.max()
 
     def calculate_outliers(self):
         """ Return outliers points (x,y) coordinates """
@@ -289,13 +290,13 @@ class Spectrum:
             func_interp = interp1d(x, y, fill_value="extrapolate")
             return func_interp(self.x)
 
-    def normalize(self):
+    def normalization(self):
         """
         Normalize spectrum according to the 'Maximum' value or the nearest
         'Attractor' value from reference position, assuming that the baseline
         has been correctly defined (y_min value ~ 0)
         """
-        if self.normalize_status:
+        if self.normalize:
             xmin = self.normalize_range_min or -np.inf
             xmax = self.normalize_range_max or np.inf
             mask = np.logical_and(self.x >= xmin, self.x <= xmax)
@@ -655,9 +656,13 @@ class Spectrum:
              show_outliers=True, show_outliers_limit=True,
              show_negative_values=True, show_noise_level=True,
              show_baseline=True, show_background=True,
-             show_peak_models=True, show_result=True):
+             show_peak_models=True, show_result=True,
+             subtract_baseline=True):
         """ Plot the spectrum with the peak models """
-        x, y = self.x, self.y
+        x, y = self.x.copy(), self.y.copy()
+
+        if not subtract_baseline and self.baseline.y_eval is not None:
+            y += self.baseline.y_eval
 
         lines = []
         linewidth = 0.5
@@ -665,7 +670,6 @@ class Spectrum:
             linewidth = 1
 
         ax.plot(x, y, 'ko-', lw=0.5, ms=1)
-        # ax.plot(x, self.y_no_outliers, 'k', ls='dotted', lw=linewidth)
 
         if show_outliers:
             x_outliers, y_outliers = self.calculate_outliers()
@@ -687,7 +691,7 @@ class Spectrum:
             ax.hlines(y=y_noise_level, xmin=x[0], xmax=x[-1], colors='r',
                       linestyles='dashed', lw=0.5, label="Noise level")
 
-        if show_baseline and self.baseline.is_subtracted:
+        if show_baseline and self.baseline.y_eval is not None:
             ax.plot(x, self.baseline.y_eval, 'g', label="Baseline")
 
         y_bkg = np.zeros_like(x)

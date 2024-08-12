@@ -349,13 +349,15 @@ class Callbacks:
             show_noise_level = fig_settings['plot_noise_level'].get() == 'On'
             show_baseline = fig_settings['plot_baseline'].get() == 'On'
             show_background = fig_settings['plot_background'].get() == 'On'
+            subtract_baseline = self.subtract_baseline.get()
             self.lines = spectrum.plot(self.ax,
                                        show_outliers=show_outliers,
                                        show_outliers_limit=show_outl_limit,
                                        show_negative_values=show_neg_values,
                                        show_noise_level=show_noise_level,
                                        show_baseline=show_baseline,
-                                       show_background=show_background)
+                                       show_background=show_background,
+                                       subtract_baseline=subtract_baseline)
             line_bkg_visible = show_background and spectrum.bkg_model
 
             # baseline plotting
@@ -488,8 +490,7 @@ class Callbacks:
 
     def baseline_is_subtracted_message(self):
         """ Show an error message associated with the baseline """
-        msg = "A baseline has already been subtracted to the spectrum.\n"
-        msg += "Further action requires to reinitialize the spectrum.\n\n"
+        msg = "This action will reinitialize the spectrum.\n"
         msg += 'Continue ?'
         return askyesno(message=msg)
 
@@ -524,55 +525,25 @@ class Callbacks:
 
     def apply_baseline_settings(self, fnames=None):
         """ Apply baseline settings """
-        if self.current_spectrum.baseline.is_subtracted:
-            if not self.baseline_is_subtracted_message():
-                self.set_baseline_settings()
-                return
-
-        if fnames is None:
-            fnames = self.fileselector.filenames
-            fnames = [fnames[i] for i in self.fileselector.lbox.curselection()]
-
-        has_previous_results = False
-        for fname in fnames:
-            spectrum, _ = self.spectra.get_objects(fname)
-            if (spectrum.baseline.is_subtracted
-                    or not isinstance(spectrum.result_fit, LambdaType)):
-                has_previous_results = True
-                break
-
-        msg = 'Changing baseline settings will remove the previous results.\n'
-        msg += 'Continue ?'
-        if has_previous_results and not askyesno('', msg):
-            self.set_range()
-            return
 
         keys = ['mode', 'coef', 'order_max', 'sigma', 'attached']
         for key in keys:
             val = eval(f"self.baseline_{key}").get()
             setattr(self.current_spectrum.baseline, key, val)
 
-        # keep main values before reinitialization
-        range_min = self.current_spectrum.range_min
-        range_max = self.current_spectrum.range_max
-        vars_baseline = vars(self.current_spectrum.baseline).copy()
-
-        self.reinit(fnames)
+        if fnames is None:
+            fnames = self.fileselector.filenames
+            fnames = [fnames[i] for i in self.fileselector.lbox.curselection()]
 
         for fname in fnames:
             spectrum, _ = self.spectra.get_objects(fname)
-            spectrum.range_min = range_min
-            spectrum.range_max = range_max
-            for key, value in vars_baseline.items():
+            spectrum.result_fit = lambda: None
+            spectrum.baseline.points = [[], []]
+            for key, value in vars(self.current_spectrum.baseline).items():
                 setattr(spectrum.baseline, key, value)
+        self.colorize_from_fit_status(fnames)
 
-        spectrum = self.current_spectrum
-        spectrum.apply_range()
-        spectrum.baseline.eval(spectrum.x, spectrum.y,
-                               attached=spectrum.baseline.attached)
-
-        self.set_range()
-        self.set_baseline_settings()
+        self.current_spectrum.preprocess()
         self.paramsview.delete()
         self.statsview.delete()
         self.plot()
@@ -598,24 +569,6 @@ class Callbacks:
         if os.path.isfile(fname):
             self.current_spectrum.baseline.load_baseline(fname)
             self.plot()
-
-    def subtract_baseline(self, fnames=None):
-        """ Subtract baseline to the current spectrum """
-
-        self.apply_baseline_settings(fnames=fnames)
-
-        if fnames is None:
-            fnames = self.fileselector.filenames
-            fnames = [fnames[i] for i in
-                      self.fileselector.lbox.curselection()]
-
-        for fname in fnames:
-            spectrum, _ = self.spectra.get_objects(fname)
-            spectrum.subtract_baseline()
-
-        self.paramsview.delete()
-        self.statsview.delete()
-        self.plot()
 
     def load_user_model(self, model):
         """Load users model from file to be added to PEAK_MODELS or BKG_MODEL"""
@@ -732,24 +685,18 @@ class Callbacks:
 
     def set_range(self):
         """ Set range from the spectrum to the appli """
-        self.range_min.set(self.current_spectrum.range_min or "")
-        self.range_max.set(self.current_spectrum.range_max or "")
+        self.range_min.set(self.current_spectrum.range_min)
+        self.range_max.set(self.current_spectrum.range_max)
 
     def apply_range(self, fnames=None):
         """ Set an apply range to the spectrum/spectra """
 
-        def get_from_name(self, name):  # pylint:disable=unused-variable
-            try:
-                return float(eval(f"self.{name}.get()"))
-            except:
-                return None
-
-        range_min = get_from_name(self, 'range_min')
-        range_max = get_from_name(self, 'range_max')
+        range_min = self.range_min.get()
+        range_max = self.range_max.get()
 
         if range_min is not None and range_max is not None:
             if range_min >= range_max:
-                showerror("incorrect values for X-range (min >= max)")
+                showerror("incorrect values: range_min >= range_max)")
                 self.set_range()
                 return
 
@@ -757,63 +704,71 @@ class Callbacks:
             fnames = self.fileselector.filenames
             fnames = [fnames[i] for i in self.fileselector.lbox.curselection()]
 
-        has_previous_results = False
         for fname in fnames:
             spectrum, _ = self.spectra.get_objects(fname)
-            if (spectrum.baseline.y_eval is not None
-                    or not isinstance(spectrum.result_fit, LambdaType)):
-                has_previous_results = True
-                break
-
-        msg = 'Changing X-range will remove the previous results.\n'
-        msg += 'Continue ?'
-        if has_previous_results and not askyesno('', msg):
-            self.set_range()
-            return
-
-        self.reinit(fnames)
-
-        for fname in fnames:
-            spectrum, _ = self.spectra.get_objects(fname)
+            spectrum.result_fit = lambda: None
             spectrum.range_min = range_min
             spectrum.range_max = range_max
-            spectrum.apply_range()
+        self.colorize_from_fit_status(fnames)
 
-        self.set_range()
+        self.current_spectrum.preprocess()
+        self.paramsview.delete()
+        self.statsview.delete()
         self.plot()
 
     def apply_range_to_all(self):
         """ Set and apply range to all the spectra """
         self.apply_range(fnames=self.spectra.fnames)
 
-    def update_normalize_status(self):
-        """ Update 'normalize_status' to all the spectra """
-        for spectrum in self.spectra.all:
-            spectrum.normalize_status = self.normalize_status.get()
+    def update_normalize(self):
+        """ Update 'normalize' to all the spectra """
 
-        if self.current_spectrum is not None:
-            self.current_spectrum.preprocess()
-            self.paramsview.delete()
-            self.statsview.delete()
-            self.plot()
+        normalize = self.normalize.get()
+
+        for spectrum in self.spectra.all:
+            spectrum.result_fit = lambda: None
+            spectrum.normalize = normalize
+        self.colorize_from_fit_status(self.spectra.fnames)
+
+        self.current_spectrum.preprocess()
+        self.paramsview.delete()
+        self.statsview.delete()
+        self.plot()
 
     def update_normalize_range(self):
         """ Update the normalization ranges to all the spectra """
-        if is_convertible_to_float(self.normalize_range_min.get()):
-            normalize_range_min = float(self.normalize_range_min.get())
-            for spectrum in self.spectra.all:
-                spectrum.normalize_range_min = normalize_range_min
 
-        if is_convertible_to_float(self.normalize_range_max.get()):
-            normalize_range_max = float(self.normalize_range_max.get())
-            for spectrum in self.spectra.all:
-                spectrum.normalize_range_max = normalize_range_max
+        def get_value(self, name):  # pylint:disable=unused-variable
+            try:
+                return float(eval(f"self.{name}.get()"))
+            except:
+                return None
 
-        if self.current_spectrum is not None:
-            self.current_spectrum.preprocess()
-            self.paramsview.delete()
-            self.statsview.delete()
-            self.plot()
+        normalize_range_min = get_value(self, 'normalize_range_min')
+        normalize_range_max = get_value(self, 'normalize_range_max')
+
+        if normalize_range_min is not None and normalize_range_max is not None:
+            if normalize_range_min >= normalize_range_max:
+                showerror("incorrect values: range_min >= range_max)")
+                self.set_normalize_settings()
+                return
+
+        for spectrum in self.spectra.all:
+            spectrum.result_fit = lambda: None
+            spectrum.normalize_range_min = normalize_range_min
+            spectrum.normalize_range_max = normalize_range_max
+        self.colorize_from_fit_status(self.spectra.fnames)
+
+        self.current_spectrum.preprocess()
+        self.paramsview.delete()
+        self.statsview.delete()
+        self.plot()
+
+    def set_normalize_settings(self):
+        """ Set normalize settings from the spectrum to the appli """
+        self.normalize.set(self.current_spectrum.normalize)
+        self.normalize_range_min.set(self.current_spectrum.normalize_range_min)
+        self.normalize_range_max.set(self.current_spectrum.normalize_range_max)
 
     def reinit(self, fnames=None):
         """ Reinitialize the spectrum """
@@ -823,21 +778,26 @@ class Callbacks:
 
         for fname in fnames:
             spectrum, _ = self.spectra.get_objects(fname)
-            spectrum.range_min = None
-            spectrum.range_max = None
+            spectrum.range_min = spectrum.x0.min()
+            spectrum.range_max = spectrum.x0.max()
             spectrum.x = spectrum.x0.copy()
             spectrum.y = spectrum.y0.copy()
-            spectrum.norm_mode = None
+            spectrum.normalize = False
+            spectrum.normalize_range_min = None
+            spectrum.normalize_range_max = None
             spectrum.result_fit = lambda: None
             spectrum.remove_models()
             spectrum.baseline.mode = None
             spectrum.baseline.points = [[], []]
             spectrum.baseline.is_subtracted = False
+            spectrum.baseline.y_eval = None
 
         self.colorize_from_fit_status(fnames=fnames)
         self.paramsview.delete()
         self.statsview.delete()
         self.set_range()
+        self.set_baseline_settings()
+        self.set_normalize_settings()
         self.plot()
 
     def reinit_all(self):
@@ -1006,10 +966,12 @@ class Callbacks:
             self.update_markers(fname)
 
         self.current_spectrum, _ = self.spectra.get_objects(fname)
+        self.current_spectrum.preprocess()
 
         self.show_plot = False
         self.set_range()
         self.set_baseline_settings()
+        self.set_normalize_settings()
         self.paramsview.spectrum = self.current_spectrum
         self.paramsview.bkg_name = self.bkg_name
         self.paramsview.plot = self.plot
