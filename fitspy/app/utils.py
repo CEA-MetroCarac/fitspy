@@ -4,11 +4,12 @@ utilities functions related to Tkinter
 import os
 import glob
 from itertools import groupby, count
-from tkinter import (LabelFrame, Frame, Label, Entry, Canvas, Scrollbar, Button,
-                     Listbox, TclError)
+from tkinter import (LabelFrame, Frame, Label, Entry, Scrollbar, Button,
+                     Listbox, TclError, IntVar)
 from tkinter import W, E, HORIZONTAL, EXTENDED, BOTTOM, X, Y, LEFT, RIGHT, END
 from tkinter import filedialog as fd
 from tkinter.messagebox import showerror
+from tkinter.ttk import Progressbar
 
 from fitspy.utils import hsorted
 
@@ -111,95 +112,6 @@ class ToggleFrame(LabelFrame):
         self.is_enable = True
         self.config(fg="black")
         self.apply_state(state='normal')
-
-
-class ScrollbarFrame:
-    """
-    Class to add a vertical and/or horziontal Scrollbar to a frame.
-    (Strongly inspired from https://stackoverflow.com/questions/43731784)
-
-    Attributes
-    ----------
-    frame_canvas: Tkinter.Frame
-        Frame gathers the 'Canvas' and the 'Scrollbar' objects
-    canvas: Tkinter.Canvas
-        Canvas related to the first (large) row-column
-    vsbar: Tkinter.Scrollbar
-        Vertical scrollbar related to the 2nd (small) column, if 'orientation'
-        is 'vertical' or 'both'
-    hsbar: Tkinter.Scrollbar
-        Horizontal scrollbar related to the 2nd (small) row if 'orientation'
-        is 'horizontal' or 'both'
-    frame: Tkinter.Frame
-        Frame included in the canvas, where other frames can be stacked
-
-    Parameters
-    ----------
-    root: Tkinter parent window
-    orientation: str, optional
-        Orientation associated to the scrollbar(s), among ['vertical',
-        'horizontal', 'both']
-    """
-
-    def __init__(self, root, orientation='both'):
-
-        orients = ['vertical', 'horizontal', 'both']
-        assert orientation in orients, f"'orientation should be in {orients}"
-
-        self.frame_canvas = Frame(root)
-        self.frame_canvas.grid(row=2, column=0, pady=(5, 0), sticky='nw')
-        self.frame_canvas.grid_rowconfigure(0, weight=1)
-        self.frame_canvas.grid_columnconfigure(0, weight=1)
-        self.frame_canvas.grid_propagate(False)
-
-        self.canvas = Canvas(self.frame_canvas)
-        self.canvas.grid(row=0, column=0, sticky="news")
-
-        self.frame = Frame(self.canvas)
-        self.frame.update_idletasks()
-
-        self.vsbar = None
-        self.hsbar = None
-
-        if orientation in ['vertical', 'both']:
-            self.vsbar = Scrollbar(self.frame_canvas, orient="vertical",
-                                   command=self.canvas.yview)
-            self.vsbar.grid(row=0, column=1, sticky='ns')
-            self.canvas.configure(yscrollcommand=self.vsbar.set)
-
-        if orientation in ['horizontal', 'both']:
-            self.hsbar = Scrollbar(self.frame_canvas, orient="horizontal",
-                                   command=self.canvas.xview)
-            self.hsbar.grid(row=1, column=0, sticky='we')
-            self.canvas.configure(xscrollcommand=self.hsbar.set)
-
-        self.canvas.create_window((0, 0), window=self.frame, anchor='nw')
-
-    def update_and_resize(self, width=None, height=None):
-        """
-        Set the scrolling region with the 'correct' size
-
-        Parameters
-        ----------
-        width: int, optional
-            Width of the canvas frame.
-            If None, consider the 'frame' width.
-        height: int, optional
-            height of the canvas frame.
-            If None, consider the minimum between the frame height and 90% of
-            the screen height
-        """
-        self.frame.update_idletasks()
-
-        if width is None:
-            width = self.frame.winfo_width() + self.vsbar.winfo_width()
-        if height is None:
-            height = min(self.frame.winfo_height() + 4,
-                         int(0.9 * self.frame.winfo_screenheight()))
-
-        # Set the canvas scrolling region to the 'correct' size
-        self.canvas.config(scrollregion=self.canvas.bbox("all"))
-        self.frame_canvas.config(width=width, height=height)
 
 
 class FilesSelector:
@@ -349,6 +261,33 @@ class FilesSelector:
         self.lbox.activate(index)
         self.lbox.selection_anchor(index)
         self.lbox.see(index)
+
+
+class ProgressBar:
+    """ Class to create a progress bar """
+
+    def __init__(self, frame):
+        self.frame = frame
+        self.var = IntVar(value=0)
+        self.pbar = Progressbar(self.frame, variable=self.var, maximum=100,
+                                length=220, mode='determinate')
+        self.label_counter = Label(self.frame, text='0/0')
+        self.label_ncpus = Label(self.frame, text='')
+
+        add(self.label_counter, 0, 0)
+        add(self.pbar, 0, 1)
+        add(self.label_ncpus, 0, 2)
+
+    def update(self, spectra, ntot, ncpus):
+        """ update the progressbar info during the fitspy execution """
+        self.label_ncpus['text'] = f"ncpus: {ncpus}"
+        self.var.set(0)
+        percent = 0
+        while percent < 100:
+            percent = 100 * (spectra.pbar_index) / ntot
+            self.var.set(percent)
+            self.label_counter['text'] = f"{spectra.pbar_index}/{ntot}"
+            self.frame.update()
 
 
 if __name__ == '__main__':

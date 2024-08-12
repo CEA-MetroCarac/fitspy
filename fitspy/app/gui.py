@@ -28,8 +28,8 @@ from fitspy.utils import closest_index, save_to_json, load_from_json
 from fitspy import PEAK_MODELS, BKG_MODELS, PEAK_PARAMS, SETTINGS_FNAME
 
 from fitspy.app.utils import add, interactive_entry as entry
-from fitspy.app.utils import ToggleFrame, ScrollbarFrame, FilesSelector
-from fitspy.app.toplevels import ParamsView, StatsView, ProgressBar
+from fitspy.app.utils import ToggleFrame, FilesSelector, ProgressBar
+from fitspy.app.toplevels import ParamsView, StatsView
 from fitspy.app.toplevels import FitSettings, FigureSettings
 from fitspy.app.callbacks import Callbacks
 
@@ -103,7 +103,6 @@ class GUI(Callbacks):
         self.fit_settings = FitSettings(self.root)
         self.paramsview = ParamsView(self.root)
         self.statsview = StatsView(self.root)
-        self.progressbar = ProgressBar(self.root)
 
         # Spectrum parameters
         self.range_min = StringVar(value="")
@@ -133,14 +132,11 @@ class GUI(Callbacks):
 
         frame = Frame(self.root)
 
-        frame_visu = Frame(frame, width=700)
-        frame_visu.grid(row=0, column=0, rowspan=2)
-
-        frame_files = Frame(frame)
-        frame_files.grid(row=0, column=1)
+        frame_visu = Frame(frame)
+        frame_visu.grid(row=0, column=0, sticky=W + E)
 
         frame_proc = Frame(frame)
-        frame_proc.grid(row=1, column=1, padx=0, sticky=W + E)
+        frame_proc.grid(row=0, column=1, padx=0, sticky=W + E)
 
         frame.pack()
 
@@ -182,7 +178,12 @@ class GUI(Callbacks):
         # FILES SELECTION frame
         #######################
 
-        self.fileselector = FilesSelector(root=frame_files, lbox_size=[50, 9])
+        fr = Frame(frame_proc)
+        row = itertools.count()
+
+        add(fr, next(row), 0, W + E)
+
+        self.fileselector = FilesSelector(root=fr, lbox_size=[45, 9])
         self.fileselector.lbox.bind('<<ListboxSelect>>', self.update)
         self.fileselector.lbox.bind('<<ListboxAdd>>', self.add_items)
         self.fileselector.lbox.bind('<<ListboxRemove>>', self.delete)
@@ -192,7 +193,7 @@ class GUI(Callbacks):
         ##########################
 
         fr = Frame(frame_proc)
-        fr.grid(row=0, column=0, padx=5, pady=0)
+        add(fr, next(row), 0, W + E)
 
         add(Button(fr, text="Show All", command=self.show_all), 0, 0)
         add(Button(fr, text="Auto eval", command=self.auto_eval), 0, 1)
@@ -201,14 +202,9 @@ class GUI(Callbacks):
         add(Button(fr, text="Reinitialize", command=self.reinit), 1, 1)
         add(Button(fr, text="Reinitialize All", command=self.reinit_all), 1, 2)
 
-        sbar = ScrollbarFrame(frame_proc, orientation='vertical')
-        add(frame_proc, 1, 1, W + E)
-        frame_proc_sbar = sbar.frame
-        row = itertools.count()
-
         # Overall parameters
 
-        fr = LabelFrame(frame_proc_sbar, text="Overall settings", font=FONT)
+        fr = LabelFrame(frame_proc, text="Overall settings", font=FONT)
         add(fr, next(row), 0, W + E)
         add(Label(fr, text='X-range :'), 0, 0)
         entry_min = Entry(fr, textvariable=self.range_min, w=9)
@@ -229,54 +225,49 @@ class GUI(Callbacks):
 
         # Baseline
 
-        self.fr_baseline = ToggleFrame(frame_proc_sbar, text='Baseline',
-                                       font=FONT)
+        self.fr_baseline = ToggleFrame(frame_proc, text='Baseline', font=FONT)
         add(self.fr_baseline, next(row), 0, W + E)
 
         fr = self.fr_baseline
 
         var_mode = self.baseline_mode
-        var_order = self.baseline_order_max
         var_coef = self.baseline_coef
         modes = ["Semi-Auto", "Linear", "Polynomial"]
         texts = ["Semi-Auto :", "Linear", "Polynomial - Order :"]
         add(Radiobutton(fr, text=texts[0], variable=var_mode, value=modes[0],
-                        command=lambda: self.update_baseline('mode')), 0, 0)
-        add(Scale(fr, variable=var_coef, orient=HORIZONTAL,
-                  from_=0, to=10, showvalue=False,
-                  command=lambda _: self.update_baseline('coef')), 0, 1, W)
+                        command=self.apply_baseline_settings), 0, 0)
+        scale = Scale(fr, variable=var_coef, from_=0, to=10, showvalue=False,
+                      orient=HORIZONTAL)
+        scale.bind("<ButtonRelease-1>",
+                   lambda _: self.apply_baseline_settings())
+        add(scale, 0, 1, W)
+
         add(Button(fr, text="Import", command=self.load_baseline), 0, 2)
         add(Radiobutton(fr, text=texts[1], variable=var_mode, value=modes[1],
-                        command=lambda: self.update_baseline('mode')), 1, 0)
+                        command=self.apply_baseline_settings), 1, 0)
         add(Radiobutton(fr, text=texts[2], variable=var_mode, value=modes[2],
-                        command=lambda: self.update_baseline('mode')), 1, 1)
-        order_entry = Entry(fr, textvariable=var_order, width=2)
+                        command=self.apply_baseline_settings), 1, 1)
+        order_entry = Entry(fr, textvariable=self.baseline_order_max, width=2)
         add(order_entry, 1, 2, W)
-        order_entry.bind("<KeyRelease>",
-                         lambda event: self.update_baseline('order_max'))
+        order_entry.bind("<KeyRelease>", self.apply_baseline_settings)
 
         add(Checkbutton(fr, variable=self.baseline_attached, text='Attached',
-                        command=lambda: self.update_baseline('attached')), 2, 0)
-        baseline_sigma = self.baseline_sigma
+                        command=self.apply_baseline_settings), 2, 0)
         add(Label(fr, text="Sigma (smoothing) :"), 2, 1, E)
-        sigma_entry = entry(fr, baseline_sigma, self.update_baseline, width=4)
+        sigma_entry = Entry(fr, textvariable=self.baseline_sigma, width=4)
         add(sigma_entry, 2, 2, W)
-        sigma_entry.bind("<KeyRelease>",
-                         lambda event: self.update_baseline('sigma'))
+        sigma_entry.bind("<KeyRelease>", self.apply_baseline_settings)
 
-        add(Button(fr, text="Subtract to Sel.",
-                   command=self.subtract_baseline), 3, 0, cspan=2)
-        # add(Button(fr, text="Apply to All",
-        #            command=self.subtract_baseline_to_all), 3, 1)
-        add(Button(fr, text="Delete",
-                   command=self.delete_baseline), 3, 2)
+        add(Button(fr, text="Apply to All",
+                   command=self.apply_baseline_settings_to_all), 3, 0)
+        add(Button(fr, text="Subtract", command=self.subtract_baseline), 3, 1)
 
         self.fr_baseline.enable()
         self.fr_baseline.bind("<Button-1>", self.on_press_baseline_peaks)
 
         # Normalization
 
-        fr = LabelFrame(frame_proc_sbar, text="Normalization", font=FONT)
+        fr = LabelFrame(frame_proc, text="Normalization", font=FONT)
         add(fr, next(row), 0, W + E)
 
         add(Checkbutton(fr, text='Normalize', variable=self.normalize_status,
@@ -291,7 +282,7 @@ class GUI(Callbacks):
 
         # Fitting
 
-        self.fr_fit = ToggleFrame(frame_proc_sbar, text='Fitting', font=FONT)
+        self.fr_fit = ToggleFrame(frame_proc, text='Fitting', font=FONT)
         add(self.fr_fit, next(row), 0, W + E)
 
         fr = self.fr_fit
@@ -335,7 +326,7 @@ class GUI(Callbacks):
 
         # Models : saving/reloading
 
-        fr = LabelFrame(frame_proc_sbar, text='Models', font=FONT)
+        fr = LabelFrame(frame_proc, text='Models', font=FONT)
         add(fr, next(row), 0, W + E)
 
         add(Button(fr, text="Save Selec.", command=self.save_selection), 0, 0)
@@ -344,7 +335,7 @@ class GUI(Callbacks):
 
         add(Button(fr, text="Load Model",
                    command=self.load_model), 1, 0, padx=9)
-        add(Button(fr, text="Apply to Sel.",
+        add(Button(fr, text="Apply to Selec.",
                    command=lambda: self.apply_model(selection=1)), 1, 1, padx=9)
         add(Button(fr, text="Apply to All",
                    command=lambda: self.apply_model(selection=0)), 1, 2, padx=9)
@@ -353,7 +344,11 @@ class GUI(Callbacks):
         self.text_model = Text(fr, height=1, width=20)
         add(self.text_model, 2, 1, cspan=2)
 
-        sbar.update_and_resize(frame_files.winfo_width(), 646)
+        # Add PRogressBar
+
+        fr = Frame(frame_proc)
+        add(fr, next(row), 0, W + E)
+        self.progressbar = ProgressBar(fr)
 
         self.reload_settings()
 

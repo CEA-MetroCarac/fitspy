@@ -64,7 +64,7 @@ class BaseLine:
         self.points[0] = [self.points[0][ind] for ind in inds]
         self.points[1] = [self.points[1][ind] for ind in inds]
 
-    def attach_points(self, x, y):
+    def attached_points(self, x, y):
         """Return baseline points attached to (x,y) 'spectrum' profile coords"""
         assert x.size == y.size, 'x and y should have the same size'
         attached_points = [[], []]
@@ -86,8 +86,8 @@ class BaseLine:
         self.points[0] = [x[ind] for ind in inds]
         self.points[1] = [y[ind] for ind in inds]
 
-    def eval(self, x, y=None):
-        """ Evaluate the baseline on a 'x' support and a 'y' attached profile
+    def eval(self, x, y, attached=False):
+        """ Evaluate the baseline on a 'x' support and a 'y' profile
             possibly smoothed with a gaussian filter """
         assert self.mode in [None, 'Semi-Auto', 'Linear', 'Polynomial']
 
@@ -105,9 +105,7 @@ class BaseLine:
                     self.y_eval = func_interp(x)
 
         else:
-
-            # use the original points or the attached points to an y-profile
-            points = self.points if y is None else self.attach_points(x, y)
+            points = self.points if not attached else self.attached_points(x, y)
 
             if len(points[1]) == 0:
                 self.y_eval = None
@@ -129,7 +127,7 @@ class BaseLine:
 
         return self.y_eval
 
-    def plot(self, ax, x=None, y=None, label="Baseline", show_all=True):
+    def plot(self, ax, x, y, attached=False, label="Baseline", show_all=True):
         """
         Plot the baseline and its related points
 
@@ -152,19 +150,13 @@ class BaseLine:
         if self.mode is None:
             return
 
-        if len(self.points[0]) == 0 and self.mode != 'Semi-Auto':
+        if self.mode != 'Semi-Auto' and len(self.points[0]) == 0:
             return
 
         # use the original points or the attached points to an y-profile
-        points = self.points if y is None else self.attach_points(x, y)
+        points = self.points if not attached else self.attached_points(x, y)
 
-        if x is None:
-            if len(points[0]) > 1:
-                x = np.linspace(points[0][0], points[0][-1], 100)
-            else:
-                x = points[0][0]
-
-        ax.plot(x, self.eval(x, y), 'g', label=label)
+        ax.plot(x, self.eval(x, y, attached=attached), 'g', label=label)
         if show_all:
             ax.plot(self.points[0], self.points[1], 'ko--', mfc='none')
             ax.plot(points[0], points[1], 'go', mfc='none')

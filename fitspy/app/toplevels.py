@@ -4,7 +4,7 @@ Module dedicated to external widgets (Tkinter.Toplevel) creation
 import itertools
 from tkinter import Toplevel, Label, Entry, Button, Checkbutton, Text, Scrollbar
 from tkinter import IntVar, DoubleVar, StringVar, BooleanVar, W, E, END, RIGHT
-from tkinter.ttk import Combobox, Progressbar
+from tkinter.ttk import Combobox
 
 from matplotlib.colors import rgb2hex
 from lmfit import fit_report
@@ -290,43 +290,6 @@ class StatsView(ResultView):
     def delete(self):
         """ Delete all the values contained in frames """
         self.text.delete(1.0, END)
-
-
-class ProgressBar:
-    """ Class to create a progress bar """
-
-    def __init__(self, root, width=300, height=50):
-        self.frame = Toplevel(root,
-                              highlightbackground="black",
-                              highlightthickness=1)
-        # self.frame.attributes('-topmost', 'true')
-        self.frame.overrideredirect(True)
-        self.frame.withdraw()
-
-        screen_width = root.winfo_screenwidth()
-        screen_height = root.winfo_screenheight()
-        x_pos = (screen_width - width) // 2
-        y_pos = (screen_height - height) // 2
-        self.frame.geometry(f"{width}x{height}+{x_pos}+{y_pos}")
-
-        self.var = IntVar(value=0)
-        self.pbar = Progressbar(self.frame, variable=self.var, maximum=100,
-                                length=width, mode='determinate')
-        self.label = Label(self.frame, text='')
-
-        self.pbar.pack()
-        self.label.pack()
-
-    def show(self, spectra, ntot):
-        """ Show the progress bar according to the spectra.pbar_index value """
-        self.var.set(0)
-        self.frame.deiconify()
-        while spectra.pbar_index < ntot:
-            percent = 100 * spectra.pbar_index / ntot
-            self.var.set(percent)
-            self.label['text'] = f"{spectra.pbar_index}/{ntot}"
-            self.frame.update()
-        self.frame.withdraw()
 
 
 class Settings:

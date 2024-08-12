@@ -231,7 +231,7 @@ class Spectrum:
             apply_range(), subtract_baseline() and normalize() """
         self.load_profile(self.fname)
         self.apply_range()
-        self.baseline.is_subtracted = False
+        self.eval_baseline()
         self.subtract_baseline()
         self.normalize()
 
@@ -252,17 +252,17 @@ class Spectrum:
         self.y = self.y0.copy()
 
     def apply_range(self, range_min=None, range_max=None):
-        """ Apply range to the raw spectrum (and the baseline.y_eval) """
+        """ Apply range to the raw spectrum """
 
         self.range_min = range_min or self.range_min
         self.range_max = range_max or self.range_max
 
         if self.range_min is not None or self.range_max is not None:
-            mask = np.logical_and(self.x >= (self.range_min or -np.inf),
-                                  self.x <= (self.range_max or np.inf))
+            mask = np.logical_and(self.x0 >= (self.range_min or -np.inf),
+                                  self.x0 <= (self.range_max or np.inf))
 
-            self.x = self.x[mask]
-            self.y = self.y[mask]
+            self.x = self.x0[mask].copy()
+            self.y = self.y0[mask].copy()
 
     def calculate_outliers(self):
         """ Return outliers points (x,y) coordinates """
@@ -519,11 +519,14 @@ class Spectrum:
             weights[y < 0] = 0
 
         if not self.fit_params['fit_outliers']:
+            # TODO: pas d'option, on ne fit pas les outliers -> prendre
+            #  y_no_outliers
             x_outliers, _ = self.calculate_outliers()
             if x_outliers is not None:
                 weights[np.where(np.isin(x, x_outliers))] = 0
 
         if self.fit_params['coef_noise'] > 0:
+            # TODO : faire une fonction
             delta = np.diff(y)
             delta1, delta2 = delta[:-1], delta[1:]
             mask = np.sign(delta1) * np.sign(delta2) == -1
@@ -614,17 +617,16 @@ class Spectrum:
         """ set baseline.mode to 'Semi-Auto """
         self.baseline.mode = 'Semi-Auto'
 
+    def eval_baseline(self):
+        """ Evaluate baseline profile """
+        self.baseline.eval(self.x, self.y_no_outliers,
+                           attached=self.baseline.attached)
+
     def subtract_baseline(self):
-        """ Subtract the baseline to the spectrum
-            if this has not been done previously """
-        if not self.baseline.is_subtracted:
-            x, y = self.x, None
-            if self.baseline.attached or self.baseline.mode == 'Semi-Auto':
-                y = self.y_no_outliers
-            self.baseline.eval(x=x, y=y)
-            if self.baseline.y_eval is not None:
-                self.y -= self.baseline.y_eval
-                self.baseline.is_subtracted = True
+        """ Subtract the baseline to the spectrum profile """
+        if self.baseline.y_eval is not None:
+            self.y -= self.baseline.y_eval
+            self.baseline.is_subtracted = True
 
     def auto_peaks(self, model_name):
         """ Create automatically 'model_name' peak-models in the limit of
@@ -655,8 +657,9 @@ class Spectrum:
              show_baseline=True, show_background=True,
              show_peak_models=True, show_result=True):
         """ Plot the spectrum with the peak models """
-        lines = []
         x, y = self.x, self.y
+
+        lines = []
         linewidth = 0.5
         if hasattr(self.result_fit, 'success') and self.result_fit.success:
             linewidth = 1
@@ -679,6 +682,7 @@ class Spectrum:
 
         if show_noise_level:
             ampli_noise = np.median(np.abs(y[:-1] - y[1:]) / 2)
+            # TODO: faire une fonction de calcul du bruit
             y_noise_level = self.fit_params['coef_noise'] * ampli_noise
             ax.hlines(y=y_noise_level, xmin=x[0], xmax=x[-1], colors='r',
                       linestyles='dashed', lw=0.5, label="Noise level")
