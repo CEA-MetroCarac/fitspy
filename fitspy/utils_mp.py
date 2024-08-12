@@ -30,7 +30,7 @@ def initializer(queue_incr):
     shared_queue = queue_incr
 
 
-def fit_mp(spectra, ncpus, queue_incr):
+def fit_mp(spectra, ncpus, queue_incr, fit_only):
     """ Multiprocessing fit function applied to spectra """
     args = []
     for spectrum in spectra:
@@ -47,4 +47,5 @@ def fit_mp(spectra, ncpus, queue_incr):
         spectrum.baseline.y_eval = res[2]
         spectrum.baseline.is_subtracted = res[3]
         spectrum.result_fit = dill.loads(res[4])
+
         spectrum.reassign_params()
