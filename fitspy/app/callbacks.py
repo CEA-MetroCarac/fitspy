@@ -181,20 +181,6 @@ class Callbacks:
         if os.path.isdir(dirname_res):
             self.spectra.save_results(dirname_res, self.fileselector.filenames)
 
-    def save_figures(self, dirname_fig=None):
-        """ Save all spectra figures in .png files """
-        if dirname_fig is None:
-            dirname_fig = fd.askdirectory(title='Select directory')
-        else:
-            if not os.path.exists(dirname_fig):
-                os.makedirs(dirname_fig)
-
-        if os.path.isdir(dirname_fig):
-            bounds = (self.ax.get_xlim(), self.ax.get_ylim())
-            self.spectra.save_figures(dirname_fig,
-                                      fnames=self.fileselector.filenames,
-                                      bounds=bounds)
-
     def load_model(self, fname_json=None):
         """ Load a model from a .json file """
         if fname_json is None:
@@ -336,10 +322,11 @@ class Callbacks:
         # both baseline and spectrum are plotted together to adapt
         # the axis scale simultaneously with ax.clear()
         xlim, ylim = self.ax.get_xlim(), self.ax.get_ylim()
+
         self.ax.clear()
 
         # reassign previous axis limits (related to zoom)
-        if not xlim == ylim == (0.0, 1.0):
+        if self.preserve_axis.get() and not xlim == ylim == (0.0, 1.0):
             self.ax.set_xlim(xlim)
             self.ax.set_ylim(ylim)
 
@@ -793,8 +780,6 @@ class Callbacks:
             spectrum.apply_range()
 
         self.set_range()
-        # self.remove(delete_tabview=delete_tabview)
-        self.ax.clear()
         self.plot()
 
     def apply_range_to_all(self):
@@ -828,7 +813,6 @@ class Callbacks:
             self.current_spectrum.preprocess()
             self.paramsview.delete()
             self.statsview.delete()
-            self.ax.clear()
             self.plot()
 
     def reinit(self, fnames=None):
@@ -867,7 +851,6 @@ class Callbacks:
         self.current_spectrum, _ = self.spectra.get_objects(fname)
         self.set_range()
         self.set_baseline_settings()
-        self.ax.clear()
         self.plot()
 
     def remove(self, delete_tabview=True):
@@ -878,7 +861,6 @@ class Callbacks:
             if delete_tabview:  # expensive operation when doing a lot of times
                 self.paramsview.delete()
                 self.statsview.delete()
-            self.ax.clear()
             self.plot()
 
     def auto_eval(self, model_name=None, fnames=None):

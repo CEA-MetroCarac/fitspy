@@ -172,8 +172,9 @@ class GUI(Callbacks):
         toolbar = NavigationToolbar2Tk(self.canvas, fr_toolbar)
         toolbar._buttons['Home'].bind("<Button-1>", lambda x: self.rescale())
 
-        add(Button(frame_visu, text="Save All (.png)",
-                   command=self.save_figures), 2, 0)
+        self.preserve_axis = BooleanVar(value=False)
+        add(Checkbutton(frame_visu, variable=self.preserve_axis,
+                        text='Preserve axis'), 2, 0)
 
         # FILES SELECTION frame
         #######################
@@ -344,7 +345,7 @@ class GUI(Callbacks):
         self.text_model = Text(fr, height=1, width=20)
         add(self.text_model, 2, 1, cspan=2)
 
-        # Add PRogressBar
+        # Add ProgressBar
 
         fr = Frame(frame_proc)
         add(fr, next(row), 0, W + E)
