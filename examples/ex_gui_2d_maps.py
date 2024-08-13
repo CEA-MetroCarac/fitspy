@@ -23,8 +23,9 @@ def gui_2d_maps(dirname_res=None):
     # appli.outliers_calculation() # spectra from the maps differ: DO NOT APPLY
 
     # automatic evaluation on the first 5 spectra
-    appli.auto_eval(fnames=appli.spectra.fnames[:5])
-    # appli.auto_eval_all() # 1520+2700 = 4220 spectra to handle (could be long)
+    appli.auto_eval(model_name='LorentzianAsym',
+                    fnames=appli.spectra.fnames[:5])
+    # appli.auto_eval_all(model_name='LorentzianAsym') # 4220 spectra to handle
 
     # save and destroy for pytest
     if dirname_res is not None:

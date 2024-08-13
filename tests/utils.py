@@ -4,10 +4,17 @@ utilities functions for test
 import os
 import glob
 import tkinter
-
 import pandas as pd
 
 from fitspy.utils import hsorted
+
+
+def safe_float(x):
+    """ Convert string to float """
+    try:
+        return float(x)
+    except ValueError:
+        return None
 
 
 def extract_results(dirname_res):
@@ -17,7 +24,8 @@ def extract_results(dirname_res):
     results = []
     for fname in fnames:
         dfr = pd.read_csv(fname, sep=';', header=1)
-        results.append(list(map(float, list(dfr)[2:-3])))
+        results.append([safe_float(x) for x in dfr.iloc[:, 2:]
+                        if safe_float(x) is not None])
     return results
 
 
