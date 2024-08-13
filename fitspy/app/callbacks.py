@@ -196,7 +196,7 @@ class Callbacks:
         """ Return the number of CPUs to work with """
         ncpus = self.ncpus or self.fit_settings.params['ncpus'].get()
         if ncpus == "auto":
-            return max(1, min(int(nfiles / 4), int(os.cpu_count() / 2)))
+            return max(1, min(int(nfiles / 8), int(os.cpu_count() / 2)))
         else:
             return int(ncpus)
 

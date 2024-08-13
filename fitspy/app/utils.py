@@ -272,7 +272,7 @@ class ProgressBar:
         self.pbar = Progressbar(self.frame, variable=self.var, maximum=100,
                                 length=200, mode='determinate')
         self.label_counter = Label(self.frame, text='0/0')
-        self.label_ncpus = Label(self.frame, text='')
+        self.label_ncpus = Label(self.frame, text='ncpus:')
 
         add(self.label_counter, 0, 0)
         add(self.pbar, 0, 1)
