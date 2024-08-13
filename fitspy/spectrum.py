@@ -256,14 +256,13 @@ class Spectrum:
         self.range_min = range_min or self.range_min
         self.range_max = range_max or self.range_max
 
-        if self.range_min is not None or self.range_max is not None:
-            mask = np.logical_and(self.x0 >= (self.range_min or -np.inf),
-                                  self.x0 <= (self.range_max or np.inf))
+        mask = np.logical_and(self.x0 >= (self.range_min or -np.inf),
+                              self.x0 <= (self.range_max or np.inf))
 
-            self.x = self.x0[mask].copy()
-            self.y = self.y0[mask].copy()
-            self.range_min = self.x.min()
-            self.range_max = self.x.max()
+        self.x = self.x0[mask].copy()
+        self.y = self.y0[mask].copy()
+        self.range_min = self.x.min()
+        self.range_max = self.x.max()
 
     def calculate_outliers(self):
         """ Return outliers points (x,y) coordinates """

@@ -3,7 +3,6 @@ Callback functions encapsulated in a class to interact with the GUI
 """
 import os
 import warnings
-from types import LambdaType
 from tkinter import END
 from tkinter.messagebox import askyesno, showerror
 from tkinter import filedialog as fd
@@ -19,8 +18,6 @@ from fitspy.spectrum import Spectrum
 from fitspy.utils import get_dim, closest_index, check_or_rename
 from fitspy.utils import load_models_from_txt, load_models_from_py
 from fitspy import CMAP
-
-from fitspy.app.utils import is_convertible_to_float
 
 
 # TODO : change 'fit_params' from spectrum to spectra attribute (?)
@@ -717,6 +714,7 @@ class Callbacks:
         self.colorize_from_fit_status(fnames)  # reassign white
 
         self.current_spectrum.preprocess()
+        self.set_range()
         self.paramsview.delete()
         self.statsview.delete()
         self.plot()

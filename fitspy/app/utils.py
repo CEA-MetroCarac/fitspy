@@ -69,15 +69,6 @@ def convert_dict_from_tk_variables(parent_dict, excluded_keys=None):
     return new_dict
 
 
-def is_convertible_to_float(s):
-    """ Check a string can be convert to float """
-    try:
-        float(s)
-        return True
-    except ValueError:
-        return False
-
-
 class ToggleFrame(LabelFrame):
     """ Class dedicated to Enable/Disable LabelFrame and its related children"""
 
