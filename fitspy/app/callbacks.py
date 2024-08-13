@@ -23,6 +23,12 @@ from fitspy import CMAP
 from fitspy.app.utils import is_convertible_to_float
 
 
+# TODO : change 'fit_params' from spectrum to spectra attribute (?)
+# TODO : (GUI) remove 'ncpus' from the fit settings
+# TODO : manage callbacks when no files have been loaded
+# TODO : enable remove() with curselection()
+
+
 class Callbacks:
     """
     Callback functions to interact with the GUI of the spectra fitting appli
@@ -200,15 +206,13 @@ class Callbacks:
         else:
             return int(ncpus)
 
-    def apply_model(self, fnames=None, fit_only=False):
+    def apply_model(self, model_dict=None, fnames=None, fit_params=None):
         """ Apply model to the selected spectra """
-        if fit_only:
-            model_dict = None
-        else:
-            model_dict = deepcopy(self.model_dict)
-            if model_dict is None:
-                showerror(message='No model has been loaded')
-                return
+        model_dict = model_dict or deepcopy(self.model_dict)
+
+        if model_dict is None:
+            showerror(message='No model has been loaded')
+            return
 
         if fnames is None:
             fnames = self.fileselector.filenames
@@ -216,6 +220,11 @@ class Callbacks:
 
         nfiles = len(fnames)
         ncpus = self.get_ncpus(nfiles=nfiles)
+
+        if fit_params is not None:
+            for fname in fnames:
+                spectrum, _ = self.spectra.get_objects(fname)
+                spectrum.fit_params = deepcopy(fit_params)
 
         args = (model_dict, fnames, ncpus)
         thread = Thread(target=self.spectra.apply_model, args=args)
@@ -661,9 +670,8 @@ class Callbacks:
         if len(self.current_spectrum.peak_models) == 0 and bkg_name == 'None':
             return
 
-        # update current_spectrum.fit_params with the GUI fit_settings.params
         params = self.fit_settings.params
-        fit_params = self.current_spectrum.fit_params
+        fit_params = {}
         fit_params['fit_negative'] = params['fit_negative_values'].get() == 'On'
         fit_params['fit_outliers'] = params['fit_outliers'].get() == 'On'
         fit_params['coef_noise'] = params['coef_noise'].get()
@@ -671,7 +679,10 @@ class Callbacks:
         fit_params['method'] = params['method'].get()
         fit_params['xtol'] = params['xtol'].get()
 
-        self.apply_model(fnames=fnames, fit_only=True)
+        model_dict = self.current_spectrum.save()
+
+        self.apply_model(model_dict=model_dict, fnames=fnames,
+                         fit_params=fit_params)
 
     def fit_all(self):
         """ Fit the peaks for all the spectra """

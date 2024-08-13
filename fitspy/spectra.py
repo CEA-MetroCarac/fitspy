@@ -183,14 +183,14 @@ class Spectra(list):
         model_dict = load_from_json(fname_json)[ind]
         return model_dict
 
-    def apply_model(self, model_dict=None, fnames=None, ncpus=1,
+    def apply_model(self, model_dict, fnames=None, ncpus=1,
                     show_progressbar=True):
         """
         Apply 'model' to all or part of the spectra
 
         Parameters
         ----------
-        model_dict: dict, optional
+        model_dict: dict
             Dictionary related to the Spectrum object attributes (obtained from
             Spectrum.save() for instance) to be applied
         fnames: list of str, optional
@@ -207,9 +207,8 @@ class Spectra(list):
         spectra = []
         for fname in fnames:
             spectrum, _ = self.get_objects(fname)
-            if model_dict is not None:
-                spectrum.set_attributes(model_dict)
-                spectrum.fname = fname  # reassign the correct fname
+            spectrum.set_attributes(model_dict)
+            spectrum.fname = fname  # reassign the correct fname
             spectra.append(spectrum)
 
         queue_incr = Queue()
