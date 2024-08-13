@@ -200,18 +200,17 @@ class Callbacks:
         else:
             return int(ncpus)
 
-    def apply_model(self, model_dict=None, fnames=None, selection=False):
+    def apply_model(self, fnames=None, fit_only=False):
         """ Apply model to the selected spectra """
-        model_dict = model_dict or deepcopy(self.model_dict)
-
-        if model_dict is None:
-            showerror(message='No model has been loaded')
-            return
+        if fit_only:
+            model_dict = None
+        else:
+            model_dict = deepcopy(self.model_dict)
+            if model_dict is None:
+                showerror(message='No model has been loaded')
+                return
 
         if fnames is None:
-            fnames = self.fileselector.filenames
-
-        if selection:
             fnames = self.fileselector.filenames
             fnames = [fnames[i] for i in self.fileselector.lbox.curselection()]
 
@@ -226,6 +225,10 @@ class Callbacks:
         self.colorize_from_fit_status(fnames)
         self.reassign_current_spectrum(self.current_spectrum.fname)
         self.update()
+
+    def apply_model_to_all(self):
+        """ Apply model to the all the spectra """
+        self.apply_model(fnames=self.spectra.fnames)
 
     def messagebox_continue(self, fnames):
         """ Open a messagebox if no models are found and return True/False
@@ -541,7 +544,7 @@ class Callbacks:
             spectrum.baseline.points = [[], []]
             for key, value in vars(self.current_spectrum.baseline).items():
                 setattr(spectrum.baseline, key, value)
-        self.colorize_from_fit_status(fnames)
+        self.colorize_from_fit_status(fnames)  # reassign white
 
         self.current_spectrum.preprocess()
         self.paramsview.delete()
@@ -640,11 +643,8 @@ class Callbacks:
         y = self.root.winfo_pointery()
         self.fit_settings.update(x, y)
 
-    def colorize_from_fit_status(self, fnames=None):
+    def colorize_from_fit_status(self, fnames):
         """ Colorize the fileselector items from the fit success status """
-        if fnames is None:
-            fnames = self.fileselector.filenames
-
         for fname in fnames:
             ind_fselector = self.fileselector.filenames.index(fname)
             spectrum, _ = self.spectra.get_objects(fname)
@@ -655,14 +655,11 @@ class Callbacks:
                 color = 'white'
             self.fileselector.lbox.itemconfig(ind_fselector, {'bg': color})
 
-    def fit(self, fnames=None, selection=True):
+    def fit(self, fnames=None):
         """ Fit the peaks """
         bkg_name = self.bkg_name.get()
         if len(self.current_spectrum.peak_models) == 0 and bkg_name == 'None':
             return
-
-        if fnames is not None:
-            selection = False
 
         # update current_spectrum.fit_params with the GUI fit_settings.params
         params = self.fit_settings.params
@@ -674,14 +671,11 @@ class Callbacks:
         fit_params['method'] = params['method'].get()
         fit_params['xtol'] = params['xtol'].get()
 
-        model_dict = self.current_spectrum.save()
-        # model_dict.pop('baseline')  # to not affect previous works on baseline
-        self.apply_model(model_dict=model_dict, fnames=fnames,
-                         selection=selection)
+        self.apply_model(fnames=fnames, fit_only=True)
 
     def fit_all(self):
         """ Fit the peaks for all the spectra """
-        self.fit(fnames=self.spectra.fnames, selection=False)
+        self.fit(fnames=self.spectra.fnames)
 
     def set_range(self):
         """ Set range from the spectrum to the appli """
@@ -709,7 +703,7 @@ class Callbacks:
             spectrum.result_fit = lambda: None
             spectrum.range_min = range_min
             spectrum.range_max = range_max
-        self.colorize_from_fit_status(fnames)
+        self.colorize_from_fit_status(fnames)  # reassign white
 
         self.current_spectrum.preprocess()
         self.paramsview.delete()
@@ -728,7 +722,7 @@ class Callbacks:
         for spectrum in self.spectra.all:
             spectrum.result_fit = lambda: None
             spectrum.normalize = normalize
-        self.colorize_from_fit_status(self.spectra.fnames)
+        self.colorize_from_fit_status(self.spectra.fnames)  # reassign white
 
         self.current_spectrum.preprocess()
         self.paramsview.delete()
@@ -757,7 +751,7 @@ class Callbacks:
             spectrum.result_fit = lambda: None
             spectrum.normalize_range_min = normalize_range_min
             spectrum.normalize_range_max = normalize_range_max
-        self.colorize_from_fit_status(self.spectra.fnames)
+        self.colorize_from_fit_status(self.spectra.fnames)  # reassign white
 
         self.current_spectrum.preprocess()
         self.paramsview.delete()
@@ -792,7 +786,7 @@ class Callbacks:
             spectrum.baseline.is_subtracted = False
             spectrum.baseline.y_eval = None
 
-        self.colorize_from_fit_status(fnames=fnames)
+        self.colorize_from_fit_status(fnames)  # reassign white
         self.paramsview.delete()
         self.statsview.delete()
         self.set_range()
@@ -838,7 +832,7 @@ class Callbacks:
             self.current_spectrum.eval_baseline()
             self.current_spectrum.subtract_baseline()
             self.auto_peaks(model_name=model_name)
-            self.colorize_from_fit_status([fname])
+        self.colorize_from_fit_status(fnames)
         self.show_plot = True
         self.reassign_current_spectrum(current_fname)
 

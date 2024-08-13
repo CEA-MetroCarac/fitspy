@@ -22,7 +22,7 @@ def ex_gui_peak_models_in_noise(dirname_res=None):
 
     appli.add_items(fnames=fnames)
     appli.load_model(fname_json=fname_json)
-    appli.apply_model()
+    appli.apply_model_to_all()
 
     # save and destroy for pytest
     if dirname_res is not None:

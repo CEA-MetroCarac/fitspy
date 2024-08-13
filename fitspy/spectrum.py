@@ -496,7 +496,9 @@ class Spectrum:
         kwargs: dict, optional
             Dictionary of optional arguments passed to lmfit.fit()
         """
-        # """  """
+        if len(self.peak_models) == 0 and self.bkg_model is None:
+            return
+
         # update class attributes
         if fit_method is not None:
             self.fit_params['method'] = fit_method

@@ -338,9 +338,9 @@ class GUI(Callbacks):
         add(Button(fr, text="Load Model",
                    command=self.load_model), 1, 0, padx=9)
         add(Button(fr, text="Apply to Selec.",
-                   command=lambda: self.apply_model(selection=1)), 1, 1, padx=9)
+                   command=self.apply_model), 1, 1, padx=9)
         add(Button(fr, text="Apply to All",
-                   command=lambda: self.apply_model(selection=0)), 1, 2, padx=9)
+                   command=self.apply_model_to_all), 1, 2, padx=9)
 
         add(Label(fr, text='Loaded model :'), 2, 0)
         self.text_model = Text(fr, height=1, width=20)
