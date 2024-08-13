@@ -668,7 +668,11 @@ class Spectrum:
         if show_outliers:
             x_outliers, y_outliers = self.calculate_outliers()
             if x_outliers is not None:
-                ax.plot(x_outliers, y_outliers, 'o', c='lime', label='Outliers')
+                inds = [list(x).index(x_outlier) for x_outlier in x_outliers]
+                if subtract_baseline and self.baseline.y_eval is not None:
+                    y_outliers -= self.baseline.y_eval[inds]
+                ax.plot(x_outliers, y_outliers, 'o',
+                        c='lime', mec='k', label='Outliers')
 
         if show_outliers_limit and self.outliers_limit is not None:
             imin, imax = list(self.x0).index(x[0]), list(self.x0).index(x[-1])
