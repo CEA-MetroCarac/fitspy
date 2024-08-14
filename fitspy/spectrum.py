@@ -252,7 +252,6 @@ class Spectrum:
 
     def apply_range(self, range_min=None, range_max=None):
         """ Apply range to the raw spectrum """
-
         self.range_min = range_min or self.range_min
         self.range_max = range_max or self.range_max
 

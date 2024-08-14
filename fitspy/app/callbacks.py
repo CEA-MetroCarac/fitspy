@@ -824,6 +824,7 @@ class Callbacks:
         if self.current_spectrum is not None:
             self.current_spectrum.remove_models()
             self.current_spectrum.baseline.points = [[], []]
+
             if delete_tabview:  # expensive operation when doing a lot of times
                 self.paramsview.delete()
                 self.statsview.delete()
@@ -927,6 +928,7 @@ class Callbacks:
 
                     spectrum = Spectrum()
                     spectrum.fname = fname
+
                     spectrum.preprocess()
                     self.spectra.append(spectrum)
 
