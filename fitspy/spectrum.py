@@ -261,8 +261,6 @@ class Spectrum:
 
         self.x = self.x0[mask].copy()
         self.y = self.y0[mask].copy()
-        self.range_min = self.x.min()
-        self.range_max = self.x.max()
 
     def calculate_outliers(self):
         """ Return outliers points (x,y) coordinates """

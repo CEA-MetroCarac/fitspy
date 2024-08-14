@@ -24,6 +24,8 @@ from fitspy import CMAP
 # TODO : (GUI) remove 'ncpus' from the fit settings
 # TODO : manage callbacks when no files have been loaded
 # TODO : enable remove() with curselection()
+# TODO : auto_eval() with multiprocessing capabilities
+# TODO : A single 'Apply All' for all the settings
 
 
 class Callbacks:
@@ -693,8 +695,8 @@ class Callbacks:
     def apply_range(self, fnames=None):
         """ Set an apply range to the spectrum/spectra """
 
-        range_min = self.range_min.get()
-        range_max = self.range_max.get()
+        range_min = self.get_value('range_min')
+        range_max = self.get_value('range_max')
 
         if range_min is not None and range_max is not None:
             if range_min >= range_max:
@@ -738,17 +740,18 @@ class Callbacks:
         self.statsview.delete()
         self.plot()
 
+    def get_value(self, name):
+        """ Return the float value related to the 'name' attribute """
+        try:
+            return float(eval(f"self.{name}.get()"))
+        except:
+            return None
+
     def update_normalize_range(self):
         """ Update the normalization ranges to all the spectra """
 
-        def get_value(self, name):  # pylint:disable=unused-variable
-            try:
-                return float(eval(f"self.{name}.get()"))
-            except:
-                return None
-
-        normalize_range_min = get_value(self, 'normalize_range_min')
-        normalize_range_max = get_value(self, 'normalize_range_max')
+        normalize_range_min = self.get_value('normalize_range_min')
+        normalize_range_max = self.get_value('normalize_range_max')
 
         if normalize_range_min is not None and normalize_range_max is not None:
             if normalize_range_min >= normalize_range_max:
