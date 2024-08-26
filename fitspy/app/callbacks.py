@@ -700,7 +700,7 @@ class Callbacks:
 
         if range_min is not None and range_max is not None:
             if range_min >= range_max:
-                showerror("incorrect values: range_min >= range_max)")
+                showerror(message="incorrect values: range_min >= range_max)")
                 self.set_range()
                 return
 
@@ -755,7 +755,7 @@ class Callbacks:
 
         if normalize_range_min is not None and normalize_range_max is not None:
             if normalize_range_min >= normalize_range_max:
-                showerror("incorrect values: range_min >= range_max)")
+                showerror(message="incorrect values: range_min >= range_max)")
                 self.set_normalize_settings()
                 return
 
