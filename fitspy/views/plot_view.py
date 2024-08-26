@@ -108,38 +108,15 @@ class PlotView(QWidget):
             self.layout.addWidget(self.toolbar)
             self.layout.addWidget(self.canvas)
 
-        else:
-            # delete canvas and recreate it
-            self.layout.removeWidget(self.canvas)
-            self.canvas.deleteLater()
-            self.canvas = FigureCanvas(fig)
-
-            # delete toolbar and recreate it
-            self.layout.removeWidget(self.toolbar)
-            self.toolbar.deleteLater()
-            self.toolbar = CustomNavigationToolbar(self.canvas, self)
-            self.toolbar.set_original_view_limits(self.original_xlim, self.original_ylim)
-
-            # TODO Put in Controller once display_figure is fixed
-            self.canvas.mpl_connect('button_press_event', self.toolbar.on_press)
-            self.layout.addWidget(self.toolbar)
-            self.layout.addWidget(self.canvas)
-
-            self.canvas.draw_idle()
-            self.background = self.canvas.copy_from_bbox(self.canvas.figure.bbox)
-
     def frame_map_init(self, spectra_map):
         self.frame_map_window = FrameMap(spectra_map)
         self.frame_map_window.show()
 
     def display_figure(self, ax, xlim=None, ylim=None):
-        # TODO Fix display_figure
         if ax is not None:
-            
             # set data of each line in ax to the corresponding line in self.ax
-            print(f"Updating figure with {len(ax.lines)} lines")
             self.ax.clear()
-            # self.ax.__dict__ = ax.__dict__.copy()
+
             for line in ax.lines:
                 self.ax.plot(line.get_xdata(), line.get_ydata(), label=line.get_label())
 
@@ -149,23 +126,15 @@ class PlotView(QWidget):
                 self.set_view_limits(xlim, ylim)
             else:
                 self.store_original_view_limits()
-        # fig.tight_layout()
-
-        # TOOLBAR WORKING (else clause)
-        # self._init_canvas_and_toolbar(fig)
-
-        # TOOLBAR NOT WORKING
-        # fig.set_size_inches(self.canvas.figure.get_size_inches())  # Set figure size to match current canvas size
-        # self.canvas.figure = fig
-        # fig.canvas = self.canvas  # Needed for blitting
-        # self.canvas.draw_idle()
-        # self.toolbar.update_canvas(self.canvas)
 
     def get_view_limits(self):
-        if hasattr(self, 'canvas') and self.canvas.figure.axes:
-            ax = self.canvas.figure.axes[0]
-            return ax.get_xlim(), ax.get_ylim()
-        return None, None
+        """Get the current view limits of the plot."""
+        ax = self.fig.gca()
+        if not ax.has_data():
+            return None, None
+        xlim = ax.get_xlim()
+        ylim = ax.get_ylim()
+        return xlim, ylim
 
     def set_view_limits(self, xlim, ylim):
         if hasattr(self, 'canvas') and self.canvas.figure.axes:
@@ -179,6 +148,7 @@ class PlotView(QWidget):
             ax = self.canvas.figure.axes[0]
             self.original_xlim = ax.get_xlim()
             self.original_ylim = ax.get_ylim()
+            print(f"Original view limits: {self.original_xlim}, {self.original_ylim}")
 
     def update_element_visibility(self):
         """Method to handle element visibility updates without full redraw."""

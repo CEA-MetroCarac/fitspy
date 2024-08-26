@@ -29,10 +29,6 @@ class PlotModel(QObject):
                 current_spectrum.attractors_params = attractors_params_copy
                 current_spectrum.plot(ax, show_attractors=show_attractors)
 
-            if xlim and ylim:
-                ax.set_xlim(xlim)
-                ax.set_ylim(ylim)
-                
             self.axChanged.emit(ax, xlim, ylim)
 
     def toggle_element_visibility(self, element_key):

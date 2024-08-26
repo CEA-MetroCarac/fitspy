@@ -662,7 +662,7 @@ class Spectrum:
             y = y0 - self.result_fit.best_fit
             if y.max() < 0.05 * y0.max():
                 is_ok = False
-    
+
     def set_main_line(self, ax, linewidth=0.5):
         x,y = self.x, self.y
         main_line, = ax.plot(x, y, 'ko-', lw=linewidth, ms=1)
@@ -774,7 +774,6 @@ class Spectrum:
             y_fit = self.y_bkg + self.y_peaks
             result, = ax.plot(self.x, y_fit, 'b', lw=linewidth, label="Fitted profile")
             plot_elements['result'] = result
-
         # return plot_elements
 
     def plot_residual(self, ax, factor=1):
