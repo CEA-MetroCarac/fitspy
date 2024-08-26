@@ -5,7 +5,7 @@ from utils import Spectra, Spectrum
 
 class PlotModel(QObject):
     axChanged = Signal(object, tuple, tuple)
-    elementVisibilityToggled = Signal()
+    canvasChanged = Signal()
     extendFiles = Signal(list)
 
     def __init__(self, settings):
@@ -17,6 +17,7 @@ class PlotModel(QObject):
 
     def update_fig(self, selected_files, xlim=None, ylim=None):
         """Update the axes with the selected files."""
+        self.selected_files = selected_files
         if not selected_files:
             self.axChanged.emit(None, None, None)
         else:
@@ -40,35 +41,19 @@ class PlotModel(QObject):
         if not self.fig.axes:
             return
 
-        ax = self.fig.axes[0]
-        canvas = self.fig.canvas
-        updated_elements = set()
-
-        # Save the initial canvas background
-        background = canvas.copy_from_bbox(self.fig.bbox)
-
+        print(f"Selected files: {self.selected_files}")
         for fname in self.selected_files:
             spectrum, _ = self.spectra.get_objects(fname)
             if spectrum and element_key in spectrum.plot_elements:
                 elements = spectrum.plot_elements[element_key]
                 if not isinstance(elements, (list, tuple)):
                     elements = [elements]
-
                 for element in elements:
-                    element.set_visible(not element.get_visible())
-                    updated_elements.add(element)
+                    current_visibility = element.get_visible()
+                    element.set_visible(not current_visibility)
+                    # print(f"Toggled visibility for {element_key} in {fname}: {not current_visibility}")
 
-        # Restore the background
-        canvas.restore_region(background)
-
-        # Redraw only the elements that were toggled
-        for element in updated_elements:
-            ax.draw_artist(element)
-
-        # Blit the updated regions
-        canvas.blit(self.fig.bbox)
-
-        self.elementVisibilityToggled.emit()
+        self.canvasChanged.emit()
 
     def spectrum_init(self, file):
         """ Create a Spectrum object from a file and add it to the spectra list """
@@ -97,3 +82,21 @@ class PlotModel(QObject):
         """ Calculate the outliers (limit) """
         coef = float(self.settings["outliers"]["coef"])
         self.spectra.outliers_limit_calculation(coef=coef)
+
+    def add_baseline_point(self, x, y):
+        """ Add a baseline point to the selected spectra """
+        for fname in self.selected_files:
+            spectrum, _ = self.spectra.get_objects(fname)
+            if spectrum.baseline.is_subtracted:
+                print("Baseline is already subtracted")
+                # TODO Show error
+                return
+            else:
+                print(f"Adding baseline point to {fname}")
+                spectrum.baseline.add_point(x, y)
+                # TODO update the plot, only the baseline
+
+        self.canvasChanged.emit()
+
+    def del_baseline_point(self, x, y):
+        pass

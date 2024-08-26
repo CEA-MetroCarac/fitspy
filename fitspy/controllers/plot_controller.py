@@ -8,10 +8,10 @@ class PlotController():
 
     def setup_actions(self, settings_controller):
         if self.view.canvas and self.view.toolbar:
-            self.view.canvas.mpl_connect('button_press_event', self.view.toolbar.on_press)
-            
+            self.view.canvas.mpl_connect('button_press_event', self.press_event)
+
         self.model.axChanged.connect(self.view.display_figure)
-        self.model.elementVisibilityToggled.connect(self.view.update_element_visibility)
+        self.model.canvasChanged.connect(self.view.update_canvas)
         self.model.extendFiles.connect(settings_controller.extend_files)
 
     def set_settings(self, settings):
@@ -23,6 +23,24 @@ class PlotController():
 
         # print("Settings updated"+str(self.model.settings))
         self.update_fig(self.model.selected_files)
+
+    def press_event(self, event):
+        if event.button == 1:
+            print("Left click")
+            if self.view.toolbar.baseline_mode.isChecked():
+                print("Baseline activated")
+                self.model.add_baseline_point(event.xdata, event.ydata)
+            elif self.view.toolbar.fitting_mode.isChecked():
+                print("Fitting activated")
+                pass
+        elif event.button == 3:
+            print("Right click")
+            if self.view.toolbar.baseline_mode.isChecked():
+                print("Baseline deactivated")
+                self.model.del_baseline_point(event.xdata, event.ydata)
+            elif self.view.toolbar.fitting_mode.isChecked():
+                print("Fitting deactivated")
+                pass
 
     def outliers_calc(self):
         self.model.outliers_calc()

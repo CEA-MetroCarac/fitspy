@@ -70,21 +70,6 @@ class CustomNavigationToolbar(NavigationToolbar2QT):
         else:
             active_action.setChecked(False)
 
-    def on_mode1(self):
-        print("Baseline activated")
-
-    def on_mode2(self):
-        print("Fitting activated")
-
-    def on_press (self, event):
-        if event.button == 1:  # Left click
-            print("Left click")
-            # get active mode
-            if self.baseline_mode.isChecked():
-                self.on_mode1()
-            elif self.fitting_mode.isChecked():
-                self.on_mode2()
-
 class PlotView(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -114,12 +99,9 @@ class PlotView(QWidget):
 
     def display_figure(self, ax, xlim=None, ylim=None):
         if ax is not None:
-            # set data of each line in ax to the corresponding line in self.ax
+            # Clear the current axes and copy the new one
             self.ax.clear()
-
-            for line in ax.lines:
-                self.ax.plot(line.get_xdata(), line.get_ydata(), label=line.get_label())
-
+            self.ax.__dict__ = ax.__dict__.copy()
             self.canvas.draw()
 
             if xlim and ylim:
@@ -150,8 +132,6 @@ class PlotView(QWidget):
             self.original_ylim = ax.get_ylim()
             print(f"Original view limits: {self.original_xlim}, {self.original_ylim}")
 
-    def update_element_visibility(self):
-        """Method to handle element visibility updates without full redraw."""
-        # Use blitting to update element visibility without full redraw
+    def update_canvas(self):
+        """Update the canvas with the current figure."""
         self.canvas.draw()
-        self.background = self.canvas.copy_from_bbox(self.canvas.figure.bbox)
