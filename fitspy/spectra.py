@@ -243,23 +243,19 @@ class Spectra(list):
         if show_progressbar:
             print()
 
-    def save(self, fname_json, fnames=None):
+    def save(self, fname_json=None, fnames=None):
         """
-        Save spectra in a .json file
+        Return a 'dict_spectra' dictionary with all the spectrum attributes and
+        Save it in a .json file if a 'fname_json' is given
 
         Parameters
         ----------
-        fname_json: str
+        fname_json: str, optional
             Filename associated to the .json file for the spectra saving
         fnames: list of str, optional
             List of the spectrum 'fnames' to save. If None, consider all the
             spectrum contained in the 'spectra' list
         """
-        dirname = os.path.dirname(fname_json)
-        if not os.path.isdir(dirname):
-            print(f"directory {dirname} doesn't exist")
-            return
-
         if fnames is None:
             fnames = self.fnames
 
@@ -269,7 +265,15 @@ class Spectra(list):
             dict_spectra[i] = spectrum.save()
             dict_spectra[i]['baseline'].pop('y_eval')
 
-        save_to_json(fname_json, dict_spectra, indent=3)
+        if fname_json is not None:
+            dirname = os.path.dirname(fname_json)
+            if not os.path.isdir(dirname):
+                print(f"directory {dirname} doesn't exist")
+                return
+            else:
+                save_to_json(fname_json, dict_spectra, indent=3)
+
+        return dict_spectra
 
     @staticmethod
     def load(fname_json, preprocess=False):
