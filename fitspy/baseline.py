@@ -54,6 +54,13 @@ class BaseLine:
         self.is_subtracted = False
         self.y_eval = None
 
+    def reinit(self):
+        """ Reinitialize the main attributes """
+        self.mode = None
+        self.points = [[], []]
+        self.is_subtracted = False
+        self.y_eval = None
+
     def add_point(self, x, y):
         """ Add point in the baseline """
         self.points[0].append(x)

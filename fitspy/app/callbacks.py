@@ -784,19 +784,7 @@ class Callbacks:
 
         for fname in fnames:
             spectrum, _ = self.spectra.get_objects(fname)
-            spectrum.range_min = spectrum.x0.min()
-            spectrum.range_max = spectrum.x0.max()
-            spectrum.x = spectrum.x0.copy()
-            spectrum.y = spectrum.y0.copy()
-            spectrum.normalize = False
-            spectrum.normalize_range_min = None
-            spectrum.normalize_range_max = None
-            spectrum.result_fit = lambda: None
-            spectrum.remove_models()
-            spectrum.baseline.mode = None
-            spectrum.baseline.points = [[], []]
-            spectrum.baseline.is_subtracted = False
-            spectrum.baseline.y_eval = None
+            spectrum.reinit()
 
         self.colorize_from_fit_status(fnames)  # reassign white
         self.paramsview.delete()

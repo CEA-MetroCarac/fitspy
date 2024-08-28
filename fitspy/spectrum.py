@@ -129,6 +129,19 @@ class Spectrum:
         self.fit_params = FIT_PARAMS
         self.result_fit = lambda: None
 
+    def reinit(self):
+        """ Reinitialize the main attributes """
+        self.range_min = spectrum.x0.min()
+        self.range_max = spectrum.x0.max()
+        self.x = spectrum.x0.copy()
+        self.y = spectrum.y0.copy()
+        self.normalize = False
+        self.normalize_range_min = None
+        self.normalize_range_max = None
+        self.remove_models()
+        self.result_fit = lambda: None
+        self.baseline.reinit()
+
     def set_attributes(self, model_dict):
         """Set attributes from a dictionary (obtained from a .json reloading)"""
 
