@@ -227,7 +227,7 @@ class Spectrum:
         if "norm_mode" in keys:
             if model_dict["norm_mode"] == 'Maximum':
                 self.normalize = True
-            else:  # 'Attractors'
+            elif "norm_position_ref" in keys:  # 'Attractors'
                 norm_position_ref = model_dict["norm_position_ref"]
                 if norm_position_ref is not None:
                     x, _ = get_1d_profile(self.fname)
