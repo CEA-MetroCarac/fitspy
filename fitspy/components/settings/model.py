@@ -1,0 +1,1 @@
+# Class FitModel (Create, Copy, Paste, Edit, Export, Import)

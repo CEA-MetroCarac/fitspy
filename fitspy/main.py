@@ -1,10 +1,18 @@
-# TODO snake_case everywhere or camelCase ? Python is snake_case, Qt is camelCase. from __feature__ import snake_case
+from PySide6.QtWidgets import QApplication, QMainWindow
+from ui import Ui_mainWindow
 import sys
-from PySide6.QtWidgets import QApplication
-from controllers import Controller
+
+class MainWindow(QMainWindow):
+    def __init__(self):
+        super().__init__()
+        self.ui = Ui_mainWindow()
+        self.ui.setupUi(self)
+
+def main():
+    app = QApplication(sys.argv)
+    window = MainWindow()
+    window.show()
+    sys.exit(app.exec())
 
 if __name__ == "__main__":
-    app = QApplication(sys.argv)
-    main_controller = Controller()
-    main_controller.view.show()
-    sys.exit(app.exec())
+    main()

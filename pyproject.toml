@@ -50,6 +50,8 @@ version = { attr = "fitspy.VERSION" }
 where = ["."]
 include = ["fitspy*"]
 namespaces = false
+# [tool.setuptools.packages.find]
+# where = ["fitspy"]
 
 [tool.pytest.ini_options]
 minversion = "6.0"
