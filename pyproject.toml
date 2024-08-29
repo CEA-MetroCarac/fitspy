@@ -2,7 +2,6 @@
 requires = ['setuptools>=42']
 build-backend = 'setuptools.build_meta'
 
-
 [project]
 name = "fitspy"
 dynamic = ["version"]
@@ -27,6 +26,7 @@ classifiers = [
     'Environment :: Console',
 ]
 dependencies = [
+    "pyside6",
     "numpy",
     "pandas",
     "matplotlib",
@@ -38,7 +38,7 @@ dependencies = [
 ]
 
 [project.scripts]
-fitspy = "fitspy.app.gui:fitspy_launcher"
+fitspy = "fitspy.main:main"
 
 [tool.setuptools]
 include-package-data = false

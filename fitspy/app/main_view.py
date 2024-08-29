@@ -4,14 +4,88 @@ from PySide6.QtGui import QAction, QFont, QIcon
 from PySide6.QtWidgets import (QMainWindow, QAbstractItemView, QCheckBox, QComboBox,
     QDoubleSpinBox, QFrame, QGridLayout, QGroupBox,
     QHBoxLayout, QLabel, QLayout, QLineEdit, QListWidget,
-    QProgressBar, QPushButton, QRadioButton, QScrollArea,
+    QPushButton, QRadioButton, QScrollArea,
     QSizePolicy, QSpacerItem, QSpinBox, QSplitter,
     QTabWidget, QToolBar, QVBoxLayout, QWidget)
 
+from fitspy.components.settings.status_bar import StatusBar
 
 project_root = Path(__file__).resolve().parent.parent.parent
 icons = project_root / 'fitspy' / 'resources' / 'iconpack'
 
+class MenuBar(QToolBar):
+    def __init__(self):
+        super().__init__()
+        self.init_ui()
+
+    def init_ui(self):
+        self.actionManual = QAction(
+            self,
+            icon=QIcon(str(icons / "manual.png")),
+            toolTip="Manual",
+            objectName="actionManual",
+        )
+        self.actionDarkMode = QAction(
+            self,
+            icon=QIcon(str(icons / "dark.png")),
+            toolTip="Dark Mode",
+            objectName="actionDarkMode",
+        )
+        self.actionLightMode = QAction(
+            self,
+            icon=QIcon(str(icons / "light-mode.svg")),
+            toolTip="Light Mode",
+            objectName="actionLightMode",
+        )
+        self.actionAbout = QAction(
+            self,
+            icon=QIcon(str(icons / "about.png")),
+            toolTip="About",
+            objectName="actionAbout",
+        )
+        self.actionOpen = QAction(
+            self,
+            icon=QIcon(str(icons / "icons8-folder-96.png")),
+            toolTip="Open spectra data, saved work or Excel file",
+            objectName="actionOpen",
+        )
+        self.actionSave = QAction(
+            self,
+            icon=QIcon(str(icons / "save.png")),
+            toolTip="Save current work",
+            objectName="actionSave",
+        )
+        self.actionClear_env = QAction(
+            self,
+            icon=QIcon(str(icons / "clear.png")),
+            toolTip="Clear the environment",
+            objectName="actionClear_env",
+        )
+
+        self.setObjectName("menuBar")
+        self.setMinimumSize(QSize(0, 0))
+        self.setMaximumSize(QSize(16777215, 50))
+        self.setMovable(True)
+        self.setIconSize(QSize(30, 30))
+        self.setFloatable(False)
+
+        actions = [
+            self.actionOpen, self.actionSave, self.actionClear_env,
+            None,  # Separator
+            QWidget(self),  # Spacer
+            self.actionDarkMode, self.actionLightMode,
+            None,  # Separator
+            self.actionManual, self.actionAbout,
+        ]
+
+        for action in actions:
+            if action is None:
+                self.addSeparator()
+            elif isinstance(action, QWidget):
+                action.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+                self.addWidget(action)
+            else:
+                self.addAction(action)
 
 class MainView(QMainWindow):
     def __init__(self):
@@ -22,95 +96,14 @@ class MainView(QMainWindow):
         if not self.objectName():
             self.setObjectName("MainWindow")
         self.resize(1553, 1019)
-        self.actionOpen_dataframe_Excel = QAction(self)
-        self.actionOpen_dataframe_Excel.setObjectName("actionOpen_dataframe_Excel")
-        self.actionOpen_dataframe_CSV = QAction(self)
-        self.actionOpen_dataframe_CSV.setObjectName("actionOpen_dataframe_CSV")
-        self.actionOpen_saved_work_s = QAction(self)
-        self.actionOpen_saved_work_s.setObjectName("actionOpen_saved_work_s")
-        self.actionOpen_a_recipie = QAction(self)
-        self.actionOpen_a_recipie.setObjectName("actionOpen_a_recipie")
-        self.actionSave_all_graph_PNG = QAction(self)
-        self.actionSave_all_graph_PNG.setObjectName("actionSave_all_graph_PNG")
-        self.actionSave_all_graphs_to_pptx = QAction(self)
-        self.actionSave_all_graphs_to_pptx.setObjectName("actionSave_all_graphs_to_pptx")
-        self.open_df = QAction(self)
-        self.open_df.setObjectName("open_df")
-        
-        self.actionManual = QAction(QIcon(str(icons / 'manual.png')), "Manual", self)
-        self.actionManual.setObjectName("actionManual")
- 
-        self.actionDarkMode = QAction(QIcon(str(icons / 'dark.png')), "Dark Mode", self)
-        self.actionDarkMode.setObjectName("actionDarkMode")
 
-        self.actionLightMode = QAction(QIcon(str(icons / 'light-mode.svg')), "Light Mode", self)
-        self.actionLightMode.setObjectName("actionLightMode")
-        self.actionLightMode.setCheckable(False)
-        self.actionLightMode.setChecked(False)
-
-        self.actionAbout = QAction(QIcon(str(icons / 'about.png')), "About", self)
-        self.actionAbout.setObjectName("actionAbout")
-
-        self.actionOpen_wafer = QAction(self)
-        self.actionOpen_wafer.setObjectName("actionOpen_wafer")
-        self.action_reload = QAction(self)
-        self.action_reload.setObjectName("action_reload")
-        icon4 = QIcon()
-        icon4.addFile(":/icon/iconpack/icons8-documents-folder-96.png", QSize(), QIcon.Normal, QIcon.Off)
-        self.action_reload.setIcon(icon4)
-        self.actionOpen_spectra = QAction(self)
-        self.actionOpen_spectra.setObjectName("actionOpen_spectra")
-        self.actionOpen_dfs = QAction(self)
-        self.actionOpen_dfs.setObjectName("actionOpen_dfs")
-        icon5 = QIcon()
-        icon5.addFile(":/icon/iconpack/view.png", QSize(), QIcon.Normal, QIcon.Off)
-        self.actionOpen_dfs.setIcon(icon5)
-        self.actionOpen = QAction(self)
-        self.actionOpen.setObjectName("actionOpen")
-        icon6 = QIcon()
-        icon6.addFile(":/icon/iconpack/icons8-folder-96.png", QSize(), QIcon.Normal, QIcon.Off)
-        self.actionOpen.setIcon(icon6)
-        self.actionOpen_2 = QAction(self)
-        self.actionOpen_2.setObjectName("actionOpen_2")
-        self.actionOpen_2.setIcon(icon6)
-        self.actionSave = QAction(self)
-        self.actionSave.setObjectName("actionSave")
-        icon7 = QIcon()
-        icon7.addFile(":/icon/iconpack/save.png", QSize(), QIcon.Normal, QIcon.Off)
-        self.actionSave.setIcon(icon7)
-        self.actionClear_WS = QAction(self)
-        self.actionClear_WS.setObjectName("actionClear_WS")
-        self.actionThem = QAction(self)
-        self.actionThem.setObjectName("actionThem")
-        icon8 = QIcon()
-        icon8.addFile(":/icon/iconpack/dark-light.png", QSize(), QIcon.Normal, QIcon.Off)
-        self.actionThem.setIcon(icon8)
-        self.actionClear_env = QAction(self)
-        self.actionClear_env.setObjectName("actionClear_env")
-        icon9 = QIcon()
-        icon9.addFile(":/icon/iconpack/clear.png", QSize(), QIcon.Normal, QIcon.Off)
-        self.actionClear_env.setIcon(icon9)
-        self.actionLogo = QAction(self)
-        self.actionLogo.setObjectName("actionLogo")
-        icon10 = QIcon()
-        icon10.addFile(":/icon/logo.png", QSize(), QIcon.Normal, QIcon.Off)
-        self.actionLogo.setIcon(icon10)
-        self.centralwidget = QWidget(self)
-        self.centralwidget.setObjectName("centralwidget")
-        self.centralwidget.setEnabled(True)
-        self.centralwidget.setBaseSize(QSize(0, 0))
-        self.verticalLayout_15 = QVBoxLayout(self.centralwidget)
-        self.verticalLayout_15.setSpacing(0)
-        self.verticalLayout_15.setObjectName("verticalLayout_15")
+        self.centralwidget = QWidget(self, objectName="centralwidget", enabled=True, baseSize=QSize(0, 0))
+        self.verticalLayout_15 = QVBoxLayout(self.centralwidget, spacing=0, objectName="verticalLayout_15")
         self.verticalLayout_15.setContentsMargins(5, 5, 5, 5)
-        
-        self.tabWidget = QTabWidget(self.centralwidget)
-        self.tabWidget.setObjectName("tabWidget")
-        self.tabWidget.setEnabled(True)
-        self.tabWidget.setMinimumSize(QSize(1200, 900))
-        self.tabWidget.setMaximumSize(QSize(2560, 1440))
-        # self.plot_area = QMdiArea(self.centralwidget)
-        
+
+        self.menuBar = MenuBar()
+        self.addToolBar(Qt.TopToolBarArea, self.menuBar)
+
         self.tab_spectra = QWidget()
         self.tab_spectra.setObjectName("tab_spectra")
         self.horizontalLayout_131 = QHBoxLayout(self.tab_spectra)
@@ -143,7 +136,6 @@ class MainView(QMainWindow):
         self.QVBoxlayout_2.setObjectName("QVBoxlayout_2")
 
         self.verticalLayout_63.addLayout(self.QVBoxlayout_2)
-
 
         self.verticalLayout_62.addWidget(self.spectre_view_frame_3)
 
@@ -309,13 +301,11 @@ class MainView(QMainWindow):
 
         self.gridLayout_7.addWidget(self.cb_normalize_3, 1, 3, 1, 1)
 
-
         self.verticalLayout_74.addWidget(self.view_options_box_2)
 
         self.scrollArea_7.setWidget(self.scrollAreaWidgetContents_7)
 
         self.verticalLayout_64.addWidget(self.scrollArea_7)
-
 
         self.Upper_zone_3.addWidget(self.widget_9)
 
@@ -384,7 +374,6 @@ class MainView(QMainWindow):
 
         self.horizontalLayout_17.addWidget(self.cbb_xaxis_unit)
 
-
         self.verticalLayout_39.addLayout(self.horizontalLayout_17)
 
         self.groupBox_5 = QGroupBox(self.scrollAreaWidgetContents_4)
@@ -434,9 +423,7 @@ class MainView(QMainWindow):
 
         self.horizontalLayout_74.addWidget(self.range_apply_2)
 
-
         self.verticalLayout_40.addLayout(self.horizontalLayout_74)
-
 
         self.verticalLayout_39.addWidget(self.groupBox_5)
 
@@ -532,9 +519,7 @@ class MainView(QMainWindow):
 
         self.horizontalLayout_76.addWidget(self.sub_baseline_2)
 
-
         self.verticalLayout_41.addLayout(self.horizontalLayout_76)
-
 
         self.verticalLayout_39.addWidget(self.baseline_2)
 
@@ -582,7 +567,6 @@ class MainView(QMainWindow):
 
         self.verticalLayout_42.addLayout(self.horizontalLayout_77)
 
-
         self.verticalLayout_39.addWidget(self.peaks_2)
 
         self.verticalSpacer_15 = QSpacerItem(20, 40, QSizePolicy.Expanding, QSizePolicy.Minimum)
@@ -621,20 +605,17 @@ class MainView(QMainWindow):
 
         self.horizontalLayout_79.addLayout(self.horizontalLayout_80)
 
-
         self.verticalLayout_312.addLayout(self.horizontalLayout_79)
 
         self.verticalSpacer_16 = QSpacerItem(20, 40, QSizePolicy.Expanding, QSizePolicy.Minimum)
 
         self.verticalLayout_312.addItem(self.verticalSpacer_16)
 
-
         self.verticalLayout_44.addLayout(self.verticalLayout_312)
 
         self.scrollArea_6.setWidget(self.scrollAreaWidgetContents_6)
 
         self.horizontalLayout_78.addWidget(self.scrollArea_6)
-
 
         self.verticalLayout_43.addWidget(self.peak_table_2)
 
@@ -709,7 +690,6 @@ class MainView(QMainWindow):
 
         self.horizontalLayout_82.addWidget(self.cb_expr_2)
 
-
         self.verticalLayout_45.addLayout(self.horizontalLayout_82)
 
         self.cbb_fit_model_list_3 = QComboBox(self.widget_18)
@@ -717,10 +697,8 @@ class MainView(QMainWindow):
         self.cbb_fit_model_list_3.setMinimumSize(QSize(400, 0))
         self.cbb_fit_model_list_3.setMaximumSize(QSize(400, 16777215))
 
-
         self.btn_apply_model_3 = QPushButton(self.widget_18)
         self.btn_apply_model_3.setObjectName("btn_apply_model_3")
-
 
         self.horizontalSpacer_42 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
 
@@ -730,7 +708,6 @@ class MainView(QMainWindow):
         self.btn_load_model_3.setObjectName("btn_load_model_3")
 
         self.horizontalLayout_81.addLayout(self.verticalLayout_45)
-
 
         self.verticalLayout_43.addLayout(self.horizontalLayout_81)
 
@@ -743,7 +720,6 @@ class MainView(QMainWindow):
         self.horizontalLayout_73.setStretch(1, 50)
 
         self.horizontalLayout_72.addWidget(self.widget_18)
-
 
         self.verticalLayout_46.addLayout(self.horizontalLayout_72)
 
@@ -900,12 +876,9 @@ class MainView(QMainWindow):
 
         self.horizontalLayout_98.addWidget(self.btn_open_fit_results_3)
 
-
         self.verticalLayout_55.addWidget(self.groupBox_6)
 
-
         self.horizontalLayout_94.addLayout(self.verticalLayout_55)
-
 
         self.verticalLayout_47.addLayout(self.horizontalLayout_94)
 
@@ -938,7 +911,6 @@ class MainView(QMainWindow):
 
         self.horizontalLayout_83.addWidget(self.cb_fit_negative_2)
 
-
         self.verticalLayout_48.addLayout(self.horizontalLayout_83)
 
         self.horizontalLayout_84 = QHBoxLayout()
@@ -955,7 +927,6 @@ class MainView(QMainWindow):
 
         self.horizontalLayout_84.addWidget(self.max_iteration_2)
 
-
         self.verticalLayout_48.addLayout(self.horizontalLayout_84)
 
         self.horizontalLayout_85 = QHBoxLayout()
@@ -969,7 +940,6 @@ class MainView(QMainWindow):
         self.cbb_fit_methods_2.setObjectName("cbb_fit_methods_2")
 
         self.horizontalLayout_85.addWidget(self.cbb_fit_methods_2)
-
 
         self.verticalLayout_48.addLayout(self.horizontalLayout_85)
 
@@ -985,7 +955,6 @@ class MainView(QMainWindow):
 
         self.horizontalLayout_86.addWidget(self.cbb_cpu_number_2)
 
-
         self.verticalLayout_48.addLayout(self.horizontalLayout_86)
 
         self.horizontalLayout_87 = QHBoxLayout()
@@ -1000,7 +969,6 @@ class MainView(QMainWindow):
         self.xtol_2.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
 
         self.horizontalLayout_87.addWidget(self.xtol_2)
-
 
         self.verticalLayout_48.addLayout(self.horizontalLayout_87)
 
@@ -1032,7 +1000,6 @@ class MainView(QMainWindow):
 
         self.horizontalLayout_131.addWidget(self.splitter_3)
 
-
         self.horizontalLayout_103 = QHBoxLayout()
         self.horizontalLayout_103.setObjectName("horizontalLayout_103")
 
@@ -1040,14 +1007,11 @@ class MainView(QMainWindow):
 
         self.horizontalLayout_103.addItem(self.horizontalSpacer_9)
 
-
         self.horizontalLayout_16 = QHBoxLayout()
         self.horizontalLayout_16.setObjectName("horizontalLayout_16")
 
-
         self.listbox_layout = QVBoxLayout()
         self.listbox_layout.setObjectName("listbox_layout")
-
 
         self.horizontalLayout_104 = QHBoxLayout()
         self.horizontalLayout_104.setObjectName("horizontalLayout_104")
@@ -1056,13 +1020,12 @@ class MainView(QMainWindow):
 
         self.horizontalLayout_104.addItem(self.horizontalSpacer_23)
 
-
-        self.tab_maps = QWidget()
-        self.tab_maps.setObjectName("tab_maps")
-        self.gridLayout_5 = QGridLayout(self.tab_maps)
+        self.central = QWidget()
+        self.central.setObjectName("central")
+        self.gridLayout_5 = QGridLayout(self.central)
         self.gridLayout_5.setObjectName("gridLayout_5")
         self.gridLayout_5.setContentsMargins(5, 5, 5, 5)
-        self.splitter = QSplitter(self.tab_maps)
+        self.splitter = QSplitter(self.central)
         self.splitter.setObjectName("splitter")
         self.splitter.setOrientation(Qt.Orientation.Vertical)
         self.splitter.setHandleWidth(10)
@@ -1089,7 +1052,6 @@ class MainView(QMainWindow):
         self.QVBoxlayout.setObjectName("QVBoxlayout")
 
         self.verticalLayout_16.addLayout(self.QVBoxlayout)
-
 
         self.verticalLayout_26.addWidget(self.spectre_view_frame_)
 
@@ -1199,7 +1161,6 @@ class MainView(QMainWindow):
 
         self.horizontalLayout_69.addWidget(self.measurement_sites)
 
-
         self.verticalLayout_13.addLayout(self.horizontalLayout_69)
 
         self.horizontalLayout_50 = QHBoxLayout()
@@ -1267,9 +1228,7 @@ class MainView(QMainWindow):
 
         self.gridLayout_6.addWidget(self.cb_normalize, 1, 3, 1, 1)
 
-
         self.verticalLayout_13.addWidget(self.view_options_box)
-
 
         self.Upper_zone.addWidget(self.widget_7)
 
@@ -1338,7 +1297,6 @@ class MainView(QMainWindow):
 
         self.horizontalLayout_18.addWidget(self.cbb_xaxis_unit2)
 
-
         self.verticalLayout_38.addLayout(self.horizontalLayout_18)
 
         self.groupBox_4 = QGroupBox(self.scrollAreaWidgetContents_3)
@@ -1386,9 +1344,7 @@ class MainView(QMainWindow):
 
         self.horizontalLayout_58.addWidget(self.range_apply)
 
-
         self.verticalLayout_36.addLayout(self.horizontalLayout_58)
-
 
         self.verticalLayout_38.addWidget(self.groupBox_4)
 
@@ -1481,9 +1437,7 @@ class MainView(QMainWindow):
 
         self.horizontalLayout_57.addWidget(self.sub_baseline)
 
-
         self.verticalLayout_6.addLayout(self.horizontalLayout_57)
-
 
         self.verticalLayout_38.addWidget(self.baseline)
 
@@ -1531,7 +1485,6 @@ class MainView(QMainWindow):
 
         self.verticalLayout_34.addLayout(self.horizontalLayout_56)
 
-
         self.verticalLayout_38.addWidget(self.peaks)
 
         self.verticalSpacer = QSpacerItem(20, 40, QSizePolicy.Expanding, QSizePolicy.Minimum)
@@ -1570,20 +1523,17 @@ class MainView(QMainWindow):
 
         self.horizontalLayout_53.addLayout(self.horizontalLayout_54)
 
-
         self.verticalLayout_311.addLayout(self.horizontalLayout_53)
 
         self.verticalSpacer_6 = QSpacerItem(20, 40, QSizePolicy.Expanding, QSizePolicy.Minimum)
 
         self.verticalLayout_311.addItem(self.verticalSpacer_6)
 
-
         self.verticalLayout_35.addLayout(self.verticalLayout_311)
 
         self.scrollArea_5.setWidget(self.scrollAreaWidgetContents_5)
 
         self.horizontalLayout_26.addWidget(self.scrollArea_5)
-
 
         self.verticalLayout_33.addWidget(self.peak_table)
 
@@ -1648,7 +1598,6 @@ class MainView(QMainWindow):
 
         self.horizontalLayout_51.addWidget(self.cb_expr)
 
-
         self.verticalLayout_22.addLayout(self.horizontalLayout_51)
 
         self.horizontalLayout_52 = QHBoxLayout()
@@ -1686,12 +1635,9 @@ class MainView(QMainWindow):
 
         self.horizontalLayout_52.addWidget(self.btn_load_model)
 
-
         self.verticalLayout_22.addLayout(self.horizontalLayout_52)
 
-
         self.horizontalLayout_70.addLayout(self.verticalLayout_22)
-
 
         self.verticalLayout_33.addLayout(self.horizontalLayout_70)
 
@@ -1703,7 +1649,6 @@ class MainView(QMainWindow):
         self.horizontalLayout_44.setStretch(1, 60)
 
         self.horizontalLayout_9.addWidget(self.widget_17)
-
 
         self.verticalLayout_14.addLayout(self.horizontalLayout_9)
 
@@ -1810,7 +1755,6 @@ class MainView(QMainWindow):
 
         self.horizontalLayout_65.addWidget(self.btn_add_filter_3)
 
-
         self.verticalLayout_31.addLayout(self.horizontalLayout_65)
 
         self.filter_listbox_2 = QListWidget(self.groupBox_df_manip_3)
@@ -1846,13 +1790,11 @@ class MainView(QMainWindow):
 
         self.horizontalLayout_66.addWidget(self.btn_apply_filters_3)
 
-
         self.verticalLayout_31.addLayout(self.horizontalLayout_66)
 
         self.verticalSpacer_7 = QSpacerItem(20, 40, QSizePolicy.Expanding, QSizePolicy.Minimum)
 
         self.verticalLayout_31.addItem(self.verticalSpacer_7)
-
 
         self.verticalLayout_80.addWidget(self.groupBox_df_manip_3)
 
@@ -1915,12 +1857,9 @@ class MainView(QMainWindow):
 
         self.horizontalLayout_36.addWidget(self.btn_open_fit_results)
 
-
         self.verticalLayout_37.addWidget(self.groupBox_3)
 
-
         self.horizontalLayout_62.addLayout(self.verticalLayout_37)
-
 
         self.verticalLayout_32.addLayout(self.horizontalLayout_62)
 
@@ -1970,9 +1909,7 @@ class MainView(QMainWindow):
 
         self.horizontalLayout_60.addWidget(self.lineEdit_32)
 
-
         self.horizontalLayout_61.addLayout(self.horizontalLayout_60)
-
 
         self.verticalLayout_28.addLayout(self.horizontalLayout_61)
 
@@ -2000,7 +1937,6 @@ class MainView(QMainWindow):
 
         self.horizontalLayout_64.addWidget(self.lineEdit_34)
 
-
         self.verticalLayout_28.addLayout(self.horizontalLayout_64)
 
         self.layoutWidget = QWidget(self.fit_settings)
@@ -2021,7 +1957,6 @@ class MainView(QMainWindow):
 
         self.horizontalLayout_55.addWidget(self.cb_fit_negative)
 
-
         self.verticalLayout_29.addLayout(self.horizontalLayout_55)
 
         self.horizontalLayout_59 = QHBoxLayout()
@@ -2038,7 +1973,6 @@ class MainView(QMainWindow):
 
         self.horizontalLayout_59.addWidget(self.max_iteration)
 
-
         self.verticalLayout_29.addLayout(self.horizontalLayout_59)
 
         self.horizontalLayout_63 = QHBoxLayout()
@@ -2053,7 +1987,6 @@ class MainView(QMainWindow):
 
         self.horizontalLayout_63.addWidget(self.cbb_fit_methods)
 
-
         self.verticalLayout_29.addLayout(self.horizontalLayout_63)
 
         self.horizontalLayout_67 = QHBoxLayout()
@@ -2067,7 +2000,6 @@ class MainView(QMainWindow):
         self.cbb_cpu_number.setObjectName("cbb_cpu_number")
 
         self.horizontalLayout_67.addWidget(self.cbb_cpu_number)
-
 
         self.verticalLayout_29.addLayout(self.horizontalLayout_67)
 
@@ -2088,7 +2020,6 @@ class MainView(QMainWindow):
         self.xtol.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
 
         self.horizontalLayout_68.addWidget(self.xtol)
-
 
         self.verticalLayout_29.addLayout(self.horizontalLayout_68)
 
@@ -2147,7 +2078,7 @@ class MainView(QMainWindow):
 
         self.gridLayout_5.addWidget(self.splitter, 1, 2, 1, 1)
 
-        self.sidebar = QFrame(self.tab_maps)
+        self.sidebar = QFrame(self.central)
         self.sidebar.setObjectName("sidebar")
         sizePolicy1.setHeightForWidth(self.sidebar.sizePolicy().hasHeightForWidth())
         self.sidebar.setSizePolicy(sizePolicy1)
@@ -2209,9 +2140,7 @@ class MainView(QMainWindow):
 
         self.horizontalLayout_29.addWidget(self.pushButton_3)
 
-
         self.verticalLayout_2.addLayout(self.horizontalLayout_29)
-
 
         self.verticalLayout_17.addWidget(self.groupBox)
 
@@ -2256,7 +2185,6 @@ class MainView(QMainWindow):
 
         self.horizontalLayout_8.addWidget(self.btn_show_stats)
 
-
         self.verticalLayout_10.addLayout(self.horizontalLayout_8)
 
         self.spectra_listbox = QListWidget(self.groupBox_2)
@@ -2283,9 +2211,7 @@ class MainView(QMainWindow):
 
         self.horizontalLayout.addItem(self.horizontalSpacer_11)
 
-
         self.verticalLayout_10.addLayout(self.horizontalLayout)
-
 
         self.verticalLayout_17.addWidget(self.groupBox_2)
 
@@ -2294,7 +2220,6 @@ class MainView(QMainWindow):
 
         self.gridLayout_5.addWidget(self.sidebar, 1, 3, 1, 1)
 
-        self.tabWidget.addTab(self.tab_maps, "")
         self.verticalLayout_12 = QVBoxLayout()
         self.verticalLayout_12.setObjectName("verticalLayout_12")
 
@@ -2339,7 +2264,6 @@ class MainView(QMainWindow):
 
         self.horizontalLayout_115.addWidget(self.cbb_palette)
 
-
         self.verticalLayout_3.addLayout(self.horizontalLayout_115)
 
         self.horizontalLayout_71 = QHBoxLayout()
@@ -2355,7 +2279,6 @@ class MainView(QMainWindow):
         self.cbb_x_2.setObjectName("cbb_x_2")
 
         self.horizontalLayout_71.addWidget(self.cbb_x_2)
-
 
         self.verticalLayout_3.addLayout(self.horizontalLayout_71)
 
@@ -2373,7 +2296,6 @@ class MainView(QMainWindow):
 
         self.horizontalLayout_88.addWidget(self.cbb_y_2)
 
-
         self.verticalLayout_3.addLayout(self.horizontalLayout_88)
 
         self.horizontalLayout_89 = QHBoxLayout()
@@ -2389,7 +2311,6 @@ class MainView(QMainWindow):
         self.cbb_z_2.setObjectName("cbb_z_2")
 
         self.horizontalLayout_89.addWidget(self.cbb_z_2)
-
 
         self.verticalLayout_3.addLayout(self.horizontalLayout_89)
 
@@ -2411,7 +2332,6 @@ class MainView(QMainWindow):
 
         self.horizontalLayout_107.addWidget(self.lbl_plot_title)
 
-
         self.verticalLayout_3.addLayout(self.horizontalLayout_107)
 
         self.horizontalLayout_91 = QHBoxLayout()
@@ -2426,7 +2346,6 @@ class MainView(QMainWindow):
 
         self.horizontalLayout_91.addWidget(self.lbl_xlabel)
 
-
         self.verticalLayout_3.addLayout(self.horizontalLayout_91)
 
         self.horizontalLayout_92 = QHBoxLayout()
@@ -2440,7 +2359,6 @@ class MainView(QMainWindow):
         self.lbl_ylabel.setObjectName("lbl_ylabel")
 
         self.horizontalLayout_92.addWidget(self.lbl_ylabel)
-
 
         self.verticalLayout_3.addLayout(self.horizontalLayout_92)
 
@@ -2461,7 +2379,6 @@ class MainView(QMainWindow):
         self.btn_clear_limits.setObjectName("btn_clear_limits")
 
         self.horizontalLayout_19.addWidget(self.btn_clear_limits)
-
 
         self.verticalLayout_3.addLayout(self.horizontalLayout_19)
 
@@ -2497,7 +2414,6 @@ class MainView(QMainWindow):
 
         self.horizontalLayout_102.addWidget(self.ymax_2)
 
-
         self.verticalLayout_3.addLayout(self.horizontalLayout_102)
 
         self.label_2 = QLabel(self.scrollAreaWidgetContents)
@@ -2516,7 +2432,6 @@ class MainView(QMainWindow):
         self.lbl_zlabel.setObjectName("lbl_zlabel")
 
         self.horizontalLayout_93.addWidget(self.lbl_zlabel)
-
 
         self.verticalLayout_3.addLayout(self.horizontalLayout_93)
 
@@ -2541,7 +2456,6 @@ class MainView(QMainWindow):
 
         self.horizontalLayout_113.addItem(self.horizontalSpacer_43)
 
-
         self.verticalLayout_3.addLayout(self.horizontalLayout_113)
 
         self.label_3 = QLabel(self.scrollAreaWidgetContents)
@@ -2560,7 +2474,6 @@ class MainView(QMainWindow):
         self.lbl_wafersize.setObjectName("lbl_wafersize")
 
         self.horizontalLayout_124.addWidget(self.lbl_wafersize)
-
 
         self.verticalLayout_3.addLayout(self.horizontalLayout_124)
 
@@ -2634,7 +2547,6 @@ class MainView(QMainWindow):
 
         self.horizontalLayout_126.addItem(self.horizontalSpacer_5)
 
-
         self.verticalLayout_11.addLayout(self.horizontalLayout_126)
 
         self.line_3 = QFrame(self.scrollAreaWidgetContents_8)
@@ -2659,7 +2571,6 @@ class MainView(QMainWindow):
         self.horizontalSpacer_35 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
 
         self.legends_loc.addItem(self.horizontalSpacer_35)
-
 
         self.verticalLayout_11.addLayout(self.legends_loc)
 
@@ -2690,7 +2601,6 @@ class MainView(QMainWindow):
         self.horizontalSpacer_48 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
 
         self.horizontalLayout_13.addItem(self.horizontalSpacer_48)
-
 
         self.verticalLayout_11.addLayout(self.horizontalLayout_13)
 
@@ -2754,7 +2664,6 @@ class MainView(QMainWindow):
 
         self.horizontalLayout_6.addWidget(self.btn_remove_y2)
 
-
         self.verticalLayout_9.addLayout(self.horizontalLayout_6)
 
         self.horizontalLayout_2 = QHBoxLayout()
@@ -2768,7 +2677,6 @@ class MainView(QMainWindow):
         self.lbl_y2label.setObjectName("lbl_y2label")
 
         self.horizontalLayout_2.addWidget(self.lbl_y2label)
-
 
         self.verticalLayout_9.addLayout(self.horizontalLayout_2)
 
@@ -2793,7 +2701,6 @@ class MainView(QMainWindow):
         self.y2max_2.setObjectName("y2max_2")
 
         self.horizontalLayout_3.addWidget(self.y2max_2)
-
 
         self.verticalLayout_9.addLayout(self.horizontalLayout_3)
 
@@ -2821,7 +2728,6 @@ class MainView(QMainWindow):
 
         self.horizontalLayout_10.addWidget(self.btn_remove_y3)
 
-
         self.verticalLayout_9.addLayout(self.horizontalLayout_10)
 
         self.horizontalLayout_4 = QHBoxLayout()
@@ -2835,7 +2741,6 @@ class MainView(QMainWindow):
         self.lbl_y3label.setObjectName("lbl_y3label")
 
         self.horizontalLayout_4.addWidget(self.lbl_y3label)
-
 
         self.verticalLayout_9.addLayout(self.horizontalLayout_4)
 
@@ -2860,7 +2765,6 @@ class MainView(QMainWindow):
         self.y3max_2.setObjectName("y3max_2")
 
         self.horizontalLayout_5.addWidget(self.y3max_2)
-
 
         self.verticalLayout_9.addLayout(self.horizontalLayout_5)
 
@@ -2892,7 +2796,6 @@ class MainView(QMainWindow):
 
         self.horizontalLayout_11.addWidget(self.btn_remove_y12)
 
-
         self.verticalLayout_9.addLayout(self.horizontalLayout_11)
 
         self.horizontalLayout_12 = QHBoxLayout()
@@ -2906,7 +2809,6 @@ class MainView(QMainWindow):
         self.lbl_y12label.setObjectName("lbl_y12label")
 
         self.horizontalLayout_12.addWidget(self.lbl_y12label)
-
 
         self.verticalLayout_9.addLayout(self.horizontalLayout_12)
 
@@ -2934,7 +2836,6 @@ class MainView(QMainWindow):
 
         self.horizontalLayout_14.addWidget(self.btn_remove_y13)
 
-
         self.verticalLayout_9.addLayout(self.horizontalLayout_14)
 
         self.horizontalLayout_15 = QHBoxLayout()
@@ -2949,134 +2850,27 @@ class MainView(QMainWindow):
 
         self.horizontalLayout_15.addWidget(self.lbl_y3label_2)
 
-
         self.verticalLayout_9.addLayout(self.horizontalLayout_15)
 
         self.scrollArea_10.setWidget(self.scrollAreaWidgetContents_10)
 
         self.verticalLayout_8.addWidget(self.scrollArea_10)
 
-        self.verticalLayout_15.addWidget(self.tabWidget)
-
-        self.layout_statusbar = QHBoxLayout()
-        self.layout_statusbar.setObjectName("layout_statusbar")
-        self.layout_statusbar.setContentsMargins(5, 5, 5, 5)
-        self.label_38 = QLabel(self.centralwidget)
-        self.label_38.setObjectName("label_38")
-
-        self.layout_statusbar.addWidget(self.label_38)
-
-        self.label_19 = QLabel(self.centralwidget)
-        self.label_19.setObjectName("label_19")
-
-        self.layout_statusbar.addWidget(self.label_19)
-
-        self.label_21 = QLabel(self.centralwidget)
-        self.label_21.setObjectName("label_21")
-
-        self.layout_statusbar.addWidget(self.label_21)
-
-        self.ncpus = QSpinBox(self.centralwidget)
-        self.ncpus.setObjectName("ncpus")
-        self.ncpus.setMinimum(1)
-        self.ncpus.setMaximum(64)
-
-        self.layout_statusbar.addWidget(self.ncpus)
-
-        self.horizontalSpacer_58 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
-
-        self.layout_statusbar.addItem(self.horizontalSpacer_58)
-
-        self.progressText = QLabel(self.centralwidget)
-        self.progressText.setObjectName("progressText")
-
-        self.layout_statusbar.addWidget(self.progressText)
-
-        self.label_95 = QLabel(self.centralwidget)
-        self.label_95.setObjectName("label_95")
-
-        self.layout_statusbar.addWidget(self.label_95)
-
-        self.progressBar = QProgressBar(self.centralwidget)
-        self.progressBar.setObjectName("progressBar")
-        sizePolicy5.setHeightForWidth(self.progressBar.sizePolicy().hasHeightForWidth())
-        self.progressBar.setSizePolicy(sizePolicy5)
-        self.progressBar.setMinimumSize(QSize(200, 10))
-        self.progressBar.setMaximumSize(QSize(200, 10))
-        self.progressBar.setMinimum(0)
-        self.progressBar.setMaximum(100)
-        self.progressBar.setValue(100)
-        self.progressBar.setTextVisible(True)
-        self.progressBar.setInvertedAppearance(False)
-
-        self.layout_statusbar.addWidget(self.progressBar)
-
-        self.label_24 = QLabel(self.centralwidget)
-        self.label_24.setObjectName("label_24")
-
-        self.layout_statusbar.addWidget(self.label_24)
-
-
-        self.verticalLayout_15.addLayout(self.layout_statusbar)
+        self.verticalLayout_15.addWidget(self.central)
 
         self.setCentralWidget(self.centralwidget)
-        self.toolBar = QToolBar(self)
-        self.toolBar.setObjectName("toolBar")
-        self.toolBar.setMinimumSize(QSize(0, 0))
-        self.toolBar.setMaximumSize(QSize(16777215, 50))
-        self.toolBar.setMovable(True)
-        self.toolBar.setIconSize(QSize(30, 30))
-        self.toolBar.setFloatable(False)
-        self.addToolBar(Qt.TopToolBarArea, self.toolBar)
-        self.toolBar_2 = QToolBar(self)
-        self.toolBar_2.setObjectName("toolBar_2")
-        self.toolBar_2.setLayoutDirection(Qt.LayoutDirection.RightToLeft)
-        self.addToolBar(Qt.TopToolBarArea, self.toolBar_2)
-
-        self.toolBar.addAction(self.actionOpen)
-        self.toolBar.addSeparator()
-        self.toolBar.addAction(self.actionSave)
-        self.toolBar.addSeparator()
-        self.toolBar.addAction(self.actionClear_env)
-        self.toolBar.addSeparator()
-        self.toolBar_2.addAction(self.actionAbout)
-        self.toolBar_2.addSeparator()
-        self.toolBar_2.addAction(self.actionManual)
-        self.toolBar_2.addSeparator()
-        self.toolBar_2.addAction(self.actionDarkMode)
-        self.toolBar_2.addAction(self.actionLightMode)
-        self.toolBar_2.addSeparator()
+        
 
         self.retranslateUi()
 
-        self.tabWidget.setCurrentIndex(1)
         self.tabWidget_3.setCurrentIndex(0)
         self.tabWidget_2.setCurrentIndex(0)
 
-        
+        self.statusBar = StatusBar()
+        self.setStatusBar(self.statusBar)
 
     def retranslateUi(self):
         self.setWindowTitle("SPECTROview (Spectroscopic Data Processing and Visualization)")
-        self.actionOpen_dataframe_Excel.setText("Open data inline (Semilab)")
-        self.actionOpen_dataframe_CSV.setText("Open data inline (Labspec6)")
-        self.actionOpen_saved_work_s.setText("Open saved work(s)")
-        self.actionOpen_a_recipie.setText("Open a recipie")
-        self.actionSave_all_graph_PNG.setText("Save all graphs (PNG)")
-        self.actionSave_all_graphs_to_pptx.setText("Save all graphs to pptx")
-        self.open_df.setText("Open df")
-        self.actionOpen_wafer.setText("Open hyperspectra : wafer, 2Dmap (CSV, txt)")
-        self.action_reload.setText("Reload saved work")
-        self.actionOpen_spectra.setText("Open spectra data (txt)")
-        self.actionOpen_dfs.setText("Open dataframe (Excel)")
-        self.actionOpen.setText("Open")
-        self.actionOpen.setToolTip("Open spectra data, saved work or Excel file")
-        self.actionOpen_2.setText("Open")
-        self.actionSave.setText("Save")
-        self.actionSave.setToolTip("Save current work")
-        self.actionClear_WS.setText("Clear WS")
-        self.actionThem.setText("Theme")
-        self.actionClear_env.setText("Clear env")
-        self.actionLogo.setText("zer")
         self.rdbtn_baseline_2.setText("baseline")
         self.rdbtn_peak_2.setText("peaks")
         self.rsquared_2.setText("R2")
@@ -3304,4 +3098,3 @@ class MainView(QMainWindow):
         self.btn_show_stats.setToolTip("Show fitting statistique results")
         self.btn_show_stats.setText("Stats")
         self.item_count_label.setText("0 points")
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_maps), "Maps")
