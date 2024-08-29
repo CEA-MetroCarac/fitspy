@@ -30,7 +30,7 @@ def initializer(queue_incr):
     shared_queue = queue_incr
 
 
-def fit_mp(spectra, ncpus, queue_incr, fit_only):
+def fit_mp(spectra, ncpus, queue_incr):
     """ Multiprocessing fit function applied to spectra """
     args = []
     for spectrum in spectra:

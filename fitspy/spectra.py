@@ -222,7 +222,7 @@ class Spectra(list):
                 spectrum.fit()
                 queue_incr.put(1)
         else:
-            fit_mp(spectra, ncpus, queue_incr, fit_only)
+            fit_mp(spectra, ncpus, queue_incr)
 
         self.pbar_index = 0  # reinitialize pbar_index after the calculation
         thread.join()
