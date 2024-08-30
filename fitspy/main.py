@@ -1,6 +1,6 @@
 import sys
 from PySide6.QtWidgets import QApplication
-from app.main_controller import MainController
+from fitspy.app import MainController
 
 def main():
     app = QApplication(sys.argv)

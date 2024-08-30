@@ -104,104 +104,28 @@ class MainView(QMainWindow):
         self.menuBar = MenuBar()
         self.addToolBar(Qt.TopToolBarArea, self.menuBar)
 
-        self.tab_spectra = QWidget()
-        self.tab_spectra.setObjectName("tab_spectra")
-        self.horizontalLayout_131 = QHBoxLayout(self.tab_spectra)
-        self.horizontalLayout_131.setObjectName("horizontalLayout_131")
-        self.horizontalLayout_131.setContentsMargins(5, 5, 5, 5)
-        self.splitter_3 = QSplitter(self.tab_spectra)
-        self.splitter_3.setObjectName("splitter_3")
-        self.splitter_3.setOrientation(Qt.Orientation.Vertical)
-        self.splitter_3.setHandleWidth(10)
-        self.upper_frame_3 = QFrame(self.splitter_3)
-        self.upper_frame_3.setObjectName("upper_frame_3")
-        self.horizontalLayout_105 = QHBoxLayout(self.upper_frame_3)
-        self.horizontalLayout_105.setObjectName("horizontalLayout_105")
-        self.horizontalLayout_105.setContentsMargins(3, 0, 3, 3)
         self.Upper_zone_3 = QHBoxLayout()
         self.Upper_zone_3.setSpacing(0)
         self.Upper_zone_3.setObjectName("Upper_zone_3")
-        self.verticalLayout_62 = QVBoxLayout()
-        self.verticalLayout_62.setObjectName("verticalLayout_62")
-        self.verticalLayout_62.setContentsMargins(0, -1, 10, -1)
-        self.spectre_view_frame_3 = QFrame(self.upper_frame_3)
-        self.spectre_view_frame_3.setObjectName("spectre_view_frame_3")
-        self.spectre_view_frame_3.setFrameShape(QFrame.Shape.StyledPanel)
-        self.spectre_view_frame_3.setFrameShadow(QFrame.Shadow.Raised)
-        self.verticalLayout_63 = QVBoxLayout(self.spectre_view_frame_3)
-        self.verticalLayout_63.setObjectName("verticalLayout_63")
-        self.verticalLayout_63.setContentsMargins(0, 0, 0, 0)
         self.QVBoxlayout_2 = QVBoxLayout()
         self.QVBoxlayout_2.setSpacing(6)
         self.QVBoxlayout_2.setObjectName("QVBoxlayout_2")
-
-        self.verticalLayout_63.addLayout(self.QVBoxlayout_2)
-
-        self.verticalLayout_62.addWidget(self.spectre_view_frame_3)
 
         self.bottom_frame_3 = QHBoxLayout()
         self.bottom_frame_3.setSpacing(10)
         self.bottom_frame_3.setObjectName("bottom_frame_3")
         self.bottom_frame_3.setSizeConstraint(QLayout.SizeConstraint.SetMaximumSize)
         self.bottom_frame_3.setContentsMargins(2, 2, 2, 2)
-        self.toolbar_frame_3 = QHBoxLayout()
-        self.toolbar_frame_3.setObjectName("toolbar_frame_3")
-
-        self.bottom_frame_3.addLayout(self.toolbar_frame_3)
 
         self.horizontalSpacer_24 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
 
         self.bottom_frame_3.addItem(self.horizontalSpacer_24)
 
-        self.rdbtn_baseline_2 = QRadioButton(self.upper_frame_3)
-        self.rdbtn_baseline_2.setObjectName("rdbtn_baseline_2")
-        self.rdbtn_baseline_2.setChecked(True)
 
-        self.bottom_frame_3.addWidget(self.rdbtn_baseline_2)
-
-        self.rdbtn_peak_2 = QRadioButton(self.upper_frame_3)
-        self.rdbtn_peak_2.setObjectName("rdbtn_peak_2")
-        self.rdbtn_peak_2.setChecked(False)
-
-        self.bottom_frame_3.addWidget(self.rdbtn_peak_2)
 
         self.horizontalSpacer_16 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
 
         self.bottom_frame_3.addItem(self.horizontalSpacer_16)
-
-        self.rsquared_2 = QLabel(self.upper_frame_3)
-        self.rsquared_2.setObjectName("rsquared_2")
-
-        self.bottom_frame_3.addWidget(self.rsquared_2)
-
-        self.btn_copy_fig_3 = QPushButton(self.upper_frame_3)
-        self.btn_copy_fig_3.setObjectName("btn_copy_fig_3")
-        sizePolicy = QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Fixed)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.btn_copy_fig_3.sizePolicy().hasHeightForWidth())
-        self.btn_copy_fig_3.setSizePolicy(sizePolicy)
-        self.btn_copy_fig_3.setMinimumSize(QSize(0, 0))
-        self.btn_copy_fig_3.setMaximumSize(QSize(16777215, 16777215))
-        icon11 = QIcon()
-        icon11.addFile(":/icon/iconpack/copy.png", QSize(), QIcon.Normal, QIcon.Off)
-        self.btn_copy_fig_3.setIcon(icon11)
-        self.btn_copy_fig_3.setIconSize(QSize(24, 24))
-
-        self.bottom_frame_3.addWidget(self.btn_copy_fig_3)
-
-        self.label_79 = QLabel(self.upper_frame_3)
-        self.label_79.setObjectName("label_79")
-
-        self.bottom_frame_3.addWidget(self.label_79)
-
-        self.sb_dpi_spectra_2 = QSpinBox(self.upper_frame_3)
-        self.sb_dpi_spectra_2.setObjectName("sb_dpi_spectra_2")
-        self.sb_dpi_spectra_2.setMinimum(100)
-        self.sb_dpi_spectra_2.setMaximum(200)
-        self.sb_dpi_spectra_2.setSingleStep(10)
-
-        self.bottom_frame_3.addWidget(self.sb_dpi_spectra_2)
 
         self.horizontalSpacer_25 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
 
@@ -211,34 +135,7 @@ class MainView(QMainWindow):
         self.bottom_frame_3.setStretch(1, 25)
         self.bottom_frame_3.setStretch(9, 2)
 
-        self.verticalLayout_62.addLayout(self.bottom_frame_3)
-
-        self.verticalLayout_62.setStretch(0, 75)
-        self.verticalLayout_62.setStretch(1, 25)
-
-        self.Upper_zone_3.addLayout(self.verticalLayout_62)
-
-        self.widget_9 = QWidget(self.upper_frame_3)
-        self.widget_9.setObjectName("widget_9")
-        sizePolicy1 = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Preferred)
-        sizePolicy1.setHorizontalStretch(0)
-        sizePolicy1.setVerticalStretch(0)
-        sizePolicy1.setHeightForWidth(self.widget_9.sizePolicy().hasHeightForWidth())
-        self.widget_9.setSizePolicy(sizePolicy1)
-        self.widget_9.setMinimumSize(QSize(300, 0))
-        self.verticalLayout_64 = QVBoxLayout(self.widget_9)
-        self.verticalLayout_64.setObjectName("verticalLayout_64")
-        self.verticalLayout_64.setContentsMargins(2, 0, 2, 0)
-        self.scrollArea_7 = QScrollArea(self.widget_9)
-        self.scrollArea_7.setObjectName("scrollArea_7")
-        sizePolicy2 = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Minimum)
-        sizePolicy2.setHorizontalStretch(0)
-        sizePolicy2.setVerticalStretch(0)
-        sizePolicy2.setHeightForWidth(self.scrollArea_7.sizePolicy().hasHeightForWidth())
-        self.scrollArea_7.setSizePolicy(sizePolicy2)
-        self.scrollArea_7.setMinimumSize(QSize(250, 450))
-        self.scrollArea_7.setMaximumSize(QSize(350, 16777215))
-        self.scrollArea_7.setWidgetResizable(True)
+        
         self.scrollAreaWidgetContents_7 = QWidget()
         self.scrollAreaWidgetContents_7.setObjectName("scrollAreaWidgetContents_7")
         self.scrollAreaWidgetContents_7.setGeometry(QRect(0, 0, 316, 448))
@@ -303,25 +200,10 @@ class MainView(QMainWindow):
 
         self.verticalLayout_74.addWidget(self.view_options_box_2)
 
-        self.scrollArea_7.setWidget(self.scrollAreaWidgetContents_7)
 
-        self.verticalLayout_64.addWidget(self.scrollArea_7)
-
-        self.Upper_zone_3.addWidget(self.widget_9)
 
         self.Upper_zone_3.setStretch(0, 75)
 
-        self.horizontalLayout_105.addLayout(self.Upper_zone_3)
-
-        self.splitter_3.addWidget(self.upper_frame_3)
-        self.bottom_widget_4 = QWidget(self.splitter_3)
-        self.bottom_widget_4.setObjectName("bottom_widget_4")
-        self.verticalLayout_66 = QVBoxLayout(self.bottom_widget_4)
-        self.verticalLayout_66.setObjectName("verticalLayout_66")
-        self.verticalLayout_66.setContentsMargins(3, 3, 3, 0)
-        self.tabWidget_3 = QTabWidget(self.bottom_widget_4)
-        self.tabWidget_3.setObjectName("tabWidget_3")
-        self.tabWidget_3.setEnabled(True)
         self.fit_model_editor_3 = QWidget()
         self.fit_model_editor_3.setObjectName("fit_model_editor_3")
         self.fit_model_editor_3.setEnabled(True)
@@ -635,46 +517,10 @@ class MainView(QMainWindow):
         self.horizontalLayout_82.setSpacing(5)
         self.horizontalLayout_82.setObjectName("horizontalLayout_82")
         self.horizontalLayout_82.setContentsMargins(5, 2, 5, 2)
-        self.btn_copy_fit_model_2 = QPushButton(self.widget_18)
-        self.btn_copy_fit_model_2.setObjectName("btn_copy_fit_model_2")
-        icon12 = QIcon()
-        icon12.addFile(":/icon/iconpack/copy10.png", QSize(), QIcon.Normal, QIcon.Off)
-        self.btn_copy_fit_model_2.setIcon(icon12)
-
-        self.horizontalLayout_82.addWidget(self.btn_copy_fit_model_2)
-
-        self.lbl_copied_fit_model_2 = QLabel(self.widget_18)
-        self.lbl_copied_fit_model_2.setObjectName("lbl_copied_fit_model_2")
-        sizePolicy4 = QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Preferred)
-        sizePolicy4.setHorizontalStretch(0)
-        sizePolicy4.setVerticalStretch(0)
-        sizePolicy4.setHeightForWidth(self.lbl_copied_fit_model_2.sizePolicy().hasHeightForWidth())
-        self.lbl_copied_fit_model_2.setSizePolicy(sizePolicy4)
-        self.lbl_copied_fit_model_2.setMinimumSize(QSize(50, 0))
-
-        self.horizontalLayout_82.addWidget(self.lbl_copied_fit_model_2)
-
-        self.btn_paste_fit_model_2 = QPushButton(self.widget_18)
-        self.btn_paste_fit_model_2.setObjectName("btn_paste_fit_model_2")
-        self.btn_paste_fit_model_2.setMinimumSize(QSize(0, 0))
-        self.btn_paste_fit_model_2.setMaximumSize(QSize(16777215, 40))
-        icon13 = QIcon()
-        icon13.addFile(":/icon/iconpack/copy_label.png.png", QSize(), QIcon.Normal, QIcon.Off)
-        self.btn_paste_fit_model_2.setIcon(icon13)
-
-        self.horizontalLayout_82.addWidget(self.btn_paste_fit_model_2)
 
         self.horizontalSpacer_51 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
 
         self.horizontalLayout_82.addItem(self.horizontalSpacer_51)
-
-        self.save_model_2 = QPushButton(self.widget_18)
-        self.save_model_2.setObjectName("save_model_2")
-        icon14 = QIcon()
-        icon14.addFile(":/icon/iconpack/save11.png", QSize(), QIcon.Normal, QIcon.Off)
-        self.save_model_2.setIcon(icon14)
-
-        self.horizontalLayout_82.addWidget(self.save_model_2)
 
         self.horizontalSpacer_39 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
 
@@ -723,7 +569,6 @@ class MainView(QMainWindow):
 
         self.verticalLayout_46.addLayout(self.horizontalLayout_72)
 
-        self.tabWidget_3.addTab(self.fit_model_editor_3, "")
         self.collect_fit_data_2 = QWidget()
         self.collect_fit_data_2.setObjectName("collect_fit_data_2")
         self.verticalLayout_47 = QVBoxLayout(self.collect_fit_data_2)
@@ -734,13 +579,7 @@ class MainView(QMainWindow):
         self.horizontalLayout_94.setSpacing(5)
         self.horizontalLayout_94.setObjectName("horizontalLayout_94")
         self.horizontalLayout_94.setContentsMargins(5, 5, 5, 5)
-        self.scrollArea_11 = QScrollArea(self.collect_fit_data_2)
-        self.scrollArea_11.setObjectName("scrollArea_11")
-        sizePolicy2.setHeightForWidth(self.scrollArea_11.sizePolicy().hasHeightForWidth())
-        self.scrollArea_11.setSizePolicy(sizePolicy2)
-        self.scrollArea_11.setMinimumSize(QSize(430, 100))
-        self.scrollArea_11.setMaximumSize(QSize(430, 16777215))
-        self.scrollArea_11.setWidgetResizable(True)
+        
         self.scrollAreaWidgetContents_11 = QWidget()
         self.scrollAreaWidgetContents_11.setObjectName("scrollAreaWidgetContents_11")
         self.scrollAreaWidgetContents_11.setGeometry(QRect(0, 0, 322, 144))
@@ -816,10 +655,6 @@ class MainView(QMainWindow):
 
         self.verticalLayout_81.addLayout(self.horizontalLayout_139)
 
-        self.scrollArea_11.setWidget(self.scrollAreaWidgetContents_11)
-
-        self.horizontalLayout_94.addWidget(self.scrollArea_11)
-
         self.verticalLayout_55 = QVBoxLayout()
         self.verticalLayout_55.setObjectName("verticalLayout_55")
         self.verticalLayout_55.setContentsMargins(15, -1, -1, -1)
@@ -882,7 +717,6 @@ class MainView(QMainWindow):
 
         self.verticalLayout_47.addLayout(self.horizontalLayout_94)
 
-        self.tabWidget_3.addTab(self.collect_fit_data_2, "")
         self.fit_settings_3 = QWidget()
         self.fit_settings_3.setObjectName("fit_settings_3")
         self.fit_settings_3.setEnabled(True)
@@ -943,20 +777,6 @@ class MainView(QMainWindow):
 
         self.verticalLayout_48.addLayout(self.horizontalLayout_85)
 
-        self.horizontalLayout_86 = QHBoxLayout()
-        self.horizontalLayout_86.setObjectName("horizontalLayout_86")
-        self.label_77 = QLabel(self.layoutWidget_2)
-        self.label_77.setObjectName("label_77")
-
-        self.horizontalLayout_86.addWidget(self.label_77)
-
-        self.cbb_cpu_number_2 = QComboBox(self.layoutWidget_2)
-        self.cbb_cpu_number_2.setObjectName("cbb_cpu_number_2")
-
-        self.horizontalLayout_86.addWidget(self.cbb_cpu_number_2)
-
-        self.verticalLayout_48.addLayout(self.horizontalLayout_86)
-
         self.horizontalLayout_87 = QHBoxLayout()
         self.horizontalLayout_87.setObjectName("horizontalLayout_87")
         self.label_78 = QLabel(self.layoutWidget_2)
@@ -976,29 +796,12 @@ class MainView(QMainWindow):
 
         self.verticalLayout_48.addItem(self.verticalSpacer_17)
 
-        self.btn_open_fitspy_3 = QPushButton(self.layoutWidget_2)
-        self.btn_open_fitspy_3.setObjectName("btn_open_fitspy_3")
-        self.btn_open_fitspy_3.setMinimumSize(QSize(0, 30))
-        self.btn_open_fitspy_3.setMaximumSize(QSize(16777215, 30))
-
-        self.verticalLayout_48.addWidget(self.btn_open_fitspy_3)
-
         self.l_defaut_folder_model_3 = QLineEdit(self.fit_settings_3)
         self.l_defaut_folder_model_3.setObjectName("l_defaut_folder_model_3")
         self.l_defaut_folder_model_3.setGeometry(QRect(160, 320, 481, 21))
-        self.btn_default_folder_model_3 = QPushButton(self.fit_settings_3)
-        self.btn_default_folder_model_3.setObjectName("btn_default_folder_model_3")
-        self.btn_default_folder_model_3.setGeometry(QRect(20, 320, 121, 21))
         self.btn_refresh_model_folder_3 = QPushButton(self.fit_settings_3)
         self.btn_refresh_model_folder_3.setObjectName("btn_refresh_model_folder_3")
         self.btn_refresh_model_folder_3.setGeometry(QRect(650, 320, 75, 23))
-        self.tabWidget_3.addTab(self.fit_settings_3, "")
-
-        self.verticalLayout_66.addWidget(self.tabWidget_3)
-
-        self.splitter_3.addWidget(self.bottom_widget_4)
-
-        self.horizontalLayout_131.addWidget(self.splitter_3)
 
         self.horizontalLayout_103 = QHBoxLayout()
         self.horizontalLayout_103.setObjectName("horizontalLayout_103")
@@ -1092,17 +895,8 @@ class MainView(QMainWindow):
 
         self.bottom_frame.addWidget(self.rsquared_1)
 
-        self.btn_copy_fig = QPushButton(self.upper_frame)
-        self.btn_copy_fig.setObjectName("btn_copy_fig")
-        self.btn_copy_fig.setIcon(icon11)
-        self.btn_copy_fig.setIconSize(QSize(24, 24))
-
-        self.bottom_frame.addWidget(self.btn_copy_fig)
-
         self.label_63 = QLabel(self.upper_frame)
         self.label_63.setObjectName("label_63")
-        sizePolicy4.setHeightForWidth(self.label_63.sizePolicy().hasHeightForWidth())
-        self.label_63.setSizePolicy(sizePolicy4)
         self.label_63.setMinimumSize(QSize(20, 0))
         self.label_63.setMaximumSize(QSize(20, 16777215))
 
@@ -1133,8 +927,6 @@ class MainView(QMainWindow):
 
         self.widget_7 = QWidget(self.upper_frame)
         self.widget_7.setObjectName("widget_7")
-        sizePolicy1.setHeightForWidth(self.widget_7.sizePolicy().hasHeightForWidth())
-        self.widget_7.setSizePolicy(sizePolicy1)
         self.widget_7.setMinimumSize(QSize(300, 0))
         self.widget_7.setMaximumSize(QSize(320, 16777215))
         self.verticalLayout_13 = QVBoxLayout(self.widget_7)
@@ -1552,37 +1344,20 @@ class MainView(QMainWindow):
         self.horizontalLayout_51.setSpacing(5)
         self.horizontalLayout_51.setObjectName("horizontalLayout_51")
         self.horizontalLayout_51.setContentsMargins(5, 2, 5, 2)
-        self.btn_copy_fit_model = QPushButton(self.widget_17)
-        self.btn_copy_fit_model.setObjectName("btn_copy_fit_model")
-        self.btn_copy_fit_model.setIcon(icon12)
-
-        self.horizontalLayout_51.addWidget(self.btn_copy_fit_model)
-
-        self.lbl_copied_fit_model = QLabel(self.widget_17)
-        self.lbl_copied_fit_model.setObjectName("lbl_copied_fit_model")
-        sizePolicy4.setHeightForWidth(self.lbl_copied_fit_model.sizePolicy().hasHeightForWidth())
-        self.lbl_copied_fit_model.setSizePolicy(sizePolicy4)
-        self.lbl_copied_fit_model.setMinimumSize(QSize(50, 0))
-
-        self.horizontalLayout_51.addWidget(self.lbl_copied_fit_model)
-
-        self.btn_paste_fit_model = QPushButton(self.widget_17)
-        self.btn_paste_fit_model.setObjectName("btn_paste_fit_model")
-        self.btn_paste_fit_model.setMinimumSize(QSize(0, 0))
-        self.btn_paste_fit_model.setMaximumSize(QSize(16777215, 40))
-        self.btn_paste_fit_model.setIcon(icon13)
-
-        self.horizontalLayout_51.addWidget(self.btn_paste_fit_model)
 
         self.horizontalSpacer_50 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
 
         self.horizontalLayout_51.addItem(self.horizontalSpacer_50)
 
-        self.save_model = QPushButton(self.widget_17)
-        self.save_model.setObjectName("save_model")
-        self.save_model.setIcon(icon14)
-
+        self.save_model = QPushButton(
+            self.widget_17,
+            text="Save Model",
+            icon=QIcon(str(icons / "save.png")),
+            toolTip="Save the fit model as a JSON file",
+            objectName="save_model",
+        )
         self.horizontalLayout_51.addWidget(self.save_model)
+
 
         self.horizontalSpacer_17 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
 
@@ -1665,8 +1440,6 @@ class MainView(QMainWindow):
         self.horizontalLayout_62.setContentsMargins(5, 5, 5, 5)
         self.scrollArea_9 = QScrollArea(self.collect_fit_data)
         self.scrollArea_9.setObjectName("scrollArea_9")
-        sizePolicy2.setHeightForWidth(self.scrollArea_9.sizePolicy().hasHeightForWidth())
-        self.scrollArea_9.setSizePolicy(sizePolicy2)
         self.scrollArea_9.setMinimumSize(QSize(430, 100))
         self.scrollArea_9.setMaximumSize(QSize(430, 16777215))
         self.scrollArea_9.setWidgetResizable(True)
@@ -1989,20 +1762,6 @@ class MainView(QMainWindow):
 
         self.verticalLayout_29.addLayout(self.horizontalLayout_63)
 
-        self.horizontalLayout_67 = QHBoxLayout()
-        self.horizontalLayout_67.setObjectName("horizontalLayout_67")
-        self.label_26 = QLabel(self.layoutWidget)
-        self.label_26.setObjectName("label_26")
-
-        self.horizontalLayout_67.addWidget(self.label_26)
-
-        self.cbb_cpu_number = QComboBox(self.layoutWidget)
-        self.cbb_cpu_number.setObjectName("cbb_cpu_number")
-
-        self.horizontalLayout_67.addWidget(self.cbb_cpu_number)
-
-        self.verticalLayout_29.addLayout(self.horizontalLayout_67)
-
         self.horizontalLayout_68 = QHBoxLayout()
         self.horizontalLayout_68.setObjectName("horizontalLayout_68")
         self.label_55 = QLabel(self.layoutWidget)
@@ -2026,18 +1785,6 @@ class MainView(QMainWindow):
         self.verticalSpacer_14 = QSpacerItem(20, 40, QSizePolicy.Expanding, QSizePolicy.Minimum)
 
         self.verticalLayout_29.addItem(self.verticalSpacer_14)
-
-        self.btn_open_fitspy = QPushButton(self.layoutWidget)
-        self.btn_open_fitspy.setObjectName("btn_open_fitspy")
-        sizePolicy7 = QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
-        sizePolicy7.setHorizontalStretch(0)
-        sizePolicy7.setVerticalStretch(0)
-        sizePolicy7.setHeightForWidth(self.btn_open_fitspy.sizePolicy().hasHeightForWidth())
-        self.btn_open_fitspy.setSizePolicy(sizePolicy7)
-        self.btn_open_fitspy.setMinimumSize(QSize(100, 30))
-        self.btn_open_fitspy.setMaximumSize(QSize(100, 30))
-
-        self.verticalLayout_29.addWidget(self.btn_open_fitspy)
 
         self.label_53 = QLabel(self.fit_settings)
         self.label_53.setObjectName("label_53")
@@ -2080,8 +1827,6 @@ class MainView(QMainWindow):
 
         self.sidebar = QFrame(self.central)
         self.sidebar.setObjectName("sidebar")
-        sizePolicy1.setHeightForWidth(self.sidebar.sizePolicy().hasHeightForWidth())
-        self.sidebar.setSizePolicy(sizePolicy1)
         self.sidebar.setFrameShape(QFrame.Shape.StyledPanel)
         self.sidebar.setFrameShadow(QFrame.Shadow.Raised)
         self.sidebar.setLineWidth(0)
@@ -2146,8 +1891,6 @@ class MainView(QMainWindow):
 
         self.groupBox_2 = QGroupBox(self.sidebar)
         self.groupBox_2.setObjectName("groupBox_2")
-        sizePolicy1.setHeightForWidth(self.groupBox_2.sizePolicy().hasHeightForWidth())
-        self.groupBox_2.setSizePolicy(sizePolicy1)
         self.groupBox_2.setMinimumSize(QSize(290, 0))
         self.verticalLayout_10 = QVBoxLayout(self.groupBox_2)
         self.verticalLayout_10.setSpacing(6)
@@ -2220,8 +1963,6 @@ class MainView(QMainWindow):
 
         self.gridLayout_5.addWidget(self.sidebar, 1, 3, 1, 1)
 
-        self.verticalLayout_12 = QVBoxLayout()
-        self.verticalLayout_12.setObjectName("verticalLayout_12")
 
         self.tab_plot_settings = QWidget()
         self.tab_plot_settings.setObjectName("tab_plot_settings")
@@ -2497,38 +2238,22 @@ class MainView(QMainWindow):
         self.scrollAreaWidgetContents_8 = QWidget()
         self.scrollAreaWidgetContents_8.setObjectName("scrollAreaWidgetContents_8")
         self.scrollAreaWidgetContents_8.setGeometry(QRect(0, 0, 249, 267))
-        self.verticalLayout_11 = QVBoxLayout(self.scrollAreaWidgetContents_8)
-        self.verticalLayout_11.setObjectName("verticalLayout_11")
         self.cb_legend_visible = QCheckBox(self.scrollAreaWidgetContents_8)
         self.cb_legend_visible.setObjectName("cb_legend_visible")
         self.cb_legend_visible.setChecked(True)
 
-        self.verticalLayout_11.addWidget(self.cb_legend_visible)
 
         self.cb_show_err_bar_plot = QCheckBox(self.scrollAreaWidgetContents_8)
         self.cb_show_err_bar_plot.setObjectName("cb_show_err_bar_plot")
         self.cb_show_err_bar_plot.setChecked(True)
 
-        self.verticalLayout_11.addWidget(self.cb_show_err_bar_plot)
 
         self.cb_wafer_stats = QCheckBox(self.scrollAreaWidgetContents_8)
         self.cb_wafer_stats.setObjectName("cb_wafer_stats")
         self.cb_wafer_stats.setChecked(True)
 
-        self.verticalLayout_11.addWidget(self.cb_wafer_stats)
-
         self.cb_join_for_point_plot = QCheckBox(self.scrollAreaWidgetContents_8)
         self.cb_join_for_point_plot.setObjectName("cb_join_for_point_plot")
-
-        self.verticalLayout_11.addWidget(self.cb_join_for_point_plot)
-
-        self.horizontalLayout_126 = QHBoxLayout()
-        self.horizontalLayout_126.setObjectName("horizontalLayout_126")
-        self.cb_trendline_eq = QCheckBox(self.scrollAreaWidgetContents_8)
-        self.cb_trendline_eq.setObjectName("cb_trendline_eq")
-        self.cb_trendline_eq.setChecked(True)
-
-        self.horizontalLayout_126.addWidget(self.cb_trendline_eq)
 
         self.spb_trendline_oder = QDoubleSpinBox(self.scrollAreaWidgetContents_8)
         self.spb_trendline_oder.setObjectName("spb_trendline_oder")
@@ -2536,25 +2261,18 @@ class MainView(QMainWindow):
         self.spb_trendline_oder.setMinimum(1.000000000000000)
         self.spb_trendline_oder.setMaximum(10.000000000000000)
 
-        self.horizontalLayout_126.addWidget(self.spb_trendline_oder)
 
         self.label_18 = QLabel(self.scrollAreaWidgetContents_8)
         self.label_18.setObjectName("label_18")
 
-        self.horizontalLayout_126.addWidget(self.label_18)
 
         self.horizontalSpacer_5 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
 
-        self.horizontalLayout_126.addItem(self.horizontalSpacer_5)
-
-        self.verticalLayout_11.addLayout(self.horizontalLayout_126)
 
         self.line_3 = QFrame(self.scrollAreaWidgetContents_8)
         self.line_3.setObjectName("line_3")
         self.line_3.setFrameShape(QFrame.HLine)
         self.line_3.setFrameShadow(QFrame.Sunken)
-
-        self.verticalLayout_11.addWidget(self.line_3)
 
         self.legends_loc = QHBoxLayout()
         self.legends_loc.setObjectName("legends_loc")
@@ -2572,29 +2290,8 @@ class MainView(QMainWindow):
 
         self.legends_loc.addItem(self.horizontalSpacer_35)
 
-        self.verticalLayout_11.addLayout(self.legends_loc)
-
-        self.line = QFrame(self.scrollAreaWidgetContents_8)
-        self.line.setObjectName("line")
-        self.line.setFrameShape(QFrame.HLine)
-        self.line.setFrameShadow(QFrame.Sunken)
-
-        self.verticalLayout_11.addWidget(self.line)
-
-        self.label_13 = QLabel(self.scrollAreaWidgetContents_8)
-        self.label_13.setObjectName("label_13")
-        font2 = QFont()
-        font2.setPointSize(9)
-        font2.setBold(True)
-        self.label_13.setFont(font2)
-        self.label_13.setAlignment(Qt.AlignmentFlag.AlignCenter)
-
-        self.verticalLayout_11.addWidget(self.label_13)
-
         self.main_layout = QHBoxLayout()
         self.main_layout.setObjectName("main_layout")
-
-        self.verticalLayout_11.addLayout(self.main_layout)
 
         self.horizontalLayout_13 = QHBoxLayout()
         self.horizontalLayout_13.setObjectName("horizontalLayout_13")
@@ -2602,18 +2299,12 @@ class MainView(QMainWindow):
 
         self.horizontalLayout_13.addItem(self.horizontalSpacer_48)
 
-        self.verticalLayout_11.addLayout(self.horizontalLayout_13)
-
         self.line_2 = QFrame(self.scrollAreaWidgetContents_8)
         self.line_2.setObjectName("line_2")
         self.line_2.setFrameShape(QFrame.HLine)
         self.line_2.setFrameShadow(QFrame.Sunken)
 
-        self.verticalLayout_11.addWidget(self.line_2)
-
         self.verticalSpacer_3 = QSpacerItem(20, 40, QSizePolicy.Expanding, QSizePolicy.Minimum)
-
-        self.verticalLayout_11.addItem(self.verticalSpacer_3)
 
         self.scrollArea_8.setWidget(self.scrollAreaWidgetContents_8)
 
@@ -2621,240 +2312,6 @@ class MainView(QMainWindow):
 
         self.tab_multi_axes = QWidget()
         self.tab_multi_axes.setObjectName("tab_multi_axes")
-        self.verticalLayout_8 = QVBoxLayout(self.tab_multi_axes)
-        self.verticalLayout_8.setSpacing(2)
-        self.verticalLayout_8.setObjectName("verticalLayout_8")
-        self.verticalLayout_8.setContentsMargins(2, 2, 2, 2)
-        self.scrollArea_10 = QScrollArea(self.tab_multi_axes)
-        self.scrollArea_10.setObjectName("scrollArea_10")
-        self.scrollArea_10.setWidgetResizable(True)
-        self.scrollAreaWidgetContents_10 = QWidget()
-        self.scrollAreaWidgetContents_10.setObjectName("scrollAreaWidgetContents_10")
-        self.scrollAreaWidgetContents_10.setGeometry(QRect(0, 0, 362, 329))
-        self.verticalLayout_9 = QVBoxLayout(self.scrollAreaWidgetContents_10)
-        self.verticalLayout_9.setSpacing(5)
-        self.verticalLayout_9.setObjectName("verticalLayout_9")
-        self.verticalLayout_9.setContentsMargins(5, 5, 5, 5)
-        self.label_12 = QLabel(self.scrollAreaWidgetContents_10)
-        self.label_12.setObjectName("label_12")
-
-        self.verticalLayout_9.addWidget(self.label_12)
-
-        self.horizontalLayout_6 = QHBoxLayout()
-        self.horizontalLayout_6.setObjectName("horizontalLayout_6")
-        self.label100 = QLabel(self.scrollAreaWidgetContents_10)
-        self.label100.setObjectName("label100")
-        self.label100.setMaximumSize(QSize(50, 16777215))
-
-        self.horizontalLayout_6.addWidget(self.label100)
-
-        self.cbb_y2_2 = QComboBox(self.scrollAreaWidgetContents_10)
-        self.cbb_y2_2.setObjectName("cbb_y2_2")
-        self.cbb_y2_2.setMinimumSize(QSize(160, 0))
-
-        self.horizontalLayout_6.addWidget(self.cbb_y2_2)
-
-        self.btn_add_y2 = QPushButton(self.scrollAreaWidgetContents_10)
-        self.btn_add_y2.setObjectName("btn_add_y2")
-
-        self.horizontalLayout_6.addWidget(self.btn_add_y2)
-
-        self.btn_remove_y2 = QPushButton(self.scrollAreaWidgetContents_10)
-        self.btn_remove_y2.setObjectName("btn_remove_y2")
-
-        self.horizontalLayout_6.addWidget(self.btn_remove_y2)
-
-        self.verticalLayout_9.addLayout(self.horizontalLayout_6)
-
-        self.horizontalLayout_2 = QHBoxLayout()
-        self.horizontalLayout_2.setObjectName("horizontalLayout_2")
-        self.label_4 = QLabel(self.scrollAreaWidgetContents_10)
-        self.label_4.setObjectName("label_4")
-
-        self.horizontalLayout_2.addWidget(self.label_4)
-
-        self.lbl_y2label = QLineEdit(self.scrollAreaWidgetContents_10)
-        self.lbl_y2label.setObjectName("lbl_y2label")
-
-        self.horizontalLayout_2.addWidget(self.lbl_y2label)
-
-        self.verticalLayout_9.addLayout(self.horizontalLayout_2)
-
-        self.horizontalLayout_3 = QHBoxLayout()
-        self.horizontalLayout_3.setObjectName("horizontalLayout_3")
-        self.label_5 = QLabel(self.scrollAreaWidgetContents_10)
-        self.label_5.setObjectName("label_5")
-
-        self.horizontalLayout_3.addWidget(self.label_5)
-
-        self.y2min_2 = QLineEdit(self.scrollAreaWidgetContents_10)
-        self.y2min_2.setObjectName("y2min_2")
-
-        self.horizontalLayout_3.addWidget(self.y2min_2)
-
-        self.label_6 = QLabel(self.scrollAreaWidgetContents_10)
-        self.label_6.setObjectName("label_6")
-
-        self.horizontalLayout_3.addWidget(self.label_6)
-
-        self.y2max_2 = QLineEdit(self.scrollAreaWidgetContents_10)
-        self.y2max_2.setObjectName("y2max_2")
-
-        self.horizontalLayout_3.addWidget(self.y2max_2)
-
-        self.verticalLayout_9.addLayout(self.horizontalLayout_3)
-
-        self.horizontalLayout_10 = QHBoxLayout()
-        self.horizontalLayout_10.setObjectName("horizontalLayout_10")
-        self.label_11 = QLabel(self.scrollAreaWidgetContents_10)
-        self.label_11.setObjectName("label_11")
-        self.label_11.setMaximumSize(QSize(50, 16777215))
-
-        self.horizontalLayout_10.addWidget(self.label_11)
-
-        self.cbb_y3_2 = QComboBox(self.scrollAreaWidgetContents_10)
-        self.cbb_y3_2.setObjectName("cbb_y3_2")
-        self.cbb_y3_2.setMinimumSize(QSize(160, 0))
-
-        self.horizontalLayout_10.addWidget(self.cbb_y3_2)
-
-        self.btn_add_y3 = QPushButton(self.scrollAreaWidgetContents_10)
-        self.btn_add_y3.setObjectName("btn_add_y3")
-
-        self.horizontalLayout_10.addWidget(self.btn_add_y3)
-
-        self.btn_remove_y3 = QPushButton(self.scrollAreaWidgetContents_10)
-        self.btn_remove_y3.setObjectName("btn_remove_y3")
-
-        self.horizontalLayout_10.addWidget(self.btn_remove_y3)
-
-        self.verticalLayout_9.addLayout(self.horizontalLayout_10)
-
-        self.horizontalLayout_4 = QHBoxLayout()
-        self.horizontalLayout_4.setObjectName("horizontalLayout_4")
-        self.label_7 = QLabel(self.scrollAreaWidgetContents_10)
-        self.label_7.setObjectName("label_7")
-
-        self.horizontalLayout_4.addWidget(self.label_7)
-
-        self.lbl_y3label = QLineEdit(self.scrollAreaWidgetContents_10)
-        self.lbl_y3label.setObjectName("lbl_y3label")
-
-        self.horizontalLayout_4.addWidget(self.lbl_y3label)
-
-        self.verticalLayout_9.addLayout(self.horizontalLayout_4)
-
-        self.horizontalLayout_5 = QHBoxLayout()
-        self.horizontalLayout_5.setObjectName("horizontalLayout_5")
-        self.label_9 = QLabel(self.scrollAreaWidgetContents_10)
-        self.label_9.setObjectName("label_9")
-
-        self.horizontalLayout_5.addWidget(self.label_9)
-
-        self.y3min_2 = QLineEdit(self.scrollAreaWidgetContents_10)
-        self.y3min_2.setObjectName("y3min_2")
-
-        self.horizontalLayout_5.addWidget(self.y3min_2)
-
-        self.label_8 = QLabel(self.scrollAreaWidgetContents_10)
-        self.label_8.setObjectName("label_8")
-
-        self.horizontalLayout_5.addWidget(self.label_8)
-
-        self.y3max_2 = QLineEdit(self.scrollAreaWidgetContents_10)
-        self.y3max_2.setObjectName("y3max_2")
-
-        self.horizontalLayout_5.addWidget(self.y3max_2)
-
-        self.verticalLayout_9.addLayout(self.horizontalLayout_5)
-
-        self.verticalSpacer_20 = QSpacerItem(20, 40, QSizePolicy.Expanding, QSizePolicy.Minimum)
-
-        self.verticalLayout_9.addItem(self.verticalSpacer_20)
-
-        self.horizontalLayout_11 = QHBoxLayout()
-        self.horizontalLayout_11.setObjectName("horizontalLayout_11")
-        self.label100_2 = QLabel(self.scrollAreaWidgetContents_10)
-        self.label100_2.setObjectName("label100_2")
-        self.label100_2.setMaximumSize(QSize(50, 16777215))
-
-        self.horizontalLayout_11.addWidget(self.label100_2)
-
-        self.cbb_y12 = QComboBox(self.scrollAreaWidgetContents_10)
-        self.cbb_y12.setObjectName("cbb_y12")
-        self.cbb_y12.setMinimumSize(QSize(160, 0))
-
-        self.horizontalLayout_11.addWidget(self.cbb_y12)
-
-        self.btn_add_y12 = QPushButton(self.scrollAreaWidgetContents_10)
-        self.btn_add_y12.setObjectName("btn_add_y12")
-
-        self.horizontalLayout_11.addWidget(self.btn_add_y12)
-
-        self.btn_remove_y12 = QPushButton(self.scrollAreaWidgetContents_10)
-        self.btn_remove_y12.setObjectName("btn_remove_y12")
-
-        self.horizontalLayout_11.addWidget(self.btn_remove_y12)
-
-        self.verticalLayout_9.addLayout(self.horizontalLayout_11)
-
-        self.horizontalLayout_12 = QHBoxLayout()
-        self.horizontalLayout_12.setObjectName("horizontalLayout_12")
-        self.label_10 = QLabel(self.scrollAreaWidgetContents_10)
-        self.label_10.setObjectName("label_10")
-
-        self.horizontalLayout_12.addWidget(self.label_10)
-
-        self.lbl_y12label = QLineEdit(self.scrollAreaWidgetContents_10)
-        self.lbl_y12label.setObjectName("lbl_y12label")
-
-        self.horizontalLayout_12.addWidget(self.lbl_y12label)
-
-        self.verticalLayout_9.addLayout(self.horizontalLayout_12)
-
-        self.horizontalLayout_14 = QHBoxLayout()
-        self.horizontalLayout_14.setObjectName("horizontalLayout_14")
-        self.label_14 = QLabel(self.scrollAreaWidgetContents_10)
-        self.label_14.setObjectName("label_14")
-        self.label_14.setMaximumSize(QSize(50, 16777215))
-
-        self.horizontalLayout_14.addWidget(self.label_14)
-
-        self.cbb_y13 = QComboBox(self.scrollAreaWidgetContents_10)
-        self.cbb_y13.setObjectName("cbb_y13")
-        self.cbb_y13.setMinimumSize(QSize(160, 0))
-
-        self.horizontalLayout_14.addWidget(self.cbb_y13)
-
-        self.btn_add_y13 = QPushButton(self.scrollAreaWidgetContents_10)
-        self.btn_add_y13.setObjectName("btn_add_y13")
-
-        self.horizontalLayout_14.addWidget(self.btn_add_y13)
-
-        self.btn_remove_y13 = QPushButton(self.scrollAreaWidgetContents_10)
-        self.btn_remove_y13.setObjectName("btn_remove_y13")
-
-        self.horizontalLayout_14.addWidget(self.btn_remove_y13)
-
-        self.verticalLayout_9.addLayout(self.horizontalLayout_14)
-
-        self.horizontalLayout_15 = QHBoxLayout()
-        self.horizontalLayout_15.setObjectName("horizontalLayout_15")
-        self.label_15 = QLabel(self.scrollAreaWidgetContents_10)
-        self.label_15.setObjectName("label_15")
-
-        self.horizontalLayout_15.addWidget(self.label_15)
-
-        self.lbl_y3label_2 = QLineEdit(self.scrollAreaWidgetContents_10)
-        self.lbl_y3label_2.setObjectName("lbl_y3label_2")
-
-        self.horizontalLayout_15.addWidget(self.lbl_y3label_2)
-
-        self.verticalLayout_9.addLayout(self.horizontalLayout_15)
-
-        self.scrollArea_10.setWidget(self.scrollAreaWidgetContents_10)
-
-        self.verticalLayout_8.addWidget(self.scrollArea_10)
 
         self.verticalLayout_15.addWidget(self.central)
 
@@ -2863,7 +2320,6 @@ class MainView(QMainWindow):
 
         self.retranslateUi()
 
-        self.tabWidget_3.setCurrentIndex(0)
         self.tabWidget_2.setCurrentIndex(0)
 
         self.statusBar = StatusBar()
@@ -2871,12 +2327,6 @@ class MainView(QMainWindow):
 
     def retranslateUi(self):
         self.setWindowTitle("SPECTROview (Spectroscopic Data Processing and Visualization)")
-        self.rdbtn_baseline_2.setText("baseline")
-        self.rdbtn_peak_2.setText("peaks")
-        self.rsquared_2.setText("R2")
-        self.btn_copy_fig_3.setToolTip("Copy Figure to clipboard")
-        self.btn_copy_fig_3.setText("")
-        self.label_79.setText("DPI:")
         self.view_options_box_2.setTitle("View options:")
         self.cb_residual_3.setText("residual")
         self.cb_filled_3.setText("filled")
@@ -2921,14 +2371,6 @@ class MainView(QMainWindow):
         self.btn_fit_3.setToolTip("Fit selected spectrum(s) with all parameters (range, baseline, peaks). \n"
 " Hold 'Ctrl' and press 'Fit' button to apply to all spectra")
         self.btn_fit_3.setText("Fit")
-        self.btn_copy_fit_model_2.setToolTip("Copy current fit parameters (range, baseline, peaks) of selected spectrum to Clipboard")
-        self.btn_copy_fit_model_2.setText("Copy model")
-        self.lbl_copied_fit_model_2.setText("")
-        self.btn_paste_fit_model_2.setToolTip("Paste the copied fit model to the selected spectrum(s).\n"
-" Hold 'Ctrl' and press 'Paste' button to paste fit model to all spectra, including spectra within different wafers")
-        self.btn_paste_fit_model_2.setText("Paste model")
-        self.save_model_2.setToolTip("Save the fit model as a JSON file")
-        self.save_model_2.setText("Save Model")
         self.cb_limits_2.setToolTip("Show limits (max, min) of each parameters")
         self.cb_limits_2.setText("Limits")
         self.cb_expr_2.setToolTip("Show the expression of fit parameters")
@@ -2937,7 +2379,6 @@ class MainView(QMainWindow):
         self.btn_apply_model_3.setText("Apply model")
         self.btn_load_model_3.setToolTip("Load a fit model if it is not in the default folder")
         self.btn_load_model_3.setText("Load model")
-        self.tabWidget_3.setTabText(self.tabWidget_3.indexOf(self.fit_model_editor_3), "Fit model builder")
         self.btn_collect_results_3.setToolTip("To gather all the best fit results in a dataframe for visualization")
         self.btn_collect_results_3.setText(" Collect fit results")
         self.label_83.setText("Add new column(s) from file name:")
@@ -2955,26 +2396,18 @@ class MainView(QMainWindow):
         self.btn_save_fit_results_3.setText("")
         self.btn_open_fit_results_3.setToolTip("Open fit results (format Excel) to view/plot")
         self.btn_open_fit_results_3.setText("")
-        self.tabWidget_3.setTabText(self.tabWidget_3.indexOf(self.collect_fit_data_2), "Collect fit data")
         self.label_74.setText("Fit settings:")
         self.label_51.setText("Fit negative values:")
         self.cb_fit_negative_2.setText("")
         self.label_75.setText("Maximumn iterations :")
         self.max_iteration_2.setPrefix("")
         self.label_76.setText("Fit method")
-        self.label_77.setText("Number of CPUs")
         self.label_78.setText("x-tolerence")
         self.xtol_2.setText("0.0001")
-        self.btn_open_fitspy_3.setToolTip("Open FITSPY application")
-        self.btn_open_fitspy_3.setText("Open FITSPY")
-        self.btn_default_folder_model_3.setText("Model Folder:")
         self.btn_refresh_model_folder_3.setText("refresh")
-        self.tabWidget_3.setTabText(self.tabWidget_3.indexOf(self.fit_settings_3), "More settings")
         self.rdbtn_baseline.setText("baseline")
         self.rdbtn_peak.setText("peaks")
         self.rsquared_1.setText("R2=0 ")
-        self.btn_copy_fig.setToolTip("Copy Figure to clipboard")
-        self.btn_copy_fig.setText("")
         self.label_63.setText("DPI:")
         self.view_options_box.setTitle("View options:")
         self.cb_residual.setText("residual")
@@ -3020,14 +2453,6 @@ class MainView(QMainWindow):
         self.btn_fit.setToolTip("Fit selected spectrum(s) with all parameters (range, baseline, peaks). \n"
 " Hold 'Ctrl' and press 'Fit' button to apply to all spectra")
         self.btn_fit.setText("Fit")
-        self.btn_copy_fit_model.setToolTip("Copy current fit parameters (range, baseline, peaks) of selected spectrum to Clipboard")
-        self.btn_copy_fit_model.setText("Copy model")
-        self.lbl_copied_fit_model.setText("")
-        self.btn_paste_fit_model.setToolTip("Paste the copied fit model to the selected spectrum(s).\n"
-" Hold 'Ctrl' and press 'Paste' button to paste fit model to all spectra, including spectra within different wafers")
-        self.btn_paste_fit_model.setText("Paste model")
-        self.save_model.setToolTip("Save the fit model as a JSON file")
-        self.save_model.setText("Save Model")
         self.cb_limits.setToolTip("Show limits (max, min) of each parameters")
         self.cb_limits.setText("Limits")
         self.cb_expr.setToolTip("Show the expression of fit parameters")
@@ -3079,10 +2504,8 @@ class MainView(QMainWindow):
         self.label_25.setText("Maximumn iterations :")
         self.max_iteration.setPrefix("")
         self.label_27.setText("Fit method")
-        self.label_26.setText("Number of CPUs")
         self.label_55.setText("x-tolerence")
         self.xtol.setText("0.0001")
-        self.btn_open_fitspy.setText("open FITSPY")
         self.label_53.setText("Fit settings:")
         self.btn_default_folder_model.setText("Model Folder")
         self.btn_refresh_model_folder.setText("refresh")
