@@ -519,7 +519,11 @@ class Callbacks:
             self.current_spectrum.baseline.points = [[], []]
 
         self.current_spectrum.baseline.add_point(x, y)
+
+        plot_baseline = self.figure_settings.params['plot_baseline'].get()
+        self.figure_settings.params['plot_baseline'].set('off')
         self.plot()
+        self.figure_settings.params['plot_baseline'].set(plot_baseline)
 
     def del_baseline_point(self, x, _):
         """ Delete the closest baseline 'x'-point """
@@ -549,7 +553,6 @@ class Callbacks:
         for fname in fnames:
             spectrum, _ = self.spectra.get_objects(fname)
             spectrum.result_fit = lambda: None
-            spectrum.baseline.points = [[], []]
             for key, value in vars(self.current_spectrum.baseline).items():
                 setattr(spectrum.baseline, key, value)
         self.colorize_from_fit_status(fnames)  # reassign white
