@@ -131,10 +131,11 @@ class Spectrum:
 
     def reinit(self):
         """ Reinitialize the main attributes """
-        self.range_min = self.x0.min()
-        self.range_max = self.x0.max()
-        self.x = self.x0.copy()
-        self.y = self.y0.copy()
+        if self.x0 is not None:
+            self.range_min = self.x0.min()
+            self.range_max = self.x0.max()
+            self.x = self.x0.copy()
+            self.y = self.y0.copy()
         self.normalize = False
         self.normalize_range_min = None
         self.normalize_range_max = None
