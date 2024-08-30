@@ -225,6 +225,7 @@ class Callbacks:
                 spectrum, _ = self.spectra.get_objects(fname)
                 spectrum.fit_params = deepcopy(fit_params)
 
+        self.spectra.pbar_index = 0
         args = (model_dict, fnames, ncpus)
         thread = Thread(target=self.spectra.apply_model, args=args)
         thread.start()
@@ -668,10 +669,6 @@ class Callbacks:
 
     def fit(self, fnames=None):
         """ Fit the peaks """
-        bkg_name = self.bkg_name.get()
-        if len(self.current_spectrum.peak_models) == 0 and bkg_name == 'None':
-            return
-
         params = self.fit_settings.params
         fit_params = {}
         fit_params['fit_negative'] = params['fit_negative_values'].get() == 'On'

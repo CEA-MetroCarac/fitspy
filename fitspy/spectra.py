@@ -211,6 +211,8 @@ class Spectra(list):
             spectrum.fname = fname  # reassign the correct fname
             spectra.append(spectrum)
 
+        self.pbar_index = 0
+
         queue_incr = Queue()
         args = (queue_incr, len(fnames), ncpus, show_progressbar)
         thread = Thread(target=self.progressbar, args=args)
@@ -224,7 +226,6 @@ class Spectra(list):
         else:
             fit_mp(spectra, ncpus, queue_incr)
 
-        self.pbar_index = 0  # reinitialize pbar_index after the calculation
         thread.join()
 
     def progressbar(self, queue_incr, ntot, ncpus, show_progressbar):
