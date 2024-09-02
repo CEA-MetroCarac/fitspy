@@ -8,7 +8,7 @@ from PySide6.QtWidgets import (QMainWindow, QCheckBox, QComboBox,
     QTabWidget, QVBoxLayout, QWidget)
 
 from fitspy.components import MenuBar
-from fitspy.components.plot import SpectraPlot, Toolbar, ViewOptions
+from fitspy.components.plot import SpectraPlot, Map2DPlot, Toolbar, ViewOptions
 from fitspy.components.settings import StatusBar, ModelBuilder, FitSettings
 from fitspy.components.files import MapsList, SpectrumList
 
@@ -69,15 +69,7 @@ class MainView(QMainWindow):
 
         self.horizontalLayout_69.addItem(self.horizontalSpacer_21)
 
-        self.measurement_sites = QFrame(self.widget_7)
-        self.measurement_sites.setMinimumSize(QSize(320, 330))
-        self.measurement_sites.setMaximumSize(QSize(320, 330))
-        self.measurement_sites.setFrameShape(QFrame.Shape.StyledPanel)
-        self.measurement_sites.setFrameShadow(QFrame.Shadow.Raised)
-        self.verticalLayout_7 = QVBoxLayout(self.measurement_sites)
-        self.verticalLayout_7.setSpacing(0)
-        self.verticalLayout_7.setContentsMargins(5, 5, 5, 5)
-
+        self.measurement_sites = Map2DPlot()
         self.horizontalLayout_69.addWidget(self.measurement_sites)
 
         self.verticalLayout_13.addLayout(self.horizontalLayout_69)
