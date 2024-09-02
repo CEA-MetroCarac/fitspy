@@ -9,6 +9,7 @@ class MainController(QObject):
         super().__init__()
         self.view = MainView()
         self.model = MainModel()
+        # self.settings.controller = SettingsController(self.view.model_builder, ...) so the controller can access related views
         self.setup_connections()
         self.load_settings()
     
@@ -21,11 +22,9 @@ class MainController(QObject):
         self.apply_theme()
 
     def on_actionLightMode_triggered(self):
-        print("Light mode triggered")
         self.model.theme = "light"
 
     def on_actionDarkMode_triggered(self):
-        print("Dark mode triggered")
         self.model.theme = "dark"
 
     def apply_theme(self):

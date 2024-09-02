@@ -1,6 +1,6 @@
 from pathlib import Path
 from PySide6.QtCore import Qt
-from PySide6.QtWidgets import QLineEdit, QTableWidget, QTableWidgetItem, QDoubleSpinBox, QRadioButton, QSlider, QSpinBox, QVBoxLayout, QGroupBox, QHBoxLayout, QScrollArea, QPushButton, QCheckBox, QLabel, QWidget, QComboBox, QSpacerItem, QSizePolicy
+from PySide6.QtWidgets import QDoubleSpinBox, QRadioButton, QSlider, QSpinBox, QVBoxLayout, QGroupBox, QHBoxLayout, QScrollArea, QPushButton, QCheckBox, QLabel, QWidget, QComboBox, QSpacerItem, QSizePolicy
 from PySide6.QtGui import QIcon
 from .peaks_table import PeaksTable
 
@@ -202,7 +202,6 @@ class ModelSettings(QWidget):
             text="Save Model",
             icon=QIcon(str(icons / "save.png")),
             toolTip="Save the fit model as a JSON file",
-            objectName="save_model",
         )
         fit_button = QPushButton("Fit")
 

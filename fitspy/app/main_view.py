@@ -8,7 +8,9 @@ from PySide6.QtWidgets import (QMainWindow, QAbstractItemView, QCheckBox, QCombo
     QSizePolicy, QSpacerItem, QSpinBox, QSplitter,
     QTabWidget, QToolBar, QVBoxLayout, QWidget)
 
-from fitspy.components.settings import StatusBar, ModelBuilder
+from fitspy.components.plot import Toolbar, ViewOptions
+from fitspy.components.settings import StatusBar, ModelBuilder, FitSettings
+from fitspy.components.files import MapsList, SpectrumList
 
 project_root = Path(__file__).resolve().parent.parent
 icons = project_root / 'resources' / 'iconpack'
@@ -23,43 +25,36 @@ class MenuBar(QToolBar):
             self,
             icon=QIcon(str(icons / "manual.png")),
             toolTip="Manual",
-            objectName="actionManual",
         )
         self.actionDarkMode = QAction(
             self,
             icon=QIcon(str(icons / "dark.png")),
             toolTip="Dark Mode",
-            objectName="actionDarkMode",
         )
         self.actionLightMode = QAction(
             self,
             icon=QIcon(str(icons / "light-mode.svg")),
             toolTip="Light Mode",
-            objectName="actionLightMode",
         )
         self.actionAbout = QAction(
             self,
             icon=QIcon(str(icons / "about.png")),
             toolTip="About",
-            objectName="actionAbout",
         )
         self.actionOpen = QAction(
             self,
             icon=QIcon(str(icons / "icons8-folder-96.png")),
             toolTip="Open spectra data, saved work or Excel file",
-            objectName="actionOpen",
         )
         self.actionSave = QAction(
             self,
             icon=QIcon(str(icons / "save.png")),
             toolTip="Save current work",
-            objectName="actionSave",
         )
         self.actionClear_env = QAction(
             self,
             icon=QIcon(str(icons / "clear.png")),
             toolTip="Clear the environment",
-            objectName="actionClear_env",
         )
 
         self.setObjectName("menuBar")
@@ -97,604 +92,16 @@ class MainView(QMainWindow):
             self.setObjectName("MainWindow")
         self.resize(1553, 1019)
 
-        self.centralwidget = QWidget(self, objectName="centralwidget", enabled=True, baseSize=QSize(0, 0))
-        self.verticalLayout_15 = QVBoxLayout(self.centralwidget, spacing=0, objectName="verticalLayout_15")
+        self.centralwidget = QWidget(self, enabled=True, baseSize=QSize(0, 0))
+        self.verticalLayout_15 = QVBoxLayout(self.centralwidget, spacing=0)
         self.verticalLayout_15.setContentsMargins(5, 5, 5, 5)
 
         self.menuBar = MenuBar()
         self.addToolBar(Qt.TopToolBarArea, self.menuBar)
 
-        self.Upper_zone_3 = QHBoxLayout()
-        self.Upper_zone_3.setSpacing(0)
-        self.Upper_zone_3.setObjectName("Upper_zone_3")
-        self.QVBoxlayout_2 = QVBoxLayout()
-        self.QVBoxlayout_2.setSpacing(6)
-        self.QVBoxlayout_2.setObjectName("QVBoxlayout_2")
-
-        self.bottom_frame_3 = QHBoxLayout()
-        self.bottom_frame_3.setSpacing(10)
-        self.bottom_frame_3.setObjectName("bottom_frame_3")
-        self.bottom_frame_3.setSizeConstraint(QLayout.SizeConstraint.SetMaximumSize)
-        self.bottom_frame_3.setContentsMargins(2, 2, 2, 2)
-
-        self.horizontalSpacer_24 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
-
-        self.bottom_frame_3.addItem(self.horizontalSpacer_24)
-
-        self.horizontalSpacer_16 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
-
-        self.bottom_frame_3.addItem(self.horizontalSpacer_16)
-
-        self.horizontalSpacer_25 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
-
-        self.bottom_frame_3.addItem(self.horizontalSpacer_25)
-
-        self.bottom_frame_3.setStretch(0, 50)
-        self.bottom_frame_3.setStretch(1, 25)
-        self.bottom_frame_3.setStretch(9, 2)
-
-        
-        self.scrollAreaWidgetContents_7 = QWidget()
-        self.scrollAreaWidgetContents_7.setObjectName("scrollAreaWidgetContents_7")
-        self.scrollAreaWidgetContents_7.setGeometry(QRect(0, 0, 316, 448))
-        self.verticalLayout_74 = QVBoxLayout(self.scrollAreaWidgetContents_7)
-        self.verticalLayout_74.setObjectName("verticalLayout_74")
-        self.verticalSpacer_12 = QSpacerItem(20, 40, QSizePolicy.Expanding, QSizePolicy.Minimum)
-
-        self.verticalLayout_74.addItem(self.verticalSpacer_12)
-
-        self.view_options_box_2 = QGroupBox(self.scrollAreaWidgetContents_7)
-        self.view_options_box_2.setObjectName("view_options_box_2")
-        self.view_options_box_2.setMaximumSize(QSize(320, 16777215))
-        self.gridLayout_7 = QGridLayout(self.view_options_box_2)
-        self.gridLayout_7.setObjectName("gridLayout_7")
-        self.cb_residual_3 = QCheckBox(self.view_options_box_2)
-        self.cb_residual_3.setObjectName("cb_residual_3")
-        self.cb_residual_3.setChecked(False)
-
-        self.gridLayout_7.addWidget(self.cb_residual_3, 1, 1, 1, 1)
-
-        self.cb_filled_3 = QCheckBox(self.view_options_box_2)
-        self.cb_filled_3.setObjectName("cb_filled_3")
-        self.cb_filled_3.setChecked(True)
-
-        self.gridLayout_7.addWidget(self.cb_filled_3, 0, 2, 1, 1)
-
-        self.cb_bestfit_3 = QCheckBox(self.view_options_box_2)
-        self.cb_bestfit_3.setObjectName("cb_bestfit_3")
-        self.cb_bestfit_3.setChecked(True)
-
-        self.gridLayout_7.addWidget(self.cb_bestfit_3, 0, 1, 1, 1)
-
-        self.cb_legend_3 = QCheckBox(self.view_options_box_2)
-        self.cb_legend_3.setObjectName("cb_legend_3")
-        self.cb_legend_3.setEnabled(True)
-        self.cb_legend_3.setChecked(False)
-
-        self.gridLayout_7.addWidget(self.cb_legend_3, 0, 0, 1, 1)
-
-        self.cb_raw_3 = QCheckBox(self.view_options_box_2)
-        self.cb_raw_3.setObjectName("cb_raw_3")
-        self.cb_raw_3.setChecked(False)
-
-        self.gridLayout_7.addWidget(self.cb_raw_3, 1, 0, 1, 1)
-
-        self.cb_colors_3 = QCheckBox(self.view_options_box_2)
-        self.cb_colors_3.setObjectName("cb_colors_3")
-        self.cb_colors_3.setChecked(True)
-
-        self.gridLayout_7.addWidget(self.cb_colors_3, 1, 2, 1, 1)
-
-        self.cb_peaks_3 = QCheckBox(self.view_options_box_2)
-        self.cb_peaks_3.setObjectName("cb_peaks_3")
-        self.cb_peaks_3.setChecked(False)
-
-        self.gridLayout_7.addWidget(self.cb_peaks_3, 0, 3, 1, 1)
-
-        self.cb_normalize_3 = QCheckBox(self.view_options_box_2)
-        self.cb_normalize_3.setObjectName("cb_normalize_3")
-
-        self.gridLayout_7.addWidget(self.cb_normalize_3, 1, 3, 1, 1)
-
-        self.verticalLayout_74.addWidget(self.view_options_box_2)
-
-        self.Upper_zone_3.setStretch(0, 75)
-
-        self.horizontalLayout_72 = QHBoxLayout()
-        self.horizontalLayout_72.setSpacing(5)
-        self.horizontalLayout_72.setObjectName("horizontalLayout_72")
-        self.horizontalLayout_72.setContentsMargins(-1, 5, 5, 5)
-        self.scrollAreaWidgetContents_4 = QWidget()
-        self.scrollAreaWidgetContents_4.setObjectName("scrollAreaWidgetContents_4")
-        self.scrollAreaWidgetContents_4.setGeometry(QRect(0, 0, 428, 375))
-        self.fit_model_builder = QVBoxLayout(self.scrollAreaWidgetContents_4)
-        self.fit_model_builder.setSpacing(10)
-        self.fit_model_builder.setObjectName("fit_model_builder")
-        self.fit_model_builder.setContentsMargins(10, 10, 10, 10)
-
-        self.horizontalSpacer_57 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
-
-
-        self.label_22 = QLabel(self.scrollAreaWidgetContents_4)
-        self.label_22.setObjectName("label_22")
-
-
-        self.cbb_xaxis_unit = QComboBox(self.scrollAreaWidgetContents_4)
-        self.cbb_xaxis_unit.setObjectName("cbb_xaxis_unit")
-
-        self.groupBox_5 = QGroupBox(self.scrollAreaWidgetContents_4)
-        self.groupBox_5.setObjectName("groupBox_5")
-        self.verticalLayout_40 = QVBoxLayout(self.groupBox_5)
-        self.verticalLayout_40.setSpacing(5)
-        self.verticalLayout_40.setObjectName("verticalLayout_40")
-        self.verticalLayout_40.setContentsMargins(2, 2, 2, 2)
-
-        self.horizontalLayout_74 = QHBoxLayout()
-        self.horizontalLayout_74.setSpacing(5)
-        self.horizontalLayout_74.setObjectName("horizontalLayout_74")
-        self.horizontalLayout_74.setContentsMargins(2, 2, 2, 2)
-        self.label_66 = QLabel(self.groupBox_5)
-        self.label_66.setObjectName("label_66")
-
-        self.horizontalLayout_74.addWidget(self.label_66)
-
-        self.horizontalSpacer_34 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
-
-        self.horizontalLayout_74.addItem(self.horizontalSpacer_34)
-
-        self.range_min_2 = QLineEdit(self.groupBox_5)
-        self.range_min_2.setObjectName("range_min_2")
-
-        self.horizontalLayout_74.addWidget(self.range_min_2)
-
-        self.label_67 = QLabel(self.groupBox_5)
-        self.label_67.setObjectName("label_67")
-
-        self.horizontalLayout_74.addWidget(self.label_67)
-
-        self.range_max_2 = QLineEdit(self.groupBox_5)
-        self.range_max_2.setObjectName("range_max_2")
-
-        self.horizontalLayout_74.addWidget(self.range_max_2)
-
-        self.range_apply_2 = QPushButton(self.groupBox_5)
-        self.range_apply_2.setObjectName("range_apply_2")
-
-        self.horizontalLayout_74.addWidget(self.range_apply_2)
-
-        self.verticalLayout_40.addLayout(self.horizontalLayout_74)
-
-        self.fit_model_builder.addWidget(self.groupBox_5)
-
-        self.label_68 = QLabel(self.scrollAreaWidgetContents_4)
-        self.label_68.setObjectName("label_68")
-
-        self.fit_model_builder.addWidget(self.label_68)
-
-        self.baseline_2 = QGroupBox(self.scrollAreaWidgetContents_4)
-        self.baseline_2.setObjectName("baseline_2")
-        self.verticalLayout_41 = QVBoxLayout(self.baseline_2)
-        self.verticalLayout_41.setSpacing(5)
-        self.verticalLayout_41.setObjectName("verticalLayout_41")
-        self.verticalLayout_41.setContentsMargins(2, 2, 2, 2)
-
-        self.horizontalLayout_75 = QHBoxLayout()
-        self.horizontalLayout_75.setSpacing(5)
-        self.horizontalLayout_75.setObjectName("horizontalLayout_75")
-        self.horizontalLayout_75.setContentsMargins(2, 2, 2, 2)
-        self.rbtn_linear_2 = QRadioButton(self.baseline_2)
-        self.rbtn_linear_2.setObjectName("rbtn_linear_2")
-        sizePolicy3 = QSizePolicy(QSizePolicy.Maximum, QSizePolicy.Fixed)
-        sizePolicy3.setHorizontalStretch(0)
-        sizePolicy3.setVerticalStretch(0)
-        sizePolicy3.setHeightForWidth(self.rbtn_linear_2.sizePolicy().hasHeightForWidth())
-        self.rbtn_linear_2.setSizePolicy(sizePolicy3)
-        self.rbtn_linear_2.setChecked(True)
-
-        self.horizontalLayout_75.addWidget(self.rbtn_linear_2)
-
-        self.rbtn_polynomial_2 = QRadioButton(self.baseline_2)
-        self.rbtn_polynomial_2.setObjectName("rbtn_polynomial_2")
-        sizePolicy3.setHeightForWidth(self.rbtn_polynomial_2.sizePolicy().hasHeightForWidth())
-        self.rbtn_polynomial_2.setSizePolicy(sizePolicy3)
-
-        self.horizontalLayout_75.addWidget(self.rbtn_polynomial_2)
-
-        self.degre_2 = QSpinBox(self.baseline_2)
-        self.degre_2.setObjectName("degre_2")
-        self.degre_2.setMinimum(1)
-
-        self.horizontalLayout_75.addWidget(self.degre_2)
-
-        self.horizontalSpacer_36 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
-
-        self.horizontalLayout_75.addItem(self.horizontalSpacer_36)
-
-        self.label_70 = QLabel(self.baseline_2)
-        self.label_70.setObjectName("label_70")
-
-        self.horizontalLayout_75.addWidget(self.label_70)
-
-        self.noise_2 = QDoubleSpinBox(self.baseline_2)
-        self.noise_2.setObjectName("noise_2")
-        self.noise_2.setDecimals(0)
-        self.noise_2.setValue(5.000000000000000)
-
-        self.horizontalLayout_75.addWidget(self.noise_2)
-
-        self.horizontalLayout_75.setStretch(0, 25)
-        self.horizontalLayout_75.setStretch(1, 25)
-
-        self.verticalLayout_41.addLayout(self.horizontalLayout_75)
-
-        self.horizontalLayout_76 = QHBoxLayout()
-        self.horizontalLayout_76.setSpacing(5)
-        self.horizontalLayout_76.setObjectName("horizontalLayout_76")
-        self.horizontalLayout_76.setContentsMargins(2, 2, 2, 2)
-        self.cb_attached_3 = QCheckBox(self.baseline_2)
-        self.cb_attached_3.setObjectName("cb_attached_3")
-        sizePolicy3.setHeightForWidth(self.cb_attached_3.sizePolicy().hasHeightForWidth())
-        self.cb_attached_3.setSizePolicy(sizePolicy3)
-        self.cb_attached_3.setChecked(True)
-
-        self.horizontalLayout_76.addWidget(self.cb_attached_3)
-
-        self.horizontalSpacer_37 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
-
-        self.horizontalLayout_76.addItem(self.horizontalSpacer_37)
-
-        self.btn_undo_baseline_2 = QPushButton(self.baseline_2)
-        self.btn_undo_baseline_2.setObjectName("btn_undo_baseline_2")
-
-        self.horizontalLayout_76.addWidget(self.btn_undo_baseline_2)
-
-        self.sub_baseline_2 = QPushButton(self.baseline_2)
-        self.sub_baseline_2.setObjectName("sub_baseline_2")
-
-        self.horizontalLayout_76.addWidget(self.sub_baseline_2)
-
-        self.verticalLayout_41.addLayout(self.horizontalLayout_76)
-
-        self.fit_model_builder.addWidget(self.baseline_2)
-
-        self.label_71 = QLabel(self.scrollAreaWidgetContents_4)
-        self.label_71.setObjectName("label_71")
-
-        self.fit_model_builder.addWidget(self.label_71)
-
-        self.peaks_2 = QGroupBox(self.scrollAreaWidgetContents_4)
-        self.peaks_2.setObjectName("peaks_2")
-        self.verticalLayout_42 = QVBoxLayout(self.peaks_2)
-        self.verticalLayout_42.setSpacing(5)
-        self.verticalLayout_42.setObjectName("verticalLayout_42")
-        self.verticalLayout_42.setContentsMargins(2, 2, 2, 2)
-
-        self.horizontalLayout_77 = QHBoxLayout()
-        self.horizontalLayout_77.setSpacing(5)
-        self.horizontalLayout_77.setObjectName("horizontalLayout_77")
-        self.horizontalLayout_77.setContentsMargins(2, 2, 2, 2)
-        self.label_73 = QLabel(self.peaks_2)
-        self.label_73.setObjectName("label_73")
-
-        self.horizontalLayout_77.addWidget(self.label_73)
-
-        self.horizontalSpacer_38 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
-
-        self.horizontalLayout_77.addItem(self.horizontalSpacer_38)
-
-        self.cbb_fit_models_2 = QComboBox(self.peaks_2)
-        self.cbb_fit_models_2.setObjectName("cbb_fit_models_2")
-
-        self.horizontalLayout_77.addWidget(self.cbb_fit_models_2)
-
-        self.clear_peaks_2 = QPushButton(self.peaks_2)
-        self.clear_peaks_2.setObjectName("clear_peaks_2")
-
-        self.horizontalLayout_77.addWidget(self.clear_peaks_2)
-
-        self.horizontalLayout_77.setStretch(2, 65)
-
-        self.verticalLayout_42.addLayout(self.horizontalLayout_77)
-
-        self.fit_model_builder.addWidget(self.peaks_2)
-
-        self.verticalSpacer_15 = QSpacerItem(20, 40, QSizePolicy.Expanding, QSizePolicy.Minimum)
-
-        self.horizontalLayout_83 = QHBoxLayout()
-
-        self.fit_model_builder.addItem(self.verticalSpacer_15)
-        
-
-        self.verticalLayout_43 = QVBoxLayout()
-        self.verticalLayout_43.setObjectName("verticalLayout_43")
-        self.scrollAreaWidgetContents_6 = QWidget()
-        self.scrollAreaWidgetContents_6.setObjectName("scrollAreaWidgetContents_6")
-        self.scrollAreaWidgetContents_6.setGeometry(QRect(0, 0, 731, 265))
-        self.verticalLayout_44 = QVBoxLayout(self.scrollAreaWidgetContents_6)
-        self.verticalLayout_44.setObjectName("verticalLayout_44")
-        self.verticalLayout_312 = QVBoxLayout()
-        self.verticalLayout_312.setObjectName("verticalLayout_312")
-        self.horizontalLayout_79 = QHBoxLayout()
-        self.horizontalLayout_79.setObjectName("horizontalLayout_79")
-        self.peak_table1_2 = QHBoxLayout()
-        self.peak_table1_2.setObjectName("peak_table1_2")
-
-        self.horizontalLayout_79.addLayout(self.peak_table1_2)
-
-        self.horizontalLayout_80 = QHBoxLayout()
-        self.horizontalLayout_80.setObjectName("horizontalLayout_80")
-
-        self.horizontalLayout_79.addLayout(self.horizontalLayout_80)
-
-        self.verticalLayout_312.addLayout(self.horizontalLayout_79)
-
-        self.verticalSpacer_16 = QSpacerItem(20, 40, QSizePolicy.Expanding, QSizePolicy.Minimum)
-
-        self.verticalLayout_312.addItem(self.verticalSpacer_16)
-
-        self.verticalLayout_44.addLayout(self.verticalLayout_312)
-
-        self.horizontalLayout_81 = QHBoxLayout()
-        self.horizontalLayout_81.setSpacing(5)
-        self.horizontalLayout_81.setObjectName("horizontalLayout_81")
-
-        self.verticalLayout_45 = QVBoxLayout()
-        self.verticalLayout_45.setObjectName("verticalLayout_45")
-        self.horizontalLayout_82 = QHBoxLayout()
-        self.horizontalLayout_82.setSpacing(5)
-        self.horizontalLayout_82.setObjectName("horizontalLayout_82")
-        self.horizontalLayout_82.setContentsMargins(5, 2, 5, 2)
-
-        self.horizontalSpacer_51 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
-
-        self.horizontalLayout_82.addItem(self.horizontalSpacer_51)
-
-        self.horizontalSpacer_39 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
-
-        self.horizontalLayout_82.addItem(self.horizontalSpacer_39)
-
-        self.verticalLayout_45.addLayout(self.horizontalLayout_82)
-
-        self.horizontalSpacer_42 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
-
-        self.horizontalSpacer_26 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
-
-        self.horizontalLayout_81.addLayout(self.verticalLayout_45)
-
-        self.verticalLayout_43.addLayout(self.horizontalLayout_81)
-
-        self.verticalLayout_43.setStretch(0, 85)
-        self.verticalLayout_43.setStretch(1, 15)
-
-        self.collect_fit_data_2 = QWidget()
-        self.collect_fit_data_2.setObjectName("collect_fit_data_2")
-        self.verticalLayout_47 = QVBoxLayout(self.collect_fit_data_2)
-        self.verticalLayout_47.setSpacing(6)
-        self.verticalLayout_47.setObjectName("verticalLayout_47")
-        self.verticalLayout_47.setContentsMargins(5, 5, 5, 5)
-        self.horizontalLayout_94 = QHBoxLayout()
-        self.horizontalLayout_94.setSpacing(5)
-        self.horizontalLayout_94.setObjectName("horizontalLayout_94")
-        self.horizontalLayout_94.setContentsMargins(5, 5, 5, 5)
-        
-        self.scrollAreaWidgetContents_11 = QWidget()
-        self.scrollAreaWidgetContents_11.setObjectName("scrollAreaWidgetContents_11")
-        self.scrollAreaWidgetContents_11.setGeometry(QRect(0, 0, 322, 144))
-        self.verticalLayout_81 = QVBoxLayout(self.scrollAreaWidgetContents_11)
-        self.verticalLayout_81.setSpacing(10)
-        self.verticalLayout_81.setObjectName("verticalLayout_81")
-        self.verticalLayout_81.setContentsMargins(10, 10, 10, 10)
-
-        self.label_83 = QLabel(self.scrollAreaWidgetContents_11)
-        self.label_83.setObjectName("label_83")
-
-        self.verticalLayout_81.addWidget(self.label_83)
-
-        self.horizontalLayout_95 = QHBoxLayout()
-        self.horizontalLayout_95.setObjectName("horizontalLayout_95")
-        self.btn_split_fname = QPushButton(self.scrollAreaWidgetContents_11)
-        self.btn_split_fname.setObjectName("btn_split_fname")
-        self.btn_split_fname.setMinimumSize(QSize(40, 0))
-        self.btn_split_fname.setMaximumSize(QSize(40, 16777215))
-
-        self.horizontalLayout_95.addWidget(self.btn_split_fname)
-
-        self.cbb_split_fname = QComboBox(self.scrollAreaWidgetContents_11)
-        self.cbb_split_fname.setObjectName("cbb_split_fname")
-        self.cbb_split_fname.setMinimumSize(QSize(120, 0))
-        self.cbb_split_fname.setMaximumSize(QSize(120, 16777215))
-
-        self.horizontalLayout_95.addWidget(self.cbb_split_fname)
-
-        self.ent_col_name = QLineEdit(self.scrollAreaWidgetContents_11)
-        self.ent_col_name.setObjectName("ent_col_name")
-
-        self.horizontalLayout_95.addWidget(self.ent_col_name)
-
-        self.btn_add_col = QPushButton(self.scrollAreaWidgetContents_11)
-        self.btn_add_col.setObjectName("btn_add_col")
-        self.btn_add_col.setMinimumSize(QSize(60, 0))
-        self.btn_add_col.setMaximumSize(QSize(60, 16777215))
-
-        self.horizontalLayout_95.addWidget(self.btn_add_col)
-
-        self.horizontalLayout_95.setStretch(2, 40)
-        self.horizontalLayout_95.setStretch(3, 20)
-
-        self.verticalLayout_81.addLayout(self.horizontalLayout_95)
-
-        self.verticalSpacer_18 = QSpacerItem(20, 40, QSizePolicy.Expanding, QSizePolicy.Minimum)
-
-        self.verticalLayout_81.addItem(self.verticalSpacer_18)
-
-        self.horizontalLayout_139 = QHBoxLayout()
-        self.horizontalLayout_139.setObjectName("horizontalLayout_139")
-
-        self.verticalLayout_81.addLayout(self.horizontalLayout_139)
-
-        self.verticalLayout_55 = QVBoxLayout()
-        self.verticalLayout_55.setObjectName("verticalLayout_55")
-        self.verticalLayout_55.setContentsMargins(15, -1, -1, -1)
-        self.layout_df_table2 = QVBoxLayout()
-        self.layout_df_table2.setObjectName("layout_df_table2")
-
-        self.verticalLayout_55.addLayout(self.layout_df_table2)
-
-        self.groupBox_6 = QGroupBox(self.collect_fit_data_2)
-        self.groupBox_6.setObjectName("groupBox_6")
-        self.horizontalLayout_98 = QHBoxLayout(self.groupBox_6)
-        self.horizontalLayout_98.setSpacing(9)
-        self.horizontalLayout_98.setObjectName("horizontalLayout_98")
-        self.horizontalLayout_98.setContentsMargins(3, 3, 3, 3)
-        self.horizontalSpacer_46 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
-
-        self.horizontalLayout_98.addItem(self.horizontalSpacer_46)
-
-        self.btn_view_df_5 = QPushButton(self.groupBox_6)
-        self.btn_view_df_5.setObjectName("btn_view_df_5")
-        self.btn_view_df_5.setMinimumSize(QSize(30, 0))
-        self.btn_view_df_5.setMaximumSize(QSize(30, 16777215))
-        icon16 = QIcon()
-        icon16.addFile(":/icon/iconpack/view11.png", QSize(), QIcon.Normal, QIcon.Off)
-        self.btn_view_df_5.setIcon(icon16)
-        self.btn_view_df_5.setIconSize(QSize(22, 22))
-
-        self.horizontalLayout_98.addWidget(self.btn_view_df_5)
-
-        self.btn_save_fit_results_3 = QPushButton(self.groupBox_6)
-        self.btn_save_fit_results_3.setObjectName("btn_save_fit_results_3")
-        self.btn_save_fit_results_3.setMinimumSize(QSize(30, 0))
-        self.btn_save_fit_results_3.setMaximumSize(QSize(30, 16777215))
-        icon17 = QIcon()
-        icon17.addFile(":/icon/iconpack/save12.png", QSize(), QIcon.Normal, QIcon.Off)
-        self.btn_save_fit_results_3.setIcon(icon17)
-        self.btn_save_fit_results_3.setIconSize(QSize(22, 22))
-
-        self.horizontalLayout_98.addWidget(self.btn_save_fit_results_3)
-
-        self.btn_open_fit_results_3 = QPushButton(self.groupBox_6)
-        self.btn_open_fit_results_3.setObjectName("btn_open_fit_results_3")
-        sizePolicy3.setHeightForWidth(self.btn_open_fit_results_3.sizePolicy().hasHeightForWidth())
-        self.btn_open_fit_results_3.setSizePolicy(sizePolicy3)
-        self.btn_open_fit_results_3.setMaximumSize(QSize(30, 16777215))
-        icon18 = QIcon()
-        icon18.addFile(":/icon/iconpack/opened-folder.png", QSize(), QIcon.Normal, QIcon.Off)
-        self.btn_open_fit_results_3.setIcon(icon18)
-        self.btn_open_fit_results_3.setIconSize(QSize(22, 22))
-
-        self.horizontalLayout_98.addWidget(self.btn_open_fit_results_3)
-
-        self.verticalLayout_55.addWidget(self.groupBox_6)
-
-        self.horizontalLayout_94.addLayout(self.verticalLayout_55)
-
-        self.verticalLayout_47.addLayout(self.horizontalLayout_94)
-
-        self.fit_settings_3 = QWidget()
-        self.fit_settings_3.setObjectName("fit_settings_3")
-        self.fit_settings_3.setEnabled(True)
-        self.label_74 = QLabel(self.fit_settings_3)
-        self.label_74.setObjectName("label_74")
-        self.label_74.setGeometry(QRect(20, 10, 121, 31))
         font1 = QFont()
         font1.setPointSize(13)
         font1.setBold(True)
-        self.label_74.setFont(font1)
-        self.layoutWidget_2 = QWidget(self.fit_settings_3)
-        self.layoutWidget_2.setObjectName("layoutWidget_2")
-        self.layoutWidget_2.setGeometry(QRect(20, 50, 381, 224))
-        self.verticalLayout_48 = QVBoxLayout(self.layoutWidget_2)
-        self.verticalLayout_48.setObjectName("verticalLayout_48")
-        self.verticalLayout_48.setContentsMargins(0, 0, 0, 0)
-        self.horizontalLayout_83 = QHBoxLayout()
-        self.horizontalLayout_83.setObjectName("horizontalLayout_83")
-        self.label_51 = QLabel(self.layoutWidget_2)
-        self.label_51.setObjectName("label_51")
-
-        self.horizontalLayout_83.addWidget(self.label_51)
-
-        self.cb_fit_negative_2 = QCheckBox(self.layoutWidget_2)
-        self.cb_fit_negative_2.setObjectName("cb_fit_negative_2")
-
-        self.horizontalLayout_83.addWidget(self.cb_fit_negative_2)
-
-        self.verticalLayout_48.addLayout(self.horizontalLayout_83)
-
-        self.horizontalLayout_84 = QHBoxLayout()
-        self.horizontalLayout_84.setObjectName("horizontalLayout_84")
-        self.label_75 = QLabel(self.layoutWidget_2)
-        self.label_75.setObjectName("label_75")
-
-        self.horizontalLayout_84.addWidget(self.label_75)
-
-        self.max_iteration_2 = QSpinBox(self.layoutWidget_2)
-        self.max_iteration_2.setObjectName("max_iteration_2")
-        self.max_iteration_2.setMaximum(10000)
-        self.max_iteration_2.setValue(200)
-
-        self.horizontalLayout_84.addWidget(self.max_iteration_2)
-
-        self.verticalLayout_48.addLayout(self.horizontalLayout_84)
-
-        self.horizontalLayout_85 = QHBoxLayout()
-        self.horizontalLayout_85.setObjectName("horizontalLayout_85")
-        self.label_76 = QLabel(self.layoutWidget_2)
-        self.label_76.setObjectName("label_76")
-
-        self.horizontalLayout_85.addWidget(self.label_76)
-
-        self.cbb_fit_methods_2 = QComboBox(self.layoutWidget_2)
-        self.cbb_fit_methods_2.setObjectName("cbb_fit_methods_2")
-
-        self.horizontalLayout_85.addWidget(self.cbb_fit_methods_2)
-
-        self.verticalLayout_48.addLayout(self.horizontalLayout_85)
-
-        self.horizontalLayout_87 = QHBoxLayout()
-        self.horizontalLayout_87.setObjectName("horizontalLayout_87")
-        self.label_78 = QLabel(self.layoutWidget_2)
-        self.label_78.setObjectName("label_78")
-
-        self.horizontalLayout_87.addWidget(self.label_78)
-
-        self.xtol_2 = QLineEdit(self.layoutWidget_2)
-        self.xtol_2.setObjectName("xtol_2")
-        self.xtol_2.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
-
-        self.horizontalLayout_87.addWidget(self.xtol_2)
-
-        self.verticalLayout_48.addLayout(self.horizontalLayout_87)
-
-        self.verticalSpacer_17 = QSpacerItem(20, 40, QSizePolicy.Expanding, QSizePolicy.Minimum)
-
-        self.verticalLayout_48.addItem(self.verticalSpacer_17)
-
-        self.l_defaut_folder_model_3 = QLineEdit(self.fit_settings_3)
-        self.l_defaut_folder_model_3.setObjectName("l_defaut_folder_model_3")
-        self.l_defaut_folder_model_3.setGeometry(QRect(160, 320, 481, 21))
-        self.btn_refresh_model_folder_3 = QPushButton(self.fit_settings_3)
-        self.btn_refresh_model_folder_3.setObjectName("btn_refresh_model_folder_3")
-        self.btn_refresh_model_folder_3.setGeometry(QRect(650, 320, 75, 23))
-
-        self.horizontalLayout_103 = QHBoxLayout()
-        self.horizontalLayout_103.setObjectName("horizontalLayout_103")
-
-        self.horizontalSpacer_9 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
-
-        self.horizontalLayout_103.addItem(self.horizontalSpacer_9)
-
-        self.horizontalLayout_16 = QHBoxLayout()
-        self.horizontalLayout_16.setObjectName("horizontalLayout_16")
-
-        self.listbox_layout = QVBoxLayout()
-        self.listbox_layout.setObjectName("listbox_layout")
-
-        self.horizontalLayout_104 = QHBoxLayout()
-        self.horizontalLayout_104.setObjectName("horizontalLayout_104")
-
-        self.horizontalSpacer_23 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
-
-        self.horizontalLayout_104.addItem(self.horizontalSpacer_23)
 
         self.central = QWidget()
         self.central.setObjectName("central")
@@ -731,67 +138,9 @@ class MainView(QMainWindow):
 
         self.verticalLayout_26.addWidget(self.spectre_view_frame_)
 
-        self.bottom_frame = QHBoxLayout()
-        self.bottom_frame.setSpacing(10)
-        self.bottom_frame.setObjectName("bottom_frame")
-        self.bottom_frame.setSizeConstraint(QLayout.SizeConstraint.SetMaximumSize)
-        self.bottom_frame.setContentsMargins(2, 2, 2, 2)
-        self.toolbar_frame = QHBoxLayout()
-        self.toolbar_frame.setObjectName("toolbar_frame")
+        self.toolbar = Toolbar()
 
-        self.bottom_frame.addLayout(self.toolbar_frame)
-
-        self.horizontalSpacer_7 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
-
-        self.bottom_frame.addItem(self.horizontalSpacer_7)
-
-        self.rdbtn_baseline = QRadioButton(self.upper_frame)
-        self.rdbtn_baseline.setObjectName("rdbtn_baseline")
-        self.rdbtn_baseline.setChecked(True)
-
-        self.bottom_frame.addWidget(self.rdbtn_baseline)
-
-        self.rdbtn_peak = QRadioButton(self.upper_frame)
-        self.rdbtn_peak.setObjectName("rdbtn_peak")
-        self.rdbtn_peak.setChecked(False)
-
-        self.bottom_frame.addWidget(self.rdbtn_peak)
-
-        self.horizontalSpacer_15 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
-
-        self.bottom_frame.addItem(self.horizontalSpacer_15)
-
-        self.rsquared_1 = QLabel(self.upper_frame)
-        self.rsquared_1.setObjectName("rsquared_1")
-        self.rsquared_1.setMinimumSize(QSize(80, 0))
-        self.rsquared_1.setMaximumSize(QSize(80, 16777215))
-
-        self.bottom_frame.addWidget(self.rsquared_1)
-
-        self.label_63 = QLabel(self.upper_frame)
-        self.label_63.setObjectName("label_63")
-        self.label_63.setMinimumSize(QSize(20, 0))
-        self.label_63.setMaximumSize(QSize(20, 16777215))
-
-        self.bottom_frame.addWidget(self.label_63)
-
-        self.sb_dpi_spectra = QSpinBox(self.upper_frame)
-        self.sb_dpi_spectra.setObjectName("sb_dpi_spectra")
-        self.sb_dpi_spectra.setMinimum(100)
-        self.sb_dpi_spectra.setMaximum(200)
-        self.sb_dpi_spectra.setSingleStep(10)
-
-        self.bottom_frame.addWidget(self.sb_dpi_spectra)
-
-        self.horizontalSpacer_8 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
-
-        self.bottom_frame.addItem(self.horizontalSpacer_8)
-
-        self.bottom_frame.setStretch(0, 50)
-        self.bottom_frame.setStretch(1, 25)
-        self.bottom_frame.setStretch(9, 2)
-
-        self.verticalLayout_26.addLayout(self.bottom_frame)
+        self.verticalLayout_26.addWidget(self.toolbar)
 
         self.verticalLayout_26.setStretch(0, 75)
         self.verticalLayout_26.setStretch(1, 25)
@@ -838,60 +187,9 @@ class MainView(QMainWindow):
 
         self.verticalLayout_13.addItem(self.verticalSpacer_5)
 
-        self.view_options_box = QGroupBox(self.widget_7)
-        self.view_options_box.setObjectName("view_options_box")
-        self.view_options_box.setMaximumSize(QSize(320, 16777215))
-        self.gridLayout_6 = QGridLayout(self.view_options_box)
-        self.gridLayout_6.setObjectName("gridLayout_6")
-        self.cb_residual = QCheckBox(self.view_options_box)
-        self.cb_residual.setObjectName("cb_residual")
-        self.cb_residual.setChecked(False)
+        self.view_options = ViewOptions()
 
-        self.gridLayout_6.addWidget(self.cb_residual, 1, 1, 1, 1)
-
-        self.cb_filled = QCheckBox(self.view_options_box)
-        self.cb_filled.setObjectName("cb_filled")
-        self.cb_filled.setChecked(True)
-
-        self.gridLayout_6.addWidget(self.cb_filled, 0, 2, 1, 1)
-
-        self.cb_bestfit = QCheckBox(self.view_options_box)
-        self.cb_bestfit.setObjectName("cb_bestfit")
-        self.cb_bestfit.setChecked(True)
-
-        self.gridLayout_6.addWidget(self.cb_bestfit, 0, 1, 1, 1)
-
-        self.cb_legend = QCheckBox(self.view_options_box)
-        self.cb_legend.setObjectName("cb_legend")
-        self.cb_legend.setEnabled(True)
-        self.cb_legend.setChecked(False)
-
-        self.gridLayout_6.addWidget(self.cb_legend, 0, 0, 1, 1)
-
-        self.cb_raw = QCheckBox(self.view_options_box)
-        self.cb_raw.setObjectName("cb_raw")
-        self.cb_raw.setChecked(False)
-
-        self.gridLayout_6.addWidget(self.cb_raw, 1, 0, 1, 1)
-
-        self.cb_colors = QCheckBox(self.view_options_box)
-        self.cb_colors.setObjectName("cb_colors")
-        self.cb_colors.setChecked(True)
-
-        self.gridLayout_6.addWidget(self.cb_colors, 1, 2, 1, 1)
-
-        self.cb_peaks = QCheckBox(self.view_options_box)
-        self.cb_peaks.setObjectName("cb_peaks")
-        self.cb_peaks.setChecked(False)
-
-        self.gridLayout_6.addWidget(self.cb_peaks, 0, 3, 1, 1)
-
-        self.cb_normalize = QCheckBox(self.view_options_box)
-        self.cb_normalize.setObjectName("cb_normalize")
-
-        self.gridLayout_6.addWidget(self.cb_normalize, 1, 3, 1, 1)
-
-        self.verticalLayout_13.addWidget(self.view_options_box)
+        self.verticalLayout_13.addWidget(self.view_options)
 
         self.Upper_zone.addWidget(self.widget_7)
 
@@ -1016,16 +314,12 @@ class MainView(QMainWindow):
         self.horizontalLayout_37.setContentsMargins(2, 2, 2, 2)
         self.rbtn_linear = QRadioButton(self.baseline)
         self.rbtn_linear.setObjectName("rbtn_linear")
-        sizePolicy3.setHeightForWidth(self.rbtn_linear.sizePolicy().hasHeightForWidth())
-        self.rbtn_linear.setSizePolicy(sizePolicy3)
         self.rbtn_linear.setChecked(True)
 
         self.horizontalLayout_37.addWidget(self.rbtn_linear)
 
         self.rbtn_polynomial = QRadioButton(self.baseline)
         self.rbtn_polynomial.setObjectName("rbtn_polynomial")
-        sizePolicy3.setHeightForWidth(self.rbtn_polynomial.sizePolicy().hasHeightForWidth())
-        self.rbtn_polynomial.setSizePolicy(sizePolicy3)
 
         self.horizontalLayout_37.addWidget(self.rbtn_polynomial)
 
@@ -1062,8 +356,6 @@ class MainView(QMainWindow):
         self.horizontalLayout_57.setContentsMargins(2, 2, 2, 2)
         self.cb_attached = QCheckBox(self.baseline)
         self.cb_attached.setObjectName("cb_attached")
-        sizePolicy3.setHeightForWidth(self.cb_attached.sizePolicy().hasHeightForWidth())
-        self.cb_attached.setSizePolicy(sizePolicy3)
         self.cb_attached.setChecked(True)
 
         self.horizontalLayout_57.addWidget(self.cb_attached)
@@ -1135,27 +427,6 @@ class MainView(QMainWindow):
         self.verticalSpacer = QSpacerItem(20, 40, QSizePolicy.Expanding, QSizePolicy.Minimum)
 
         self.verticalLayout_38.addItem(self.verticalSpacer)
-
-        
-
-        
-
-        
-
-       
-
-        
-
-        self.save_model = QPushButton(
-            self,
-            text="Save Model",
-            icon=QIcon(str(icons / "save.png")),
-            toolTip="Save the fit model as a JSON file",
-            objectName="save_model",
-        )
-        self.horizontalLayout_83.addWidget(self.save_model)
-        self.fit_model_builder.addItem(self.horizontalLayout_83)
-
 
         self.fit_model_editor = ModelBuilder()
 
@@ -1327,7 +598,6 @@ class MainView(QMainWindow):
         self.btn_view_df_2.setObjectName("btn_view_df_2")
         self.btn_view_df_2.setMinimumSize(QSize(30, 0))
         self.btn_view_df_2.setMaximumSize(QSize(30, 16777215))
-        self.btn_view_df_2.setIcon(icon16)
         self.btn_view_df_2.setIconSize(QSize(22, 22))
 
         self.horizontalLayout_36.addWidget(self.btn_view_df_2)
@@ -1336,17 +606,14 @@ class MainView(QMainWindow):
         self.btn_save_fit_results.setObjectName("btn_save_fit_results")
         self.btn_save_fit_results.setMinimumSize(QSize(30, 0))
         self.btn_save_fit_results.setMaximumSize(QSize(30, 16777215))
-        self.btn_save_fit_results.setIcon(icon17)
         self.btn_save_fit_results.setIconSize(QSize(22, 22))
 
         self.horizontalLayout_36.addWidget(self.btn_save_fit_results)
 
         self.btn_open_fit_results = QPushButton(self.groupBox_3)
         self.btn_open_fit_results.setObjectName("btn_open_fit_results")
-        sizePolicy3.setHeightForWidth(self.btn_open_fit_results.sizePolicy().hasHeightForWidth())
-        self.btn_open_fit_results.setSizePolicy(sizePolicy3)
         self.btn_open_fit_results.setMaximumSize(QSize(30, 16777215))
-        self.btn_open_fit_results.setIcon(icon18)
+        # self.btn_open_fit_results.setIcon(icon18)
         self.btn_open_fit_results.setIconSize(QSize(22, 22))
 
         self.horizontalLayout_36.addWidget(self.btn_open_fit_results)
@@ -1358,181 +625,15 @@ class MainView(QMainWindow):
         self.verticalLayout_32.addLayout(self.horizontalLayout_62)
 
         self.tabWidget_2.addTab(self.collect_fit_data, "")
-        self.fit_settings = QWidget()
-        self.fit_settings.setObjectName("fit_settings")
-        self.fit_settings.setEnabled(True)
-        self.groupBox_8 = QGroupBox(self.fit_settings)
-        self.groupBox_8.setObjectName("groupBox_8")
-        self.groupBox_8.setGeometry(QRect(780, 30, 376, 110))
-        self.verticalLayout_28 = QVBoxLayout(self.groupBox_8)
-        self.verticalLayout_28.setObjectName("verticalLayout_28")
         self.horizontalLayout_61 = QHBoxLayout()
         self.horizontalLayout_61.setObjectName("horizontalLayout_61")
-        self.radioButton_3 = QRadioButton(self.groupBox_8)
-        self.radioButton_3.setObjectName("radioButton_3")
-        sizePolicy3.setHeightForWidth(self.radioButton_3.sizePolicy().hasHeightForWidth())
-        self.radioButton_3.setSizePolicy(sizePolicy3)
-        self.radioButton_3.setChecked(True)
-
-        self.horizontalLayout_61.addWidget(self.radioButton_3)
-
-        self.label_45 = QLabel(self.groupBox_8)
-        self.label_45.setObjectName("label_45")
-
-        self.horizontalLayout_61.addWidget(self.label_45)
 
         self.horizontalLayout_60 = QHBoxLayout()
         self.horizontalLayout_60.setObjectName("horizontalLayout_60")
-        self.radioButton_2 = QRadioButton(self.groupBox_8)
-        self.radioButton_2.setObjectName("radioButton_2")
-        sizePolicy3.setHeightForWidth(self.radioButton_2.sizePolicy().hasHeightForWidth())
-        self.radioButton_2.setSizePolicy(sizePolicy3)
-
-        self.horizontalLayout_60.addWidget(self.radioButton_2)
-
-        self.label_44 = QLabel(self.groupBox_8)
-        self.label_44.setObjectName("label_44")
-
-        self.horizontalLayout_60.addWidget(self.label_44)
-
-        self.lineEdit_32 = QLineEdit(self.groupBox_8)
-        self.lineEdit_32.setObjectName("lineEdit_32")
-        self.lineEdit_32.setMinimumSize(QSize(20, 0))
-
-        self.horizontalLayout_60.addWidget(self.lineEdit_32)
 
         self.horizontalLayout_61.addLayout(self.horizontalLayout_60)
 
-        self.verticalLayout_28.addLayout(self.horizontalLayout_61)
-
-        self.verticalSpacer_11 = QSpacerItem(20, 40, QSizePolicy.Expanding, QSizePolicy.Minimum)
-
-        self.verticalLayout_28.addItem(self.verticalSpacer_11)
-
-        self.horizontalLayout_64 = QHBoxLayout()
-        self.horizontalLayout_64.setObjectName("horizontalLayout_64")
-        self.label_47 = QLabel(self.groupBox_8)
-        self.label_47.setObjectName("label_47")
-
-        self.horizontalLayout_64.addWidget(self.label_47)
-
-        self.comboBox_14 = QComboBox(self.groupBox_8)
-        self.comboBox_14.setObjectName("comboBox_14")
-
-        self.horizontalLayout_64.addWidget(self.comboBox_14)
-
-        self.lineEdit_34 = QLineEdit(self.groupBox_8)
-        self.lineEdit_34.setObjectName("lineEdit_34")
-        self.lineEdit_34.setMinimumSize(QSize(20, 0))
-
-        self.horizontalLayout_64.addWidget(self.lineEdit_34)
-
-        self.verticalLayout_28.addLayout(self.horizontalLayout_64)
-
-        self.layoutWidget = QWidget(self.fit_settings)
-        self.layoutWidget.setObjectName("layoutWidget")
-        self.layoutWidget.setGeometry(QRect(20, 50, 411, 220))
-        self.verticalLayout_29 = QVBoxLayout(self.layoutWidget)
-        self.verticalLayout_29.setObjectName("verticalLayout_29")
-        self.verticalLayout_29.setContentsMargins(0, 0, 0, 0)
-        self.horizontalLayout_55 = QHBoxLayout()
-        self.horizontalLayout_55.setObjectName("horizontalLayout_55")
-        self.label_23 = QLabel(self.layoutWidget)
-        self.label_23.setObjectName("label_23")
-
-        self.horizontalLayout_55.addWidget(self.label_23)
-
-        self.cb_fit_negative = QCheckBox(self.layoutWidget)
-        self.cb_fit_negative.setObjectName("cb_fit_negative")
-
-        self.horizontalLayout_55.addWidget(self.cb_fit_negative)
-
-        self.verticalLayout_29.addLayout(self.horizontalLayout_55)
-
-        self.horizontalLayout_59 = QHBoxLayout()
-        self.horizontalLayout_59.setObjectName("horizontalLayout_59")
-        self.label_25 = QLabel(self.layoutWidget)
-        self.label_25.setObjectName("label_25")
-
-        self.horizontalLayout_59.addWidget(self.label_25)
-
-        self.max_iteration = QSpinBox(self.layoutWidget)
-        self.max_iteration.setObjectName("max_iteration")
-        self.max_iteration.setMaximum(10000)
-        self.max_iteration.setValue(200)
-
-        self.horizontalLayout_59.addWidget(self.max_iteration)
-
-        self.verticalLayout_29.addLayout(self.horizontalLayout_59)
-
-        self.horizontalLayout_63 = QHBoxLayout()
-        self.horizontalLayout_63.setObjectName("horizontalLayout_63")
-        self.label_27 = QLabel(self.layoutWidget)
-        self.label_27.setObjectName("label_27")
-
-        self.horizontalLayout_63.addWidget(self.label_27)
-
-        self.cbb_fit_methods = QComboBox(self.layoutWidget)
-        self.cbb_fit_methods.setObjectName("cbb_fit_methods")
-
-        self.horizontalLayout_63.addWidget(self.cbb_fit_methods)
-
-        self.verticalLayout_29.addLayout(self.horizontalLayout_63)
-
-        self.horizontalLayout_68 = QHBoxLayout()
-        self.horizontalLayout_68.setObjectName("horizontalLayout_68")
-        self.label_55 = QLabel(self.layoutWidget)
-        self.label_55.setObjectName("label_55")
-
-        self.horizontalLayout_68.addWidget(self.label_55)
-
-        self.horizontalSpacer_41 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
-
-        self.horizontalLayout_68.addItem(self.horizontalSpacer_41)
-
-        self.xtol = QLineEdit(self.layoutWidget)
-        self.xtol.setObjectName("xtol")
-        self.xtol.setMaximumSize(QSize(60, 16777215))
-        self.xtol.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
-
-        self.horizontalLayout_68.addWidget(self.xtol)
-
-        self.verticalLayout_29.addLayout(self.horizontalLayout_68)
-
-        self.verticalSpacer_14 = QSpacerItem(20, 40, QSizePolicy.Expanding, QSizePolicy.Minimum)
-
-        self.verticalLayout_29.addItem(self.verticalSpacer_14)
-
-        self.label_53 = QLabel(self.fit_settings)
-        self.label_53.setObjectName("label_53")
-        self.label_53.setGeometry(QRect(10, 10, 121, 31))
-        self.label_53.setFont(font1)
-        self.layoutWidget1 = QWidget(self.fit_settings)
-        self.layoutWidget1.setObjectName("layoutWidget1")
-        self.layoutWidget1.setGeometry(QRect(20, 320, 715, 33))
-        self.horizontalLayout_45 = QHBoxLayout(self.layoutWidget1)
-        self.horizontalLayout_45.setObjectName("horizontalLayout_45")
-        self.horizontalLayout_45.setContentsMargins(0, 0, 0, 0)
-        self.btn_default_folder_model = QPushButton(self.layoutWidget1)
-        self.btn_default_folder_model.setObjectName("btn_default_folder_model")
-
-        self.horizontalLayout_45.addWidget(self.btn_default_folder_model)
-
-        self.horizontalSpacer_40 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
-
-        self.horizontalLayout_45.addItem(self.horizontalSpacer_40)
-
-        self.l_defaut_folder_model = QLineEdit(self.layoutWidget1)
-        self.l_defaut_folder_model.setObjectName("l_defaut_folder_model")
-        self.l_defaut_folder_model.setMinimumSize(QSize(500, 0))
-        self.l_defaut_folder_model.setMaximumSize(QSize(500, 16777215))
-
-        self.horizontalLayout_45.addWidget(self.l_defaut_folder_model)
-
-        self.btn_refresh_model_folder = QPushButton(self.layoutWidget1)
-        self.btn_refresh_model_folder.setObjectName("btn_refresh_model_folder")
-
-        self.horizontalLayout_45.addWidget(self.btn_refresh_model_folder)
+        self.fit_settings = FitSettings()
 
         self.tabWidget_2.addTab(self.fit_settings, "")
 
@@ -1578,16 +679,15 @@ class MainView(QMainWindow):
 
         self.horizontalLayout_29.addItem(self.horizontalSpacer_4)
 
-        self.btn_remove_wafer = QPushButton(self.groupBox)
-        self.btn_remove_wafer.setObjectName("btn_remove_wafer")
-        self.btn_remove_wafer.setMaximumSize(QSize(90, 16777215))
+        self.btn_remove_map = QPushButton(self.groupBox)
+        self.btn_remove_map.setObjectName("btn_remove_map")
+        self.btn_remove_map.setMaximumSize(QSize(90, 16777215))
 
-        self.horizontalLayout_29.addWidget(self.btn_remove_wafer)
+        self.horizontalLayout_29.addWidget(self.btn_remove_map)
 
         self.btn_view_wafer = QPushButton(self.groupBox)
         self.btn_view_wafer.setObjectName("btn_view_wafer")
         self.btn_view_wafer.setMaximumSize(QSize(70, 16777215))
-        self.btn_view_wafer.setIcon(icon16)
         self.btn_view_wafer.setIconSize(QSize(22, 22))
 
         self.horizontalLayout_29.addWidget(self.btn_view_wafer)
@@ -1595,7 +695,6 @@ class MainView(QMainWindow):
         self.pushButton_3 = QPushButton(self.groupBox)
         self.pushButton_3.setObjectName("pushButton_3")
         self.pushButton_3.setMaximumSize(QSize(70, 16777215))
-        self.pushButton_3.setIcon(icon17)
         self.pushButton_3.setIconSize(QSize(22, 22))
 
         self.horizontalLayout_29.addWidget(self.pushButton_3)
@@ -1628,8 +727,6 @@ class MainView(QMainWindow):
 
         self.btn_init = QPushButton(self.groupBox_2)
         self.btn_init.setObjectName("btn_init")
-        sizePolicy3.setHeightForWidth(self.btn_init.sizePolicy().hasHeightForWidth())
-        self.btn_init.setSizePolicy(sizePolicy3)
         self.btn_init.setMinimumSize(QSize(70, 0))
         self.btn_init.setMaximumSize(QSize(70, 16777215))
 
@@ -1637,8 +734,6 @@ class MainView(QMainWindow):
 
         self.btn_show_stats = QPushButton(self.groupBox_2)
         self.btn_show_stats.setObjectName("btn_show_stats")
-        sizePolicy3.setHeightForWidth(self.btn_show_stats.sizePolicy().hasHeightForWidth())
-        self.btn_show_stats.setSizePolicy(sizePolicy3)
         self.btn_show_stats.setMaximumSize(QSize(40, 16777215))
 
         self.horizontalLayout_8.addWidget(self.btn_show_stats)
@@ -1676,6 +771,28 @@ class MainView(QMainWindow):
         self.verticalLayout_17.setStretch(0, 30)
         self.verticalLayout_17.setStretch(1, 65)
 
+        # # Create the sidebar content
+        # self.maps_list = MapsList()
+        # self.spectrum_list = SpectrumList()
+
+        # self.sidebar = QWidget()
+        # self.sidebar_layout = QVBoxLayout(self.sidebar)
+        # self.sidebar_layout.addWidget(self.maps_list)
+        # self.sidebar_layout.addWidget(self.spectrum_list)
+
+        # # Create the main content (placeholder for your main content widget)
+        # self.main_content = QWidget()  # Replace with your actual main content widget
+
+        # # Create a splitter to separate the sidebar and the main content
+        # self.main_splitter = QSplitter(Qt.Horizontal)
+        # self.main_splitter.addWidget(self.main_content)
+        # self.main_splitter.addWidget(self.sidebar)  
+
+        # self.main_splitter.setStretchFactor(0, 1)  # Main content takes up remaining space
+        # self.main_splitter.setStretchFactor(1, 0)
+
+        # # Add the splitter to the main layout
+        # self.gridLayout_5.addWidget(self.main_splitter, 1, 3, 1, 1)
         self.gridLayout_5.addWidget(self.sidebar, 1, 3, 1, 1)
 
 
@@ -1790,79 +907,6 @@ class MainView(QMainWindow):
 
     def retranslateUi(self):
         self.setWindowTitle("Fitspy")
-        self.view_options_box_2.setTitle("View options:")
-        self.cb_residual_3.setText("residual")
-        self.cb_filled_3.setText("filled")
-        self.cb_bestfit_3.setText("best-fit")
-        self.cb_legend_3.setToolTip("To display or remove the legend of the plot")
-        self.cb_legend_3.setText("legend")
-        self.cb_raw_3.setText("raw")
-        self.cb_colors_3.setText("colors")
-        self.cb_peaks_3.setText("peaks")
-        self.cb_normalize_3.setText("normalized")
-        self.label_22.setText("X-axis unit:")
-        self.groupBox_5.setTitle("")
-        self.label_66.setText("X max/min:")
-        self.label_67.setText("/")
-        self.range_apply_2.setToolTip("Extract the spectral windows range.\n"
-" Hold 'Ctrl' and press 'Extract' button to apply to all spectra")
-        self.range_apply_2.setText("Extract")
-        self.label_68.setText("")
-        self.baseline_2.setTitle("")
-        self.rbtn_linear_2.setText("Linear")
-        self.rbtn_polynomial_2.setText("Poly")
-        self.label_70.setToolTip("Number of nearby points considered to smoothing the noise")
-        self.label_70.setText("Smoothing")
-        self.cb_attached_3.setText("Attached")
-        self.btn_undo_baseline_2.setToolTip("To remove all baseline points and undo the baseline subtraction")
-        self.btn_undo_baseline_2.setText("Undo baseline")
-        self.sub_baseline_2.setToolTip("To subtract the evaluated baseline from the spectrum. \n"
-" Hold 'Ctrl' and press 'Subtract' button to apply to all spectra")
-        self.sub_baseline_2.setText("Subtract")
-        self.label_71.setText("")
-        self.peaks_2.setTitle("")
-        self.label_73.setText("Peak model:")
-        self.clear_peaks_2.setToolTip("Clear all the current peak models. \n"
-" Hold 'Ctrl' and press 'Clear peaks' button to apply to all spectra")
-        self.clear_peaks_2.setText("Clear peaks")
-        self.label_83.setText("Add new column(s) from file name:")
-        self.btn_split_fname.setToolTip("Split the file name of spectrum to several parts")
-        self.btn_split_fname.setText("Split")
-        self.cbb_split_fname.setToolTip("Select file name part")
-        self.cbb_split_fname.setPlaceholderText("")
-        self.ent_col_name.setPlaceholderText("type column name")
-        self.btn_add_col.setToolTip("Add a new column containing the selected part")
-        self.btn_add_col.setText("Add")
-        self.groupBox_6.setTitle("")
-        self.btn_view_df_5.setToolTip("View collected fit results")
-        self.btn_view_df_5.setText("")
-        self.btn_save_fit_results_3.setToolTip("Save all fit results in an Excel file")
-        self.btn_save_fit_results_3.setText("")
-        self.btn_open_fit_results_3.setToolTip("Open fit results (format Excel) to view/plot")
-        self.btn_open_fit_results_3.setText("")
-        self.label_74.setText("Fit settings:")
-        self.label_51.setText("Fit negative values:")
-        self.cb_fit_negative_2.setText("")
-        self.label_75.setText("Maximumn iterations :")
-        self.max_iteration_2.setPrefix("")
-        self.label_76.setText("Fit method")
-        self.label_78.setText("x-tolerence")
-        self.xtol_2.setText("0.0001")
-        self.btn_refresh_model_folder_3.setText("refresh")
-        self.rdbtn_baseline.setText("baseline")
-        self.rdbtn_peak.setText("peaks")
-        self.rsquared_1.setText("R2=0 ")
-        self.label_63.setText("DPI:")
-        self.view_options_box.setTitle("View options:")
-        self.cb_residual.setText("residual")
-        self.cb_filled.setText("filled")
-        self.cb_bestfit.setText("best-fit")
-        self.cb_legend.setToolTip("To display or remove the legend of the plot")
-        self.cb_legend.setText("legend")
-        self.cb_raw.setText("raw")
-        self.cb_colors.setText("colors")
-        self.cb_peaks.setText("peaks")
-        self.cb_normalize.setText("normalized")
         self.btn_cosmis_ray.setToolTip("Detect cosmis ray based on the loaded spectra")
         self.btn_cosmis_ray.setText("Spike removal")
         self.label_99.setText("X-axis unit:")
@@ -1893,7 +937,6 @@ class MainView(QMainWindow):
         self.clear_peaks.setToolTip("Clear all the current peak models. \n"
 " Hold 'Ctrl' and press 'Clear peaks' button to apply to all spectra")
         self.clear_peaks.setText("Clear peaks")
-        
         self.tabWidget_2.setTabText(self.tabWidget_2.indexOf(self.fit_model_editor), "Fit model builder")
         self.btn_collect_results.setToolTip("To gather all the best fit results in a dataframe for visualization")
         self.btn_collect_results.setText(" Collect fit results")
@@ -1921,28 +964,10 @@ class MainView(QMainWindow):
         self.btn_open_fit_results.setToolTip("Open fit results (format Excel) to view/plot")
         self.btn_open_fit_results.setText("")
         self.tabWidget_2.setTabText(self.tabWidget_2.indexOf(self.collect_fit_data), "Collect fit data")
-        self.groupBox_8.setTitle("Peak position correction :")
-        self.radioButton_3.setText("")
-        self.label_45.setText("No")
-        self.radioButton_2.setText("")
-        self.label_44.setText("Peak  shift (cm-1) :")
-        self.lineEdit_32.setToolTip("Type the different between experimental and theoretical values")
-        self.label_47.setText("Reference peak :")
-        self.lineEdit_34.setToolTip("Type the theoretical values")
-        self.label_23.setText("Fit negative values:")
-        self.cb_fit_negative.setText("")
-        self.label_25.setText("Maximumn iterations :")
-        self.max_iteration.setPrefix("")
-        self.label_27.setText("Fit method")
-        self.label_55.setText("x-tolerence")
-        self.xtol.setText("0.0001")
-        self.label_53.setText("Fit settings:")
-        self.btn_default_folder_model.setText("Model Folder")
-        self.btn_refresh_model_folder.setText("refresh")
         self.tabWidget_2.setTabText(self.tabWidget_2.indexOf(self.fit_settings), "More settings")
         self.groupBox.setTitle("")
         self.label_64.setText("Maps:")
-        self.btn_remove_wafer.setText("")
+        self.btn_remove_map.setText("")
         self.btn_view_wafer.setText("")
         self.pushButton_3.setText("")
         self.groupBox_2.setTitle("")
