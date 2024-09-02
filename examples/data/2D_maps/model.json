@@ -5,14 +5,6 @@
       "range_max": 958.501953,
       "norm_mode": null,
       "norm_position_ref": null,
-      "attractors": [287, 311, 572, 349, 154, 121, 16, 81, 45, 415, 380, 443, 220, 541, 189, 484, 514, 264, 464, 244],
-      "attractors_params": {
-         "distance": 20,
-         "prominence": 0,
-         "width": 0,
-         "height": 0,
-         "threshold": 0
-      },
       "peak_labels": ["1", "2", "3", "4", "5"],
       "fit_params": {
          "method": "leastsq",
