@@ -11,11 +11,10 @@ class MapsList(QWidget):
         self.initUI()
 
     def initUI(self):
-        self.label = QLabel("Maps:")
+        self.label = QLabel("Maps: COUNT")
 
-        self.button1 = QPushButton(icon=QIcon(str(icons / 'remove.png')))
-        self.button2 = QPushButton(icon=QIcon(str(icons / 'save.png')))
-        self.button3 = QPushButton()
+        self.rm_btn = QPushButton(icon=QIcon(str(icons / 'remove.png')))
+        self.save_btn = QPushButton(icon=QIcon(str(icons / 'save.png')))
 
         self.list_widget = QListWidget()
 
@@ -23,10 +22,9 @@ class MapsList(QWidget):
         title_layout = QHBoxLayout()
 
         title_layout.addWidget(self.label)
-        title_layout.addStretch()  # Add horizontal spacer
-        title_layout.addWidget(self.button1)
-        title_layout.addWidget(self.button2)
-        title_layout.addWidget(self.button3)
+        title_layout.addStretch()  # horizontal spacer
+        title_layout.addWidget(self.rm_btn)
+        title_layout.addWidget(self.save_btn)
 
         main_layout.addLayout(title_layout)
         main_layout.addWidget(self.list_widget)

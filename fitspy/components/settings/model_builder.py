@@ -20,25 +20,16 @@ class Overall(QWidget):
         h_layout.setSpacing(5)
         h_layout.setContentsMargins(0, 0, 0, 0)
 
-        # Add "Spike removal" button
-        spike_removal_button = QPushButton("Spike removal")
-
-        # Add horizontal spacer
+        outliers_removal_button = QPushButton("Outliers removal")
         h_spacer = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
-
-        # Add "X-axis unit:" label
         x_axis_label = QLabel("X-axis unit:")
-
-        # Add ComboBox
         x_axis_combobox = QComboBox()
 
-        # Add widgets to the horizontal layout
-        h_layout.addWidget(spike_removal_button)
+        h_layout.addWidget(outliers_removal_button)
         h_layout.addItem(h_spacer)
         h_layout.addWidget(x_axis_label)
         h_layout.addWidget(x_axis_combobox)
 
-        # Add the horizontal layout to the main vertical layout
         vbox_layout.addLayout(h_layout)
 
 class SpectralRange(QGroupBox):
@@ -174,6 +165,7 @@ class ModelSettings(QWidget):
     def initUI(self):
         self.setObjectName("fit_model_editor")
         self.setEnabled(True)
+        self.setMaximumWidth(377)
 
         # Create a scroll area
         scroll_area = QScrollArea(self)
@@ -195,8 +187,8 @@ class ModelSettings(QWidget):
         main_layout.addWidget(self.peaks)
 
         HLayout = QHBoxLayout()
-        HLayout.setSpacing(5)
-        HLayout.setContentsMargins(2, 2, 2, 2)
+        HLayout.setSpacing(0)
+        HLayout.setContentsMargins(0, 0, 0, 0)
 
         save_button = QPushButton(
             text="Save Model",
