@@ -2,6 +2,7 @@ from pathlib import Path
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QLineEdit, QTableWidget, QTableWidgetItem, QDoubleSpinBox, QRadioButton, QSlider, QSpinBox, QVBoxLayout, QGroupBox, QHBoxLayout, QScrollArea, QPushButton, QCheckBox, QLabel, QWidget, QComboBox, QSpacerItem, QSizePolicy
 from PySide6.QtGui import QIcon
+from .peaks_table import PeaksTable
 
 project_root = Path(__file__).resolve().parent.parent.parent
 icons = project_root / 'resources' / 'iconpack'
@@ -137,7 +138,6 @@ class Baseline(QGroupBox):
         self.apply_button = QPushButton(text="Apply")
         vbox_layout.addWidget(self.apply_button)
 
-
 class Peaks(QGroupBox):
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -216,72 +216,6 @@ class ModelSettings(QWidget):
         outer_layout = QVBoxLayout(self)
         outer_layout.addWidget(scroll_area)
 
-class PeakTable(QGroupBox):
-    def __init__(self, parent=None):
-        super().__init__(parent)
-        self.initUI()
-
-    def initUI(self):
-        self.setTitle("Peak table")
-        self.setStyleSheet("QGroupBox { font-weight: bold; }")
-
-        main_layout = QVBoxLayout(self)
-        main_layout.setContentsMargins(5, 5, 5, 5)
-
-        # Create the table widget
-        self.table_widget = QTableWidget()
-        self.table_widget.setColumnCount(8)  # 8 columns
-        self.table_widget.setHorizontalHeaderLabels(["Label", "Model", "X0", "fix X0", "Fwhm", "fix Fwhm", "Ampli", "Fix Ampli"])
-        self.table_widget.setShowGrid(False)
-
-        self.table_widget.setRowCount(10)
-        for row in range(10):
-            # Label (text input)
-            label_item = QTableWidgetItem(f"Label {row + 1}")
-            self.table_widget.setItem(row, 0, label_item)
-
-            # Model (combo box)
-            model_combo = QComboBox()
-            model_combo.addItems(["Model 1", "Model 2", "Model 3"])  # Example items
-            self.table_widget.setCellWidget(row, 1, model_combo)
-
-            # X0 (float input)
-            x0_input = QLineEdit()
-            x0_input.setText(f"{row + 1}.0")
-            self.table_widget.setCellWidget(row, 2, x0_input)
-
-            # fix X0 (checkbox)
-            fix_x0_checkbox = QCheckBox()
-            self.table_widget.setCellWidget(row, 3, fix_x0_checkbox)
-
-            # Fwhm (float input)
-            fwhm_input = QLineEdit()
-            fwhm_input.setText(f"{row + 1}.0")
-            self.table_widget.setCellWidget(row, 4, fwhm_input)
-
-            # fix Fwhm (checkbox)
-            fix_fwhm_checkbox = QCheckBox()
-            self.table_widget.setCellWidget(row, 5, fix_fwhm_checkbox)
-
-            # Ampli (float input)
-            ampli_input = QLineEdit()
-            ampli_input.setText(f"{row + 1}.0")
-            self.table_widget.setCellWidget(row, 6, ampli_input)
-
-            # Fix Ampli (checkbox)
-            fix_ampli_checkbox = QCheckBox()
-            self.table_widget.setCellWidget(row, 7, fix_ampli_checkbox)
-
-        # Create a scroll area and set the table widget as its widget
-        scroll_area = QScrollArea(self)
-        scroll_area.setWidgetResizable(True)
-        scroll_area.setWidget(self.table_widget)
-
-        # Add the scroll area to the main layout
-        main_layout.addWidget(scroll_area)
-
-        self.setLayout(main_layout)
-
 class ModelSelector(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -308,20 +242,6 @@ class ModelSelector(QWidget):
 
         self.setLayout(h_layout)
 
-class ModelManager(QWidget):
-    def __init__(self, parent=None):
-        super().__init__(parent)
-        self.initUI()
-
-    def initUI(self):
-        layout = QVBoxLayout(self)
-
-        self.peak_table = PeakTable(self)
-        self.model_selector = ModelSelector(self)
-        
-        layout.addWidget(self.peak_table)
-        layout.addWidget(self.model_selector)
-
 class ModelBuilder(QWidget):
     def __init__(self):
         super().__init__()
@@ -329,10 +249,16 @@ class ModelBuilder(QWidget):
 
     def initUI(self):
         self.model_settings = ModelSettings(self)
-        self.model_manager = ModelManager(self)
+
+        self.peak_table = PeaksTable(self)
+        self.model_selector = ModelSelector(self)
+        vbox_layout = QVBoxLayout()
+        vbox_layout.addWidget(self.peak_table)
+        vbox_layout.addWidget(self.model_selector)
+
         layout = QHBoxLayout(self)
         layout.addWidget(self.model_settings)
-        layout.addWidget(self.model_manager)
+        layout.addLayout(vbox_layout)
 
 if __name__ == "__main__":
     import sys

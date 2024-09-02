@@ -6,7 +6,13 @@ import re
 import json
 from pathlib import Path
 import runpy
+from PySide6.QtWidgets import QWidget
 
+def update_widget_palette(widget, palette):
+    widget.setPalette(palette)
+    for child in widget.findChildren(QWidget):
+        child.setPalette(palette)
+        
 def closest_item(element_list, value):
     """ Return the closest element in the given list """
     return element_list[closest_index(element_list, value)]

@@ -121,8 +121,6 @@ class MainView(QMainWindow):
 
         self.bottom_frame_3.addItem(self.horizontalSpacer_24)
 
-
-
         self.horizontalSpacer_16 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
 
         self.bottom_frame_3.addItem(self.horizontalSpacer_16)
@@ -199,8 +197,6 @@ class MainView(QMainWindow):
         self.gridLayout_7.addWidget(self.cb_normalize_3, 1, 3, 1, 1)
 
         self.verticalLayout_74.addWidget(self.view_options_box_2)
-
-
 
         self.Upper_zone_3.setStretch(0, 75)
 
