@@ -5,14 +5,21 @@ import os
 import re
 import json
 from pathlib import Path
+import importlib
+import itertools
 import runpy
+import numpy as np
+import pandas as pd
+from lmfit.models import ExpressionModel
+from rsciio import IO_PLUGINS
+
 from PySide6.QtWidgets import QWidget
 
 def update_widget_palette(widget, palette):
     widget.setPalette(palette)
     for child in widget.findChildren(QWidget):
         child.setPalette(palette)
-        
+
 def closest_item(element_list, value):
     """ Return the closest element in the given list """
     return element_list[closest_index(element_list, value)]
@@ -20,7 +27,6 @@ def closest_item(element_list, value):
 
 def closest_index(element_list, value):
     """Return the closest element index in the given list """
-    import numpy as np
     if value == np.inf:
         return np.argmax(element_list)
 
@@ -133,7 +139,6 @@ def load_models_from_txt(fname, MODELS):
     MODELS: dict
         Dictionary corresponding to fitspy.PEAK_MODELS or fitspy.BKG_MODELS
     """
-    from lmfit.models import ExpressionModel
     if Path(fname).exists():
         with open(fname, 'r') as fid:
             for line in fid.readlines():
@@ -155,7 +160,100 @@ def load_models_from_py(fname):
     if Path(fname).exists():
         runpy.run_path(fname)
 
-def is_2d_map(fname):
-    """ Check if the file is a 2D-map """
-    with open(fname, 'r') as fid:
-        return fid.readline().startswith("\t")
+
+def get_dim(fname):
+    """ Return the dimension (1, 2 or None) of the spectrum/spectra field """
+
+    dim = None
+
+    if Path(fname).suffix in ['.txt', '.csv']:
+        with open(fname, 'r') as fid:
+            dim = 2 if fid.readline()[0] == "\t" else 1
+
+    else:
+        reader = get_reader_from_rsciio(fname)
+        if reader is not None:
+            data = reader.file_reader(fname)[0]['data']
+            if data.ndim == 1:
+                dim = 1
+            elif data.ndim == 3:  # 2D-map
+                dim = 2
+
+    return dim
+
+
+def get_reader_from_rsciio(fname):
+    """ Return the reader object using the Rosettasciio library """
+    sfx = Path(fname).suffix[1:].lower()
+    rdrs = [rdr for rdr in IO_PLUGINS if sfx in rdr["file_extensions"]]
+    if len(rdrs) == 1:
+        reader = rdrs[0]
+        return importlib.import_module(reader["api"])
+    else:
+        return None
+
+
+def get_x_data_from_rsciio(fname):
+    """ Return the spectrum/spectra support ('x') and the related intensities
+        ('data') using the Rosettasciio library """
+
+    reader = get_reader_from_rsciio(fname)
+
+    if reader is None:
+        raise NotImplementedError(f"unreadable file {fname}")
+
+    fdict = reader.file_reader(fname)[0]
+    data = fdict['data']
+    axis = fdict['axes'][0]
+    x = axis['offset'] + axis['scale'] * np.arange(axis['size'])
+
+    return x, data
+
+
+def get_1d_profile(fname):
+    """ Return the spectrum support ('x0') and its intensity ('y0') """
+
+    if Path(fname).suffix in ['.txt', '.csv']:
+        dfr = pd.read_csv(fname,
+                          sep=r'\s+|\t|,|;| ', engine='python',
+                          skiprows=1, usecols=[0, 1],
+                          names=['x0', 'y0'])
+        x0 = dfr['x0'].to_numpy()
+        y0 = dfr['y0'].to_numpy()
+    else:
+        x0, y0 = get_x_data_from_rsciio(fname)
+        if y0.ndim != 1:
+            raise IOError(f"incorrect dimension associated with {fname}")
+
+    return x0, y0
+
+
+def get_2d_map(fname):
+    r""" Return the array related to a 2D-map.
+        For more details about the array shape, see:
+        https://cea-metrocarac.github.io/fitspy/doc/user_guide/input_data.html#d-map-spectra"
+        """
+    if Path(fname).suffix in ['.txt', '.csv']:
+        dfr = pd.read_csv(fname, sep='\t', header=None)
+        arr = dfr.to_numpy()
+    else:
+        x, data = get_x_data_from_rsciio(fname)
+        if data.ndim == 3:
+            shape = data.shape
+            inds_i, inds_j = range(shape[1]), range(shape[2])
+            inds = np.array(list(itertools.product(inds_i, inds_j)))
+            data = data.reshape(shape[0], shape[1] * shape[2])
+            arr = np.vstack((np.hstack(([0, 0], x)), np.hstack((inds, data.T))))
+        else:
+            raise IOError(f"incorrect dimension associated with {fname}")
+
+    return arr
+
+
+def eval_noise_amplitude(y):
+    """ Evaluate the noise amplitude wrt oscillations at every other point """
+    delta = np.diff(y)
+    delta1, delta2 = delta[:-1], delta[1:]
+    mask = np.sign(delta1) * np.sign(delta2) == -1
+    ampli_noise = np.median(np.abs(delta1[mask] - delta2[mask]) / 2)
+    return ampli_noise

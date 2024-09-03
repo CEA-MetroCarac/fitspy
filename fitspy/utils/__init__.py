@@ -1,3 +1,4 @@
 from .utils import *
-# from .spectrum import Spectrum
-# from .spectra import Spectra
+from .baseline import BaseLine
+from .spectrum import Spectrum
+from .spectra import Spectra

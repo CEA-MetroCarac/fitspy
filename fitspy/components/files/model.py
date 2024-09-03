@@ -1,6 +1,6 @@
 from PySide6.QtCore import QObject, Signal
 
-from fitspy.utils import is_2d_map
+from fitspy.utils import get_dim
 class Model(QObject):
     filesChanged = Signal()
 
@@ -16,7 +16,7 @@ class Model(QObject):
     def set_files(self, files):
         new_files = [file for file in files if file not in self._files]
         for file in new_files:
-            if is_2d_map(file):
+            if get_dim(file) == 2:  # 2D map
                 pass
                 # self.spectra_map_init.emit(file)
             else:

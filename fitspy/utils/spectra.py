@@ -12,9 +12,9 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
-from . import Spectrum
+from .spectrum import Spectrum
 from fitspy.utils import fileparts, save_to_json, load_from_json
-from fitspy.utils_mp import fit_mp
+from .utils_mp import fit_mp
 
 
 class Spectra(list):
@@ -183,7 +183,7 @@ class Spectra(list):
         model_dict = load_from_json(fname_json)[ind]
         return model_dict
 
-    def apply_model(self, model_dict, fnames=None, ncpus=1, fit_only=False,
+    def apply_model(self, model_dict, fnames=None, ncpus=1,
                     show_progressbar=True):
         """
         Apply 'model' to all or part of the spectra
@@ -192,14 +192,12 @@ class Spectra(list):
         ----------
         model_dict: dict
             Dictionary related to the Spectrum object attributes (obtained from
-            Spectrum.save() for instance)
+            Spectrum.save() for instance) to be applied
         fnames: list of str, optional
             List of the spectrum.fname to handle.
             If None, apply the model to all the spectra
         ncpus: int, optional
             Number of CPU to use during the fit processing
-        fit_only: bool, optional
-            Activation key to process only fitting
         show_progressbar: bool, optional
             Activation key to show the progress bar
         """
@@ -211,9 +209,9 @@ class Spectra(list):
             spectrum, _ = self.get_objects(fname)
             spectrum.set_attributes(model_dict)
             spectrum.fname = fname  # reassign the correct fname
-            if not fit_only:
-                spectrum.preprocess()
             spectra.append(spectrum)
+
+        self.pbar_index = 0
 
         queue_incr = Queue()
         args = (queue_incr, len(fnames), ncpus, show_progressbar)
@@ -222,12 +220,12 @@ class Spectra(list):
 
         if ncpus == 1:
             for spectrum in spectra:
+                spectrum.preprocess()
                 spectrum.fit()
                 queue_incr.put(1)
         else:
             fit_mp(spectra, ncpus, queue_incr)
 
-        self.pbar_index = 0  # reinitialize pbar_index after the calculation
         thread.join()
 
     def progressbar(self, queue_incr, ntot, ncpus, show_progressbar):
@@ -246,23 +244,19 @@ class Spectra(list):
         if show_progressbar:
             print()
 
-    def save(self, fname_json, fnames=None):
+    def save(self, fname_json=None, fnames=None):
         """
-        Save spectra in a .json file
+        Return a 'dict_spectra' dictionary with all the spectrum attributes and
+        Save it in a .json file if a 'fname_json' is given
 
         Parameters
         ----------
-        fname_json: str
+        fname_json: str, optional
             Filename associated to the .json file for the spectra saving
         fnames: list of str, optional
             List of the spectrum 'fnames' to save. If None, consider all the
             spectrum contained in the 'spectra' list
         """
-        dirname = os.path.dirname(fname_json)
-        if not os.path.isdir(dirname):
-            print(f"directory {dirname} doesn't exist")
-            return
-
         if fnames is None:
             fnames = self.fnames
 
@@ -270,11 +264,20 @@ class Spectra(list):
         for i, fname in enumerate(fnames):
             spectrum, _ = self.get_objects(fname)
             dict_spectra[i] = spectrum.save()
+            dict_spectra[i]['baseline'].pop('y_eval')
 
-        save_to_json(fname_json, dict_spectra, indent=3)
+        if fname_json is not None:
+            dirname = os.path.dirname(fname_json)
+            if not os.path.isdir(dirname):
+                print(f"directory {dirname} doesn't exist")
+                return
+            else:
+                save_to_json(fname_json, dict_spectra, indent=3)
+
+        return dict_spectra
 
     @staticmethod
-    def load(fname_json):
+    def load(fname_json, preprocess=False):
         """ Return a Spectra object from a .json file """
 
         dict_spectra = load_from_json(fname_json)
@@ -296,12 +299,14 @@ class Spectra(list):
                 for spectrum in spectra_map:
                     if fname == spectrum.fname:
                         spectrum.set_attributes(dict_spectra[i])
-                        spectrum.preprocess()
+                        if preprocess:
+                            spectrum.preprocess()
                         break
             else:
                 spectrum = Spectrum()
                 spectrum.set_attributes(dict_spectra[i])
-                spectrum.preprocess()
+                if preprocess:
+                    spectrum.preprocess()
                 spectra.append(spectrum)
 
         return spectra
