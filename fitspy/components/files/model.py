@@ -12,6 +12,7 @@ class Model(QObject):
     def files(self):
         return self._files
 
+    # @files.setter
     def set_files(self, files):
         new_files = [file for file in files if file not in self._files]
         for file in new_files:
@@ -24,3 +25,8 @@ class Model(QObject):
         
         if new_files:
             self.filesChanged.emit()
+
+    def remove_files(self, files):
+        for file in files:
+            self._files.remove(file)
+        self.filesChanged.emit()

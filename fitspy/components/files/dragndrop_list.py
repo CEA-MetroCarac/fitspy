@@ -43,17 +43,18 @@ class DragAndDropList(QListWidget):
 
     def paintEvent(self, event):
         super().paintEvent(event)
-        painter = QPainter(self.viewport())
-        painter.save()
+        if self.count() == 0:
+            painter = QPainter(self.viewport())
+            painter.save()
 
-        if self.drag_active:
-            painter.setPen(self.palette().color(QPalette.Highlight))
-            text = "Release to load file(s)"
-        else:
-            painter.setPen(self.palette().color(QPalette.Disabled, QPalette.Text))
-            text = "Drag and Drop File(s) Here"
+            if self.drag_active:
+                painter.setPen(self.palette().color(QPalette.Highlight))
+                text = "Release to load file(s)"
+            else:
+                painter.setPen(self.palette().color(QPalette.Disabled, QPalette.Text))
+                text = "Drag and Drop File(s) Here"
 
-        rect = self.rect()
-        painter.drawText(rect, Qt.AlignCenter, text)
+            rect = self.rect()
+            painter.drawText(rect, Qt.AlignCenter, text)
 
-        painter.restore()
+            painter.restore()

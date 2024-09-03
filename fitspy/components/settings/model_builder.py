@@ -7,31 +7,6 @@ from .peaks_table import PeaksTable
 project_root = Path(__file__).resolve().parent.parent.parent
 icons = project_root / 'resources' / 'iconpack'
 
-class Overall(QWidget):
-    def __init__(self, parent=None):
-        super().__init__(parent)
-        self.initUI()
-
-    def initUI(self):
-        vbox_layout = QVBoxLayout()
-        self.setLayout(vbox_layout)
-
-        h_layout = QHBoxLayout()
-        h_layout.setSpacing(5)
-        h_layout.setContentsMargins(0, 0, 0, 0)
-
-        outliers_removal_button = QPushButton("Outliers removal")
-        h_spacer = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
-        x_axis_label = QLabel("X-axis unit:")
-        x_axis_combobox = QComboBox()
-
-        h_layout.addWidget(outliers_removal_button)
-        h_layout.addItem(h_spacer)
-        h_layout.addWidget(x_axis_label)
-        h_layout.addWidget(x_axis_combobox)
-
-        vbox_layout.addLayout(h_layout)
-
 class Normalization(QGroupBox):
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -207,15 +182,13 @@ class ModelSettings(QWidget):
         main_layout.setContentsMargins(5, 5, 5, 5)
 
         # Add the widgets to the main layout
-        self.overall = Overall(self)
-        self.normalization = Normalization(self)
         self.spectral_range = SpectralRange(self)
         self.baseline = Baseline(self)
+        self.normalization = Normalization(self)
         self.fitting = Fitting(self)
-        main_layout.addWidget(self.overall)
-        main_layout.addWidget(self.normalization)
         main_layout.addWidget(self.spectral_range)
         main_layout.addWidget(self.baseline)
+        main_layout.addWidget(self.normalization)
         main_layout.addWidget(self.fitting)
 
         HLayout = QHBoxLayout()

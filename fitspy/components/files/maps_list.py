@@ -11,7 +11,7 @@ class MapsList(QWidget):
         self.initUI()
 
     def initUI(self):
-        self.label = QLabel("Maps: COUNT")
+        self.label = QLabel("Maps:")
 
         self.rm_btn = QPushButton(icon=QIcon(str(icons / 'remove.png')))
         self.save_btn = QPushButton(icon=QIcon(str(icons / 'save.png')))

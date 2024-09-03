@@ -1,8 +1,7 @@
 from pathlib import Path
 from PySide6.QtCore import QRect, QSize, Qt
 from PySide6.QtGui import QFont
-from PySide6.QtWidgets import (QMainWindow, QCheckBox, QComboBox,
-    QDoubleSpinBox, QFrame, QGridLayout,
+from PySide6.QtWidgets import (QMainWindow, QCheckBox, QComboBox, QFrame, QGridLayout,
     QHBoxLayout, QLabel, QScrollArea,
     QSizePolicy, QSpacerItem, QSplitter,
     QTabWidget, QVBoxLayout, QWidget)
