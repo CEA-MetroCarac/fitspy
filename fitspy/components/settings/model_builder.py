@@ -167,14 +167,14 @@ class Fitting(QGroupBox):
         vbox_layout = QVBoxLayout()
         self.setLayout(vbox_layout)
 
-        self.create_section(vbox_layout, "Peak model")
-        self.create_section(vbox_layout, "Background model")
+        self.create_section(vbox_layout, "Peak model:")
+        self.create_section(vbox_layout, "Background model:")
 
     def create_section(self, layout, label_text):
         label = QLabel(label_text)
         spacer = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
         combo_box = QComboBox()
-        clear_button = QPushButton("Clear")
+        clear_button = QPushButton("Load")
 
         h_layout = QHBoxLayout()
         h_layout.setSpacing(5)

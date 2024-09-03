@@ -1,6 +1,8 @@
 from pathlib import Path
 from PySide6.QtGui import QIcon
-from PySide6.QtWidgets import QWidget, QLabel, QPushButton, QListWidget, QVBoxLayout, QHBoxLayout
+from PySide6.QtWidgets import QWidget, QLabel, QPushButton, QVBoxLayout, QHBoxLayout
+
+from .dragndrop_list import DragAndDropList
 
 project_root = Path(__file__).resolve().parent.parent.parent
 icons = project_root / 'resources' / 'iconpack'
@@ -11,13 +13,13 @@ class SpectrumList(QWidget):
         self.initUI()
 
     def initUI(self):
-        self.label = QLabel("Spectra: COUNT")
+        self.label = QLabel("Spectra:")
 
         self.sel_all = QPushButton(icon=QIcon(str(icons / 'select-all.png')))
         self.rm_btn = QPushButton(icon=QIcon(str(icons / 'remove.png')))
         self.save_btn = QPushButton(icon=QIcon(str(icons / 'save.png')))
 
-        self.list_widget = QListWidget()
+        self.list = DragAndDropList()
 
         main_layout = QVBoxLayout()
         title_layout = QHBoxLayout()
@@ -29,7 +31,7 @@ class SpectrumList(QWidget):
         title_layout.addWidget(self.save_btn)
 
         main_layout.addLayout(title_layout)
-        main_layout.addWidget(self.list_widget)
+        main_layout.addWidget(self.list)
 
         self.setLayout(main_layout)
 

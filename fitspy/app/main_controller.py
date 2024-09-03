@@ -5,17 +5,18 @@ from .main_view import MainView
 from fitspy.utils import update_widget_palette
 
 from fitspy.components.plot import PlotController
+from fitspy.components.files import FilesController
 
 class MainController(QObject):
     def __init__(self):
         super().__init__()
         self.view = MainView()
         self.model = MainModel()
-        # self.settings.controller = SettingsController(self.view.model_builder, ...) so the controller can access related views
+        self.files_controller = FilesController(self.view.spectrum_list)
         self.plot_controller = PlotController(self.view.measurement_sites)
         self.setup_connections()
         self.load_settings()
-    
+
     def setup_connections(self):
         self.view.menuBar.actionLightMode.triggered.connect(self.on_actionLightMode_triggered)
         self.view.menuBar.actionDarkMode.triggered.connect(self.on_actionDarkMode_triggered)
