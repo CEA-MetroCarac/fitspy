@@ -10,7 +10,7 @@ class Toolbar(QWidget):
 
         placeholder_label = QLabel("Placeholder matplotlib toolbar")
         baseline_radio = QRadioButton("Baseline")
-        peaks_radio = QRadioButton("Peaks")
+        peaks_radio = QRadioButton("Fitting")
         r2_label = QLabel("R2=0")
         dpi_label = QLabel("DPI:")
         dpi_input = QSpinBox()

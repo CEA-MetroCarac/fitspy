@@ -4,12 +4,15 @@ from .main_model import MainModel
 from .main_view import MainView
 from fitspy.utils import update_widget_palette
 
+from fitspy.components.plot import PlotController
+
 class MainController(QObject):
     def __init__(self):
         super().__init__()
         self.view = MainView()
         self.model = MainModel()
         # self.settings.controller = SettingsController(self.view.model_builder, ...) so the controller can access related views
+        self.plot_controller = PlotController(self.view.measurement_sites)
         self.setup_connections()
         self.load_settings()
     

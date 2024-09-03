@@ -69,7 +69,7 @@ class MainView(QMainWindow):
 
         self.horizontalLayout_69.addItem(self.horizontalSpacer_21)
 
-        self.measurement_sites = Map2DPlot()
+        self.measurement_sites = Map2DPlot()  # This is a second QMainWIndow as a dock widget
         self.horizontalLayout_69.addWidget(self.measurement_sites)
 
         self.verticalLayout_13.addLayout(self.horizontalLayout_69)
@@ -83,7 +83,6 @@ class MainView(QMainWindow):
 
         self.verticalSpacer_5 = QSpacerItem(20, 40, QSizePolicy.Expanding, QSizePolicy.Minimum)
 
-        self.verticalLayout_13.addItem(self.verticalSpacer_5)
 
         self.view_options = ViewOptions()
 
@@ -186,8 +185,6 @@ class MainView(QMainWindow):
         self.horizontalSpacer_48 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
 
         self.horizontalLayout_13.addItem(self.horizontalSpacer_48)
-
-        self.verticalSpacer_3 = QSpacerItem(20, 40, QSizePolicy.Expanding, QSizePolicy.Minimum)
 
         self.scrollArea_8.setWidget(self.scrollAreaWidgetContents_8)
 
