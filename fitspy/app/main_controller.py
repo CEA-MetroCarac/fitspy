@@ -6,6 +6,7 @@ from fitspy.utils import update_widget_palette
 
 from fitspy.components.plot import PlotController
 from fitspy.components.files import FilesController
+from fitspy.components.settings import SettingsController
 
 class MainController(QObject):
     def __init__(self):
@@ -14,6 +15,7 @@ class MainController(QObject):
         self.model = MainModel()
         self.files_controller = FilesController(self.view.spectrum_list, self.view.maps_list)
         self.plot_controller = PlotController(self.view.measurement_sites)
+        self.settings_controller = SettingsController(self.view.fit_model_editor)
         self.setup_connections()
         self.load_settings()
 

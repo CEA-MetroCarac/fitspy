@@ -1,1 +1,5 @@
-# Class FitModel (Create, Copy, Paste, Edit, Export, Import)
+from PySide6.QtCore import QObject
+
+class Model(QObject):
+    def __init__(self):
+        super().__init__()
