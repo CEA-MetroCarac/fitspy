@@ -39,7 +39,7 @@ extensions = [
     'sphinx.ext.graphviz',
     'sphinx.ext.autosummary',
     'sphinx.ext.autosectionlabel',
-    'matplotlib.sphinxext.plot_directive',
+    # 'matplotlib.sphinxext.plot_directive',
     # 'sphinx_toggleprompt',
     # 'sphinxcontrib.towncrier',
 ]
