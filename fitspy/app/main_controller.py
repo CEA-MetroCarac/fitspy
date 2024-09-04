@@ -12,7 +12,7 @@ class MainController(QObject):
         super().__init__()
         self.view = MainView()
         self.model = MainModel()
-        self.files_controller = FilesController(self.view.spectrum_list)
+        self.files_controller = FilesController(self.view.spectrum_list, self.view.maps_list)
         self.plot_controller = PlotController(self.view.measurement_sites)
         self.setup_connections()
         self.load_settings()
@@ -21,6 +21,9 @@ class MainController(QObject):
         self.view.menuBar.actionLightMode.triggered.connect(self.on_actionLightMode_triggered)
         self.view.menuBar.actionDarkMode.triggered.connect(self.on_actionDarkMode_triggered)
         self.model.themeChanged.connect(self.on_theme_changed)
+
+        self.files_controller.spectraMapInit.connect(self.plot_controller.spectramap_init)
+        self.plot_controller.decodedSpectraMap.connect(self.files_controller.update_spectramap)  # could be simplified : self.files_controller.model.update_spectramap
 
     def load_settings(self):
         self.apply_theme()

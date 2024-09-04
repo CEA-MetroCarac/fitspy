@@ -13,7 +13,8 @@ class SpectrumList(QWidget):
         self.initUI()
 
     def initUI(self):
-        self.label = QLabel("Spectra:")
+        self.title_label = QLabel("Spectrum:")
+        self.count_label = QLabel("")
 
         self.sel_all = QPushButton(icon=QIcon(str(icons / 'select-all.png')))
         self.rm_btn = QPushButton(icon=QIcon(str(icons / 'remove.png')))
@@ -24,7 +25,8 @@ class SpectrumList(QWidget):
         main_layout = QVBoxLayout()
         title_layout = QHBoxLayout()
 
-        title_layout.addWidget(self.label)
+        title_layout.addWidget(self.title_label)
+        title_layout.addWidget(self.count_label)
         title_layout.addStretch()  # horizontal spacer
         title_layout.addWidget(self.sel_all)
         title_layout.addWidget(self.rm_btn)

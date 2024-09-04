@@ -1,14 +1,15 @@
 from PySide6.QtCore import Qt, Signal
-from PySide6.QtWidgets import QListWidget
+from PySide6.QtWidgets import QListWidget, QAbstractItemView
 from PySide6.QtGui import QDragEnterEvent, QDropEvent, QDragLeaveEvent, QPainter, QPalette
 
 class DragAndDropList(QListWidget):
     filesDropped = Signal(list)
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, selection_mode=QListWidget.ExtendedSelection):
         super().__init__(parent)
         self.setAcceptDrops(True)
-        self.setSelectionMode(QListWidget.ExtendedSelection)
+        self.setSelectionMode(selection_mode)
+        self.setSelectionBehavior(QAbstractItemView.SelectItems)
         self.setSelectionRectVisible(True)
         self.drag_active = False
 
