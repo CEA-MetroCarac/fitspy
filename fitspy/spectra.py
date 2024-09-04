@@ -207,6 +207,7 @@ class Spectra(list):
         spectra = []
         for fname in fnames:
             spectrum, _ = self.get_objects(fname)
+            spectrum.reinit()
             spectrum.set_attributes(model_dict)
             spectrum.fname = fname  # reassign the correct fname
             spectra.append(spectrum)
