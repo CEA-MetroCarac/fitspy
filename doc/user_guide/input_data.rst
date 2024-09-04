@@ -7,6 +7,9 @@ Two types of input data can be interpreted:
     - basic single **1D-spectrum**
     - **2D map** spectra
 
+.. note::
+    From the 2024.5, it is possible to load **.dm3, .dm4, .emd, .hspy, .nxs** files and many other formats thanks to the **rosettasciio** readers integration (see `here <https://hyperspy.org/rosettasciio/user_guide/supported_formats/index.html#supported-formats>`_ for more details about the readable formats).
+
 
 1D-spectrum
 -----------

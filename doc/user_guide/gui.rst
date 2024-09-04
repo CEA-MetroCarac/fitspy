@@ -71,9 +71,6 @@ Overall settings
 
 :code:`Apply to All`  applies the (x) support range defined in `X-range` to all the spectra.
 
-:code:`Attractors` are associated with local maxima intensities. When activated, attractors are used for locating baseline and peaks points.
-The attractors points are calculated using scipy.signal.find_peaks() based on the parameters defined in :code:`Settings`.
-Refer to `scipy.signal.find_peaks <https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.find_peaks.html>`_ for more details.
 
 :code:`Outliers Calc` allows defining a line (called in `Fitspy` **outliers_limit**) from which values above are considered as outliers.
 This line is defined as corresponding to the envelope of the spectra multiplied by the :code:`coef` factor.
@@ -91,6 +88,8 @@ Baseline
    <br>
 
 **The current frame is activated and deactivated when clicking on it.**
+
+:code:`Semi-Auto` allows a semi-automatic baseline determination based on the ARPLS (Asymmetrically Reweighted Penalized Least Squares) approach described `here <https://doi.org/10.1039/C4AN01061B>`_. The user only needs to adjust the smoothing coefficient with the slider beside that seems most likely to bring the baseline closest to the desired result.
 
 :code:`Import` enables the user to import their own baseline profiles. The imported file should contain 2 columns associated with the (x,y) coordinates of the baseline points.
 Similar to spectrum profiles, the separators between the columns can be tabulation :code:`\t`, comma :code:`,`, semicolon :code:`;` or space :code:`\ `.
@@ -116,11 +115,7 @@ Normalization
 
 An **optional** spectra normalization is offered and relies on the two following strategies:
 
-* :code:`Maximum`: each spectrum is normalized to 100 based on its maximum intensity.
-
-* :code:`Attractor`: each spectrum is normalized to 100 according to the intensity of the nearest attractor located at the x-position given by the user.
-
-To be effective, the user should press on :code:`Apply to all`.
+* :code:`Maximum`: when activated, each spectrum is normalized to 100 based on its maximum intensity on the :code:`X-range` specified by the user. (None-None refers to no upper and lower x-range delimitation, that is to say all the support is considered).
 
 
 Fitting

@@ -77,12 +77,12 @@ Quick start
 Once the `Fitspy` GUI has opened, from top to bottom of the right panel, the strict minimum operations (in red) for a spectrum fitting consists of:
 
 - (`1 <files_selection.html>`_) **Select file(s) from** :code:`Select Files`  **or**  :code:`Select Dir`
-- (`6 <fitting.html>`_) **Click on the** :code:`Fitting` **panel to activate it (if not)**
-- (`7 <fitting.html>`_) **Select a** :code:`Peak model`
-- (`8 <fitting.html>`_) **Select a peak point on the main figure** *(with left/right click on the figure to add/delete a peak point)*
+- (`5 <fitting.html>`_) **Click on the** :code:`Fitting` **panel to activate it (if not)**
+- (`6 <fitting.html>`_) **Select a** :code:`Peak model`
+- (`7 <fitting.html>`_) **Select a peak point on the main figure** *(with left/right click on the figure to add/delete a peak point)*
 - Repeat the last two actions as needed
-- (`11 <fitting.html>`_) :code:`Fit Selec.` **the spectrum/spectra selected in the files selector widget or** :code:`Fit All` **the spectra**
-- (`12 <fitting.html>`_) :code:`Save Results` (**fitted parameters** and **statistics**)
+- (`10 <fitting.html>`_) :code:`Fit Selec.` **the spectrum/spectra selected in the files selector widget or** :code:`Fit All` **the spectra**
+- (`11 <fitting.html>`_) :code:`Save Results` (**fitted parameters** and **statistics**)
 
 .. figure::  ../_static/workflow.png
    :align:   center

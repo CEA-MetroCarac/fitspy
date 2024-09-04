@@ -1,11 +1,30 @@
 Release Notes
 =============
 
+Version 2024.5 (September 4, 2024)
+----------------------------------
+
+**New features:**
+
+- A semi-automatic approach for the baseline determination has been added
+- The spectra can now be displayed before and after the baseline subtraction
+
+
+**Enhancements:**
+
+- The progressbar (with the number of CPUS used during the calculations) has been integrated in the processing windows.
+- The spectra input data formats have been extended to .dm3, .dm4, .emd, .hspy, .nxs files and many other formats thanks to the rosettasciio readers integration
+
+
+**Bug fixes:**
+
+- Allow fit processing without any peak or background model (just for baselines visualization for instance)
+
 
 Version 2024.4 (February 27, 2024)
 ----------------------------------
 
-New features:
+**New features:**
 
 - noise is now estimated and a noise level criteria enables to automatically deactivate peak models in noisy regions.
 - optional outlier detection has been added, enabling the disregarding of outliers during baseline calculation and fitting processes.
@@ -13,7 +32,7 @@ New features:
 - all fitted parameters from all loaded spectra can now be saved in a single file named 'results.csv'.
 
 
-Enhancements:
+**Enhancements:**
 
 - multi-threaded calculations return now the complete fit report.
 - a new boolean argument, 'reinit_guess', has been added in Spectrum.fit(), enabling the adjustment of initial values for 'ampli' and 'fwhm' to the current spectrum. This helps circumvent "ill-conditioned" peak models (with fwhm~0) resulting from previous 'Fitspy' model calculations.
@@ -21,7 +40,7 @@ Enhancements:
 - parameters and statistics displaying have been separated.
 
 
-Bug fixes:
+**Bug fixes:**
 
 - the index count used to label the models was not reset to 1 when reloading a model
 - 2d-maps with a single X or Y coordinate were not supported
@@ -32,13 +51,13 @@ Bug fixes:
 Version 2024.2 (January 29, 2024)
 ---------------------------------
 
-New features:
+**New features:**
 
 - Add a progressbar in the terminal and in the GUI to follow the calculation progression during the fit processing
 - Enable the loading of user-defined models through dedicated 'Load' buttons in the GUI.
 
 
-Enhancements:
+**Enhancements:**
 
 - Display the models parameters on the figure whatever the fit status
 - Highlight/reduce the peak model curve linewidth according to the fit success status
@@ -46,7 +65,7 @@ Enhancements:
 - Take into account the 'fit_kws' through the 'kwargs' of Spectrum.fit() to be passed to the lmfit Model.fit()
 
 
-Code changes:
+**Code changes:**
 
 - Baseline format/use revisited to disable multiple baselines subtract capability (the 'baseline_history' spectrum attributes has been removed)
 - Spectrum attributes has benn changed from:
@@ -57,7 +76,7 @@ Code changes:
     * 'models_index' to 'peak_index'
 
 
-Bug fixes:
+**Bug fixes:**
 
 - Fixed bug when reloading 'old' model.json in which :code:`bkg_model` was absent
 - Fixed bug when using user-defined model in multithreading
@@ -68,7 +87,7 @@ Bug fixes:
 Version 2024.1 (January 16, 2024)
 ---------------------------------
 
-New features:
+**New features:**
 
 - Add user-defined model capability from external files (in a '.txt' file located in :code:`%HOMEUSER%/Fitspy` for models creation from literal expressions or in a '.py' file from python scripting)
 - Add Fitspy static HTML Sphinx documentation in `https://cea-metrocarac.github.io/fitspy/doc <https://cea-metrocarac.github.io/fitspy/doc/index.html>`_
@@ -76,14 +95,14 @@ New features:
 - Spectra, Spectrum and SpectraMap class have now their own dedicated .py modules
 
 
-Enhancements:
+**Enhancements:**
 
 - Add background visualization and display the corresponding parameters in the tabview
 - Display only the used parameters models in the tabview
 - Add xmin and xmax (optional) arguments to spectrum.load_profile() to ease the x-range setting when loading profiles by python scripts
 
 
-Bug fixes:
+**Bug fixes:**
 
 - Fixed bug for system identification that enables clipboard copy on Windows only
 - Fixed bug on data paths in the examples

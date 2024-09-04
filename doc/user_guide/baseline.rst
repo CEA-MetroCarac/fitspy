@@ -10,9 +10,12 @@ Two approaches are available in `Fitspy` to handle **non-flattened profiles**:
 Baseline approach
 -----------------
 
-This approach involves manually predefining points to establish the baseline profile that will be subtracted before fitting.
+This approach involves either **manually** predefining points to establish the baseline profile that will be subtracted before fitting or a **semi-automatic** algorithm described hereafter.
 
-From the baseline peaks, the profile all along the spectrum support is obtained by interpolation either from **piecewise** or **polynomial** approximations.
+Manual approach
+~~~~~~~~~~~~~~~
+
+From the baseline points, the profile all along the spectrum support is obtained by interpolation either from **piecewise** or **polynomial** approximations.
 
 .. figure::  ../_static/gen_figures_baseline.png
    :align:   center
@@ -25,6 +28,15 @@ This feature allows to adapt the baseline points to the spectrum notably when pr
 
 
 Note that to minimize the impact of noise in the baseline attached-points definition, a smoothing can be considered on the spectra intensities before linking. This smoothing is based on a gaussian filtering considering :code:`sigma` (in pixel) as the standard deviation.
+
+
+Semi-Automatic approach
+~~~~~~~~~~~~~~~~~~~~~~~
+
+From the 2024.5, a semi-automatic algorithm is availabel to evaluate the baseline. Based on the ARPLS (Asymmetrically Reweighted Penalized Least Squares) approach described `here <https://doi.org/10.1039/C4AN01061B>`_. The user only needs to visually adjust the smoothing coefficient that seems most likely to bring the baseline closest to the desired result.
+
+.. figure::  ../_static/baseline_semi_auto.png
+   :align:   center
 
 
 Background model

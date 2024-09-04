@@ -70,8 +70,8 @@ Similarly to noisy areas of outliers, the presence of negative values in the pro
 (The same with :code:`fit_outliers` for outliers and :code:`coef_noise` to bypass regions defined mainly by noise).
 
 
-Multithreading
-~~~~~~~~~~~~~~
+Multi-threading
+~~~~~~~~~~~~~~~
 
 In the GUI, the default mode is **'Number of CPU : auto'** which adapts automatically the number of CPU to the number of profiles to be processed and the CPU capability of the machine (by utilizing up to half of the available CPU resources).
 
