@@ -3,6 +3,7 @@ from .model import Model
 
 class FilesController(QObject):
     spectraMapInit = Signal(str)
+    mapChanged = Signal(str)
 
     def __init__(self, spectrum_list, maps_list):
         super().__init__()
@@ -44,6 +45,7 @@ class FilesController(QObject):
             selected_files = self.model.spectrum_fnames
 
         self.update_list_widget(spectrum_list, selected_files)
+        self.mapChanged.emit(selected_map)
 
     def update_selection(self, list_widget, label_widget):
         """Update the label with the count of selected and total files."""

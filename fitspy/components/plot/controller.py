@@ -13,7 +13,10 @@ class PlotController(QObject):
     def setup_connections(self):
         self.map2d_plot.dock_widget.topLevelChanged.connect(self.map2d_plot.onDockWidgetTopLevelChanged)
         self.model.decodedSpectraMap.connect(self.decodedSpectraMap)
+        self.model.mapSwitched.connect(self.map2d_plot.set_map)
 
-    def spectramap_init(self, file):
-        self.model.spectramap_init(file)
-        
+    def create_map(self, fname):
+        self.model.create_map(fname)
+
+    def switch_map(self, fname):
+        self.model.switch_map(fname)

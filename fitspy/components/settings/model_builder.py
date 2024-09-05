@@ -20,8 +20,6 @@ class Normalization(QGroupBox):
         self.setTitle("Normalization")
         self.setStyleSheet("QGroupBox { font-weight: bold; }")
 
-        label = QLabel("X min/max:")
-
         x_min_input = QDoubleSpinBox()
         x_min_input.setDecimals(2)
         x_min_input.setRange(-9999.99, 9999.99)
@@ -32,7 +30,7 @@ class Normalization(QGroupBox):
 
         normalize_checkbox = QCheckBox("Normalize")
 
-        h_layout.addWidget(label)
+        h_layout.addWidget(QLabel("X min/max:"))
         h_layout.addWidget(x_min_input)
         h_layout.addWidget(QLabel("/"))
         h_layout.addWidget(x_max_input)

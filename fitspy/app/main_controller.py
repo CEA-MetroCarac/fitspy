@@ -24,7 +24,8 @@ class MainController(QObject):
         self.view.menuBar.actionDarkMode.triggered.connect(self.on_actionDarkMode_triggered)
         self.model.themeChanged.connect(self.on_theme_changed)
 
-        self.files_controller.spectraMapInit.connect(self.plot_controller.spectramap_init)
+        self.files_controller.spectraMapInit.connect(self.plot_controller.create_map)
+        self.files_controller.mapChanged.connect(self.plot_controller.switch_map)
         self.plot_controller.decodedSpectraMap.connect(self.files_controller.update_spectramap)  # could be simplified : self.files_controller.model.update_spectramap
 
     def load_settings(self):
