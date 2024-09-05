@@ -1,6 +1,6 @@
 from lmfit.models import (ConstantModel, LinearModel, ParabolicModel,
                           ExponentialModel)
-from .models import (gaussian, lorentzian, gaussian_asym, lorentzian_asym,
+from .utils.models import (gaussian, lorentzian, gaussian_asym, lorentzian_asym,
                            pseudovoigt)
 
 VERSION = "2024.8dev"

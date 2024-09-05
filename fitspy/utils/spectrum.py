@@ -14,11 +14,10 @@ from lmfit.model import ModelResult
 from lmfit.models import ConstantModel, LinearModel, ParabolicModel, \
     ExponentialModel, ExpressionModel  # pylint:disable=unused-import
 
-from fitspy.utils import get_1d_profile
-from fitspy.utils import closest_index, fileparts, check_or_rename
-from fitspy.utils import save_to_json, load_from_json, eval_noise_amplitude
-from fitspy.utils import BaseLine
-from fitspy import PEAK_MODELS, PEAK_PARAMS, BKG_MODELS, FIT_PARAMS
+from .utils import get_1d_profile
+from .utils import closest_index, fileparts, check_or_rename
+from .utils import save_to_json, load_from_json, eval_noise_amplitude
+from .baseline import BaseLine
 
 
 def create_model(model, model_name, prefix=None):
@@ -107,9 +106,8 @@ class Spectrum:
         Object resulting from lmfit fitting. Default value is a 'None' object
         (function) that enables to address a 'result_fit.success' status.
     """
-
     def __init__(self):
-
+        from fitspy import PEAK_MODELS, PEAK_PARAMS, BKG_MODELS, FIT_PARAMS  # pylint:disable=unused-import
         self.fname = None
         self.range_min = None
         self.range_max = None
