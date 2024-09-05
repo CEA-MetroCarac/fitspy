@@ -21,7 +21,7 @@ class MainView(QMainWindow):
 
     def init_ui(self):
         self.setWindowTitle("Fitspy")
-        self.resize(1553, 1019)
+        self.resize(1500, 900)
 
         self.centralwidget = QWidget(self, enabled=True, baseSize=QSize(0, 0))
         self.verticalLayout_15 = QVBoxLayout(self.centralwidget, spacing=0)
@@ -42,7 +42,7 @@ class MainView(QMainWindow):
         self.splitter.setHandleWidth(10)
         self.upper_frame = QFrame(self.splitter)
         self.horizontalLayout_27 = QHBoxLayout(self.upper_frame)
-        self.horizontalLayout_27.setContentsMargins(3, 0, 3, 3)
+        self.horizontalLayout_27.setContentsMargins(0, 0, 0, 0)
         self.Upper_zone = QHBoxLayout()
         self.Upper_zone.setSpacing(0)
         self.verticalLayout_26 = QVBoxLayout()
@@ -64,9 +64,6 @@ class MainView(QMainWindow):
         self.verticalLayout_13 = QVBoxLayout(self.widget_7)
         self.verticalLayout_13.setContentsMargins(2, 0, 2, 0)
         self.horizontalLayout_69 = QHBoxLayout()
-        self.horizontalSpacer_21 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
-
-        self.horizontalLayout_69.addItem(self.horizontalSpacer_21)
 
         self.measurement_sites = Map2DPlot()  # This is a second QMainWIndow as a dock widget
         self.horizontalLayout_69.addWidget(self.measurement_sites)
@@ -120,6 +117,7 @@ class MainView(QMainWindow):
         self.sidebar_layout = QVBoxLayout(self.sidebar)
         self.sidebar_layout.addWidget(self.maps_list)
         self.sidebar_layout.addWidget(self.spectrum_list)
+        self.sidebar.setMaximumWidth(250)
 
         self.main_content = QWidget()
 
@@ -129,6 +127,7 @@ class MainView(QMainWindow):
 
         self.main_splitter.setStretchFactor(0, 1)
         self.main_splitter.setStretchFactor(1, 0)
+        self.main_splitter.setSizes([self.width() - self.sidebar.width(), self.sidebar.width()])
 
         self.gridLayout_5.addWidget(self.main_splitter, 1, 3, 1, 1)
 

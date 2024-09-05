@@ -1,5 +1,6 @@
 from pathlib import Path
 from PySide6.QtGui import QIcon
+from PySide6.QtCore import QSize
 from PySide6.QtWidgets import QWidget, QLabel, QPushButton, QListWidget, QVBoxLayout, QHBoxLayout
 
 from .dragndrop_list import DragAndDropList
@@ -18,8 +19,9 @@ class MapsList(QWidget):
 
         self.deselect_btn = QPushButton(icon=QIcon(str(icons / 'deselect.png')),
                                         toolTip="Deselect all. Go back to default spectrum list.")
+        self.deselect_btn.setIconSize(QSize(20, 20))
         self.rm_btn = QPushButton(icon=QIcon(str(icons / 'remove.png')))
-        self.save_btn = QPushButton(icon=QIcon(str(icons / 'save.png')))
+        self.rm_btn.setIconSize(QSize(20, 20))
 
         self.list = DragAndDropList(selection_mode=QListWidget.SingleSelection)
 
@@ -31,7 +33,6 @@ class MapsList(QWidget):
         title_layout.addStretch()  # horizontal spacer
         title_layout.addWidget(self.deselect_btn)
         title_layout.addWidget(self.rm_btn)
-        title_layout.addWidget(self.save_btn)
 
         main_layout.addLayout(title_layout)
         main_layout.addWidget(self.list)

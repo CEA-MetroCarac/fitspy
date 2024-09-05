@@ -1,5 +1,6 @@
 from pathlib import Path
 from PySide6.QtGui import QIcon
+from PySide6.QtCore import QSize
 from PySide6.QtWidgets import QWidget, QLabel, QPushButton, QVBoxLayout, QHBoxLayout
 
 from .dragndrop_list import DragAndDropList
@@ -17,8 +18,9 @@ class SpectrumList(QWidget):
         self.count_label = QLabel("")
 
         self.sel_all = QPushButton(icon=QIcon(str(icons / 'select-all.png')))
+        self.sel_all.setIconSize(QSize(20, 20))
         self.rm_btn = QPushButton(icon=QIcon(str(icons / 'remove.png')))
-        self.save_btn = QPushButton(icon=QIcon(str(icons / 'save.png')))
+        self.rm_btn.setIconSize(QSize(20, 20))
 
         self.list = DragAndDropList()
 
@@ -30,7 +32,6 @@ class SpectrumList(QWidget):
         title_layout.addStretch()  # horizontal spacer
         title_layout.addWidget(self.sel_all)
         title_layout.addWidget(self.rm_btn)
-        title_layout.addWidget(self.save_btn)
 
         main_layout.addLayout(title_layout)
         main_layout.addWidget(self.list)

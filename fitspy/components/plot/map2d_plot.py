@@ -1,5 +1,7 @@
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QMainWindow, QDockWidget, QWidget, QVBoxLayout, QLabel
+from matplotlib.figure import Figure
+from matplotlib.backends.backend_qtagg import FigureCanvas
 
 class Map2DPlot(QMainWindow):
     def __init__(self, parent=None):
@@ -9,14 +11,17 @@ class Map2DPlot(QMainWindow):
     def initUI(self):
         self.setMinimumSize(300, 300)
 
-        self.dock_widget = QDockWidget("Measurement sites", self)
+        self.dock_widget = QDockWidget("Measurement sites (Drag to undock)", self)
         self.dock_widget.setFeatures(QDockWidget.DockWidgetFloatable | QDockWidget.DockWidgetMovable)
 
         self.dock_container = QWidget()
         self.dock_layout = QVBoxLayout(self.dock_container)
+        self.dock_layout.setContentsMargins(0, 0, 0, 0)
 
-        self.placeholder_label = QLabel("2D Map Plot will be here")
-        self.dock_layout.addWidget(self.placeholder_label)
+        self.figure = Figure(layout='tight')
+        self.ax = self.figure.add_subplot(111)
+        self.canvas = FigureCanvas(self.figure)
+        self.dock_layout.addWidget(self.canvas)
 
         self.dock_widget.setWidget(self.dock_container)
         self.addDockWidget(Qt.RightDockWidgetArea, self.dock_widget)
