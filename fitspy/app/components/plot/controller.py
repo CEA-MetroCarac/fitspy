@@ -12,6 +12,8 @@ class PlotController(QObject):
     
     def setup_connections(self):
         self.map2d_plot.dock_widget.topLevelChanged.connect(self.map2d_plot.onDockWidgetTopLevelChanged)
+        self.map2d_plot.tab_widget.currentChanged.connect(lambda: self.map2d_plot.onTabWidgetCurrentChanged(self.model.current_map))
+        self.map2d_plot.tab_widget.intensity_tab.range_slider.valueChanged.connect(lambda: self.map2d_plot.onTabWidgetCurrentChanged(self.model.current_map))
         self.model.decodedSpectraMap.connect(self.decodedSpectraMap)
         self.model.mapSwitched.connect(self.map2d_plot.set_map)
 

@@ -130,24 +130,29 @@ class SpectraMap(Spectra):
         i = self.xy_map[1].index(y)
         return i, j
 
-    def plot_map(self, ax):
+    def plot_map(self, ax, range_slider=None):
         """ Plot the integrated spectra map intensities on 'ax' """
-
+        ax.clear()
         self.ax = ax
 
         fig = self.ax.get_figure()
-        fig.subplots_adjust(top=0.92)
-        self.ax_slider = fig.add_axes([0.2, 0.92, 0.4, 0.05])
+        # fig.subplots_adjust(top=0.92)
+        # self.ax_slider = fig.add_axes([0.2, 0.92, 0.4, 0.05])
 
         self.img = self.ax.imshow(self.arr, extent=self.extent)
 
-        self.cbar = plt.colorbar(self.img, ax=self.ax)
+        if range_slider is not None:
+            _min, _max = self[0].x0.min(), self[0].x0.max()
+            range_slider.setRange(_min, _max)
+            range_slider.setValue((_min, _max))
 
-        self.xrange = (self[0].x0.min(), self[0].x0.max())
-        self.slider = RangeSlider(self.ax_slider, "X-Range ",
-                                  self.xrange[0], self.xrange[1],
-                                  valinit=self.xrange)
-        self.slider.on_changed(self.plot_map_update)
+        # self.cbar = plt.colorbar(self.img, ax=self.ax)
+
+        # self.xrange = (self[0].x0.min(), self[0].x0.max())
+        # self.slider = RangeSlider(self.ax_slider, "X-Range ",
+                                #   self.xrange[0], self.xrange[1],
+                                #   valinit=self.xrange)
+        # self.slider.on_changed(self.plot_map_update)
         fig.canvas.draw()
 
     def plot_map_update(self, xrange=None, var='Intensity', label='',
@@ -178,7 +183,7 @@ class SpectraMap(Spectra):
             self.img.norm.vmin = vmin
         if vmax is not None:
             self.img.norm.vmax = vmax
-        self.cbar.update_normal(self.img)
+        # self.cbar.update_normal(self.img)
         self.ax.get_figure().canvas.draw()
 
     def export_to_csv(self, fname):

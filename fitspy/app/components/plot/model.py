@@ -9,6 +9,7 @@ class Model(QObject):
     def __init__(self):
         super().__init__()
         self._spectra = Spectra()
+        self.current_map = None
 
     @property
     def spectra(self):
@@ -27,5 +28,6 @@ class Model(QObject):
     def switch_map(self, fname):
         for spectramap in self.spectra.spectra_maps:
             if spectramap.fname == fname:
+                self.current_map = spectramap
                 self.mapSwitched.emit(spectramap)
                 break

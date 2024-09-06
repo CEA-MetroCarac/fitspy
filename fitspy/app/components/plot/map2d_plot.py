@@ -11,9 +11,9 @@ class CommonTab(QWidget):
 
     def initCommonUI(self):
         self.layout = QVBoxLayout(self)
-        # self.layout.setSpacing(0)  # TODO If its not 0 then impossible to redock the dock widget
+        self.layout.setSpacing(3)
         h_layout1 = QHBoxLayout()
-        
+
         x_min_input = QDoubleSpinBox()
         x_min_input.setDecimals(2)
         x_min_input.setRange(-9999.99, 9999.99)
@@ -21,12 +21,7 @@ class CommonTab(QWidget):
         x_max_input.setDecimals(2)
         x_max_input.setRange(-9999.99, 9999.99)
 
-        export_button = QPushButton()#QPushButton("Export .csv")
-        # increase size of button
-        export_button.setFixedSize(72, 10)
-        # export_button.setStyleSheet("QPushButton {min-width: 100px; min-height: 30px;}")
-        # make button as small as possible, fit to text
-        # export_button.setSizePolicy(QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum))
+        export_button = QPushButton("Export .csv")
 
         h_layout1.addWidget(QLabel("Min/Max:"))
         h_layout1.addWidget(x_min_input)
@@ -44,7 +39,7 @@ class IntensityTab(CommonTab):
 
     def initUI(self):
         h_layout2 = QHBoxLayout()
-        # h_layout2.setSpacing(20)
+        h_layout2.setSpacing(10)
         self.range_label = QLabel("X-Range")
         self.range_slider = QRangeSlider()
         self.range_slider.barColor = '#3c94ed'
@@ -91,19 +86,19 @@ class Settings(QTabWidget):
         self.initUI()
 
     def initUI(self):
-        intensity_tab = IntensityTab()
-        x0_tab = x0Tab()
-        fwhml_tab = FWHMLTab()
-        fwhmr_tab = FWHMRTab()
-        alpha_tab = AlphaTab()
+        self.intensity_tab = IntensityTab()
+        self.x0_tab = x0Tab()
+        self.fwhml_tab = FWHMLTab()
+        self.fwhmr_tab = FWHMRTab()
+        self.alpha_tab = AlphaTab()
 
-        self.addTab(intensity_tab, "intensity (sum)")
-        self.addTab(x0_tab, "x0")
-        self.addTab(fwhml_tab, "fwhm_l")
-        self.addTab(fwhmr_tab, "fwhm_r")
-        self.addTab(alpha_tab, "alpha")
+        self.addTab(self.intensity_tab, "Intensity (sum)")
+        self.addTab(self.x0_tab, "x0")
+        self.addTab(self.fwhml_tab, "fwhm_l")
+        self.addTab(self.fwhmr_tab, "fwhm_r")
+        self.addTab(self.alpha_tab, "alpha")
 
-        # self.setMaximumHeight(100)
+        self.setMaximumHeight(120)
         self.setVisible(False)
 
 class Map2DPlot(QMainWindow):
@@ -113,8 +108,6 @@ class Map2DPlot(QMainWindow):
         self.colorbar = None
 
     def initUI(self):
-        # self.setMinimumSize(317, 300)
-
         self.dock_widget = QDockWidget("Measurement sites (Drag to undock)", self)
         self.dock_widget.setFeatures(QDockWidget.DockWidgetFloatable | QDockWidget.DockWidgetMovable)
 
@@ -158,13 +151,16 @@ class Map2DPlot(QMainWindow):
             self.canvas.draw()
 
     def set_map(self, spectramap):
-        self.ax.clear()
-        self.ax.imshow(spectramap.arr, extent=spectramap.extent)
+        spectramap.plot_map(self.ax, range_slider=self.tab_widget.intensity_tab.range_slider)
         if self.dock_widget.isFloating():
             self.add_colorbar()
         else:
             self.remove_colorbar()
-        self.canvas.draw()
+
+    def onTabWidgetCurrentChanged(self, spectramap):
+        xrange = self.tab_widget.intensity_tab.range_slider.value()
+        var = self.tab_widget.tabText(self.tab_widget.currentIndex())
+        spectramap.plot_map_update(xrange=xrange, var=var)
 
 if __name__ == "__main__":
     import sys
