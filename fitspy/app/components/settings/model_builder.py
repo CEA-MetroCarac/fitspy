@@ -6,7 +6,7 @@ from PySide6.QtWidgets import QDoubleSpinBox, QRadioButton, QSlider, QSpinBox, Q
 
 from .peaks_table import PeaksTable
 
-project_root = Path(__file__).resolve().parent.parent.parent
+project_root = Path(__file__).resolve().parent.parent.parent.parent
 icons = project_root / 'resources' / 'iconpack'
 
 class Normalization(QGroupBox):

@@ -3,7 +3,7 @@ from PySide6.QtGui import QIcon
 from PySide6.QtCore import QSize
 from PySide6.QtWidgets import QWidget, QComboBox, QHBoxLayout, QLabel, QRadioButton, QPushButton, QSpacerItem, QSizePolicy
 
-project_root = Path(__file__).resolve().parent.parent.parent
+project_root = Path(__file__).resolve().parent.parent.parent.parent
 icons = project_root / 'resources' / 'iconpack'
 
 class Toolbar(QWidget):

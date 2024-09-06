@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 from matplotlib.widgets import RangeSlider
 from parse import Parser
 
-from fitspy.utils import Spectra, Spectrum, closest_index, get_2d_map
+from fitspy.core import Spectra, Spectrum, closest_index, get_2d_map
 
 POLICY = "{name}  X={x}  Y={y}"
 PARSER = Parser(POLICY)

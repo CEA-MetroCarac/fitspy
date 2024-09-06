@@ -1,6 +1,6 @@
 from PySide6.QtCore import QObject, Signal
 
-from fitspy.utils import Spectra
+from fitspy.core import Spectra
 
 class Model(QObject):
     decodedSpectraMap = Signal(str, list)
@@ -16,7 +16,7 @@ class Model(QObject):
 
     def create_map(self, file):
         """ Create a Spectra object from a file and add it to the spectra list """
-        from fitspy.utils import SpectraMap
+        from fitspy.core import SpectraMap
 
         spectra_map = SpectraMap.load_map(file)
         self.spectra.spectra_maps.append(spectra_map)

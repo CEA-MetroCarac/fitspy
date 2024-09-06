@@ -6,10 +6,10 @@ from PySide6.QtWidgets import (QMainWindow, QCheckBox, QComboBox, QFrame, QGridL
     QSizePolicy, QSpacerItem, QSplitter,
     QTabWidget, QVBoxLayout, QWidget)
 
-from fitspy.components import MenuBar
-from fitspy.components.plot import SpectraPlot, Map2DPlot, Toolbar, ViewOptions
-from fitspy.components.settings import StatusBar, ModelBuilder, FitSettings
-from fitspy.components.files import MapsList, SpectrumList
+from .components import MenuBar
+from .components.plot import SpectraPlot, Map2DPlot, Toolbar, ViewOptions
+from .components.settings import StatusBar, ModelBuilder, FitSettings
+from .components.files import MapsList, SpectrumList
 
 project_root = Path(__file__).resolve().parent.parent
 icons = project_root / 'resources' / 'iconpack'

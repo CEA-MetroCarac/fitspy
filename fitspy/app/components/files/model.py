@@ -1,5 +1,5 @@
 from PySide6.QtCore import QObject, Signal
-from fitspy.utils import get_dim
+from fitspy.core import get_dim
 
 class Model(QObject):
     spectrumListChanged = Signal()

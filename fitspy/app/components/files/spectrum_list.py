@@ -5,7 +5,7 @@ from PySide6.QtWidgets import QWidget, QLabel, QPushButton, QVBoxLayout, QHBoxLa
 
 from .dragndrop_list import DragAndDropList
 
-project_root = Path(__file__).resolve().parent.parent.parent
+project_root = Path(__file__).resolve().parent.parent.parent.parent
 icons = project_root / 'resources' / 'iconpack'
 
 class SpectrumList(QWidget):

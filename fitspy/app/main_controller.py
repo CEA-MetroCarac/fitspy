@@ -2,11 +2,11 @@ from PySide6.QtCore import QObject
 from PySide6.QtWidgets import QApplication
 from .main_model import MainModel
 from .main_view import MainView
-from fitspy.utils import update_widget_palette
+from fitspy.core import update_widget_palette
 
-from fitspy.components.plot import PlotController
-from fitspy.components.files import FilesController
-from fitspy.components.settings import SettingsController
+from .components.plot import PlotController
+from .components.files import FilesController
+from .components.settings import SettingsController
 
 class MainController(QObject):
     def __init__(self):

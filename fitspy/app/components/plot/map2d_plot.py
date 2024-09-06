@@ -1,87 +1,89 @@
 from PySide6.QtCore import Qt
-from PySide6.QtWidgets import QMainWindow, QDockWidget, QWidget, QVBoxLayout, QLabel, QDoubleSpinBox, QHBoxLayout, QTabWidget, QSizePolicy
+from PySide6.QtWidgets import QMainWindow, QDockWidget, QWidget, QVBoxLayout, QLabel, QDoubleSpinBox, QHBoxLayout, QTabWidget, QSizePolicy, QPushButton
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_qtagg import FigureCanvas
 from superqt import QLabeledDoubleRangeSlider as QRangeSlider
 
-class IntensityTab(QWidget):
+class CommonTab(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.initUI()
+        self.initCommonUI()
 
-    def initUI(self):
-        layout = QVBoxLayout(self)
-        # layout.setContentsMargins(0, 0, 0, 0)
-        layout.setSpacing(0)
-
+    def initCommonUI(self):
+        self.layout = QVBoxLayout(self)
+        # self.layout.setSpacing(0)  # TODO If its not 0 then impossible to redock the dock widget
         h_layout1 = QHBoxLayout()
-        # h_layout1.setContentsMargins(0, 0, 0, 0)
-        # h_layout1.setSpacing(0)
-
-        h_layout2 = QHBoxLayout()
-        # h_layout2.setContentsMargins(0, 0, 0, 0)
-        # h_layout2.setSpacing(0)
-
+        
         x_min_input = QDoubleSpinBox()
         x_min_input.setDecimals(2)
         x_min_input.setRange(-9999.99, 9999.99)
-
         x_max_input = QDoubleSpinBox()
         x_max_input.setDecimals(2)
         x_max_input.setRange(-9999.99, 9999.99)
+
+        export_button = QPushButton()#QPushButton("Export .csv")
+        # increase size of button
+        export_button.setFixedSize(72, 10)
+        # export_button.setStyleSheet("QPushButton {min-width: 100px; min-height: 30px;}")
+        # make button as small as possible, fit to text
+        # export_button.setSizePolicy(QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum))
 
         h_layout1.addWidget(QLabel("Min/Max:"))
         h_layout1.addWidget(x_min_input)
         h_layout1.addWidget(QLabel("/"))
         h_layout1.addWidget(x_max_input)
         h_layout1.addStretch()
+        h_layout1.addWidget(export_button)
 
+        self.layout.addLayout(h_layout1)
+
+class IntensityTab(CommonTab):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.initUI()
+
+    def initUI(self):
+        h_layout2 = QHBoxLayout()
+        # h_layout2.setSpacing(20)
         self.range_label = QLabel("X-Range")
         self.range_slider = QRangeSlider()
         self.range_slider.barColor = '#3c94ed'
-        # self.range_slider.setRange(0, 1)
-        # self.range_slider.setValue((0.2, 0.8))
         h_layout2.addWidget(self.range_label)
         h_layout2.addWidget(self.range_slider)
 
-        layout.addLayout(h_layout1)
-        layout.addLayout(h_layout2)
+        self.layout.addLayout(h_layout2)
 
-class x0Tab(QWidget):
+class x0Tab(CommonTab):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.initUI()
 
     def initUI(self):
-        layout = QVBoxLayout(self)
-        layout.addWidget(QLabel("X0"))
+        self.layout.addWidget(QLabel("X0"))
 
-class FWHMLTab(QWidget):
+class FWHMLTab(CommonTab):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.initUI()
 
     def initUI(self):
-        layout = QVBoxLayout(self)
-        layout.addWidget(QLabel("FWHM_L"))
+        self.layout.addWidget(QLabel("FWHM_L"))
 
-class FWHMRTab(QWidget):
+class FWHMRTab(CommonTab):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.initUI()
 
     def initUI(self):
-        layout = QVBoxLayout(self)
-        layout.addWidget(QLabel("FWHM_R"))
+        self.layout.addWidget(QLabel("FWHM_R"))
 
-class AlphaTab(QWidget):
+class AlphaTab(CommonTab):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.initUI()
 
     def initUI(self):
-        layout = QVBoxLayout(self)
-        layout.addWidget(QLabel("Alpha"))
+        self.layout.addWidget(QLabel("Alpha"))
 
 class Settings(QTabWidget):
     def __init__(self, parent=None):
@@ -111,7 +113,7 @@ class Map2DPlot(QMainWindow):
         self.colorbar = None
 
     def initUI(self):
-        self.setMinimumSize(300, 300)
+        # self.setMinimumSize(317, 300)
 
         self.dock_widget = QDockWidget("Measurement sites (Drag to undock)", self)
         self.dock_widget.setFeatures(QDockWidget.DockWidgetFloatable | QDockWidget.DockWidgetMovable)
@@ -157,7 +159,7 @@ class Map2DPlot(QMainWindow):
 
     def set_map(self, spectramap):
         self.ax.clear()
-        spectramap.plot_map(self.ax)
+        self.ax.imshow(spectramap.arr, extent=spectramap.extent)
         if self.dock_widget.isFloating():
             self.add_colorbar()
         else:

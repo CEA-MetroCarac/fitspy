@@ -9,7 +9,7 @@ from scipy.ndimage import gaussian_filter1d
 from scipy import sparse
 from scipy.linalg import cholesky
 
-from fitspy.utils import closest_index
+from fitspy.core import closest_index
 
 
 class BaseLine:
