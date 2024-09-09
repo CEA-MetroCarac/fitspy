@@ -26,6 +26,11 @@ class Model(QObject):
         self.decodedSpectraMap.emit(file, fnames)
 
     def switch_map(self, fname):
+        if fname is None:
+            self.current_map = None
+            self.mapSwitched.emit(None)
+            return
+
         for spectramap in self.spectra.spectra_maps:
             if spectramap.fname == fname:
                 self.current_map = spectramap

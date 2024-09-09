@@ -21,14 +21,14 @@ class CommonTab(QWidget):
         x_max_input.setDecimals(2)
         x_max_input.setRange(-9999.99, 9999.99)
 
-        export_button = QPushButton("Export .csv")
+        self.export_button = QPushButton("Export .csv")
 
         h_layout1.addWidget(QLabel("Min/Max:"))
         h_layout1.addWidget(x_min_input)
         h_layout1.addWidget(QLabel("/"))
         h_layout1.addWidget(x_max_input)
         h_layout1.addStretch()
-        h_layout1.addWidget(export_button)
+        h_layout1.addWidget(self.export_button)
 
         self.layout.addLayout(h_layout1)
 
@@ -151,11 +151,16 @@ class Map2DPlot(QMainWindow):
             self.canvas.draw()
 
     def set_map(self, spectramap):
-        spectramap.plot_map(self.ax, range_slider=self.tab_widget.intensity_tab.range_slider)
-        if self.dock_widget.isFloating():
-            self.add_colorbar()
-        else:
+        if spectramap is None:
+            self.ax.clear()
+            self.canvas.draw()
             self.remove_colorbar()
+        else:
+            spectramap.plot_map(self.ax, range_slider=self.tab_widget.intensity_tab.range_slider)
+            if self.dock_widget.isFloating():
+                self.add_colorbar()
+            else:
+                self.remove_colorbar()
 
     def onTabWidgetCurrentChanged(self, spectramap):
         xrange = self.tab_widget.intensity_tab.range_slider.value()

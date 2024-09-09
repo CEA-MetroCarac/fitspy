@@ -3,7 +3,7 @@ from .model import Model
 
 class FilesController(QObject):
     spectraMapInit = Signal(str)
-    mapChanged = Signal(str)
+    mapChanged = Signal(object)  # Can be a string or None
 
     def __init__(self, spectrum_list, maps_list):
         super().__init__()
@@ -42,6 +42,7 @@ class FilesController(QObject):
             selected_map = selected_items[0].text()
             selected_files = self.model.spectramaps_fnames[selected_map]
         else:
+            selected_map = None
             selected_files = self.model.spectrum_fnames
 
         self.update_list_widget(spectrum_list, selected_files)
