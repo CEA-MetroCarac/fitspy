@@ -2,9 +2,12 @@ from PySide6.QtCore import QObject, Signal
 from fitspy.core import get_dim
 
 class Model(QObject):
-    spectrumListChanged = Signal()
+    spectrumListChanged = Signal(object)
     mapsListChanged = Signal()
-    spectraMapInit = Signal(str)
+    loadSpectraMap = Signal(str)
+    loadSpectrum = Signal(list)
+    delSpectrum = Signal(str)
+    delSpectraMap = Signal(str)
 
     def __init__(self):
         super().__init__()
@@ -18,19 +21,37 @@ class Model(QObject):
     @property
     def spectrum_fnames(self):
         return self._spectrum_fnames
+    
+    def add_spectrum(self, fname):
+        """Add a spectrum to the model and emit signal."""
+        self._spectrum_fnames.append(fname)
+        self.spectrumListChanged.emit(None)
+
+    def del_spectrum(self, fname, spectramap):
+        """Remove a spectrum from the model and emit signal."""
+        if spectramap is not None:
+            self._spectramaps_fnames[spectramap].remove(fname)
+            self.spectrumListChanged.emit(spectramap)
+        else:
+            self._spectrum_fnames.remove(fname)
+            self.spectrumListChanged.emit(None)
 
     def load_spectrum_files(self, files):
         """Load spectrum files and emit signal if new files are added."""
         new_files = [file for file in files if file not in self._spectrum_fnames]
-        self._spectrum_fnames.extend(new_files)
         if new_files:
-            self.spectrumListChanged.emit()
+            self.loadSpectrum.emit(files)
 
     def load_spectramap_files(self, files):
         """Load spectramap files and emit signal for each new file."""
         new_files = [file for file in files if file not in self._spectramaps_fnames]
         for file in new_files:
-            self.spectraMapInit.emit(file)
+            self.loadSpectraMap.emit(file)
+
+    def del_map(self, file):
+        """Remove a spectramap from the model and emit signal."""
+        del self._spectramaps_fnames[file]
+        self.mapsListChanged.emit()
 
     def load_files(self, files):
         """Load files and categorize them as spectrum or spectramap files."""
@@ -50,26 +71,11 @@ class Model(QObject):
 
     def remove_files(self, files):
         """Remove files from the model and emit signals if files are removed."""
-        spectrum_files_removed = False
-        spectramap_files_removed = False
-
-        for file in files:
-            if file in self._spectrum_fnames:  # Remove spectrum
-                self._spectrum_fnames.remove(file)
-                spectrum_files_removed = True
-            if file in self._spectramaps_fnames:  # Remove SpectraMap
-                del self._spectramaps_fnames[file]
-                spectramap_files_removed = True
-
-            for _, spectrum_list in self._spectramaps_fnames.items():  # Remove spectrum from SpectraMap
-                if file in spectrum_list:
-                    spectrum_list.remove(file)
-                    spectramap_files_removed = True
-
-        if spectrum_files_removed:
-            self.spectrumListChanged.emit()
-        if spectramap_files_removed:
-            self.mapsListChanged.emit()
+        if files[0] in self._spectramaps_fnames:  # Remove SpectraMap
+            self.delSpectraMap.emit(files[0])
+        else:
+            for file in files:
+                self.delSpectrum.emit(file)
 
     def update_spectramap(self, file, fnames):
         """Update the spectramap with new filenames and emit signal."""

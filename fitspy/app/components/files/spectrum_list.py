@@ -21,6 +21,8 @@ class SpectrumList(QWidget):
         self.sel_all.setIconSize(QSize(20, 20))
         self.rm_btn = QPushButton(icon=QIcon(str(icons / 'remove.png')))
         self.rm_btn.setIconSize(QSize(20, 20))
+        self.save_btn = QPushButton(icon=QIcon(str(icons / 'save.png')))
+        self.save_btn.setIconSize(QSize(20, 20))
 
         self.list = DragAndDropList()
 
@@ -32,6 +34,7 @@ class SpectrumList(QWidget):
         title_layout.addStretch()  # horizontal spacer
         title_layout.addWidget(self.sel_all)
         title_layout.addWidget(self.rm_btn)
+        title_layout.addWidget(self.save_btn)
 
         main_layout.addLayout(title_layout)
         main_layout.addWidget(self.list)
