@@ -12,21 +12,26 @@ class ViewOptions(QGroupBox):
         grid.setContentsMargins(2, 2, 2, 2)
         grid.setSpacing(1)
 
-        legend_checkbox = QCheckBox("Legend")
-        best_fit_checkbox = QCheckBox("Best-fit")
-        filled_checkbox = QCheckBox("Filled")
-        peaks_checkbox = QCheckBox("Peaks")
-        raw_checkbox = QCheckBox("Raw")
-        residual_checkbox = QCheckBox("Residual")
-        colors_checkbox = QCheckBox("Colors")
+        checkboxes = [
+            ("Legend", "Legend"),
+            ("Fit", "Fit"),
+            ("Negative values", "Negative values"),
+            ("Outliers", "Outliers"),
+            ("Outliers limits", "Outliers limits"),
+            ("Noise level", "Noise level"),
+            ("Baseline", "Baseline"),
+            ("Background", "Background"),
+            ("Residual", "Residual"),
+            ("Peaks", "Peaks"),
+            ("Raw", "Raw"),
+            # ("Filled", "Filled"),
+            # ("Colors", "Colors"),
+        ]
 
-        grid.addWidget(legend_checkbox, 0, 0)
-        grid.addWidget(best_fit_checkbox, 0, 1)
-        grid.addWidget(filled_checkbox, 0, 2)
-        grid.addWidget(peaks_checkbox, 0, 3)
-        grid.addWidget(raw_checkbox, 1, 0)
-        grid.addWidget(residual_checkbox, 1, 1)
-        grid.addWidget(colors_checkbox, 1, 2)
+        for i, (text, tooltip) in enumerate(checkboxes):
+            checkbox = QCheckBox(text)
+            checkbox.setToolTip(tooltip)
+            grid.addWidget(checkbox, i // 4, i % 4)
 
         self.setLayout(grid)
 

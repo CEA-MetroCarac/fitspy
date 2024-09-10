@@ -27,6 +27,9 @@ class FitSettings(QGroupBox):
         vbox = QVBoxLayout()
 
         self.fit_negative_checkbox = QCheckBox("Fit negative values:")
+        self.fit_outliers_checkbox = QCheckBox("Fit outliers:")
+        self.coef_noise_label = QLabel("Coefficient noise:")
+        self.coef_noise_input = QDoubleSpinBox()
         self.max_iterations_label = QLabel("Maximum iterations:")
         self.max_iterations_input = QSpinBox()
         self.fit_method_label = QLabel("Fit method:")
@@ -37,6 +40,13 @@ class FitSettings(QGroupBox):
         self.x_tolerance_input.setDecimals(6)
 
         vbox.addWidget(self.fit_negative_checkbox)
+        vbox.addWidget(self.fit_outliers_checkbox)
+
+        hbox0 = QHBoxLayout()
+        hbox0.addWidget(self.coef_noise_label)
+        hbox0.addWidget(self.coef_noise_input)
+        hbox0.addItem(QSpacerItem(20, 0, QSizePolicy.Expanding, QSizePolicy.Minimum))
+        vbox.addLayout(hbox0)
 
         hbox1 = QHBoxLayout()
         hbox1.addWidget(self.max_iterations_label)
@@ -68,9 +78,9 @@ class FitSettings(QGroupBox):
             self.fit_method_combo.setCurrentText(method_key)
 
         self.fit_negative_checkbox.setChecked(spectrum.fit_params["fit_negative"])
-        # TODO fit_outliers
+        self.fit_outliers_checkbox.setChecked(spectrum.fit_params["fit_outliers"])
         self.max_iterations_input.setValue(spectrum.fit_params["max_ite"])
-        # TODO coef_noise
+        self.coef_noise_input.setValue(spectrum.fit_params["coef_noise"])
         self.x_tolerance_input.setValue(spectrum.fit_params["xtol"])
 
 class MoreSettings(QWidget):
