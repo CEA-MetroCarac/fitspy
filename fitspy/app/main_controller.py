@@ -1,5 +1,5 @@
 from PySide6.QtCore import QObject
-from PySide6.QtWidgets import QApplication
+from PySide6.QtWidgets import QApplication, QCheckBox
 from .main_model import MainModel
 from .main_view import MainView
 from fitspy.core import update_widget_palette
@@ -14,8 +14,8 @@ class MainController(QObject):
         self.view = MainView()
         self.model = MainModel()
         self.files_controller = FilesController(self.view.spectrum_list, self.view.maps_list)
-        self.plot_controller = PlotController(self.view.measurement_sites)
-        self.settings_controller = SettingsController(self.view.fit_model_editor)
+        self.plot_controller = PlotController(self.view.measurement_sites, self.view.view_options)
+        self.settings_controller = SettingsController(self.view.fit_model_editor, self.view.more_settings.fit_settings)
         self.setup_connections()
         self.apply_settings()
 
@@ -39,10 +39,16 @@ class MainController(QObject):
         self.plot_controller.spectrumDeleted.connect(self.files_controller.del_spectrum)
         self.plot_controller.spectraMapDeleted.connect(self.files_controller.del_map)
         self.plot_controller.decodedSpectraMap.connect(self.files_controller.update_spectramap)  # could be simplified : self.files_controller.model.update_spectramap
+        self.plot_controller.settingChanged.connect(self.model.update_setting)
 
     def apply_settings(self):
         self.apply_theme()
         self.view.statusBar.ncpus.setCurrentText(self.model.ncpus)
+
+        for checkbox in self.view.view_options.findChildren(QCheckBox):
+            label = checkbox.text()
+            state = self.model.settings.value(label, False, type=bool)
+            checkbox.setChecked(state)
 
     def on_actionLightMode_triggered(self):
         self.model.theme = "light"

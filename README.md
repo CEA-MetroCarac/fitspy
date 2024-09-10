@@ -10,7 +10,6 @@
 <!-- TODO add github workflows back -->
 <!-- TODO update paper/ -->
 <!-- # TODO : change 'fit_params' from spectrum to spectra attribute (?)
-# TODO : (GUI) remove 'ncpus' from the fit settings
 # TODO : manage callbacks when no files have been loaded
 # TODO : enable remove() with curselection()
 # TODO : auto_eval() with multiprocessing capabilities

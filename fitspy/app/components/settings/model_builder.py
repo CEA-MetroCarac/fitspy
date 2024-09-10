@@ -5,6 +5,7 @@ from PySide6.QtCore import QSize
 from PySide6.QtWidgets import QDoubleSpinBox, QRadioButton, QSlider, QSpinBox, QVBoxLayout, QGroupBox, QHBoxLayout, QScrollArea, QPushButton, QCheckBox, QLabel, QWidget, QComboBox, QSpacerItem, QSizePolicy
 
 from .peaks_table import PeaksTable
+from fitspy import PEAK_MODELS, BKG_MODELS
 
 project_root = Path(__file__).resolve().parent.parent.parent.parent
 icons = project_root / 'resources' / 'iconpack'
@@ -91,8 +92,8 @@ class Baseline(QGroupBox):
 
         self.radio_semi_auto = QRadioButton("Semi-Auto :")
         self.slider = QSlider(Qt.Horizontal)
-        self.slider.setRange(0, 100)
-        self.slider.setValue(50) 
+        self.slider.setRange(0, 10)
+        # self.slider.setValue(5) 
         self.import_button = QPushButton("Import")
 
         self.HLayout1.addWidget(self.radio_semi_auto)
@@ -142,13 +143,14 @@ class Fitting(QGroupBox):
         vbox_layout = QVBoxLayout()
         self.setLayout(vbox_layout)
 
-        self.create_section(vbox_layout, "Peak model:")
-        self.create_section(vbox_layout, "Background model:")
+        self.peak_model_combo = self.create_section(vbox_layout, "Peak model:", PEAK_MODELS.keys())
+        self.background_model_combo = self.create_section(vbox_layout, "Background model:", BKG_MODELS.keys())
 
-    def create_section(self, layout, label_text):
+    def create_section(self, layout, label_text, items=[]):
         label = QLabel(label_text)
         spacer = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
         combo_box = QComboBox()
+        combo_box.addItems(items)
         clear_button = QPushButton("Load")
 
         h_layout = QHBoxLayout()
@@ -161,6 +163,8 @@ class Fitting(QGroupBox):
         h_layout.addWidget(clear_button)
 
         layout.addLayout(h_layout)
+
+        return combo_box
 
 class ModelSettings(QWidget):
     def __init__(self, parent=None):
@@ -276,19 +280,23 @@ class ModelBuilder(QWidget):
             spinbox.setValue(value)
 
     def update_model(self, spectrum):
+        # Spectral range
         self.set_spinbox_value(self.model_settings.spectral_range.x_min_input, spectrum.range_min)
         self.set_spinbox_value(self.model_settings.spectral_range.x_max_input, spectrum.range_max)
 
+        # Baseline
+        self.model_settings.baseline.radio_semi_auto.setChecked(spectrum.baseline.mode == "Semi-Auto")
+        self.model_settings.baseline.radio_linear.setChecked(spectrum.baseline.mode == "Linear")
+        self.model_settings.baseline.radio_polynomial.setChecked(spectrum.baseline.mode == "Polynomial")
+        self.model_settings.baseline.attached.setChecked(spectrum.baseline.attached)
+        self.set_spinbox_value(self.model_settings.baseline.spin_polynomial_order, spectrum.baseline.order_max)
+        self.set_spinbox_value(self.model_settings.baseline.spin_sigma, spectrum.baseline.sigma)
+        self.model_settings.baseline.slider.setValue(spectrum.baseline.coef)
+
+        # Normalization
         self.set_spinbox_value(self.model_settings.normalization.x_min_input, spectrum.normalize_range_min)
         self.set_spinbox_value(self.model_settings.normalization.x_max_input, spectrum.normalize_range_max)
         self.model_settings.normalization.checkbox.setChecked(spectrum.normalize)
-
-        print(spectrum.fit_params)
-        print("baseline mode", spectrum.baseline.mode)
-        print("baseline attached", spectrum.baseline.attached)
-        # self.model_settings.baseline.radio_semi_auto.setChecked(spectrum.baseline.mode == "semi_auto")
-        self.model_settings.baseline.attached.setChecked(spectrum.baseline.attached)
-        
 
 if __name__ == "__main__":
     import sys

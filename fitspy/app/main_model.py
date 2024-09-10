@@ -12,6 +12,9 @@ class MainModel(QObject):
         self._theme = self.settings.value("theme", DEFAULTS["theme"])
         self._ncpus = self.settings.value("ncpus", DEFAULTS["ncpus"])
 
+    def update_setting(self, label, state):
+        self.settings.setValue(label, state)
+
     @property
     def theme(self):
         return self._theme

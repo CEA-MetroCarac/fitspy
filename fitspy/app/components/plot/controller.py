@@ -1,4 +1,5 @@
 from PySide6.QtCore import QObject, Signal
+from PySide6.QtWidgets import QCheckBox
 from .model import Model
 
 class PlotController(QObject):
@@ -6,11 +7,13 @@ class PlotController(QObject):
     spectrumLoaded = Signal(str)
     spectrumDeleted = Signal(str, object)
     spectraMapDeleted = Signal(str)
+    settingChanged = Signal(str, bool)
 
-    def __init__(self, map2d_plot):
+    def __init__(self, map2d_plot, view_options):
         super().__init__()
         self.model = Model()
         self.map2d_plot = map2d_plot
+        self.view_options = view_options
         self.setup_connections()
     
     def setup_connections(self):
@@ -22,6 +25,14 @@ class PlotController(QObject):
         self.model.spectraMapDeleted.connect(self.spectraMapDeleted)
         self.model.decodedSpectraMap.connect(self.decodedSpectraMap)
         self.model.mapSwitched.connect(self.map2d_plot.set_map)
+
+        for checkbox in self.view_options.findChildren(QCheckBox):
+            checkbox.stateChanged.connect(lambda state, cb=checkbox: self.view_option_changed(cb))
+        
+    def view_option_changed(self, checkbox):
+        label = checkbox.text()
+        state = checkbox.isChecked()
+        self.settingChanged.emit(label, state)
 
     def load_map(self, fname):
         self.model.load_map(fname)
