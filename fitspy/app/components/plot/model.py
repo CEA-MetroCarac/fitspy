@@ -1,3 +1,4 @@
+from collections import defaultdict
 from PySide6.QtCore import QObject, Signal
 
 from fitspy.core import Spectra, Spectrum
@@ -6,7 +7,7 @@ class Model(QObject):
     decodedSpectraMap = Signal(str, list)
     mapSwitched = Signal(object)
     spectrumLoaded = Signal(str)
-    spectrumDeleted = Signal(str, object)
+    spectrumDeleted = Signal(object)
     spectraMapDeleted = Signal(str)
 
     def __init__(self):
@@ -26,15 +27,18 @@ class Model(QObject):
             self.spectra.append(spectrum)
             self.spectrumLoaded.emit(fname)
 
-    def del_spectrum(self, fname):
-        """ Remove the spectrum with the given file name """
-        spectrum, parent = self.spectra.get_objects(fname)
-        parent.remove(spectrum)
-        
-        if hasattr(parent, "fname"):
-            self.spectrumDeleted.emit(fname, parent.fname)
-        else:
-            self.spectrumDeleted.emit(fname, None)
+    def del_spectrum(self, fnames):
+        """Remove the spectrum(s) with the given file name(s)."""
+        deleted_spectra = defaultdict(list)
+
+        for fname in fnames:
+            spectrum, parent = self.spectra.get_objects(fname)
+            parent.remove(spectrum)
+
+            parent_fname = getattr(parent, "fname", None)
+            deleted_spectra[parent_fname].append(fname)
+
+        self.spectrumDeleted.emit(deleted_spectra)
 
     def load_map(self, file):
         """ Create a Spectra object from a file and add it to the spectra list """
@@ -68,4 +72,4 @@ class Model(QObject):
     
     def update_spectraplot(self, files):
         """ Update the plot with the given list of file names """
-        print("update_spectraplot", files)
+        print('update_spectraplot')

@@ -4,7 +4,7 @@ from .model import Model
 class FilesController(QObject):
     loadSpectrum = Signal(list)
     loadSpectraMap = Signal(str)
-    delSpectrum = Signal(str)
+    delSpectrum = Signal(list)
     delSpectraMap = Signal(str)
     mapChanged = Signal(object)  # Can be a string or None
     spectraPlotChanged = Signal(list)
@@ -39,8 +39,8 @@ class FilesController(QObject):
     def add_spectrum(self, fname):
         self.model.add_spectrum(fname)
 
-    def del_spectrum(self, fname, spectramap=None):
-        self.model.del_spectrum(fname, spectramap)
+    def del_spectrum(self, items):
+        self.model.del_spectrum(items)
 
     def del_map(self, fname):
         self.model.del_map(fname)
@@ -60,6 +60,9 @@ class FilesController(QObject):
         # Determine items to add and remove
         items_to_add = new_items - current_items
         items_to_remove = current_items - new_items
+
+        # Block signals to prevent multiple onSelectionUpdate calls
+        list_widget.blockSignals(True)
         
         # Remove items
         for i in range(list_widget.count() - 1, -1, -1):
@@ -71,9 +74,14 @@ class FilesController(QObject):
         for file_path in items_to_add:
             list_widget.addItem(file_path)
 
+        # Unblock signals after updating
+        list_widget.blockSignals(False)
+
         # Auto select the first item if none are selected
         if not list_widget.selectedItems() and list_widget.count():
             list_widget.setCurrentRow(0)
+        elif list_widget.count() == 0:
+            list_widget.itemSelectionChanged.emit()
 
     def update_map_selection(self, maps_list, spectrum_list):
         selected_items = maps_list.selectedItems()
@@ -94,7 +102,7 @@ class FilesController(QObject):
         selected_count = len(list_widget.selectedItems())
         label_widget.setText(f"{selected_count}/{total_count}")
         self.spectraPlotChanged.emit(fnames)
-        self.currentModelChanged.emit(fnames[0])
+        self.currentModelChanged.emit(fnames)
 
     def remove_selected_files(self, list_widget):
         """Remove the currently selected files from the model."""

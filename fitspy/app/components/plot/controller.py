@@ -5,7 +5,7 @@ from .model import Model
 class PlotController(QObject):
     decodedSpectraMap = Signal(str, list)
     spectrumLoaded = Signal(str)
-    spectrumDeleted = Signal(str, object)
+    spectrumDeleted = Signal(object)
     spectraMapDeleted = Signal(str)
     settingChanged = Signal(str, bool)
 
@@ -43,8 +43,8 @@ class PlotController(QObject):
     def load_spectrum(self, fnames):
         self.model.load_spectrum(fnames)
 
-    def del_spectrum(self, fname):
-        self.model.del_spectrum(fname)
+    def del_spectrum(self, fnames):
+        self.model.del_spectrum(fnames)
 
     def del_map(self, fname):
         self.model.del_map(fname)

@@ -72,6 +72,7 @@ class MainController(QObject):
     def set_ncpus(self, ncpus):
         self.model.ncpus = ncpus
 
-    def change_current_fit_model(self, fname):
-        spectrum = self.plot_controller.get_spectrum(fname)
-        self.settings_controller.set_model(spectrum)
+    def change_current_fit_model(self, fnames):
+        if fnames:
+            spectrum = self.plot_controller.get_spectrum(fnames[0])
+            self.settings_controller.set_model(spectrum)
