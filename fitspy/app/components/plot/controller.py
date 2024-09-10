@@ -40,3 +40,6 @@ class PlotController(QObject):
 
     def update_spectraplot(self, files):
         self.model.update_spectraplot(files)
+
+    def get_spectrum(self, fname):
+        return self.model.spectra.get_objects(fname)[0]

@@ -20,21 +20,21 @@ class Normalization(QGroupBox):
         self.setTitle("Normalization")
         self.setStyleSheet("QGroupBox { font-weight: bold; }")
 
-        x_min_input = QDoubleSpinBox()
-        x_min_input.setDecimals(2)
-        x_min_input.setRange(-9999.99, 9999.99)
+        self.x_min_input = QDoubleSpinBox()
+        self.x_min_input.setDecimals(2)
+        self.x_min_input.setRange(-9999.99, 9999.99)
 
-        x_max_input = QDoubleSpinBox()
-        x_max_input.setDecimals(2)
-        x_max_input.setRange(-9999.99, 9999.99)
+        self.x_max_input = QDoubleSpinBox()
+        self.x_max_input.setDecimals(2)
+        self.x_max_input.setRange(-9999.99, 9999.99)
 
-        normalize_checkbox = QCheckBox("Normalize")
+        self.checkbox = QCheckBox("Normalize")
 
         h_layout.addWidget(QLabel("X min/max:"))
-        h_layout.addWidget(x_min_input)
+        h_layout.addWidget(self.x_min_input)
         h_layout.addWidget(QLabel("/"))
-        h_layout.addWidget(x_max_input)
-        h_layout.addWidget(normalize_checkbox)
+        h_layout.addWidget(self.x_max_input)
+        h_layout.addWidget(self.checkbox)
 
 
 class SpectralRange(QGroupBox):
@@ -55,20 +55,20 @@ class SpectralRange(QGroupBox):
 
         label = QLabel("X min/max:")
 
-        x_min_input = QDoubleSpinBox()
-        x_min_input.setDecimals(2)
-        x_min_input.setRange(-9999.99, 9999.99)
+        self.x_min_input = QDoubleSpinBox()
+        self.x_min_input.setDecimals(2)
+        self.x_min_input.setRange(-9999.99, 9999.99)
 
-        x_max_input = QDoubleSpinBox()
-        x_max_input.setDecimals(2)
-        x_max_input.setRange(-9999.99, 9999.99)
+        self.x_max_input = QDoubleSpinBox()
+        self.x_max_input.setDecimals(2)
+        self.x_max_input.setRange(-9999.99, 9999.99)
 
         apply_button = QPushButton("Apply")
 
         h_layout.addWidget(label)
-        h_layout.addWidget(x_min_input)
+        h_layout.addWidget(self.x_min_input)
         h_layout.addWidget(QLabel("/"))
-        h_layout.addWidget(x_max_input)
+        h_layout.addWidget(self.x_max_input)
         h_layout.addWidget(apply_button)
 
         vbox_layout.addLayout(h_layout)
@@ -268,6 +268,20 @@ class ModelBuilder(QWidget):
         layout = QHBoxLayout(self)
         layout.addWidget(self.model_settings)
         layout.addLayout(vbox_layout)
+        
+    def set_spinbox_value(self, spinbox, value):
+        if value is None:
+            spinbox.clear()
+        else:
+            spinbox.setValue(value)
+
+    def update_model(self, spectrum):
+        self.set_spinbox_value(self.model_settings.spectral_range.x_min_input, spectrum.range_min)
+        self.set_spinbox_value(self.model_settings.spectral_range.x_max_input, spectrum.range_max)
+        self.set_spinbox_value(self.model_settings.normalization.x_min_input, spectrum.normalize_range_min)
+        self.set_spinbox_value(self.model_settings.normalization.x_max_input, spectrum.normalize_range_max)
+    
+        self.model_settings.normalization.checkbox.setChecked(spectrum.normalize)
 
 if __name__ == "__main__":
     import sys

@@ -8,6 +8,7 @@ class FilesController(QObject):
     delSpectraMap = Signal(str)
     mapChanged = Signal(object)  # Can be a string or None
     spectraPlotChanged = Signal(list)
+    currentModelChanged = Signal(str)
 
     def __init__(self, spectrum_list, maps_list):
         super().__init__()
@@ -93,6 +94,7 @@ class FilesController(QObject):
         selected_count = len(list_widget.selectedItems())
         label_widget.setText(f"{selected_count}/{total_count}")
         self.spectraPlotChanged.emit(fnames)
+        self.currentModelChanged.emit(fnames[0])
 
     def remove_selected_files(self, list_widget):
         """Remove the currently selected files from the model."""

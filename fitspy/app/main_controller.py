@@ -22,6 +22,7 @@ class MainController(QObject):
     def setup_connections(self):
         self.view.menuBar.actionLightMode.triggered.connect(self.on_actionLightMode_triggered)
         self.view.menuBar.actionDarkMode.triggered.connect(self.on_actionDarkMode_triggered)
+        self.view.statusBar.ncpus.currentTextChanged.connect(self.set_ncpus)
         self.model.themeChanged.connect(self.on_theme_changed)
 
         self.files_controller.loadSpectrum.connect(self.plot_controller.load_spectrum)
@@ -30,6 +31,7 @@ class MainController(QObject):
         self.files_controller.delSpectraMap.connect(self.plot_controller.del_map)
         self.files_controller.spectraPlotChanged.connect(self.plot_controller.update_spectraplot)
         self.files_controller.mapChanged.connect(self.plot_controller.switch_map)
+        self.files_controller.currentModelChanged.connect(self.change_current_fit_model)
 
         self.plot_controller.spectrumLoaded.connect(self.files_controller.add_spectrum)
         self.plot_controller.spectrumDeleted.connect(self.files_controller.del_spectrum)
@@ -38,6 +40,7 @@ class MainController(QObject):
 
     def load_settings(self):
         self.apply_theme()
+        self.view.statusBar.ncpus.setCurrentText(self.model.ncpus)
 
     def on_actionLightMode_triggered(self):
         self.model.theme = "light"
@@ -57,3 +60,10 @@ class MainController(QObject):
 
     def on_theme_changed(self):
         self.apply_theme()
+
+    def set_ncpus(self, ncpus):
+        self.model.ncpus = ncpus
+
+    def change_current_fit_model(self, fname):
+        spectrum = self.plot_controller.get_spectrum(fname)
+        self.settings_controller.set_model(spectrum)

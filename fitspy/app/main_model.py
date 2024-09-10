@@ -1,4 +1,3 @@
-# main_model.py
 from PySide6.QtCore import QObject, Signal, Qt, QSettings
 from PySide6.QtGui import QColor, QPalette
 
@@ -7,8 +6,10 @@ class MainModel(QObject):
 
     def __init__(self):
         super().__init__()
-        self.settings = QSettings("CEA-MetroCarac", "Fitspy")
+        self.settings = QSettings("CEA-MetroCarac", "Fitspy")  # these are stored in registry
+        # self.settings.clear()
         self._theme = self.settings.value("theme", "dark")
+        self._ncpus = self.settings.value("ncpus", "Auto")
 
     @property
     def theme(self):
@@ -20,6 +21,19 @@ class MainModel(QObject):
             self._theme = value
             self.settings.setValue("theme", value)
             self.themeChanged.emit()
+
+    @property
+    def ncpus(self):
+        return self._ncpus
+
+    @ncpus.setter
+    def ncpus(self, value):
+        if value == "Auto" or value.isdigit():
+            if value != self._ncpus:
+                self._ncpus = value
+                self.settings.setValue("ncpus", value)
+        else:
+            raise ValueError("ncpus must be 'Auto' or a string representing a positive integer")
 
     def dark_palette(self):
         """Palette color for dark mode of the appli's GUI"""

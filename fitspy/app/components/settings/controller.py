@@ -9,4 +9,7 @@ class SettingsController(QObject):
         self.setup_connections()
 
     def setup_connections(self):
-        pass
+        self.model.currentModelChanged.connect(self.model_builder.update_model)
+
+    def set_model(self, spectrum):
+        self.model.current_fit_model = spectrum

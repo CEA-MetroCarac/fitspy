@@ -8,13 +8,12 @@ dynamic = ["version"]
 authors = [{ name = "Patrick Quéméré", email = "patrick.quemere@cea.fr" }]
 description = "Fitspy: a generic tool to fit spectra in python"
 readme = "README.md"
-requires-python = ">=3.7"
+requires-python = ">=3.8"
 keywords = ["Fitspy", "fit", "spectra", "spectrum", "map", "1D", "2D",
     "decomposition", "Gaussian", "Lorentzian", "Pseudovoigt", "GUI"]
 license = { text = "GPL v3" }
 classifiers = [
     'Programming Language :: Python :: 3',
-    'Programming Language :: Python :: 3.7',
     'Programming Language :: Python :: 3.8',
     'Programming Language :: Python :: 3.9',
     'Programming Language :: Python :: 3.10',
@@ -35,11 +34,12 @@ dependencies = [
     "parse",
     "dill",
     "superqt",
+    "rosettasciio",
     "pywin32; platform_system == 'Windows'",
 ]
 
 [project.scripts]
-fitspy = "fitspy.main:main"
+fitspy = "fitspy.app.main:main"
 
 [tool.setuptools]
 include-package-data = false
