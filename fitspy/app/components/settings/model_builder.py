@@ -115,11 +115,11 @@ class Baseline(QGroupBox):
         self.HLayout3.setSpacing(5)
         self.HLayout3.setContentsMargins(0, 0, 0, 0)
 
-        self.checkbox_attached = QCheckBox("Attached")
+        self.attached = QCheckBox("Attached")
         self.label_sigma = QLabel("Sigma (smoothing):")
         self.spin_sigma = QSpinBox()
 
-        self.HLayout3.addWidget(self.checkbox_attached)
+        self.HLayout3.addWidget(self.attached)
         self.HLayout3.addWidget(self.label_sigma)
         self.HLayout3.addWidget(self.spin_sigma)
 
@@ -278,10 +278,17 @@ class ModelBuilder(QWidget):
     def update_model(self, spectrum):
         self.set_spinbox_value(self.model_settings.spectral_range.x_min_input, spectrum.range_min)
         self.set_spinbox_value(self.model_settings.spectral_range.x_max_input, spectrum.range_max)
+
         self.set_spinbox_value(self.model_settings.normalization.x_min_input, spectrum.normalize_range_min)
         self.set_spinbox_value(self.model_settings.normalization.x_max_input, spectrum.normalize_range_max)
-    
         self.model_settings.normalization.checkbox.setChecked(spectrum.normalize)
+
+        print(spectrum.fit_params)
+        print("baseline mode", spectrum.baseline.mode)
+        print("baseline attached", spectrum.baseline.attached)
+        # self.model_settings.baseline.radio_semi_auto.setChecked(spectrum.baseline.mode == "semi_auto")
+        self.model_settings.baseline.attached.setChecked(spectrum.baseline.attached)
+        
 
 if __name__ == "__main__":
     import sys

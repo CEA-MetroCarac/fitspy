@@ -17,13 +17,15 @@ class MainController(QObject):
         self.plot_controller = PlotController(self.view.measurement_sites)
         self.settings_controller = SettingsController(self.view.fit_model_editor)
         self.setup_connections()
-        self.load_settings()
+        self.apply_settings()
 
     def setup_connections(self):
+        self.view.menuBar.actionRestoreDefaults.triggered.connect(self.model.restore_defaults)
         self.view.menuBar.actionLightMode.triggered.connect(self.on_actionLightMode_triggered)
         self.view.menuBar.actionDarkMode.triggered.connect(self.on_actionDarkMode_triggered)
         self.view.statusBar.ncpus.currentTextChanged.connect(self.set_ncpus)
         self.model.themeChanged.connect(self.on_theme_changed)
+        self.model.defaultsRestored.connect(self.apply_settings)
 
         self.files_controller.loadSpectrum.connect(self.plot_controller.load_spectrum)
         self.files_controller.loadSpectraMap.connect(self.plot_controller.load_map)
@@ -38,7 +40,7 @@ class MainController(QObject):
         self.plot_controller.spectraMapDeleted.connect(self.files_controller.del_map)
         self.plot_controller.decodedSpectraMap.connect(self.files_controller.update_spectramap)  # could be simplified : self.files_controller.model.update_spectramap
 
-    def load_settings(self):
+    def apply_settings(self):
         self.apply_theme()
         self.view.statusBar.ncpus.setCurrentText(self.model.ncpus)
 

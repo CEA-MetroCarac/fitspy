@@ -8,7 +8,7 @@ from PySide6.QtWidgets import (QMainWindow, QCheckBox, QComboBox, QFrame, QGridL
 
 from .components import MenuBar
 from .components.plot import SpectraPlot, Map2DPlot, Toolbar, ViewOptions
-from .components.settings import StatusBar, ModelBuilder, FitSettings
+from .components.settings import StatusBar, ModelBuilder, MoreSettings
 from .components.files import MapsList, SpectrumList
 
 project_root = Path(__file__).resolve().parent.parent
@@ -95,14 +95,11 @@ class MainView(QMainWindow):
         self.tabWidget_2 = QTabWidget(self.bottom_widget_2)
         self.tabWidget_2.setEnabled(True)
 
-        self.scrollAreaWidgetContents_3 = QWidget()
-        self.scrollAreaWidgetContents_3.setGeometry(QRect(0, 0, 428, 356))
-
         self.fit_model_editor = ModelBuilder()
         self.tabWidget_2.addTab(self.fit_model_editor, "Fit Model Builder")
 
-        self.fit_settings = FitSettings()
-        self.tabWidget_2.addTab(self.fit_settings, "More Settings")
+        self.more_settings = MoreSettings()
+        self.tabWidget_2.addTab(self.more_settings, "More Settings")
 
         self.verticalLayout_25.addWidget(self.tabWidget_2)
 

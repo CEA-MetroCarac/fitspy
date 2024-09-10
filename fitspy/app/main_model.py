@@ -1,15 +1,16 @@
 from PySide6.QtCore import QObject, Signal, Qt, QSettings
 from PySide6.QtGui import QColor, QPalette
+from fitspy import DEFAULTS
 
 class MainModel(QObject):
     themeChanged = Signal()
+    defaultsRestored = Signal()
 
     def __init__(self):
         super().__init__()
         self.settings = QSettings("CEA-MetroCarac", "Fitspy")  # these are stored in registry
-        # self.settings.clear()
-        self._theme = self.settings.value("theme", "dark")
-        self._ncpus = self.settings.value("ncpus", "Auto")
+        self._theme = self.settings.value("theme", DEFAULTS["theme"])
+        self._ncpus = self.settings.value("ncpus", DEFAULTS["ncpus"])
 
     @property
     def theme(self):
@@ -72,3 +73,9 @@ class MainModel(QObject):
         light_palette.setColor(QPalette.HighlightedText, Qt.black)
         light_palette.setColor(QPalette.PlaceholderText, QColor(150, 150, 150))
         return light_palette
+    
+    def restore_defaults(self):
+        self.settings.clear()
+        self._theme = DEFAULTS["theme"]
+        self.ncpus = DEFAULTS["ncpus"]
+        self.defaultsRestored.emit()

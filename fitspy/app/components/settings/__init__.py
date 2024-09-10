@@ -1,4 +1,4 @@
 from .controller import SettingsController
 from .status_bar import StatusBar
 from .model_builder import ModelBuilder
-from .fit_settings import FitSettings
+from .more_settings import MoreSettings

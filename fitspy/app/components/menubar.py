@@ -42,10 +42,15 @@ class MenuBar(QToolBar):
             icon=QIcon(str(icons / "save.png")),
             toolTip="Save current work",
         )
-        self.actionClear_env = QAction(
+        self.actionClearEnv = QAction(
             self,
             icon=QIcon(str(icons / "clear.png")),
             toolTip="Clear the environment",
+        )
+        self.actionRestoreDefaults = QAction(
+            self,
+            icon=QIcon(str(icons / "reinit_settings.png")),
+            toolTip="Restore default settings",
         )
 
         self.setMinimumSize(QSize(0, 0))
@@ -55,7 +60,7 @@ class MenuBar(QToolBar):
         self.setFloatable(False)
 
         actions = [
-            self.actionOpen, self.actionSave, self.actionClear_env,
+            self.actionOpen, self.actionSave, self.actionClearEnv, self.actionRestoreDefaults,
             None,  # Separator
             QWidget(self),  # Spacer
             self.actionDarkMode, self.actionLightMode,
