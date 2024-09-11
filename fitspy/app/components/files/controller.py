@@ -4,11 +4,12 @@ from .model import Model
 class FilesController(QObject):
     loadSpectrum = Signal(list)
     loadSpectraMap = Signal(str)
-    delSpectrum = Signal(list)
+    delSpectrum = Signal(object, list)
     delSpectraMap = Signal(str)
     mapChanged = Signal(object)  # Can be a string or None
     spectraPlotChanged = Signal(list)
     currentModelChanged = Signal(str)
+    addMarker = Signal(str)
 
     def __init__(self, spectrum_list, maps_list):
         super().__init__()
@@ -19,6 +20,8 @@ class FilesController(QObject):
         self.setup_connections()
 
     def setup_connections(self):
+        self.mapChanged.connect(self.model.set_current_map)
+
         self.model.loadSpectrum.connect(self.loadSpectrum)
         self.model.loadSpectraMap.connect(self.loadSpectraMap)
         self.model.delSpectrum.connect(self.delSpectrum)
@@ -92,10 +95,11 @@ class FilesController(QObject):
             selected_map = None
             selected_files = self.model.spectrum_fnames
 
-        self.update_list_widget(spectrum_list, selected_files)
         self.mapChanged.emit(selected_map)
+        self.update_list_widget(spectrum_list, selected_files)
+        spectrum_list.itemSelectionChanged.emit()
 
-    def update_selection(self, list_widget, label_widget):
+    def update_selection(self, list_widget, label_widget, emit_marker=True):
         """Update Plot and count label when the selection changes."""
         fnames = [item.text() for item in list_widget.selectedItems()]
         total_count = list_widget.count()
@@ -103,6 +107,8 @@ class FilesController(QObject):
         label_widget.setText(f"{selected_count}/{total_count}")
         self.spectraPlotChanged.emit(fnames)
         self.currentModelChanged.emit(fnames)
+        if emit_marker and fnames:
+            self.addMarker.emit(fnames[0])
 
     def remove_selected_files(self, list_widget):
         """Remove the currently selected files from the model."""
@@ -112,3 +118,17 @@ class FilesController(QObject):
     def update_spectramap(self, file, fnames):
         """Update the lists widgets with the spectra related to the 2D-map."""
         self.model.update_spectramap(file, fnames)
+
+    def highlight_spectrum(self, fname):
+        """Select the given spectrum in the list widget."""
+        list_widget = self.spectrum_list.list
+        
+        for i in range(list_widget.count()):
+            item = list_widget.item(i)
+            if item.text() == fname:
+                list_widget.blockSignals(True)
+                # list_widget.clearSelection()
+                list_widget.setCurrentItem(item)
+                list_widget.blockSignals(False)
+                self.update_selection(list_widget, self.spectrum_list.count_label, emit_marker=False)
+                break

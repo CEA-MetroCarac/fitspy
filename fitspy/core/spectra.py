@@ -61,18 +61,24 @@ class Spectra(list):
             intensity.append(spectrum.y0)
         return np.asarray(intensity)
 
-    def get_objects(self, fname):
+    def get_objects(self, fname, parent=None):
         """ Return spectrum and parent (spectra or spectra map)
-            related to 'fname' """
+            related to 'fname'. If 'parent' is provided, look for 'fname'
+            in the provided spectra_map. Otherwise, look in self. """
 
-        fnames = [spectrum.fname for spectrum in self]
-        if fname in fnames:
-            return self[fnames.index(fname)], self
-
-        for spectra_map in self.spectra_maps:
-            fnames = [spectrum.fname for spectrum in spectra_map]
+        if parent is not None:
+            fnames = [spectrum.fname for spectrum in parent]
             if fname in fnames:
-                return spectra_map[fnames.index(fname)], spectra_map
+                return parent[fnames.index(fname)], parent
+        else:
+            fnames = [spectrum.fname for spectrum in self]
+            if fname in fnames:
+                return self[fnames.index(fname)], self
+
+            for spectra_map in self.spectra_maps:
+                fnames = [spectrum.fname for spectrum in spectra_map]
+                if fname in fnames:
+                    return spectra_map[fnames.index(fname)], spectra_map
 
         print(f"{fname} not found in spectra")
         return None, None

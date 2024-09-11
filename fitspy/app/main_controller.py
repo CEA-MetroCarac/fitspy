@@ -34,12 +34,14 @@ class MainController(QObject):
         self.files_controller.spectraPlotChanged.connect(self.plot_controller.update_spectraplot)
         self.files_controller.mapChanged.connect(self.plot_controller.switch_map)
         self.files_controller.currentModelChanged.connect(self.change_current_fit_model)
+        self.files_controller.addMarker.connect(self.plot_controller.set_marker)
 
         self.plot_controller.spectrumLoaded.connect(self.files_controller.add_spectrum)
         self.plot_controller.spectrumDeleted.connect(self.files_controller.del_spectrum)
         self.plot_controller.spectraMapDeleted.connect(self.files_controller.del_map)
         self.plot_controller.decodedSpectraMap.connect(self.files_controller.update_spectramap)  # could be simplified : self.files_controller.model.update_spectramap
         self.plot_controller.settingChanged.connect(self.model.update_setting)
+        self.plot_controller.highlightSpectrum.connect(self.files_controller.highlight_spectrum)
 
     def apply_settings(self):
         self.apply_theme()

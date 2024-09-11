@@ -27,12 +27,17 @@ class Model(QObject):
             self.spectra.append(spectrum)
             self.spectrumLoaded.emit(fname)
 
-    def del_spectrum(self, fnames):
+    def del_spectrum(self, map_fname, fnames):
         """Remove the spectrum(s) with the given file name(s)."""
         deleted_spectra = defaultdict(list)
 
+        if map_fname:
+            parent = next((sm for sm in self.spectra.spectra_maps if sm.fname == map_fname), None)
+        else:
+            parent = self.spectra
+        
         for fname in fnames:
-            spectrum, parent = self.spectra.get_objects(fname)
+            spectrum = self.spectra.get_objects(fname, parent)[0]
             parent.remove(spectrum)
 
             parent_fname = getattr(parent, "fname", None)

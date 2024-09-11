@@ -9,7 +9,7 @@ from parse import Parser
 
 from fitspy.core import Spectra, Spectrum, closest_index, get_2d_map
 
-POLICY = "{name}  X={x}  Y={y}"
+POLICY = "X={x}  Y={y}"
 PARSER = Parser(POLICY)
 
 
@@ -97,7 +97,7 @@ class SpectraMap(Spectra):
         for vals in arr[1:]:
             # create the related spectrum object
             spectrum = Spectrum()
-            spectrum.fname = POLICY.format(name=fname, x=vals[1], y=vals[0])
+            spectrum.fname = POLICY.format(x=vals[1], y=vals[0])
             intensity = vals[2:][inds]
             spectrum.x = x
             spectrum.y = intensity
@@ -185,6 +185,49 @@ class SpectraMap(Spectra):
             self.img.norm.vmax = vmax
         # self.cbar.update_normal(self.img)
         self.ax.get_figure().canvas.draw()
+
+    def remove_markers(self, canvas=None):
+        """ Remove all markers in the 2D-map """
+        if canvas is None:
+            fig = self.ax.get_figure()
+            canvas = fig.canvas
+
+        if hasattr(self, 'marker') and self.marker is not None:
+            [x.remove() for x in self.marker]
+            canvas.draw()
+            self.marker = None
+
+    def set_marker(self, spectrum_or_fname_or_coords, canvas=None):
+        """
+        Set a marker on the plot.
+
+        Parameters:
+        spectrum_or_fname_or_coords: Can be a spectrum object, a spectrum fname, or a tuple (x, y).
+        """
+        if canvas is None:
+            fig = self.ax.get_figure()
+            canvas = fig.canvas
+
+        self.remove_markers(canvas)
+
+        if isinstance(spectrum_or_fname_or_coords, tuple) and len(spectrum_or_fname_or_coords) == 2:
+            x, y = spectrum_or_fname_or_coords
+            x = self.xy_map[0][closest_index(self.xy_map[0], x)]
+            y = self.xy_map[1][closest_index(self.xy_map[1], y)]
+            self.marker = self.ax.plot(x, y, 'rs', ms=9, mfc='none')
+            canvas.draw()
+            return f"X={x}  Y={y}"
+        else:
+            if isinstance(spectrum_or_fname_or_coords, str):
+                spectrum = self.get_objects(spectrum_or_fname_or_coords)[0]
+            else:
+                spectrum = spectrum_or_fname_or_coords
+
+            x, y = self.spectrum_coords(spectrum)
+
+        self.marker = self.ax.plot(x, y, 'rs', ms=9, mfc='none')
+        canvas.draw()
+        return None
 
     def export_to_csv(self, fname):
         """ Export 'arr' class attribute in a .csv file named 'fname' """

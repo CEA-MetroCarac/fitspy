@@ -8,6 +8,7 @@ class PlotController(QObject):
     spectrumDeleted = Signal(object)
     spectraMapDeleted = Signal(str)
     settingChanged = Signal(str, bool)
+    highlightSpectrum = Signal(str)
 
     def __init__(self, map2d_plot, view_options):
         super().__init__()
@@ -17,9 +18,12 @@ class PlotController(QObject):
         self.setup_connections()
     
     def setup_connections(self):
+        self.map2d_plot.canvas.mpl_connect('button_press_event', self.map2d_plot.on_click)
         self.map2d_plot.dock_widget.topLevelChanged.connect(self.map2d_plot.onDockWidgetTopLevelChanged)
         self.map2d_plot.tab_widget.currentChanged.connect(lambda: self.map2d_plot.onTabWidgetCurrentChanged(self.model.current_map))
         self.map2d_plot.tab_widget.intensity_tab.range_slider.valueChanged.connect(lambda: self.map2d_plot.onTabWidgetCurrentChanged(self.model.current_map))
+        self.map2d_plot.addMarker.connect(self.set_marker)
+        
         self.model.spectrumLoaded.connect(self.spectrumLoaded)
         self.model.spectrumDeleted.connect(self.spectrumDeleted)
         self.model.spectraMapDeleted.connect(self.spectraMapDeleted)
@@ -29,6 +33,10 @@ class PlotController(QObject):
         for checkbox in self.view_options.findChildren(QCheckBox):
             checkbox.stateChanged.connect(lambda state, cb=checkbox: self.view_option_changed(cb))
         
+    def set_marker(self, spectrum_or_fname_or_coords):
+        fname = self.model.current_map.set_marker(spectrum_or_fname_or_coords)
+        self.highlightSpectrum.emit(fname)
+
     def view_option_changed(self, checkbox):
         label = checkbox.text()
         state = checkbox.isChecked()
@@ -43,8 +51,8 @@ class PlotController(QObject):
     def load_spectrum(self, fnames):
         self.model.load_spectrum(fnames)
 
-    def del_spectrum(self, fnames):
-        self.model.del_spectrum(fnames)
+    def del_spectrum(self, map, fnames):
+        self.model.del_spectrum(map, fnames)
 
     def del_map(self, fname):
         self.model.del_map(fname)

@@ -6,13 +6,21 @@ class Model(QObject):
     mapsListChanged = Signal()
     loadSpectraMap = Signal(str)
     loadSpectrum = Signal(list)
-    delSpectrum = Signal(list)
+    delSpectrum = Signal(object, list)
     delSpectraMap = Signal(str)
 
     def __init__(self):
         super().__init__()
+        self._current_map = None
         self._spectramaps_fnames = {}
         self._spectrum_fnames = []
+
+    @property
+    def current_map(self):
+        return self._current_map
+    
+    def set_current_map(self, map):
+        self._current_map = map
 
     @property
     def spectramaps_fnames(self):
@@ -93,9 +101,9 @@ class Model(QObject):
         if files[0] in self._spectramaps_fnames:  # Remove SpectraMap
             self.delSpectraMap.emit(files[0])
         else:
-            self.delSpectrum.emit(files)
+            self.delSpectrum.emit(self.current_map, files)
 
-    def update_spectramap(self, file, fnames):
+    def update_spectramap(self, map, fnames):
         """Update the spectramap with new filenames and emit signal."""
-        self._spectramaps_fnames[file] = fnames
+        self._spectramaps_fnames[map] = fnames
         self.mapsListChanged.emit()

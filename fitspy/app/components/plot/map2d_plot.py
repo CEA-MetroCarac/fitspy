@@ -1,4 +1,4 @@
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import QMainWindow, QDockWidget, QWidget, QVBoxLayout, QLabel, QDoubleSpinBox, QHBoxLayout, QTabWidget, QSizePolicy, QPushButton
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_qtagg import FigureCanvas
@@ -102,6 +102,8 @@ class Settings(QTabWidget):
         self.setVisible(False)
 
 class Map2DPlot(QMainWindow):
+    addMarker = Signal(tuple)
+
     def __init__(self, parent=None):
         super().__init__(parent)
         self.initUI()
@@ -128,6 +130,11 @@ class Map2DPlot(QMainWindow):
 
         self.dock_widget.setWidget(self.dock_container)
         self.addDockWidget(Qt.RightDockWidgetArea, self.dock_widget)
+
+    def on_click(self, event):
+        """Callback for mouse click event."""
+        x, y = event.xdata, event.ydata
+        self.addMarker.emit((x, y))
 
     def onDockWidgetTopLevelChanged(self, floating):
         if floating:
