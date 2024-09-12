@@ -53,7 +53,7 @@ class Toolbar(QWidget):
 
     def initUI(self):
         hbox = QHBoxLayout()
-        self.mpl_toolbar = CustomNavigationToolbar(self.canvas, self)
+        self.mpl_toolbar = CustomNavigationToolbar(self.canvas)
         baseline_radio = QRadioButton("Baseline")
         peaks_radio = QRadioButton("Fitting")
         x_axis_label = QLabel("X-axis unit:")
