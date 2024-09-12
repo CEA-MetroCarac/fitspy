@@ -203,6 +203,10 @@ class SpectraMap(Spectra):
 
         Parameters:
         spectrum_or_fname_or_coords: Can be a spectrum object, a spectrum fname, or a tuple (x, y).
+
+        Returns:
+        None if spectrum_or_fname_or_coords is a spectrum object or a spectrum fname.
+        A string "X={x}  Y={y}" if spectrum_or_fname_or_coords is a tuple (x, y).
         """
         if canvas is None:
             fig = self.ax.get_figure()

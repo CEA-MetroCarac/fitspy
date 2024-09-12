@@ -123,7 +123,7 @@ class Map2DPlot(QMainWindow):
         self.dock_layout.addWidget(self.tab_widget)
 
         # Spectra 2D Map
-        self.figure = Figure(layout='tight')
+        self.figure = Figure(layout='compressed')
         self.ax = self.figure.add_subplot(111)
         self.canvas = FigureCanvas(self.figure)
         self.dock_layout.addWidget(self.canvas)

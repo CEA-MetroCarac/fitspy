@@ -63,8 +63,8 @@ class Toolbar(QWidget):
         copy_button = QPushButton(icon=QIcon(str(icons / "copy.png")))
         copy_button.setIconSize(QSize(24, 24))
 
-        spacer1 = QSpacerItem(20, 20)
-        spacer2 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+        spacer1 = QSpacerItem(0, 0, QSizePolicy.Expanding, QSizePolicy.Minimum)
+        spacer2 = QSpacerItem(0, 0, QSizePolicy.Expanding, QSizePolicy.Minimum)
 
         hbox.addWidget(self.mpl_toolbar)
         hbox.addItem(spacer1)

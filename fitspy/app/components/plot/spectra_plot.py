@@ -11,7 +11,7 @@ class SpectraPlot(QWidget):
         layout = QHBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
 
-        self.figure = Figure(layout='tight')
+        self.figure = Figure(layout='compressed')
         self.ax = self.figure.add_subplot(111)
         self.canvas = FigureCanvas(self.figure)
 
