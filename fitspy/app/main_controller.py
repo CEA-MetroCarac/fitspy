@@ -14,7 +14,7 @@ class MainController(QObject):
         self.view = MainView()
         self.model = MainModel()
         self.files_controller = FilesController(self.view.spectrum_list, self.view.maps_list)
-        self.plot_controller = PlotController(self.view.measurement_sites, self.view.view_options)
+        self.plot_controller = PlotController(self.view.spectra_plot, self.view.measurement_sites, self.view.view_options)
         self.settings_controller = SettingsController(self.view.fit_model_editor, self.view.more_settings.fit_settings)
         self.setup_connections()
         self.apply_settings()

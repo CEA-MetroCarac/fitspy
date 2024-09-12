@@ -10,9 +10,10 @@ class PlotController(QObject):
     settingChanged = Signal(str, bool)
     highlightSpectrum = Signal(str)
 
-    def __init__(self, map2d_plot, view_options):
+    def __init__(self, spectra_plot, map2d_plot, view_options):
         super().__init__()
         self.model = Model()
+        self.spectra_plot = spectra_plot
         self.map2d_plot = map2d_plot
         self.view_options = view_options
         self.setup_connections()
@@ -57,8 +58,9 @@ class PlotController(QObject):
     def del_map(self, fname):
         self.model.del_map(fname)
 
-    def update_spectraplot(self, files):
-        self.model.update_spectraplot(files)
+    def update_spectraplot(self, fnames):
+        ax = self.spectra_plot.ax
+        self.model.update_spectraplot(ax, fnames)
 
     def get_spectrum(self, fname):
         return self.model.spectra.get_objects(fname)[0]

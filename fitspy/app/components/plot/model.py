@@ -75,6 +75,20 @@ class Model(QObject):
                 self.mapSwitched.emit(spectramap)
                 break
     
-    def update_spectraplot(self, files):
+    def update_spectraplot(self, ax, fnames):
         """ Update the plot with the given list of file names """
-        print('update_spectraplot')
+        ax.clear()
+
+        # signal to retrieve view options
+        parent = self.current_map or self.spectra
+
+        for fname in fnames:
+            spectrum = self.spectra.get_objects(fname, parent)[0]
+            spectrum.plot(ax)
+        
+            # self.current_map.set_marker(spectrum)
+            # self.current_map.plot_map_update()
+            # self.current_map.plot_map(self.current_map.ax)
+
+        # refresh the plot
+        ax.get_figure().canvas.draw()

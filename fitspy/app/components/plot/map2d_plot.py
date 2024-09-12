@@ -147,18 +147,18 @@ class Map2DPlot(QMainWindow):
             self.remove_colorbar()
 
     def add_colorbar(self):
-        if self.colorbar is None:
+        if not self.colorbar and self.ax.images:
             self.colorbar = self.figure.colorbar(self.ax.images[0], ax=self.ax)
             self.canvas.draw()
 
     def remove_colorbar(self):
-        if self.colorbar is not None:
+        if self.colorbar:
             self.colorbar.remove()
             self.colorbar = None
             self.canvas.draw()
 
     def set_map(self, spectramap):
-        if spectramap is None:
+        if not spectramap:
             self.ax.clear()
             self.canvas.draw()
             self.remove_colorbar()

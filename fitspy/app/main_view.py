@@ -192,4 +192,5 @@ class MainView(QMainWindow):
         self.setCentralWidget(self.centralwidget)
 
         self.statusBar = StatusBar()
+        self.statusBar.setContentsMargins(10, 0, 0, 0)
         self.setStatusBar(self.statusBar)
