@@ -51,7 +51,7 @@ class MainView(QMainWindow):
         self.spectra_plot = SpectraPlot()
         self.verticalLayout_26.addWidget(self.spectra_plot)
 
-        self.toolbar = Toolbar()
+        self.toolbar = Toolbar(self.spectra_plot.canvas)
         self.verticalLayout_26.addWidget(self.toolbar)
 
         self.verticalLayout_26.setStretch(0, 100)

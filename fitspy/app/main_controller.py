@@ -67,6 +67,7 @@ class MainController(QObject):
 
         app.setPalette(palette)
         update_widget_palette(self.view, palette)
+        self.view.toolbar.update_toolbar_icons()
 
     def on_theme_changed(self):
         self.apply_theme()
