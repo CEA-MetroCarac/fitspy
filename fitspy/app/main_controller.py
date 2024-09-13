@@ -1,9 +1,10 @@
 from PySide6.QtCore import QObject
 from PySide6.QtWidgets import QApplication
+from pyqttoast import Toast, ToastPreset
+
 from .main_model import MainModel
 from .main_view import MainView
 from fitspy.core import update_widget_palette
-
 from .components.plot import PlotController
 from .components.files import FilesController
 from .components.settings import SettingsController
@@ -14,7 +15,7 @@ class MainController(QObject):
         self.view = MainView()
         self.model = MainModel()
         self.files_controller = FilesController(self.view.spectrum_list, self.view.maps_list)
-        self.plot_controller = PlotController(self.view.spectra_plot, self.view.measurement_sites, self.view.toolbar.view_options)
+        self.plot_controller = PlotController(self.view.spectra_plot, self.view.measurement_sites, self.view.toolbar)
         self.settings_controller = SettingsController(self.view.fit_model_editor, self.view.more_settings.fit_settings)
         self.setup_connections()
         self.apply_settings()
@@ -36,6 +37,7 @@ class MainController(QObject):
         self.files_controller.currentModelChanged.connect(self.change_current_fit_model)
         self.files_controller.addMarker.connect(self.plot_controller.set_marker)
 
+        self.plot_controller.showToast.connect(self.show_toast)
         self.plot_controller.spectrumLoaded.connect(self.files_controller.add_spectrum)
         self.plot_controller.spectrumDeleted.connect(self.files_controller.del_spectrum)
         self.plot_controller.spectraMapDeleted.connect(self.files_controller.del_map)
@@ -78,3 +80,11 @@ class MainController(QObject):
         if fnames:
             spectrum = self.plot_controller.get_spectrum(fnames[0])
             self.settings_controller.set_model(spectrum)
+
+    def show_toast(self, title, text):
+        toast = Toast(self.view)
+        toast.setDuration(3000)
+        toast.setTitle(title)
+        toast.setText(text)
+        toast.applyPreset(ToastPreset.SUCCESS)
+        toast.show()

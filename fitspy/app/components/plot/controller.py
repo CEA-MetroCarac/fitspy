@@ -2,6 +2,7 @@ from PySide6.QtCore import QObject, Signal
 from .model import Model
 
 class PlotController(QObject):
+    showToast = Signal(str, str)
     decodedSpectraMap = Signal(str, list)
     spectrumLoaded = Signal(str)
     spectrumDeleted = Signal(object)
@@ -9,15 +10,19 @@ class PlotController(QObject):
     settingChanged = Signal(str, bool)
     highlightSpectrum = Signal(str)
 
-    def __init__(self, spectra_plot, map2d_plot, view_options):
+    def __init__(self, spectra_plot, map2d_plot, toolbar):
         super().__init__()
         self.model = Model()
         self.spectra_plot = spectra_plot
         self.map2d_plot = map2d_plot
-        self.view_options = view_options
+        self.toolbar = toolbar
+        self.view_options = toolbar.view_options
         self.setup_connections()
     
     def setup_connections(self):
+        self.toolbar.copy_button.clicked.connect(self.spectra_plot.copy_figure)
+        self.spectra_plot.showToast.connect(self.showToast)
+
         self.map2d_plot.canvas.mpl_connect('button_press_event', self.map2d_plot.on_click)
         self.map2d_plot.dock_widget.topLevelChanged.connect(self.map2d_plot.onDockWidgetTopLevelChanged)
         self.map2d_plot.tab_widget.currentChanged.connect(lambda: self.map2d_plot.onTabWidgetCurrentChanged(self.model.current_map))

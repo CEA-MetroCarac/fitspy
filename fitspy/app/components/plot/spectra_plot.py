@@ -1,8 +1,12 @@
+from PySide6.QtCore import Signal
 from PySide6.QtWidgets import QWidget, QHBoxLayout
+from PySide6.QtGui import QClipboard, QImage, QPixmap
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
 
 class SpectraPlot(QWidget):
+    showToast = Signal(str, str)
+
     def __init__(self):
         super().__init__()
         self.initUI()
@@ -18,6 +22,18 @@ class SpectraPlot(QWidget):
         layout.addWidget(self.canvas)
 
         self.setLayout(layout)
+
+    def copy_figure(self):
+        """ Copy the figure to the clipboard using Pyside6 QCliboard """
+        clipboard = QClipboard()
+
+        # Get the figure as a QPixmap
+        buffer = self.canvas.buffer_rgba()
+        width, height = self.canvas.get_width_height()
+        pixmap = QPixmap.fromImage(QImage(buffer, width, height, QImage.Format_ARGB32))
+
+        clipboard.setPixmap(pixmap)
+        self.showToast.emit("Figure copied to clipboard","")
 
 if __name__ == "__main__":
     import sys
