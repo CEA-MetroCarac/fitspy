@@ -21,21 +21,21 @@ class Normalization(QGroupBox):
         self.setTitle("Normalization")
         self.setStyleSheet("QGroupBox { font-weight: bold; }")
 
-        self.x_min_input = QDoubleSpinBox()
-        self.x_min_input.setDecimals(2)
-        self.x_min_input.setRange(-9999.99, 9999.99)
+        self.range_min = QDoubleSpinBox()
+        self.range_min.setDecimals(2)
+        self.range_min.setRange(-9999.99, 9999.99)
 
-        self.x_max_input = QDoubleSpinBox()
-        self.x_max_input.setDecimals(2)
-        self.x_max_input.setRange(-9999.99, 9999.99)
+        self.range_max = QDoubleSpinBox()
+        self.range_max.setDecimals(2)
+        self.range_max.setRange(-9999.99, 9999.99)
 
-        self.checkbox = QCheckBox("Normalize")
+        self.normalize = QCheckBox("Normalize")
 
         h_layout.addWidget(QLabel("X min/max:"))
-        h_layout.addWidget(self.x_min_input)
+        h_layout.addWidget(self.range_min)
         h_layout.addWidget(QLabel("/"))
-        h_layout.addWidget(self.x_max_input)
-        h_layout.addWidget(self.checkbox)
+        h_layout.addWidget(self.range_max)
+        h_layout.addWidget(self.normalize)
 
 
 class SpectralRange(QGroupBox):
@@ -56,20 +56,20 @@ class SpectralRange(QGroupBox):
 
         label = QLabel("X min/max:")
 
-        self.x_min_input = QDoubleSpinBox()
-        self.x_min_input.setDecimals(2)
-        self.x_min_input.setRange(-9999.99, 9999.99)
+        self.range_min = QDoubleSpinBox()
+        self.range_min.setDecimals(2)
+        self.range_min.setRange(-9999.99, 9999.99)
 
-        self.x_max_input = QDoubleSpinBox()
-        self.x_max_input.setDecimals(2)
-        self.x_max_input.setRange(-9999.99, 9999.99)
+        self.range_max = QDoubleSpinBox()
+        self.range_max.setDecimals(2)
+        self.range_max.setRange(-9999.99, 9999.99)
 
         apply_button = QPushButton("Apply")
 
         h_layout.addWidget(label)
-        h_layout.addWidget(self.x_min_input)
+        h_layout.addWidget(self.range_min)
         h_layout.addWidget(QLabel("/"))
-        h_layout.addWidget(self.x_max_input)
+        h_layout.addWidget(self.range_max)
         h_layout.addWidget(apply_button)
 
         vbox_layout.addLayout(h_layout)
@@ -144,7 +144,7 @@ class Fitting(QGroupBox):
         self.setLayout(vbox_layout)
 
         self.peak_model_combo = self.create_section(vbox_layout, "Peak model:", PEAK_MODELS.keys())
-        self.background_model_combo = self.create_section(vbox_layout, "Background model:", BKG_MODELS.keys())
+        self.bkg_model_combo = self.create_section(vbox_layout, "Background model:", BKG_MODELS.keys())
 
     def create_section(self, layout, label_text, items=[]):
         label = QLabel(label_text)
@@ -279,24 +279,25 @@ class ModelBuilder(QWidget):
         else:
             spinbox.setValue(value)
 
-    def update_model(self, spectrum):
+    def update_model(self, model):
         # Spectral range
-        self.set_spinbox_value(self.model_settings.spectral_range.x_min_input, spectrum.range_min)
-        self.set_spinbox_value(self.model_settings.spectral_range.x_max_input, spectrum.range_max)
+        self.set_spinbox_value(self.model_settings.spectral_range.range_min, model['range_min'])
+        self.set_spinbox_value(self.model_settings.spectral_range.range_max, model['range_max'])
 
         # Baseline
-        self.model_settings.baseline.radio_semi_auto.setChecked(spectrum.baseline.mode == "Semi-Auto")
-        self.model_settings.baseline.radio_linear.setChecked(spectrum.baseline.mode == "Linear")
-        self.model_settings.baseline.radio_polynomial.setChecked(spectrum.baseline.mode == "Polynomial")
-        self.model_settings.baseline.attached.setChecked(spectrum.baseline.attached)
-        self.set_spinbox_value(self.model_settings.baseline.spin_polynomial_order, spectrum.baseline.order_max)
-        self.set_spinbox_value(self.model_settings.baseline.spin_sigma, spectrum.baseline.sigma)
-        self.model_settings.baseline.slider.setValue(spectrum.baseline.coef)
+        baseline = model['baseline']
+        self.model_settings.baseline.radio_semi_auto.setChecked(baseline['mode'] == "Semi-Auto")
+        self.model_settings.baseline.radio_linear.setChecked(baseline['mode'] == "Linear")
+        self.model_settings.baseline.radio_polynomial.setChecked(baseline['mode'] == "Polynomial")
+        self.model_settings.baseline.attached.setChecked(baseline['attached'])
+        self.set_spinbox_value(self.model_settings.baseline.spin_polynomial_order, baseline['order_max'])
+        self.set_spinbox_value(self.model_settings.baseline.spin_sigma, baseline['sigma'])
+        self.model_settings.baseline.slider.setValue(baseline['coef'])
 
         # Normalization
-        self.set_spinbox_value(self.model_settings.normalization.x_min_input, spectrum.normalize_range_min)
-        self.set_spinbox_value(self.model_settings.normalization.x_max_input, spectrum.normalize_range_max)
-        self.model_settings.normalization.checkbox.setChecked(spectrum.normalize)
+        self.set_spinbox_value(self.model_settings.normalization.range_min, model['normalize_range_min'])
+        self.set_spinbox_value(self.model_settings.normalization.range_max, model['normalize_range_max'])
+        self.model_settings.normalization.normalize.setChecked(model['normalize'])
 
 if __name__ == "__main__":
     import sys

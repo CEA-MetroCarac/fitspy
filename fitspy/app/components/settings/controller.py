@@ -13,8 +13,9 @@ class SettingsController(QObject):
         self.model.currentModelChanged.connect(self.update_model)
 
     def set_model(self, spectrum):
-        self.model.current_fit_model = spectrum
+        model = spectrum.save()
+        self.model.current_fit_model = model
 
-    def update_model(self, spectrum):
-        self.model_builder.update_model(spectrum)
-        self.fit_settings.update_model(spectrum)
+    def update_model(self, fit_model):
+        self.model_builder.update_model(fit_model)
+        self.fit_settings.update_model(fit_model)

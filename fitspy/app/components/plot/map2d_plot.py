@@ -14,19 +14,19 @@ class CommonTab(QWidget):
         self.layout.setSpacing(3)
         h_layout1 = QHBoxLayout()
 
-        x_min_input = QDoubleSpinBox()
-        x_min_input.setDecimals(2)
-        x_min_input.setRange(-9999.99, 9999.99)
-        x_max_input = QDoubleSpinBox()
-        x_max_input.setDecimals(2)
-        x_max_input.setRange(-9999.99, 9999.99)
+        range_min = QDoubleSpinBox()
+        range_min.setDecimals(2)
+        range_min.setRange(-9999.99, 9999.99)
+        range_max = QDoubleSpinBox()
+        range_max.setDecimals(2)
+        range_max.setRange(-9999.99, 9999.99)
 
         self.export_button = QPushButton("Export .csv")
 
         h_layout1.addWidget(QLabel("Min/Max:"))
-        h_layout1.addWidget(x_min_input)
+        h_layout1.addWidget(range_min)
         h_layout1.addWidget(QLabel("/"))
-        h_layout1.addWidget(x_max_input)
+        h_layout1.addWidget(range_max)
         h_layout1.addStretch()
         h_layout1.addWidget(self.export_button)
 

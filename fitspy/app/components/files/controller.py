@@ -116,9 +116,9 @@ class FilesController(QObject):
         selected_items = [item.text() for item in list_widget.selectedItems()]
         self.model.remove_files(selected_items)
 
-    def update_spectramap(self, file, fnames):
+    def update_spectramap(self, map_fname, fnames):
         """Update the lists widgets with the spectra related to the 2D-map."""
-        self.model.update_spectramap(file, fnames)
+        self.model.update_spectramap(map_fname, fnames)
 
     def highlight_spectrum(self, fname):
         """Select the given spectrum in the list widget."""
