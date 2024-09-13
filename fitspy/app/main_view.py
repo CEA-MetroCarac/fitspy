@@ -7,7 +7,7 @@ from PySide6.QtWidgets import (QMainWindow, QCheckBox, QComboBox, QFrame, QGridL
     QTabWidget, QVBoxLayout, QWidget)
 
 from .components import MenuBar
-from .components.plot import SpectraPlot, Map2DPlot, Toolbar, ViewOptions
+from .components.plot import SpectraPlot, Map2DPlot, Toolbar
 from .components.settings import StatusBar, ModelBuilder, MoreSettings
 from .components.files import MapsList, SpectrumList
 
@@ -79,11 +79,6 @@ class MainView(QMainWindow):
 
         self.verticalSpacer_5 = QSpacerItem(20, 40, QSizePolicy.Expanding, QSizePolicy.Minimum)
 
-
-        self.view_options = ViewOptions()
-
-        self.verticalLayout_13.addWidget(self.view_options)
-
         self.Upper_zone.addWidget(self.widget_7)
 
         self.horizontalLayout_27.addLayout(self.Upper_zone)
@@ -96,10 +91,10 @@ class MainView(QMainWindow):
         self.tabWidget_2.setEnabled(True)
 
         self.fit_model_editor = ModelBuilder()
-        self.tabWidget_2.addTab(self.fit_model_editor, "Fit Model Builder")
+        self.tabWidget_2.addTab(self.fit_model_editor, "Fit Model")
 
         self.more_settings = MoreSettings()
-        self.tabWidget_2.addTab(self.more_settings, "More Settings")
+        self.tabWidget_2.addTab(self.more_settings, "Others")
 
         self.verticalLayout_25.addWidget(self.tabWidget_2)
 

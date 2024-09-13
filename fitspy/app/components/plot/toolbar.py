@@ -1,12 +1,36 @@
 from pathlib import Path
-from PySide6.QtGui import QIcon, QPixmap, QColor
 from PySide6.QtCore import QSize, Qt
-from PySide6.QtWidgets import QWidget, QComboBox, QHBoxLayout, QLabel, QRadioButton, QPushButton, QSpacerItem, QSizePolicy
+from PySide6.QtGui import QIcon, QPixmap, QColor
+from PySide6.QtWidgets import QToolButton, QMenu, QCheckBox, QWidgetAction, QRadioButton, QPushButton, QSpacerItem, QSizePolicy, QHBoxLayout, QWidget
 from matplotlib.backends.backend_qtagg import NavigationToolbar2QT
 import matplotlib.cbook as cbook
 
 project_root = Path(__file__).resolve().parent.parent.parent.parent
 icons = project_root / 'resources' / 'iconpack'
+
+class ViewOptions(QToolButton):
+    def __init__(self, checkboxes, parent=None):
+        super(ViewOptions, self).__init__(parent)
+        self.setText("View Options")
+        self.setPopupMode(QToolButton.MenuButtonPopup)
+        self.checkboxes_definitions = checkboxes
+        self.initUI()
+
+    def initUI(self):
+        self.menu = QMenu(self)
+        self.setMenu(self.menu)
+
+        self.checkboxes = {}
+        for text, tooltip in self.checkboxes_definitions:
+            checkbox = QCheckBox(text)
+            checkbox.setToolTip(tooltip)
+            action = QWidgetAction(self)
+            action.setDefaultWidget(checkbox)
+            self.menu.addAction(action)
+            self.checkboxes[text] = checkbox
+
+    def get_view_options(self):
+        return {text: checkbox.isChecked() for text, checkbox in self.checkboxes.items()}
 
 class CustomNavigationToolbar(NavigationToolbar2QT):
     def _icon(self, name):
@@ -46,9 +70,24 @@ class CustomNavigationToolbar(NavigationToolbar2QT):
                 action.setIcon(self._icon(icon_name))
 
 class Toolbar(QWidget):
-    def __init__(self, canvas, parent=None):
+    def __init__(self, canvas, view_options=ViewOptions, parent=None):
         super().__init__(parent)
         self.canvas = canvas
+        self.view_options = None if view_options is None else view_options(
+            checkboxes=[("Legend", "Legend"),
+            ("Fit", "Fit"),
+            ("Negative values", "Negative values"),
+            ("Outliers", "Outliers"),
+            ("Outliers limits", "Outliers limits"),
+            ("Noise level", "Noise level"),
+            ("Baseline", "Baseline"),
+            ("Background", "Background"),
+            ("Residual", "Residual"),
+            ("Peaks", "Peaks"),
+            ("Raw", "Raw"),
+            # ("Filled", "Filled"),
+            # ("Colors", "Colors")
+            ])
         self.initUI()
 
     def initUI(self):
@@ -56,25 +95,19 @@ class Toolbar(QWidget):
         self.mpl_toolbar = CustomNavigationToolbar(self.canvas)
         baseline_radio = QRadioButton("Baseline")
         peaks_radio = QRadioButton("Fitting")
-        x_axis_label = QLabel("X-axis unit:")
-        x_axis_combobox = QComboBox()
-        outliers_removal_button = QPushButton("Outliers removal")
-        r2_label = QLabel("R2=0")
         copy_button = QPushButton(icon=QIcon(str(icons / "copy.png")))
         copy_button.setIconSize(QSize(24, 24))
 
         spacer1 = QSpacerItem(0, 0, QSizePolicy.Expanding, QSizePolicy.Minimum)
-        spacer2 = QSpacerItem(0, 0, QSizePolicy.Expanding, QSizePolicy.Minimum)
+        spacer2 = QSpacerItem(50, 0, QSizePolicy.Fixed, QSizePolicy.Minimum)
 
         hbox.addWidget(self.mpl_toolbar)
         hbox.addItem(spacer1)
-        hbox.addWidget(x_axis_label)
-        hbox.addWidget(x_axis_combobox)
         hbox.addWidget(baseline_radio)
         hbox.addWidget(peaks_radio)
         hbox.addItem(spacer2)
-        hbox.addWidget(outliers_removal_button)
-        hbox.addWidget(r2_label)
+        if self.view_options:
+            hbox.addWidget(self.view_options)
         hbox.addWidget(copy_button)
 
         self.setLayout(hbox)

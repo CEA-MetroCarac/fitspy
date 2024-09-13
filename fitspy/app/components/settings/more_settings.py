@@ -1,6 +1,8 @@
+from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
     QSizePolicy,
     QGroupBox,
+    QPushButton,
     QWidget,
     QVBoxLayout,
     QHBoxLayout,
@@ -45,25 +47,25 @@ class FitSettings(QGroupBox):
         hbox0 = QHBoxLayout()
         hbox0.addWidget(self.coef_noise_label)
         hbox0.addWidget(self.coef_noise_input)
-        hbox0.addItem(QSpacerItem(20, 0, QSizePolicy.Expanding, QSizePolicy.Minimum))
+        hbox0.addItem(QSpacerItem(20, 0, QSizePolicy.Minimum, QSizePolicy.Minimum))
         vbox.addLayout(hbox0)
 
         hbox1 = QHBoxLayout()
         hbox1.addWidget(self.max_ite_label)
         hbox1.addWidget(self.max_ite_input)
-        hbox1.addItem(QSpacerItem(20, 0, QSizePolicy.Expanding, QSizePolicy.Minimum))
+        hbox1.addItem(QSpacerItem(20, 0, QSizePolicy.Minimum, QSizePolicy.Minimum))
         vbox.addLayout(hbox1)
 
         hbox2 = QHBoxLayout()
         hbox2.addWidget(self.fit_method_label)
         hbox2.addWidget(self.fit_method_combo)
-        hbox2.addItem(QSpacerItem(20, 0, QSizePolicy.Expanding, QSizePolicy.Minimum))
+        hbox2.addItem(QSpacerItem(20, 0, QSizePolicy.Minimum, QSizePolicy.Minimum))
         vbox.addLayout(hbox2)
 
         hbox3 = QHBoxLayout()
         hbox3.addWidget(self.x_tol_label)
         hbox3.addWidget(self.x_tol_input)
-        hbox3.addItem(QSpacerItem(20, 0, QSizePolicy.Expanding, QSizePolicy.Minimum))
+        hbox3.addItem(QSpacerItem(20, 0, QSizePolicy.Minimum, QSizePolicy.Minimum))
         vbox.addLayout(hbox3)
 
         vbox.addItem(QSpacerItem(0, 20, QSizePolicy.Minimum, QSizePolicy.Expanding))
@@ -85,19 +87,38 @@ class FitSettings(QGroupBox):
         self.coef_noise_input.setValue(fit_params['coef_noise'])
         self.x_tol_input.setValue(fit_params['xtol'])
 
+class SolverSettings(QGroupBox):
+    def __init__(self):
+        super().__init__()
+        self.initUI()
+
+    def initUI(self):
+        self.setTitle("Solver settings:")
+        self.setStyleSheet("QGroupBox { font-weight: bold; }")
+
+        vbox = QVBoxLayout()
+
+        self.outliers_removal_button = QPushButton("Outliers removal")
+        self.outliers_removal_button.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        vbox.addWidget(self.outliers_removal_button, 0, alignment=Qt.AlignTop)
+
+        self.setLayout(vbox)
+
 class MoreSettings(QWidget):
     def __init__(self):
         super().__init__()
         self.initUI()
 
     def initUI(self):
-        vbox = QVBoxLayout()
-        vbox.setContentsMargins(10, 10, 10, 10)
+        hbox = QHBoxLayout()
+        hbox.setContentsMargins(10, 10, 10, 10)
 
         self.fit_settings = FitSettings()
-        vbox.addWidget(self.fit_settings)
+        self.solver_settings = SolverSettings()
+        hbox.addWidget(self.fit_settings)
+        hbox.addWidget(self.solver_settings)
 
-        self.setLayout(vbox)
+        self.setLayout(hbox)
 
 if __name__ == "__main__":
     import sys
