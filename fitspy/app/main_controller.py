@@ -1,5 +1,5 @@
 from PySide6.QtCore import QObject
-from PySide6.QtWidgets import QApplication, QCheckBox
+from PySide6.QtWidgets import QApplication
 from .main_model import MainModel
 from .main_view import MainView
 from fitspy.core import update_widget_palette
@@ -47,8 +47,7 @@ class MainController(QObject):
         self.apply_theme()
         self.view.statusBar.ncpus.setCurrentText(self.model.ncpus)
 
-        for checkbox in self.view.view_options.findChildren(QCheckBox):
-            label = checkbox.text()
+        for label, checkbox in self.view.view_options.checkboxes.items():
             state = self.model.settings.value(label, False, type=bool)
             checkbox.setChecked(state)
 

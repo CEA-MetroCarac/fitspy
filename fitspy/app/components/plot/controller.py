@@ -1,5 +1,4 @@
 from PySide6.QtCore import QObject, Signal
-from PySide6.QtWidgets import QCheckBox
 from .model import Model
 
 class PlotController(QObject):
@@ -31,7 +30,7 @@ class PlotController(QObject):
         self.model.decodedSpectraMap.connect(self.decodedSpectraMap)
         self.model.mapSwitched.connect(self.map2d_plot.set_map)
 
-        for checkbox in self.view_options.findChildren(QCheckBox):
+        for label, checkbox in self.view_options.checkboxes.items():
             checkbox.stateChanged.connect(lambda state, cb=checkbox: self.view_option_changed(cb))
         
     def set_marker(self, spectrum_or_fname_or_coords):
@@ -60,7 +59,8 @@ class PlotController(QObject):
 
     def update_spectraplot(self, fnames):
         ax = self.spectra_plot.ax
-        self.model.update_spectraplot(ax, fnames)
+        view_options = self.view_options.get_view_options()
+        self.model.update_spectraplot(ax, fnames, view_options)
 
     def get_spectrum(self, fname):
         return self.model.spectra.get_objects(fname)[0]

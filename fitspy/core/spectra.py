@@ -64,7 +64,7 @@ class Spectra(list):
     def get_objects(self, fname, parent=None):
         """ Return spectrum and parent (spectra or spectra map)
             related to 'fname'. If 'parent' is provided, look for 'fname'
-            in the provided spectra_map. Otherwise, look in self. """
+            in the provided spectra/spectra_map. """
 
         if parent is not None:
             fnames = [spectrum.fname for spectrum in parent]

@@ -3,6 +3,7 @@ from PySide6.QtWidgets import QGroupBox, QGridLayout, QCheckBox
 class ViewOptions(QGroupBox):
     def __init__(self):
         super().__init__()
+        self.checkboxes = {}
         self.initUI()
 
     def initUI(self):
@@ -31,9 +32,13 @@ class ViewOptions(QGroupBox):
         for i, (text, tooltip) in enumerate(checkboxes):
             checkbox = QCheckBox(text)
             checkbox.setToolTip(tooltip)
+            self.checkboxes[text] = checkbox
             grid.addWidget(checkbox, i // 4, i % 4)
 
         self.setLayout(grid)
+
+    def get_view_options(self):
+        return {text: checkbox.isChecked() for text, checkbox in self.checkboxes.items()}
 
 if __name__ == "__main__":
     import sys

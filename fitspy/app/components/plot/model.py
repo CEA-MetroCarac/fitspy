@@ -75,7 +75,7 @@ class Model(QObject):
                 self.mapSwitched.emit(spectramap)
                 break
     
-    def update_spectraplot(self, ax, fnames):
+    def update_spectraplot(self, ax, fnames, view_options):
         """ Update the plot with the given list of file names """
         ax.clear()
 
@@ -84,6 +84,7 @@ class Model(QObject):
 
         for fname in fnames:
             spectrum = self.spectra.get_objects(fname, parent)[0]
+            print("View options:", view_options)
             spectrum.plot(ax)
         
             # self.current_map.set_marker(spectrum)
