@@ -46,6 +46,7 @@ class PlotController(QObject):
         label = checkbox.text()
         state = checkbox.isChecked()
         self.settingChanged.emit(label, state)
+        self.update_spectraplot()
 
     def load_map(self, fname):
         self.model.load_map(fname)
@@ -62,10 +63,15 @@ class PlotController(QObject):
     def del_map(self, fname):
         self.model.del_map(fname)
 
-    def update_spectraplot(self, fnames):
+    def set_current_spectrum(self, fnames):
+        parent = self.model.current_map if self.model.current_map else self.model.spectra
+        self.model.current_spectrum = [self.model.spectra.get_objects(fname, parent)[0] for fname in fnames]
+        self.update_spectraplot()
+
+    def update_spectraplot(self):
         ax = self.spectra_plot.ax
         view_options = self.view_options.get_view_options()
-        self.model.update_spectraplot(ax, fnames, view_options)
+        self.model.update_spectraplot(ax, view_options)
 
     def get_spectrum(self, fname):
         return self.model.spectra.get_objects(fname)[0]

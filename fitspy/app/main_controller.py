@@ -32,7 +32,7 @@ class MainController(QObject):
         self.files_controller.loadSpectraMap.connect(self.plot_controller.load_map)
         self.files_controller.delSpectrum.connect(self.plot_controller.del_spectrum)
         self.files_controller.delSpectraMap.connect(self.plot_controller.del_map)
-        self.files_controller.spectraPlotChanged.connect(self.plot_controller.update_spectraplot)
+        self.files_controller.spectraChanged.connect(self.plot_controller.set_current_spectrum)
         self.files_controller.mapChanged.connect(self.plot_controller.switch_map)
         self.files_controller.currentModelChanged.connect(self.change_current_fit_model)
         self.files_controller.addMarker.connect(self.plot_controller.set_marker)

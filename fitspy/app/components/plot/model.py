@@ -14,6 +14,7 @@ class Model(QObject):
         super().__init__()
         self._spectra = Spectra()
         self.current_map = None
+        self.current_spectrum = []
 
     @property
     def spectra(self):
@@ -75,17 +76,24 @@ class Model(QObject):
                 self.mapSwitched.emit(spectramap)
                 break
     
-    def update_spectraplot(self, ax, fnames, view_options):
-        """ Update the plot with the given list of file names """
+    def update_spectraplot(self, ax, view_options):
+        """ Update the plot with the current spectra """
         ax.clear()
 
         # signal to retrieve view options
         parent = self.current_map or self.spectra
 
-        for fname in fnames:
+        for spectrum in self.current_spectrum:
+            fname = spectrum.fname
             spectrum = self.spectra.get_objects(fname, parent)[0]
-            print("View options:", view_options)
-            spectrum.plot(ax)
+            spectrum.plot(ax,
+                          show_outliers=view_options.get("Outliers", False),
+                          show_outliers_limit=view_options.get("Outliers limits", False),
+                          show_negative_values=view_options.get("Negative values", False),
+                          show_noise_level=view_options.get("Noise level", False),
+                          show_baseline=view_options.get("Baseline", False),
+                          show_background=view_options.get("Background", False),
+                          )
         
             # self.current_map.set_marker(spectrum)
             # self.current_map.plot_map_update()

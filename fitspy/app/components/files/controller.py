@@ -7,7 +7,7 @@ class FilesController(QObject):
     delSpectrum = Signal(object, list)
     delSpectraMap = Signal(str)
     mapChanged = Signal(object)  # Can be a string or None
-    spectraPlotChanged = Signal(list)
+    spectraChanged = Signal(list)
     currentModelChanged = Signal(list)
     addMarker = Signal(str)
 
@@ -105,7 +105,7 @@ class FilesController(QObject):
         total_count = list_widget.count()
         selected_count = len(list_widget.selectedItems())
         label_widget.setText(f"{selected_count}/{total_count}")
-        self.spectraPlotChanged.emit(fnames)
+        self.spectraChanged.emit(fnames)
         self.currentModelChanged.emit(fnames)
 
         if emit_marker and fnames and self.model.current_map:
