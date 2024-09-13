@@ -2,13 +2,16 @@ from pathlib import Path
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QIcon
 from PySide6.QtCore import QSize
-from PySide6.QtWidgets import QDoubleSpinBox, QRadioButton, QSlider, QSpinBox, QVBoxLayout, QGroupBox, QHBoxLayout, QScrollArea, QPushButton, QCheckBox, QLabel, QWidget, QComboBox, QSpacerItem, QSizePolicy
+from PySide6.QtWidgets import QDoubleSpinBox, QRadioButton, QSlider, QSpinBox, \
+    QVBoxLayout, QGroupBox, QHBoxLayout, QScrollArea, QPushButton, QCheckBox, \
+    QLabel, QWidget, QComboBox, QSpacerItem, QSizePolicy
 
 from .peaks_table import PeaksTable
 from fitspy import PEAK_MODELS, BKG_MODELS
 
 project_root = Path(__file__).resolve().parent.parent.parent.parent
 icons = project_root / 'resources' / 'iconpack'
+
 
 class Normalization(QGroupBox):
     def __init__(self, parent=None):
@@ -21,21 +24,21 @@ class Normalization(QGroupBox):
         self.setTitle("Normalization")
         self.setStyleSheet("QGroupBox { font-weight: bold; }")
 
-        self.x_min_input = QDoubleSpinBox()
-        self.x_min_input.setDecimals(2)
-        self.x_min_input.setRange(-9999.99, 9999.99)
+        self.x_min = QDoubleSpinBox()
+        self.x_min.setDecimals(2)
+        self.x_min.setRange(-9999.99, 9999.99)
 
-        self.x_max_input = QDoubleSpinBox()
-        self.x_max_input.setDecimals(2)
-        self.x_max_input.setRange(-9999.99, 9999.99)
+        self.x_max = QDoubleSpinBox()
+        self.x_max.setDecimals(2)
+        self.x_max.setRange(-9999.99, 9999.99)
 
-        self.checkbox = QCheckBox("Normalize")
+        self.normalize = QCheckBox("Normalize")
 
         h_layout.addWidget(QLabel("X min/max:"))
-        h_layout.addWidget(self.x_min_input)
+        h_layout.addWidget(self.x_min)
         h_layout.addWidget(QLabel("/"))
-        h_layout.addWidget(self.x_max_input)
-        h_layout.addWidget(self.checkbox)
+        h_layout.addWidget(self.x_max)
+        h_layout.addWidget(self.normalize)
 
 
 class SpectralRange(QGroupBox):
@@ -56,23 +59,24 @@ class SpectralRange(QGroupBox):
 
         label = QLabel("X min/max:")
 
-        self.x_min_input = QDoubleSpinBox()
-        self.x_min_input.setDecimals(2)
-        self.x_min_input.setRange(-9999.99, 9999.99)
+        self.x_min = QDoubleSpinBox()
+        self.x_min.setDecimals(2)
+        self.x_min.setRange(-9999.99, 9999.99)
 
-        self.x_max_input = QDoubleSpinBox()
-        self.x_max_input.setDecimals(2)
-        self.x_max_input.setRange(-9999.99, 9999.99)
+        self.x_max = QDoubleSpinBox()
+        self.x_max.setDecimals(2)
+        self.x_max.setRange(-9999.99, 9999.99)
 
         apply_button = QPushButton("Apply")
 
         h_layout.addWidget(label)
-        h_layout.addWidget(self.x_min_input)
+        h_layout.addWidget(self.x_min)
         h_layout.addWidget(QLabel("/"))
-        h_layout.addWidget(self.x_max_input)
+        h_layout.addWidget(self.x_max)
         h_layout.addWidget(apply_button)
 
         vbox_layout.addLayout(h_layout)
+
 
 class Baseline(QGroupBox):
     def __init__(self, parent=None):
@@ -131,6 +135,7 @@ class Baseline(QGroupBox):
         self.apply_button = QPushButton("Apply")
         vbox_layout.addWidget(self.apply_button)
 
+
 class Fitting(QGroupBox):
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -143,8 +148,11 @@ class Fitting(QGroupBox):
         vbox_layout = QVBoxLayout()
         self.setLayout(vbox_layout)
 
-        self.peak_model_combo = self.create_section(vbox_layout, "Peak model:", PEAK_MODELS.keys())
-        self.background_model_combo = self.create_section(vbox_layout, "Background model:", BKG_MODELS.keys())
+        self.peak_model = self.create_section(vbox_layout, "Peak model:",
+                                              PEAK_MODELS.keys())
+        self.background_model = self.create_section(vbox_layout,
+                                                    "Background model:",
+                                                    BKG_MODELS.keys())
 
     def create_section(self, layout, label_text, items=[]):
         label = QLabel(label_text)
@@ -165,6 +173,7 @@ class Fitting(QGroupBox):
         layout.addLayout(h_layout)
 
         return combo_box
+
 
 class ModelSettings(QWidget):
     def __init__(self, parent=None):
@@ -199,16 +208,17 @@ class ModelSettings(QWidget):
         HLayout.setSpacing(0)
         HLayout.setContentsMargins(0, 0, 0, 0)
 
-        save_button = QPushButton(
+        self.save_button = QPushButton(
             text="Save Model",
             icon=QIcon(str(icons / "save.png")),
             toolTip="Save the fit model as a JSON file",
         )
-        save_button.setIconSize(QSize(20, 20))
-        fit_button = QPushButton("Fit")
+        self.save_button.setIconSize(QSize(20, 20))
 
-        HLayout.addWidget(save_button)
-        HLayout.addWidget(fit_button)
+        self.fit_button = QPushButton("Fit")
+
+        HLayout.addWidget(self.save_button)
+        HLayout.addWidget(self.fit_button)
 
         main_layout.addLayout(HLayout)
 
@@ -216,6 +226,7 @@ class ModelSettings(QWidget):
 
         outer_layout = QVBoxLayout(self)
         outer_layout.addWidget(scroll_area)
+
 
 class ModelSelector(QWidget):
     def __init__(self, parent=None):
@@ -245,6 +256,7 @@ class ModelSelector(QWidget):
 
         self.setLayout(h_layout)
 
+
 class ModelBuilder(QWidget):
     def __init__(self):
         super().__init__()
@@ -272,7 +284,7 @@ class ModelBuilder(QWidget):
         layout = QHBoxLayout(self)
         layout.addWidget(self.model_settings)
         layout.addLayout(vbox_layout)
-        
+
     def set_spinbox_value(self, spinbox, value):
         if value is None:
             spinbox.clear()
@@ -280,23 +292,35 @@ class ModelBuilder(QWidget):
             spinbox.setValue(value)
 
     def update_model(self, spectrum):
+
+        spectral_range = self.model_builder.model_settings.spectral_range
+        baseline = self.model_builder.model_settings.baseline
+        normalization = self.model_builder.model_settings.normalization
+        # fitting = self.model_builder.model_settings.fitting
+
         # Spectral range
-        self.set_spinbox_value(self.model_settings.spectral_range.x_min_input, spectrum.range_min)
-        self.set_spinbox_value(self.model_settings.spectral_range.x_max_input, spectrum.range_max)
+        self.set_spinbox_value(spectral_range.x_min, spectrum.range_min)
+        self.set_spinbox_value(spectral_range.x_max, spectrum.range_max)
 
         # Baseline
-        self.model_settings.baseline.radio_semi_auto.setChecked(spectrum.baseline.mode == "Semi-Auto")
-        self.model_settings.baseline.radio_linear.setChecked(spectrum.baseline.mode == "Linear")
-        self.model_settings.baseline.radio_polynomial.setChecked(spectrum.baseline.mode == "Polynomial")
-        self.model_settings.baseline.attached.setChecked(spectrum.baseline.attached)
-        self.set_spinbox_value(self.model_settings.baseline.spin_polynomial_order, spectrum.baseline.order_max)
-        self.set_spinbox_value(self.model_settings.baseline.spin_sigma, spectrum.baseline.sigma)
-        self.model_settings.baseline.slider.setValue(spectrum.baseline.coef)
+        sp_baseline = spectrum.baseline
+        baseline.radio_semi_auto.setChecked(sp_baseline.mode == "Semi-Auto")
+        baseline.radio_linear.setChecked(sp_baseline.mode == "Linear")
+        baseline.radio_polynomial.setChecked(sp_baseline.mode == "Polynomial")
+        baseline.attached.setChecked(sp_baseline.attached)
+        baseline.slider.setValue(sp_baseline.coef)
+        self.set_spinbox_value(baseline.spin_polynomial_order,
+                               sp_baseline.order_max)
+        self.set_spinbox_value(baseline.spin_sigma,
+                               sp_baseline.sigma)
 
         # Normalization
-        self.set_spinbox_value(self.model_settings.normalization.x_min_input, spectrum.normalize_range_min)
-        self.set_spinbox_value(self.model_settings.normalization.x_max_input, spectrum.normalize_range_max)
-        self.model_settings.normalization.checkbox.setChecked(spectrum.normalize)
+        self.set_spinbox_value(normalization.x_min,
+                               spectrum.normalize_range_min)
+        self.set_spinbox_value(normalization.x_max,
+                               spectrum.normalize_range_max)
+        normalization.normalize.setChecked(spectrum.normalize)
+
 
 if __name__ == "__main__":
     import sys
