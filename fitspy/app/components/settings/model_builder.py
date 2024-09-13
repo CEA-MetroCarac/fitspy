@@ -2,13 +2,16 @@ from pathlib import Path
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QIcon
 from PySide6.QtCore import QSize
-from PySide6.QtWidgets import QDoubleSpinBox, QRadioButton, QSlider, QSpinBox, QVBoxLayout, QGroupBox, QHBoxLayout, QScrollArea, QPushButton, QCheckBox, QLabel, QWidget, QComboBox, QSpacerItem, QSizePolicy
+from PySide6.QtWidgets import QDoubleSpinBox, QRadioButton, QSlider, QSpinBox, \
+    QVBoxLayout, QGroupBox, QHBoxLayout, QScrollArea, QPushButton, QCheckBox, \
+    QLabel, QWidget, QComboBox, QSpacerItem, QSizePolicy
 
 from .peaks_table import PeaksTable
 from fitspy import PEAK_MODELS, BKG_MODELS
 
 project_root = Path(__file__).resolve().parent.parent.parent.parent
 icons = project_root / 'resources' / 'iconpack'
+
 
 class Normalization(QGroupBox):
     def __init__(self, parent=None):
@@ -74,6 +77,7 @@ class SpectralRange(QGroupBox):
 
         vbox_layout.addLayout(h_layout)
 
+
 class Baseline(QGroupBox):
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -131,6 +135,7 @@ class Baseline(QGroupBox):
         self.apply_button = QPushButton("Apply")
         vbox_layout.addWidget(self.apply_button)
 
+
 class Fitting(QGroupBox):
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -143,8 +148,11 @@ class Fitting(QGroupBox):
         vbox_layout = QVBoxLayout()
         self.setLayout(vbox_layout)
 
-        self.peak_model_combo = self.create_section(vbox_layout, "Peak model:", PEAK_MODELS.keys())
-        self.bkg_model_combo = self.create_section(vbox_layout, "Background model:", BKG_MODELS.keys())
+        self.peak_model = self.create_section(vbox_layout, "Peak model:",
+                                              PEAK_MODELS.keys())
+        self.background_model = self.create_section(vbox_layout,
+                                                    "Background model:",
+                                                    BKG_MODELS.keys())
 
     def create_section(self, layout, label_text, items=[]):
         label = QLabel(label_text)
@@ -165,6 +173,7 @@ class Fitting(QGroupBox):
         layout.addLayout(h_layout)
 
         return combo_box
+
 
 class ModelSettings(QWidget):
     def __init__(self, parent=None):
@@ -199,16 +208,17 @@ class ModelSettings(QWidget):
         HLayout.setSpacing(0)
         HLayout.setContentsMargins(0, 0, 0, 0)
 
-        save_button = QPushButton(
+        self.save_button = QPushButton(
             text="Save Model",
             icon=QIcon(str(icons / "save.png")),
             toolTip="Save the fit model as a JSON file",
         )
-        save_button.setIconSize(QSize(20, 20))
-        fit_button = QPushButton("Fit")
+        self.save_button.setIconSize(QSize(20, 20))
 
-        HLayout.addWidget(save_button)
-        HLayout.addWidget(fit_button)
+        self.fit_button = QPushButton("Fit")
+
+        HLayout.addWidget(self.save_button)
+        HLayout.addWidget(self.fit_button)
 
         main_layout.addLayout(HLayout)
 
@@ -216,6 +226,7 @@ class ModelSettings(QWidget):
 
         outer_layout = QVBoxLayout(self)
         outer_layout.addWidget(scroll_area)
+
 
 class ModelSelector(QWidget):
     def __init__(self, parent=None):
@@ -245,6 +256,7 @@ class ModelSelector(QWidget):
 
         self.setLayout(h_layout)
 
+
 class ModelBuilder(QWidget):
     def __init__(self):
         super().__init__()
@@ -272,7 +284,7 @@ class ModelBuilder(QWidget):
         layout = QHBoxLayout(self)
         layout.addWidget(self.model_settings)
         layout.addLayout(vbox_layout)
-        
+
     def set_spinbox_value(self, spinbox, value):
         if value is None:
             spinbox.clear()
@@ -298,6 +310,7 @@ class ModelBuilder(QWidget):
         self.set_spinbox_value(self.model_settings.normalization.range_min, model['normalize_range_min'])
         self.set_spinbox_value(self.model_settings.normalization.range_max, model['normalize_range_max'])
         self.model_settings.normalization.normalize.setChecked(model['normalize'])
+
 
 if __name__ == "__main__":
     import sys

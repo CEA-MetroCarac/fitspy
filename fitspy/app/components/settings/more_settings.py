@@ -17,6 +17,7 @@ from PySide6.QtWidgets import (
 
 from fitspy import FIT_METHODS
 
+
 class FitSettings(QGroupBox):
     def __init__(self):
         super().__init__()
@@ -37,9 +38,9 @@ class FitSettings(QGroupBox):
         self.fit_method_label = QLabel("Fit method:")
         self.fit_method_combo = QComboBox()
         self.fit_method_combo.addItems(FIT_METHODS.keys())
-        self.x_tol_label = QLabel("x-tolerance:")
-        self.x_tol_input = QDoubleSpinBox()
-        self.x_tol_input.setDecimals(6)
+        self.xtol_label = QLabel("xtol:")
+        self.xtol_input = QDoubleSpinBox()
+        self.xtol_input.setDecimals(6)
 
         vbox.addWidget(self.fit_negative_checkbox)
         vbox.addWidget(self.fit_outliers_checkbox)
@@ -63,8 +64,8 @@ class FitSettings(QGroupBox):
         vbox.addLayout(hbox2)
 
         hbox3 = QHBoxLayout()
-        hbox3.addWidget(self.x_tol_label)
-        hbox3.addWidget(self.x_tol_input)
+        hbox3.addWidget(self.xtol_label)
+        hbox3.addWidget(self.xtol_input)
         hbox3.addItem(QSpacerItem(20, 0, QSizePolicy.Minimum, QSizePolicy.Minimum))
         vbox.addLayout(hbox3)
 
@@ -85,7 +86,8 @@ class FitSettings(QGroupBox):
         self.fit_outliers_checkbox.setChecked(fit_params['fit_outliers'])
         self.max_ite_input.setValue(fit_params['max_ite'])
         self.coef_noise_input.setValue(fit_params['coef_noise'])
-        self.x_tol_input.setValue(fit_params['xtol'])
+        self.xtol_input.setValue(fit_params['xtol'])
+
 
 class SolverSettings(QGroupBox):
     def __init__(self):
@@ -153,6 +155,7 @@ class MoreSettings(QWidget):
         hbox.addWidget(self.export_settings)
 
         self.setLayout(hbox)
+
 
 if __name__ == "__main__":
     import sys
