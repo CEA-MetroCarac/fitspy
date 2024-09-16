@@ -12,6 +12,7 @@ class MainModel(QObject):
         self._theme = self.settings.value("theme", DEFAULTS["theme"])
         self._ncpus = self.settings.value("ncpus", DEFAULTS["ncpus"])
         self._outliers_coef = self.settings.value("outliers_coef", DEFAULTS["outliers_coef"], type=float)
+        self._save_only_path = self.settings.value("save_only_path", DEFAULTS["save_only_path"], type=bool)
 
     def update_setting(self, label, state):
         self.settings.setValue(label, state)
@@ -52,6 +53,16 @@ class MainModel(QObject):
                 self.settings.setValue("outliers_coef", value)
         else:
             raise ValueError("outliers_coef must be a positive float")
+        
+    @property
+    def save_only_path(self):
+        return self._save_only_path
+    
+    @save_only_path.setter
+    def save_only_path(self, value):
+        if value != self._save_only_path:
+            self._save_only_path = value
+            self.settings.setValue("save_only_path", value)
 
     def dark_palette(self):
         """Palette color for dark mode of the appli's GUI"""
@@ -96,4 +107,5 @@ class MainModel(QObject):
         self._theme = DEFAULTS["theme"]
         self.ncpus = DEFAULTS["ncpus"]
         self.outliers_coef = DEFAULTS["outliers_coef"]
+        self.save_only_path = DEFAULTS["save_only_path"]
         self.defaultsRestored.emit()

@@ -45,13 +45,14 @@ class MainController(QObject):
         self.plot_controller.settingChanged.connect(self.model.update_setting)
         self.plot_controller.highlightSpectrum.connect(self.files_controller.highlight_spectrum)
 
-        self.settings_controller.outliersCoefChanged.connect(lambda coef: self.set_setting("outliers_coef", coef))
+        self.settings_controller.settingChanged.connect(self.set_setting)
         self.settings_controller.removeOutliers.connect(self.remove_outliers)
 
     def apply_settings(self):
         self.apply_theme()
         self.view.statusBar.ncpus.setCurrentText(self.model.ncpus)
         self.view.more_settings.solver_settings.outliers_coef.setValue(self.model.outliers_coef)
+        self.view.more_settings.export_settings.save_only_path.setChecked(self.model.save_only_path)
 
         for label, checkbox in self.view.toolbar.view_options.checkboxes.items():
             state = self.model.settings.value(label, False, type=bool)

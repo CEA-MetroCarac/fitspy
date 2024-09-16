@@ -2,7 +2,7 @@ from PySide6.QtCore import QObject, Signal
 from .model import Model
 
 class SettingsController(QObject):
-    outliersCoefChanged = Signal(float)
+    settingChanged = Signal(str, object)
     removeOutliers = Signal()
 
     def __init__(self, model_builder, more_settings):
@@ -13,12 +13,19 @@ class SettingsController(QObject):
         self.more_settings = more_settings
         self.fit_settings = more_settings.fit_settings
         self.solver_settings = more_settings.solver_settings
+        self.export_settings = more_settings.export_settings
         self.setup_connections()
 
     def setup_connections(self):
         self.model.currentModelChanged.connect(self.update_model)
-        self.solver_settings.outliers_coef.valueChanged.connect(self.outliersCoefChanged)
+        self.solver_settings.outliers_coef.valueChanged.connect(
+            lambda value: self.settingChanged.emit("outliers_coef", value)
+        )
         self.solver_settings.outliers_removal.clicked.connect(self.removeOutliers)
+        
+        self.export_settings.save_only_path.stateChanged.connect(
+            lambda state: self.settingChanged.emit("save_only_path", state == 2)
+        )
 
     def set_model(self, spectrum):
         model = spectrum.save()

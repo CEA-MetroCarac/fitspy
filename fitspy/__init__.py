@@ -30,4 +30,5 @@ DEFAULTS = {
     'theme': 'dark',
     'ncpus' : 'Auto',
     'outliers_coef': 1.5,
+    'save_only_path': True,
 }

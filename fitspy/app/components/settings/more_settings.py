@@ -113,8 +113,25 @@ class SolverSettings(QGroupBox):
         self.outliers_removal.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
         hbox.addWidget(self.outliers_removal)
 
-        spacer = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
-        hbox.addItem(spacer)
+        vbox.addLayout(hbox)
+        self.setLayout(vbox)
+
+class ExportSettings(QGroupBox):
+    def __init__(self):
+        super().__init__()
+        self.initUI()
+
+    def initUI(self):
+        self.setTitle("Export settings:")
+        self.setStyleSheet("QGroupBox { font-weight: bold; }")
+
+        vbox = QVBoxLayout()
+        vbox.setAlignment(Qt.AlignTop)
+
+        hbox = QHBoxLayout()
+
+        self.save_only_path = QCheckBox("Save only path")
+        hbox.addWidget(self.save_only_path)
 
         vbox.addLayout(hbox)
         self.setLayout(vbox)
@@ -130,8 +147,10 @@ class MoreSettings(QWidget):
 
         self.fit_settings = FitSettings()
         self.solver_settings = SolverSettings()
+        self.export_settings = ExportSettings()
         hbox.addWidget(self.fit_settings)
         hbox.addWidget(self.solver_settings)
+        hbox.addWidget(self.export_settings)
 
         self.setLayout(hbox)
 
