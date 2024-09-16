@@ -75,3 +75,7 @@ class PlotController(QObject):
 
     def get_spectrum(self, fname):
         return self.model.spectra.get_objects(fname)[0]
+
+    def remove_outliers(self, coef):
+        self.model.spectra.outliers_limit_calculation(coef=coef)
+        self.update_spectraplot()

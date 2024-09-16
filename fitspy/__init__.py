@@ -29,4 +29,5 @@ FIT_PARAMS = {'method': 'leastsq', 'fit_negative': False, 'fit_outliers': False,
 DEFAULTS = {
     'theme': 'dark',
     'ncpus' : 'Auto',
+    'outliers_coef': 1.5,
 }

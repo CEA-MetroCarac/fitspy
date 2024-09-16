@@ -97,11 +97,26 @@ class SolverSettings(QGroupBox):
         self.setStyleSheet("QGroupBox { font-weight: bold; }")
 
         vbox = QVBoxLayout()
+        vbox.setAlignment(Qt.AlignTop)
 
-        self.outliers_removal_button = QPushButton("Outliers removal")
-        self.outliers_removal_button.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
-        vbox.addWidget(self.outliers_removal_button, 0, alignment=Qt.AlignTop)
+        hbox = QHBoxLayout()
 
+        self.coef_label = QLabel("Coef:")
+        hbox.addWidget(self.coef_label)
+
+        self.outliers_coef = QDoubleSpinBox()
+        self.outliers_coef.setRange(0.0, 100.0)
+        self.outliers_coef.setSingleStep(0.1)
+        hbox.addWidget(self.outliers_coef)
+
+        self.outliers_removal = QPushButton("Outliers removal")
+        self.outliers_removal.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        hbox.addWidget(self.outliers_removal)
+
+        spacer = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+        hbox.addItem(spacer)
+
+        vbox.addLayout(hbox)
         self.setLayout(vbox)
 
 class MoreSettings(QWidget):

@@ -16,15 +16,15 @@ class MainController(QObject):
         self.model = MainModel()
         self.files_controller = FilesController(self.view.spectrum_list, self.view.maps_list)
         self.plot_controller = PlotController(self.view.spectra_plot, self.view.measurement_sites, self.view.toolbar)
-        self.settings_controller = SettingsController(self.view.fit_model_editor, self.view.more_settings.fit_settings)
+        self.settings_controller = SettingsController(self.view.fit_model_editor, self.view.more_settings)
         self.setup_connections()
         self.apply_settings()
 
     def setup_connections(self):
         self.view.menuBar.actionRestoreDefaults.triggered.connect(self.model.restore_defaults)
-        self.view.menuBar.actionLightMode.triggered.connect(self.on_actionLightMode_triggered)
-        self.view.menuBar.actionDarkMode.triggered.connect(self.on_actionDarkMode_triggered)
-        self.view.statusBar.ncpus.currentTextChanged.connect(self.set_ncpus)
+        self.view.menuBar.actionLightMode.triggered.connect(lambda: self.set_setting("theme", "light"))
+        self.view.menuBar.actionDarkMode.triggered.connect(lambda: self.set_setting("theme", "dark"))
+        self.view.statusBar.ncpus.currentTextChanged.connect(lambda ncpus: self.set_setting("ncpus", ncpus))
         self.model.themeChanged.connect(self.on_theme_changed)
         self.model.defaultsRestored.connect(self.apply_settings)
 
@@ -45,19 +45,17 @@ class MainController(QObject):
         self.plot_controller.settingChanged.connect(self.model.update_setting)
         self.plot_controller.highlightSpectrum.connect(self.files_controller.highlight_spectrum)
 
+        self.settings_controller.outliersCoefChanged.connect(lambda coef: self.set_setting("outliers_coef", coef))
+        self.settings_controller.removeOutliers.connect(self.remove_outliers)
+
     def apply_settings(self):
         self.apply_theme()
         self.view.statusBar.ncpus.setCurrentText(self.model.ncpus)
+        self.view.more_settings.solver_settings.outliers_coef.setValue(self.model.outliers_coef)
 
         for label, checkbox in self.view.toolbar.view_options.checkboxes.items():
             state = self.model.settings.value(label, False, type=bool)
             checkbox.setChecked(state)
-
-    def on_actionLightMode_triggered(self):
-        self.model.theme = "light"
-
-    def on_actionDarkMode_triggered(self):
-        self.model.theme = "dark"
 
     def apply_theme(self):
         app = QApplication.instance()
@@ -73,13 +71,19 @@ class MainController(QObject):
     def on_theme_changed(self):
         self.apply_theme()
 
-    def set_ncpus(self, ncpus):
-        self.model.ncpus = ncpus
+    def set_setting(self, setting_name, value):
+        if hasattr(self.model, setting_name):
+            setattr(self.model, setting_name, value)
+        else:
+            raise AttributeError(f"Setting '{setting_name}' not found in model")
 
     def change_current_fit_model(self, fnames):
         if fnames:
             spectrum = self.plot_controller.get_spectrum(fnames[0])
             self.settings_controller.set_model(spectrum)
+
+    def remove_outliers(self):
+        self.plot_controller.remove_outliers(self.model.outliers_coef)
 
     def show_toast(self, title, text):
         toast = Toast(self.view)

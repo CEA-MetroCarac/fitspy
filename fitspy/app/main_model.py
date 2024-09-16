@@ -11,6 +11,7 @@ class MainModel(QObject):
         self.settings = QSettings("CEA-MetroCarac", "Fitspy")  # these are stored in registry
         self._theme = self.settings.value("theme", DEFAULTS["theme"])
         self._ncpus = self.settings.value("ncpus", DEFAULTS["ncpus"])
+        self._outliers_coef = self.settings.value("outliers_coef", DEFAULTS["outliers_coef"], type=float)
 
     def update_setting(self, label, state):
         self.settings.setValue(label, state)
@@ -38,6 +39,19 @@ class MainModel(QObject):
                 self.settings.setValue("ncpus", value)
         else:
             raise ValueError("ncpus must be 'Auto' or a string representing a positive integer")
+        
+    @property
+    def outliers_coef(self):
+        return self._outliers_coef
+    
+    @outliers_coef.setter
+    def outliers_coef(self, value):
+        if value > 0:
+            if value != self._outliers_coef:
+                self._outliers_coef = value
+                self.settings.setValue("outliers_coef", value)
+        else:
+            raise ValueError("outliers_coef must be a positive float")
 
     def dark_palette(self):
         """Palette color for dark mode of the appli's GUI"""
@@ -81,4 +95,5 @@ class MainModel(QObject):
         self.settings.clear()
         self._theme = DEFAULTS["theme"]
         self.ncpus = DEFAULTS["ncpus"]
+        self.outliers_coef = DEFAULTS["outliers_coef"]
         self.defaultsRestored.emit()
