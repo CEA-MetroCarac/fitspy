@@ -85,10 +85,24 @@ class MainController(QObject):
     def remove_outliers(self):
         self.plot_controller.remove_outliers(self.model.outliers_coef)
 
-    def show_toast(self, title, text):
+    def show_toast(self, title, text, preset="success"):
+        preset_mapping = {
+            "success": (ToastPreset.SUCCESS, ToastPreset.SUCCESS_DARK),
+            "warning": (ToastPreset.WARNING, ToastPreset.WARNING_DARK),
+            "error": (ToastPreset.ERROR, ToastPreset.ERROR_DARK),
+            "information": (ToastPreset.INFORMATION, ToastPreset.INFORMATION_DARK),
+        }
+
+        current_theme = self.model.theme
+        is_dark_theme = current_theme == "dark"
+
         toast = Toast(self.view)
         toast.setDuration(3000)
         toast.setTitle(title)
         toast.setText(text)
-        toast.applyPreset(ToastPreset.SUCCESS)
+
+        # Select the appropriate preset based on the theme
+        selected_preset = preset_mapping[preset.lower()][is_dark_theme]
+        toast.applyPreset(selected_preset)
+
         toast.show()
