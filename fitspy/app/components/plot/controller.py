@@ -7,7 +7,7 @@ class PlotController(QObject):
     spectrumLoaded = Signal(str)
     spectrumDeleted = Signal(object)
     spectraMapDeleted = Signal(str)
-    settingChanged = Signal(str, bool)
+    settingChanged = Signal(str, object)
     highlightSpectrum = Signal(str)
 
     def __init__(self, spectra_plot, map2d_plot, toolbar):
@@ -34,6 +34,10 @@ class PlotController(QObject):
         self.model.spectraMapDeleted.connect(self.spectraMapDeleted)
         self.model.decodedSpectraMap.connect(self.decodedSpectraMap)
         self.model.mapSwitched.connect(self.map2d_plot.set_map)
+
+        self.toolbar.baseline_radio.toggled.connect(self.on_click_mode_changed)
+        self.toolbar.fitting_radio.toggled.connect(self.on_click_mode_changed)
+        self.spectra_plot.canvas.mpl_connect('button_press_event', self.on_spectra_plot_click)
 
         for label, checkbox in self.view_options.checkboxes.items():
             checkbox.stateChanged.connect(lambda state, cb=checkbox: self.view_option_changed(cb))
@@ -79,3 +83,37 @@ class PlotController(QObject):
     def remove_outliers(self, coef):
         self.model.spectra.outliers_limit_calculation(coef=coef)
         self.update_spectraplot()
+
+    def on_click_mode_changed(self):
+        """Callback for radio button state changes."""
+        if self.toolbar.baseline_radio.isChecked():
+            self.settingChanged.emit("click_mode", "baseline")
+        elif self.toolbar.fitting_radio.isChecked():
+            self.settingChanged.emit("click_mode", "fitting")
+
+    def on_spectra_plot_click(self, event):
+        """Callback for click events on the spectra plot."""
+        # if event.button not in [1, 3]:
+        #     return  # Ignore middle mouse button
+        action = 'add' if event.button == 1 else 'del'
+        point_type = 'baseline' if self.toolbar.baseline_radio.isChecked() else 'peak'
+
+        if action == 'add':
+            if point_type == 'baseline':
+                self.model.add_baseline_point(event.xdata, event.ydata)
+            else:
+                self.model.add_peak_point(event.xdata, event.ydata)
+        elif action == 'del':
+            if point_type == 'baseline':
+                self.model.del_baseline_point(event.xdata, event.ydata)
+            else:
+                self.model.del_peak_point(event.xdata, event.ydata)
+
+        self.update_spectraplot()
+
+    def set_spectrum_attr(self, fname, attr, value):
+        if fname is None:
+            for spectrum in self.model.current_spectrum:
+                self.model.set_spectrum_attr(spectrum.fname, attr, value)
+        else:
+            self.model.set_spectrum_attr(fname, attr, value)

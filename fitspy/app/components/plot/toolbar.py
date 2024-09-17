@@ -81,10 +81,11 @@ class Toolbar(QWidget):
             ("Outliers limits", "Outliers limits"),
             ("Noise level", "Noise level"),
             ("Baseline", "Baseline"),
+            ("Subtract baseline", "Subtract baseline"),
             ("Background", "Background"),
             ("Residual", "Residual"),
             ("Peaks", "Peaks"),
-            ("Raw", "Raw"),
+            # ("Raw", "Raw"),
             # ("Filled", "Filled"),
             # ("Colors", "Colors")
             ])
@@ -93,8 +94,8 @@ class Toolbar(QWidget):
     def initUI(self):
         hbox = QHBoxLayout()
         self.mpl_toolbar = CustomNavigationToolbar(self.canvas)
-        baseline_radio = QRadioButton("Baseline")
-        peaks_radio = QRadioButton("Fitting")
+        self.baseline_radio = QRadioButton("Baseline")
+        self.fitting_radio = QRadioButton("Fitting")
         self.copy_button = QPushButton(
             icon=QIcon(str(icons / "clipboard-copy.png")),
             toolTip="Copy Figure to Clipboard",
@@ -106,8 +107,8 @@ class Toolbar(QWidget):
 
         hbox.addWidget(self.mpl_toolbar)
         hbox.addItem(spacer1)
-        hbox.addWidget(baseline_radio)
-        hbox.addWidget(peaks_radio)
+        hbox.addWidget(self.baseline_radio)
+        hbox.addWidget(self.fitting_radio)
         hbox.addItem(spacer2)
         if self.view_options:
             hbox.addWidget(self.view_options)

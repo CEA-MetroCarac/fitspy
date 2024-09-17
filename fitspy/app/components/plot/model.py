@@ -17,6 +17,13 @@ class Model(QObject):
         self.current_map = None
         self.current_spectrum = []
 
+    def set_spectrum_attr(self, fname, attr, value):
+        spectrum = self.spectra.get_objects(fname, parent=self.current_map or self.spectra)[0]
+        attrs = attr.split('.')
+        for attr in attrs[:-1]:
+            spectrum = getattr(spectrum, attr)
+        setattr(spectrum, attrs[-1], value)
+
     @property
     def spectra(self):
         return self._spectra
@@ -77,6 +84,65 @@ class Model(QObject):
                 self.mapSwitched.emit(spectramap)
                 break
 
+    def add_baseline_point(self, x, y):
+        print(f"Adding baseline point at x: {x}, y: {y}")
+        current_spectrum = self.current_spectrum[0]
+        if current_spectrum.baseline.mode not in ['Linear', 'Polynomial']:
+            print("Baseline mode must be 'Linear' or 'Polynomial' to add points.")
+            # TODO toast info ?
+            return
+
+        if current_spectrum.baseline.is_subtracted:
+            # TODO Prompt ask to reinitialize baseline
+            if False:
+                return
+            # current_spectrum.load_profile(current_spectrum.fname)
+            # current_spectrum.apply_range()
+            # current_spectrum.baseline.is_subtracted = False
+            # current_spectrum.baseline.points = [[], []]
+            for spectrum in self.current_spectrum:
+                spectrum.load_profile(spectrum.fname)
+                spectrum.apply_range()
+                spectrum.baseline.is_subtracted = False
+                spectrum.baseline.points = [[], []]
+        
+        for spectrum in self.current_spectrum:
+            spectrum.baseline.add_point(x, y)
+
+        # current_spectrum.baseline.add_point(x, y)
+        
+
+    def del_baseline_point(self, x, y):
+        print(f"Deleting baseline point at x: {x}, y: {y}")
+        if len(self.current_spectrum[0].baseline.points[0]) == 0:
+            return
+        dist_min = np.inf
+        for i, x0 in enumerate(self.current_spectrum[0].baseline.points[0]):
+            dist = abs(x0 - x)
+            if dist < dist_min:
+                dist_min, ind_min = dist, i
+        self.current_spectrum[0].baseline.points[0].pop(ind_min)
+        self.current_spectrum[0].baseline.points[1].pop(ind_min)
+        # self.plot()
+
+    def add_peak_point(self, x, y):
+        print(f"Adding peak point at x: {x}, y: {y}")
+
+    def del_peak_point(self, x, y):
+        print(f"Deleting peak point at x: {x}, y: {y}")
+        if len(self.current_spectrum[0]) > 0:
+            dist_min = np.inf
+            for i, peak_model in enumerate(self.current_spectrum[0].peak_model):
+                x0 = peak_model.param_hints["x0"]["value"]
+                dist = abs(x0 - x)
+                if dist < dist_min:
+                    dist_min, ind_min = dist, i
+            self.current_spectrum[0].del_peak_model(ind_min)
+            self.current_spectrum[0].result_fit = lambda: None
+
+        # self.paramsview.update()
+        # self.plot()
+
     def update_spectraplot(self, ax, view_options):
         """ Update the plot with the current spectra """
         ax.clear()
@@ -105,10 +171,27 @@ class Model(QObject):
                             show_noise_level=view_options.get("Noise level", False),
                             show_baseline=view_options.get("Baseline", False),
                             show_background=view_options.get("Background", False),
+                            subtract_baseline=view_options.get("Subtract baseline", False),
                             )
                 first_spectrum = False
             else:
                 ax.plot(x0, y0, 'k-', lw=0.2, zorder=0)
+
+            # Fix duplicate baseline
+            for line in ax.lines:
+                if line.get_label() == "Baseline":
+                    line.remove()
+
+            # baseline plotting
+            baseline = spectrum.baseline
+            if not baseline.is_subtracted:
+                x, y = spectrum.x, None
+                if baseline.attached or baseline.mode == "Semi-Auto":
+                    y = spectrum.y
+                baseline.plot(ax, x, y, attached=baseline.attached)
+
+            if view_options.get("Legend", False):
+                ax.legend()
         
             # self.current_map.set_marker(spectrum)
             # self.current_map.plot_map_update()

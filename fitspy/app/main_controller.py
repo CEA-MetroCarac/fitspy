@@ -33,8 +33,8 @@ class MainController(QObject):
         self.files_controller.delSpectrum.connect(self.plot_controller.del_spectrum)
         self.files_controller.delSpectraMap.connect(self.plot_controller.del_map)
         self.files_controller.spectraChanged.connect(self.plot_controller.set_current_spectrum)
+        self.files_controller.spectraChanged.connect(self.change_current_fit_model)
         self.files_controller.mapChanged.connect(self.plot_controller.switch_map)
-        self.files_controller.currentModelChanged.connect(self.change_current_fit_model)
         self.files_controller.addMarker.connect(self.plot_controller.set_marker)
 
         self.plot_controller.showToast.connect(self.show_toast)
@@ -47,6 +47,7 @@ class MainController(QObject):
 
         self.settings_controller.settingChanged.connect(self.set_setting)
         self.settings_controller.removeOutliers.connect(self.remove_outliers)
+        self.settings_controller.setSpectrumAttr.connect(self.plot_controller.set_spectrum_attr)
 
     def apply_settings(self):
         self.apply_theme()
@@ -54,6 +55,11 @@ class MainController(QObject):
         self.view.more_settings.solver_settings.outliers_coef.setValue(self.model.outliers_coef)
         self.view.more_settings.export_settings.save_only_path.setChecked(self.model.save_only_path)
 
+        if self.model.click_mode == "baseline":
+            self.view.toolbar.baseline_radio.setChecked(True)
+        elif self.model.click_mode == "fitting":
+            self.view.toolbar.fitting_radio.setChecked(True)
+    
         for label, checkbox in self.view.toolbar.view_options.checkboxes.items():
             state = self.model.settings.value(label, False, type=bool)
             checkbox.setChecked(state)

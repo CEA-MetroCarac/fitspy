@@ -13,6 +13,7 @@ class MainModel(QObject):
         self._ncpus = self.settings.value("ncpus", DEFAULTS["ncpus"])
         self._outliers_coef = self.settings.value("outliers_coef", DEFAULTS["outliers_coef"], type=float)
         self._save_only_path = self.settings.value("save_only_path", DEFAULTS["save_only_path"], type=bool)
+        self._click_mode = self.settings.value("click_mode", DEFAULTS["click_mode"])
 
     def update_setting(self, label, state):
         self.settings.setValue(label, state)
@@ -64,6 +65,19 @@ class MainModel(QObject):
             self._save_only_path = value
             self.settings.setValue("save_only_path", value)
 
+    @property
+    def click_mode(self):
+        return self._click_mode
+    
+    @click_mode.setter
+    def click_mode(self, value):
+        if value in ["baseline", "fitting"]:
+            if value != self._click_mode:
+                self._click_mode = value
+                self.settings.setValue("click_mode", value)
+        else:
+            raise ValueError("click_mode must be 'baseline' or 'fitting'")
+
     def dark_palette(self):
         """Palette color for dark mode of the appli's GUI"""
         dark_palette = QPalette()
@@ -108,4 +122,5 @@ class MainModel(QObject):
         self.ncpus = DEFAULTS["ncpus"]
         self.outliers_coef = DEFAULTS["outliers_coef"]
         self.save_only_path = DEFAULTS["save_only_path"]
+        self.click_mode = DEFAULTS["click_mode"]
         self.defaultsRestored.emit()

@@ -90,13 +90,13 @@ class Baseline(QGroupBox):
         self.HLayout1.setSpacing(5)
         self.HLayout1.setContentsMargins(0, 0, 0, 0)
 
-        self.radio_semi_auto = QRadioButton("Semi-Auto :")
+        self.semi_auto = QRadioButton("Semi-Auto :")
         self.slider = QSlider(Qt.Horizontal)
         self.slider.setRange(0, 10)
         # self.slider.setValue(5) 
         self.import_button = QPushButton("Import")
 
-        self.HLayout1.addWidget(self.radio_semi_auto)
+        self.HLayout1.addWidget(self.semi_auto)
         self.HLayout1.addWidget(self.slider)
         self.HLayout1.addWidget(self.import_button)
 
@@ -104,12 +104,12 @@ class Baseline(QGroupBox):
         self.HLayout2.setSpacing(5)
         self.HLayout2.setContentsMargins(0, 0, 0, 0)
 
-        self.radio_linear = QRadioButton("Linear")
-        self.radio_polynomial = QRadioButton("Polynomial - Order :")
+        self.linear = QRadioButton("Linear")
+        self.polynomial = QRadioButton("Polynomial - Order :")
         self.spin_polynomial_order = QSpinBox()
 
-        self.HLayout2.addWidget(self.radio_linear)
-        self.HLayout2.addWidget(self.radio_polynomial)
+        self.HLayout2.addWidget(self.linear)
+        self.HLayout2.addWidget(self.polynomial)
         self.HLayout2.addWidget(self.spin_polynomial_order)
 
         self.HLayout3 = QHBoxLayout()
@@ -286,9 +286,16 @@ class ModelBuilder(QWidget):
 
         # Baseline
         baseline = model['baseline']
-        self.model_settings.baseline.radio_semi_auto.setChecked(baseline['mode'] == "Semi-Auto")
-        self.model_settings.baseline.radio_linear.setChecked(baseline['mode'] == "Linear")
-        self.model_settings.baseline.radio_polynomial.setChecked(baseline['mode'] == "Polynomial")
+        self.model_settings.baseline.semi_auto.setAutoExclusive(False)
+        self.model_settings.baseline.linear.setAutoExclusive(False)
+        self.model_settings.baseline.polynomial.setAutoExclusive(False)
+        self.model_settings.baseline.semi_auto.setChecked(baseline['mode'] == "Semi-Auto")
+        self.model_settings.baseline.linear.setChecked(baseline['mode'] == "Linear")
+        self.model_settings.baseline.polynomial.setChecked(baseline['mode'] == "Polynomial")
+        self.model_settings.baseline.semi_auto.setAutoExclusive(True)
+        self.model_settings.baseline.linear.setAutoExclusive(True)
+        self.model_settings.baseline.polynomial.setAutoExclusive(True)
+
         self.model_settings.baseline.attached.setChecked(baseline['attached'])
         self.set_spinbox_value(self.model_settings.baseline.spin_polynomial_order, baseline['order_max'])
         self.set_spinbox_value(self.model_settings.baseline.spin_sigma, baseline['sigma'])

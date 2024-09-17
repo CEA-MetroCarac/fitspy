@@ -4,6 +4,7 @@ from .model import Model
 class SettingsController(QObject):
     settingChanged = Signal(str, object)
     removeOutliers = Signal()
+    setSpectrumAttr = Signal(object, str, object)
 
     def __init__(self, model_builder, more_settings):
         super().__init__()
@@ -21,10 +22,27 @@ class SettingsController(QObject):
         self.solver_settings.outliers_coef.valueChanged.connect(
             lambda value: self.settingChanged.emit("outliers_coef", value)
         )
-        self.solver_settings.outliers_removal.clicked.connect(self.removeOutliers)
-        
+        self.solver_settings.outliers_removal.clicked.connect(
+            self.removeOutliers
+        )
+
         self.export_settings.save_only_path.stateChanged.connect(
             lambda state: self.settingChanged.emit("save_only_path", state == 2)
+        )
+        
+        # Baseline settings connections
+        baseline = self.model_builder.model_settings.baseline
+        baseline.slider.valueChanged.connect(
+            lambda value: self.setSpectrumAttr.emit(None, "baseline.coef", value)
+        )
+        baseline.semi_auto.toggled.connect(
+            lambda: self.setSpectrumAttr.emit(None, "baseline.mode", "Semi-Auto")
+        )
+        baseline.linear.toggled.connect(
+            lambda: self.setSpectrumAttr.emit(None, "baseline.mode", "Linear")
+        )
+        baseline.polynomial.toggled.connect(
+            lambda: self.setSpectrumAttr.emit(None, "baseline.mode", "Polynomial")
         )
 
     def set_model(self, spectrum):
