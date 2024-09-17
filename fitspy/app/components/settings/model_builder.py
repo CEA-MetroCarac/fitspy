@@ -110,11 +110,11 @@ class Baseline(QGroupBox):
 
         self.radio_linear = QRadioButton("Linear")
         self.radio_polynomial = QRadioButton("Polynomial - Order :")
-        self.spin_polynomial_order = QSpinBox()
+        self.spin_poly_order = QSpinBox()
 
         self.HLayout2.addWidget(self.radio_linear)
         self.HLayout2.addWidget(self.radio_polynomial)
-        self.HLayout2.addWidget(self.spin_polynomial_order)
+        self.HLayout2.addWidget(self.spin_poly_order)
 
         self.HLayout3 = QHBoxLayout()
         self.HLayout3.setSpacing(5)
@@ -231,6 +231,7 @@ class ModelSettings(QWidget):
 class ModelSelector(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
+        self.fit_models = []
         self.initUI()
 
     def initUI(self):
@@ -240,17 +241,17 @@ class ModelSelector(QWidget):
 
         label = QLabel("Select a model:")
 
-        combo_box = QComboBox()
-        combo_box.setPlaceholderText("Select a model for fitting")
+        self.combo_box = QComboBox()
+        self.combo_box.setPlaceholderText("Select a model for fitting")
 
-        apply_button = QPushButton("Apply Model")
+        self.apply_button = QPushButton("Apply Model")
 
-        load_button = QPushButton("Load Model")
+        self.load_button = QPushButton("Load Model")
 
         h_layout.addWidget(label)
-        h_layout.addWidget(combo_box)
-        h_layout.addWidget(apply_button)
-        h_layout.addWidget(load_button)
+        h_layout.addWidget(self.combo_box)
+        h_layout.addWidget(self.apply_button)
+        h_layout.addWidget(self.load_button)
 
         h_layout.setStretch(1, 1)
 
@@ -292,24 +293,30 @@ class ModelBuilder(QWidget):
             spinbox.setValue(value)
 
     def update_model(self, model):
+
+        set_spinbox_value = self.set_spinbox_value
+
         # Spectral range
-        self.set_spinbox_value(self.model_settings.spectral_range.range_min, model['range_min'])
-        self.set_spinbox_value(self.model_settings.spectral_range.range_max, model['range_max'])
+        spectral_range = self.model_settings.spectral_range
+        set_spinbox_value(spectral_range.range_min, model['range_min'])
+        set_spinbox_value(spectral_range.range_max, model['range_max'])
 
         # Baseline
-        baseline = model['baseline']
-        self.model_settings.baseline.radio_semi_auto.setChecked(baseline['mode'] == "Semi-Auto")
-        self.model_settings.baseline.radio_linear.setChecked(baseline['mode'] == "Linear")
-        self.model_settings.baseline.radio_polynomial.setChecked(baseline['mode'] == "Polynomial")
-        self.model_settings.baseline.attached.setChecked(baseline['attached'])
-        self.set_spinbox_value(self.model_settings.baseline.spin_polynomial_order, baseline['order_max'])
-        self.set_spinbox_value(self.model_settings.baseline.spin_sigma, baseline['sigma'])
-        self.model_settings.baseline.slider.setValue(baseline['coef'])
+        baseline = self.model_settings.baseline
+        m_baseline = model['baseline']
+        baseline.radio_semi_auto.setChecked(m_baseline['mode'] == "Semi-Auto")
+        baseline.radio_linear.setChecked(m_baseline['mode'] == "Linear")
+        baseline.radio_polynomial.setChecked(m_baseline['mode'] == "Polynomial")
+        baseline.attached.setChecked(m_baseline['attached'])
+        set_spinbox_value(baseline.spin_poly_order, m_baseline['order_max'])
+        set_spinbox_value(baseline.spin_sigma, m_baseline['sigma'])
+        baseline.slider.setValue(m_baseline['coef'])
 
         # Normalization
-        self.set_spinbox_value(self.model_settings.normalization.range_min, model['normalize_range_min'])
-        self.set_spinbox_value(self.model_settings.normalization.range_max, model['normalize_range_max'])
-        self.model_settings.normalization.normalize.setChecked(model['normalize'])
+        normalization = self.model_settings.normalization
+        set_spinbox_value(normalization.range_min, model['normalize_range_min'])
+        set_spinbox_value(normalization.range_max, model['normalize_range_max'])
+        normalization.normalize.setChecked(model['normalize'])
 
 
 if __name__ == "__main__":
