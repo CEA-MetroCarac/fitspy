@@ -117,3 +117,5 @@ class PlotController(QObject):
                 self.model.set_spectrum_attr(spectrum.fname, attr, value)
         else:
             self.model.set_spectrum_attr(fname, attr, value)
+
+        self.update_spectraplot()

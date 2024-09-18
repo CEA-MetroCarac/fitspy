@@ -1,8 +1,11 @@
 from PySide6.QtCore import Qt, Signal
-from PySide6.QtWidgets import QMainWindow, QDockWidget, QWidget, QVBoxLayout, QLabel, QDoubleSpinBox, QHBoxLayout, QTabWidget, QSizePolicy, QPushButton
+from PySide6.QtWidgets import QMainWindow, QDockWidget, QWidget, QVBoxLayout, QLabel, QHBoxLayout, QTabWidget, QPushButton
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_qtagg import FigureCanvas
 from superqt import QLabeledDoubleRangeSlider as QRangeSlider
+
+from fitspy.app.components.settings import DoubleSpinBox
+
 
 class CommonTab(QWidget):
     def __init__(self, parent=None):
@@ -14,10 +17,10 @@ class CommonTab(QWidget):
         self.layout.setSpacing(3)
         h_layout1 = QHBoxLayout()
 
-        range_min = QDoubleSpinBox()
+        range_min = DoubleSpinBox()
         range_min.setDecimals(2)
         range_min.setRange(-9999.99, 9999.99)
-        range_max = QDoubleSpinBox()
+        range_max = DoubleSpinBox()
         range_max.setDecimals(2)
         range_max.setRange(-9999.99, 9999.99)
 

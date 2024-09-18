@@ -7,15 +7,14 @@ from PySide6.QtWidgets import (
     QVBoxLayout,
     QHBoxLayout,
     QCheckBox,
-    QSpinBox,
     QComboBox,
-    QDoubleSpinBox,
     QLabel,
     QSpacerItem,
     QApplication,
 )
 
 from fitspy import FIT_METHODS
+from .custom_spinbox import SpinBox, DoubleSpinBox
 
 class FitSettings(QGroupBox):
     def __init__(self):
@@ -23,7 +22,7 @@ class FitSettings(QGroupBox):
         self.initUI()
 
     def initUI(self):
-        self.setTitle("Fit Algorithm settings:")
+        self.setTitle("Fit Solver Settings:")
         self.setStyleSheet("QGroupBox { font-weight: bold; }")
 
         vbox = QVBoxLayout()
@@ -31,14 +30,14 @@ class FitSettings(QGroupBox):
         self.fit_negative_checkbox = QCheckBox("Fit negative values:")
         self.fit_outliers_checkbox = QCheckBox("Fit outliers:")
         self.coef_noise_label = QLabel("Coefficient noise:")
-        self.coef_noise_input = QDoubleSpinBox()
+        self.coef_noise_input = DoubleSpinBox()
         self.max_ite_label = QLabel("Maximum iterations:")
-        self.max_ite_input = QSpinBox()
+        self.max_ite_input = SpinBox()
         self.fit_method_label = QLabel("Fit method:")
         self.fit_method_combo = QComboBox()
         self.fit_method_combo.addItems(FIT_METHODS.keys())
         self.x_tol_label = QLabel("x-tolerance:")
-        self.x_tol_input = QDoubleSpinBox()
+        self.x_tol_input = DoubleSpinBox()
         self.x_tol_input.setDecimals(6)
 
         vbox.addWidget(self.fit_negative_checkbox)
@@ -47,25 +46,26 @@ class FitSettings(QGroupBox):
         hbox0 = QHBoxLayout()
         hbox0.addWidget(self.coef_noise_label)
         hbox0.addWidget(self.coef_noise_input)
-        hbox0.addItem(QSpacerItem(20, 0, QSizePolicy.Minimum, QSizePolicy.Minimum))
+        spacer = QSpacerItem(20, 0, QSizePolicy.Minimum, QSizePolicy.Minimum)
+        hbox0.addItem(spacer)
         vbox.addLayout(hbox0)
 
         hbox1 = QHBoxLayout()
         hbox1.addWidget(self.max_ite_label)
         hbox1.addWidget(self.max_ite_input)
-        hbox1.addItem(QSpacerItem(20, 0, QSizePolicy.Minimum, QSizePolicy.Minimum))
+        hbox1.addItem(spacer)
         vbox.addLayout(hbox1)
 
         hbox2 = QHBoxLayout()
         hbox2.addWidget(self.fit_method_label)
         hbox2.addWidget(self.fit_method_combo)
-        hbox2.addItem(QSpacerItem(20, 0, QSizePolicy.Minimum, QSizePolicy.Minimum))
+        hbox2.addItem(spacer)
         vbox.addLayout(hbox2)
 
         hbox3 = QHBoxLayout()
         hbox3.addWidget(self.x_tol_label)
         hbox3.addWidget(self.x_tol_input)
-        hbox3.addItem(QSpacerItem(20, 0, QSizePolicy.Minimum, QSizePolicy.Minimum))
+        hbox3.addItem(spacer)
         vbox.addLayout(hbox3)
 
         vbox.addItem(QSpacerItem(0, 20, QSizePolicy.Minimum, QSizePolicy.Expanding))
@@ -87,13 +87,13 @@ class FitSettings(QGroupBox):
         self.coef_noise_input.setValue(fit_params['coef_noise'])
         self.x_tol_input.setValue(fit_params['xtol'])
 
-class SolverSettings(QGroupBox):
+class OtherSettings(QGroupBox):
     def __init__(self):
         super().__init__()
         self.initUI()
 
     def initUI(self):
-        self.setTitle("Solver settings:")
+        self.setTitle("Other settings:")
         self.setStyleSheet("QGroupBox { font-weight: bold; }")
 
         vbox = QVBoxLayout()
@@ -104,7 +104,7 @@ class SolverSettings(QGroupBox):
         self.coef_label = QLabel("Coef:")
         hbox.addWidget(self.coef_label)
 
-        self.outliers_coef = QDoubleSpinBox()
+        self.outliers_coef = DoubleSpinBox()
         self.outliers_coef.setRange(0.0, 100.0)
         self.outliers_coef.setSingleStep(0.1)
         hbox.addWidget(self.outliers_coef)
@@ -113,27 +113,12 @@ class SolverSettings(QGroupBox):
         self.outliers_removal.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
         hbox.addWidget(self.outliers_removal)
 
-        vbox.addLayout(hbox)
-        self.setLayout(vbox)
-
-class ExportSettings(QGroupBox):
-    def __init__(self):
-        super().__init__()
-        self.initUI()
-
-    def initUI(self):
-        self.setTitle("Export settings:")
-        self.setStyleSheet("QGroupBox { font-weight: bold; }")
-
-        vbox = QVBoxLayout()
-        vbox.setAlignment(Qt.AlignTop)
-
-        hbox = QHBoxLayout()
-
-        self.save_only_path = QCheckBox("Save only path")
-        hbox.addWidget(self.save_only_path)
+        hbox_2 = QHBoxLayout()
+        self.save_only_path = QCheckBox("Save spectrum file path only", toolTip="If unchecked, saves the spectrum data")
+        hbox_2.addWidget(self.save_only_path)
 
         vbox.addLayout(hbox)
+        vbox.addLayout(hbox_2)
         self.setLayout(vbox)
 
 class MoreSettings(QWidget):
@@ -146,11 +131,9 @@ class MoreSettings(QWidget):
         hbox.setContentsMargins(10, 10, 10, 10)
 
         self.fit_settings = FitSettings()
-        self.solver_settings = SolverSettings()
-        self.export_settings = ExportSettings()
+        self.other_settings = OtherSettings()
         hbox.addWidget(self.fit_settings)
-        hbox.addWidget(self.solver_settings)
-        hbox.addWidget(self.export_settings)
+        hbox.addWidget(self.other_settings)
 
         self.setLayout(hbox)
 

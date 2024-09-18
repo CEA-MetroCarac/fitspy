@@ -71,13 +71,11 @@ class MainView(QMainWindow):
         self.verticalLayout_13.addLayout(self.horizontalLayout_69)
 
         self.horizontalLayout_50 = QHBoxLayout()
-        self.horizontalSpacer_18 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+        horizontalSpacer = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
 
-        self.horizontalLayout_50.addItem(self.horizontalSpacer_18)
+        self.horizontalLayout_50.addItem(horizontalSpacer)
 
         self.verticalLayout_13.addLayout(self.horizontalLayout_50)
-
-        self.verticalSpacer_5 = QSpacerItem(20, 40, QSizePolicy.Expanding, QSizePolicy.Minimum)
 
         self.Upper_zone.addWidget(self.widget_7)
 
@@ -94,7 +92,7 @@ class MainView(QMainWindow):
         self.tabWidget_2.addTab(self.fit_model_editor, "Fit Model")
 
         self.more_settings = MoreSettings()
-        self.tabWidget_2.addTab(self.more_settings, "Others")
+        self.tabWidget_2.addTab(self.more_settings, "More settings")
 
         self.verticalLayout_25.addWidget(self.tabWidget_2)
 
@@ -150,8 +148,6 @@ class MainView(QMainWindow):
 
         self.cb_join_for_point_plot = QCheckBox(self.scrollAreaWidgetContents_8)
 
-        self.horizontalSpacer_5 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
-
         self.line_3 = QFrame(self.scrollAreaWidgetContents_8)
         self.line_3.setFrameShape(QFrame.HLine)
         self.line_3.setFrameShadow(QFrame.Sunken)
@@ -164,17 +160,13 @@ class MainView(QMainWindow):
         self.cbb_legend_loc = QComboBox(self.scrollAreaWidgetContents_8)
 
         self.legends_loc.addWidget(self.cbb_legend_loc)
-
-        self.horizontalSpacer_35 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
-
-        self.legends_loc.addItem(self.horizontalSpacer_35)
+        self.legends_loc.addItem(horizontalSpacer)
 
         self.main_layout = QHBoxLayout()
 
         self.horizontalLayout_13 = QHBoxLayout()
-        self.horizontalSpacer_48 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
 
-        self.horizontalLayout_13.addItem(self.horizontalSpacer_48)
+        self.horizontalLayout_13.addItem(horizontalSpacer)
 
         self.scrollArea_8.setWidget(self.scrollAreaWidgetContents_8)
 

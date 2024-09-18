@@ -2,10 +2,11 @@ from pathlib import Path
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QIcon
 from PySide6.QtCore import QSize
-from PySide6.QtWidgets import QDoubleSpinBox, QRadioButton, QSlider, QSpinBox, QVBoxLayout, QGroupBox, QHBoxLayout, QScrollArea, QPushButton, QCheckBox, QLabel, QWidget, QComboBox, QSpacerItem, QSizePolicy
+from PySide6.QtWidgets import QRadioButton, QSlider, QVBoxLayout, QGroupBox, QHBoxLayout, QScrollArea, QPushButton, QCheckBox, QLabel, QWidget, QComboBox, QSpacerItem, QSizePolicy
 
-from .peaks_table import PeaksTable
 from fitspy import PEAK_MODELS, BKG_MODELS
+from .custom_spinbox import SpinBox, DoubleSpinBox
+from .peaks_table import PeaksTable
 
 project_root = Path(__file__).resolve().parent.parent.parent.parent
 icons = project_root / 'resources' / 'iconpack'
@@ -21,11 +22,11 @@ class Normalization(QGroupBox):
         self.setTitle("Normalization")
         self.setStyleSheet("QGroupBox { font-weight: bold; }")
 
-        self.range_min = QDoubleSpinBox()
+        self.range_min = DoubleSpinBox()
         self.range_min.setDecimals(2)
         self.range_min.setRange(-9999.99, 9999.99)
 
-        self.range_max = QDoubleSpinBox()
+        self.range_max = DoubleSpinBox()
         self.range_max.setDecimals(2)
         self.range_max.setRange(-9999.99, 9999.99)
 
@@ -56,11 +57,11 @@ class SpectralRange(QGroupBox):
 
         label = QLabel("X min/max:")
 
-        self.range_min = QDoubleSpinBox()
+        self.range_min = DoubleSpinBox()
         self.range_min.setDecimals(2)
         self.range_min.setRange(-9999.99, 9999.99)
 
-        self.range_max = QDoubleSpinBox()
+        self.range_max = DoubleSpinBox()
         self.range_max.setDecimals(2)
         self.range_max.setRange(-9999.99, 9999.99)
 
@@ -105,12 +106,17 @@ class Baseline(QGroupBox):
         self.HLayout2.setContentsMargins(0, 0, 0, 0)
 
         self.linear = QRadioButton("Linear")
-        self.polynomial = QRadioButton("Polynomial - Order :")
-        self.spin_polynomial_order = QSpinBox()
+        self.polynomial = QRadioButton("Polynomial")
+        spacer = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+        self.label_order = QLabel("Order:")
+        self.order = SpinBox()
 
         self.HLayout2.addWidget(self.linear)
+        self.HLayout2.addItem(spacer)
         self.HLayout2.addWidget(self.polynomial)
-        self.HLayout2.addWidget(self.spin_polynomial_order)
+        self.HLayout2.addItem(spacer)
+        self.HLayout2.addWidget(self.label_order)
+        self.HLayout2.addWidget(self.order)
 
         self.HLayout3 = QHBoxLayout()
         self.HLayout3.setSpacing(5)
@@ -118,9 +124,10 @@ class Baseline(QGroupBox):
 
         self.attached = QCheckBox("Attached")
         self.label_sigma = QLabel("Sigma (smoothing):")
-        self.spin_sigma = QSpinBox()
+        self.spin_sigma = SpinBox()
 
         self.HLayout3.addWidget(self.attached)
+        self.HLayout3.addItem(spacer)
         self.HLayout3.addWidget(self.label_sigma)
         self.HLayout3.addWidget(self.spin_sigma)
 
@@ -272,17 +279,11 @@ class ModelBuilder(QWidget):
         layout = QHBoxLayout(self)
         layout.addWidget(self.model_settings)
         layout.addLayout(vbox_layout)
-        
-    def set_spinbox_value(self, spinbox, value):
-        if value is None:
-            spinbox.clear()
-        else:
-            spinbox.setValue(value)
 
     def update_model(self, model):
         # Spectral range
-        self.set_spinbox_value(self.model_settings.spectral_range.range_min, model['range_min'])
-        self.set_spinbox_value(self.model_settings.spectral_range.range_max, model['range_max'])
+        self.model_settings.spectral_range.range_min.setValue(model['range_min'])
+        self.model_settings.spectral_range.range_max.setValue(model['range_max'])
 
         # Baseline
         baseline = model['baseline']
@@ -297,13 +298,13 @@ class ModelBuilder(QWidget):
         self.model_settings.baseline.polynomial.setAutoExclusive(True)
 
         self.model_settings.baseline.attached.setChecked(baseline['attached'])
-        self.set_spinbox_value(self.model_settings.baseline.spin_polynomial_order, baseline['order_max'])
-        self.set_spinbox_value(self.model_settings.baseline.spin_sigma, baseline['sigma'])
+        self.model_settings.baseline.order.setValue(baseline['order_max'])
+        self.model_settings.baseline.spin_sigma.setValue(baseline['sigma'])
         self.model_settings.baseline.slider.setValue(baseline['coef'])
 
         # Normalization
-        self.set_spinbox_value(self.model_settings.normalization.range_min, model['normalize_range_min'])
-        self.set_spinbox_value(self.model_settings.normalization.range_max, model['normalize_range_max'])
+        self.model_settings.normalization.range_min.setValue(model['normalize_range_min'])
+        self.model_settings.normalization.range_max.setValue(model['normalize_range_max'])
         self.model_settings.normalization.normalize.setChecked(model['normalize'])
 
 if __name__ == "__main__":

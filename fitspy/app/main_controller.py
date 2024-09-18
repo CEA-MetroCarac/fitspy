@@ -52,8 +52,8 @@ class MainController(QObject):
     def apply_settings(self):
         self.apply_theme()
         self.view.statusBar.ncpus.setCurrentText(self.model.ncpus)
-        self.view.more_settings.solver_settings.outliers_coef.setValue(self.model.outliers_coef)
-        self.view.more_settings.export_settings.save_only_path.setChecked(self.model.save_only_path)
+        self.view.more_settings.other_settings.outliers_coef.setValue(self.model.outliers_coef)
+        self.view.more_settings.other_settings.save_only_path.setChecked(self.model.save_only_path)
 
         if self.model.click_mode == "baseline":
             self.view.toolbar.baseline_radio.setChecked(True)
