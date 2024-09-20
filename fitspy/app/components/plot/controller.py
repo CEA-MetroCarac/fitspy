@@ -9,6 +9,7 @@ class PlotController(QObject):
     spectraMapDeleted = Signal(str)
     settingChanged = Signal(str, object)
     highlightSpectrum = Signal(str)
+    baselinePointsChanged = Signal(list)
 
     def __init__(self, spectra_plot, map2d_plot, toolbar):
         super().__init__()
@@ -34,8 +35,9 @@ class PlotController(QObject):
         self.model.spectraMapDeleted.connect(self.spectraMapDeleted)
         self.model.decodedSpectraMap.connect(self.decodedSpectraMap)
         self.model.mapSwitched.connect(self.map2d_plot.set_map)
+        self.model.baselinePointsChanged.connect(self.baselinePointsChanged)
+        self.model.refreshPlot.connect(self.update_spectraplot)
 
-        self.toolbar.baseline_radio.toggled.connect(self.on_click_mode_changed)
         self.toolbar.fitting_radio.toggled.connect(self.on_click_mode_changed)
         self.spectra_plot.canvas.mpl_connect('button_press_event', self.on_spectra_plot_click)
 
@@ -70,7 +72,6 @@ class PlotController(QObject):
     def set_current_spectrum(self, fnames):
         parent = self.model.current_map if self.model.current_map else self.model.spectra
         self.model.current_spectrum = [self.model.spectra.get_objects(fname, parent)[0] for fname in fnames]
-        self.update_spectraplot()
 
     def update_spectraplot(self):
         ax = self.spectra_plot.ax
@@ -109,8 +110,6 @@ class PlotController(QObject):
             else:
                 self.model.del_peak_point(event.xdata, event.ydata)
 
-        self.update_spectraplot()
-
     def set_spectrum_attr(self, fname, attr, value):
         if fname is None:
             for spectrum in self.model.current_spectrum:
@@ -119,3 +118,6 @@ class PlotController(QObject):
             self.model.set_spectrum_attr(fname, attr, value)
 
         self.update_spectraplot()
+
+    def set_baseline_points(self, points):
+        self.model.set_baseline_points(points)

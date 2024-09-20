@@ -44,10 +44,12 @@ class MainController(QObject):
         self.plot_controller.decodedSpectraMap.connect(self.files_controller.update_spectramap)  # could be simplified : self.files_controller.model.update_spectramap
         self.plot_controller.settingChanged.connect(self.model.update_setting)
         self.plot_controller.highlightSpectrum.connect(self.files_controller.highlight_spectrum)
+        self.plot_controller.baselinePointsChanged.connect(self.settings_controller.set_baseline_points)
 
         self.settings_controller.settingChanged.connect(self.set_setting)
         self.settings_controller.removeOutliers.connect(self.remove_outliers)
         self.settings_controller.setSpectrumAttr.connect(self.plot_controller.set_spectrum_attr)
+        self.settings_controller.baselinePointsChanged.connect(self.plot_controller.set_baseline_points)
 
     def apply_settings(self):
         self.apply_theme()
@@ -88,6 +90,8 @@ class MainController(QObject):
         if fnames:
             spectrum = self.plot_controller.get_spectrum(fnames[0])
             self.settings_controller.set_model(spectrum)
+        else:
+            self.plot_controller.update_spectraplot()
 
     def remove_outliers(self):
         self.plot_controller.remove_outliers(self.model.outliers_coef)

@@ -7,6 +7,7 @@ from PySide6.QtWidgets import QRadioButton, QSlider, QVBoxLayout, QGroupBox, QHB
 from fitspy import PEAK_MODELS, BKG_MODELS
 from .custom_spinbox import SpinBox, DoubleSpinBox
 from .peaks_table import PeaksTable
+from .baseline_table import BaselineTable
 
 project_root = Path(__file__).resolve().parent.parent.parent.parent
 icons = project_root / 'resources' / 'iconpack'
@@ -265,6 +266,8 @@ class ModelBuilder(QWidget):
         self.limits_chbox.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
         self.expr_chbox.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
         self.model_selector = ModelSelector(self)
+        self.baseline_table = BaselineTable(self)
+        self.baseline_table.setMaximumWidth(150)
 
         vbox_layout = QVBoxLayout()
         vbox_layout.addWidget(self.peak_table)
@@ -279,6 +282,7 @@ class ModelBuilder(QWidget):
         layout = QHBoxLayout(self)
         layout.addWidget(self.model_settings)
         layout.addLayout(vbox_layout)
+        layout.addWidget(self.baseline_table)
 
     def update_model(self, model):
         # Spectral range

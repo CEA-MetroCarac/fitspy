@@ -657,11 +657,11 @@ class Spectrum:
                 is_ok = False
 
     def plot(self, ax,
-             show_outliers=True, show_outliers_limit=True,
-             show_negative_values=True, show_noise_level=True,
-             show_baseline=True, show_background=True,
-             show_peak_models=True, show_result=True,
-             subtract_baseline=True):
+            show_outliers=True, show_outliers_limit=True,
+            show_negative_values=True, show_noise_level=True,
+            show_baseline=True, show_background=True,
+            show_peak_models=True, show_result=True,
+            subtract_baseline=True, label=None):
         """ Plot the spectrum with the peak models """
         x, y = self.x.copy(), self.y.copy()
 
@@ -673,7 +673,7 @@ class Spectrum:
         if hasattr(self.result_fit, 'success') and self.result_fit.success:
             linewidth = 1
 
-        ax.plot(x, y, 'ko-', lw=0.5, ms=1)
+        ax.plot(x, y, 'ko-', lw=0.5, ms=1, label=label)
 
         if show_outliers:
             x_outliers, y_outliers = self.calculate_outliers()
@@ -682,54 +682,54 @@ class Spectrum:
                 if subtract_baseline and self.baseline.y_eval is not None:
                     y_outliers -= self.baseline.y_eval[inds]
                 ax.plot(x_outliers, y_outliers, 'o',
-                        c='lime', mec='k', label='Outliers')
+                        c='lime', mec='k', label=f'{label}_Outliers' if label else 'Outliers')
 
         if show_outliers_limit and self.outliers_limit is not None:
             imin, imax = list(self.x0).index(x[0]), list(self.x0).index(x[-1])
             y_lim = self.outliers_limit[imin:imax + 1]  # pylint:disable=E1136
-            ax.plot(x, y_lim, 'r-', lw=2, label='Outliers limit')
+            ax.plot(x, y_lim, 'r-', lw=2, label=f'{label}_Outliers limit' if label else 'Outliers limit')
 
         if show_negative_values:
-            ax.plot(x[y < 0], y[y < 0], 'ro', ms=4, label="Negative values")
+            ax.plot(x[y < 0], y[y < 0], 'ro', ms=4, label=f'{label}_Negative values' if label else "Negative values")
 
         if show_noise_level:
             ampli_noise = eval_noise_amplitude(y)
             y_noise_level = self.fit_params['coef_noise'] * ampli_noise
             ax.hlines(y=y_noise_level, xmin=x[0], xmax=x[-1], colors='r',
-                      linestyles='dashed', lw=0.5, label="Noise level")
+                    linestyles='dashed', lw=0.5, label=f'{label}_Noise level' if label else "Noise level")
 
         if show_baseline and self.baseline.y_eval is not None:
-            ax.plot(x, self.baseline.y_eval, 'g', label="Baseline")
+            ax.plot(x, self.baseline.y_eval, 'g', label=f'{label}_Baseline' if label else "Baseline")
 
         y_bkg = np.zeros_like(x)
         if self.bkg_model is not None:
             y_bkg = self.bkg_model.eval(self.bkg_model.make_params(), x=x)
 
         if show_background and self.bkg_model is not None:
-            line, = ax.plot(x, y_bkg, 'k--', lw=linewidth, label="Background")
+            line, = ax.plot(x, y_bkg, 'k--', lw=linewidth, label=f'{label}_Background' if label else "Background")
             lines.append(line)
 
         ax.set_prop_cycle(None)
         y_peaks = np.zeros_like(x)
-        for peak_model in self.peak_models:
+        for i, peak_model in enumerate(self.peak_models):
             # remove temporarily 'expr' that can be related to another model
             param_hints_orig = deepcopy(peak_model.param_hints)
             for key, _ in peak_model.param_hints.items():
                 peak_model.param_hints[key]['expr'] = ''
             params = peak_model.make_params()
-            # rassign 'expr'
+            # reassign 'expr'
             peak_model.param_hints = param_hints_orig
 
             y_peak = peak_model.eval(params, x=x)
             y_peaks += y_peak
 
             if show_peak_models:
-                line, = ax.plot(x, y_peak, lw=linewidth)
+                line, = ax.plot(x, y_peak, lw=linewidth, label=f'{label}_Peak_{i}' if label else None)
                 lines.append(line)
 
         if show_result and hasattr(self.result_fit, 'success'):
             y_fit = y_bkg + y_peaks
-            ax.plot(x, y_fit, 'b', lw=linewidth, label="Fitted profile")
+            ax.plot(x, y_fit, 'b', lw=linewidth, label=f'{label}_Fitted profile' if label else "Fitted profile")
 
         return lines
 
