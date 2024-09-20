@@ -12,6 +12,8 @@ class Model(QObject):
     spectraMapDeleted = Signal(str)
     baselinePointsChanged = Signal(list)
     refreshPlot = Signal()
+    askConfirmation = Signal(str, object, tuple, dict)
+    showToast = Signal(str, str, str)
 
     def __init__(self):
         super().__init__()
@@ -89,30 +91,35 @@ class Model(QObject):
     def add_baseline_point(self, x, y):
         first_spectrum = self.current_spectrum[0]
         if first_spectrum.baseline.mode not in ['Linear', 'Polynomial']:
-            print("Baseline mode must be 'Linear' or 'Polynomial' to add points.")
-            # TODO toast info ?
+            self.showToast.emit("info", "No Baseline Mode", "Baseline mode must be 'Linear' or 'Polynomial' to add points.")
             return
 
         if first_spectrum.baseline.is_subtracted:
-            # TODO Prompt ask to reinitialize baseline
-            if False:
-                return
-            # current_spectrum.load_profile(current_spectrum.fname)
-            # current_spectrum.apply_range()
-            # current_spectrum.baseline.is_subtracted = False
-            # current_spectrum.baseline.points = [[], []]
+            self.askConfirmation.emit(
+                "This action will reinitialize the spectrum. Continue?",
+                self._add_baseline_point,
+                (x, y),
+                {}
+            )
+            return
+
+        self._add_baseline_point(x, y)
+
+    def _add_baseline_point(self, x, y):
+        first_spectrum = self.current_spectrum[0]
+        if first_spectrum.baseline.is_subtracted:
             for spectrum in self.current_spectrum:
                 spectrum.load_profile(spectrum.fname)
                 spectrum.apply_range()
                 spectrum.baseline.is_subtracted = False
                 spectrum.baseline.points = [[], []]
-        
+                spectrum.baseline.add_point(x, y)
         for spectrum in self.current_spectrum:
             spectrum.baseline.add_point(x, y)
+
         self.baselinePointsChanged.emit(first_spectrum.baseline.points)
 
-    def del_baseline_point(self, x, y):
-        print(f"Deleting baseline point at x: {x}, y: {y}")
+    def del_baseline_point(self, x):
         first_spectrum = self.current_spectrum[0]
         if len(first_spectrum.baseline.points[0]) == 0:
             return
@@ -130,14 +137,11 @@ class Model(QObject):
             self.current_spectrum[0].baseline.points = points
             self.refreshPlot.emit()
 
-            
-
     def add_peak_point(self, x, y):
         print(f"Adding peak point at x: {x}, y: {y}")
         self.refreshPlot.emit()
 
-    def del_peak_point(self, x, y):
-        print(f"Deleting peak point at x: {x}, y: {y}")
+    def del_peak_point(self, x):
         if len(self.current_spectrum[0]) > 0:
             dist_min = np.inf
             for i, peak_model in enumerate(self.current_spectrum[0].peak_model):
@@ -152,6 +156,10 @@ class Model(QObject):
 
         # self.paramsview.update()
         # self.plot()
+
+    def preprocess(self):
+        for spectrum in self.current_spectrum:
+            spectrum.preprocess()
 
     def update_spectraplot(self, ax, view_options):
         """ Update the plot with the current spectra """

@@ -46,10 +46,13 @@ class MainController(QObject):
         self.plot_controller.highlightSpectrum.connect(self.files_controller.highlight_spectrum)
         self.plot_controller.baselinePointsChanged.connect(self.settings_controller.set_baseline_points)
 
+        self.settings_controller.showToast.connect(self.show_toast)
         self.settings_controller.settingChanged.connect(self.set_setting)
         self.settings_controller.removeOutliers.connect(self.remove_outliers)
         self.settings_controller.setSpectrumAttr.connect(self.plot_controller.set_spectrum_attr)
         self.settings_controller.baselinePointsChanged.connect(self.plot_controller.set_baseline_points)
+        self.settings_controller.applyBaseline.connect(self.plot_controller.apply_baseline)
+        self.settings_controller.applySpectralRange.connect(self.plot_controller.apply_spectral_range)
 
     def apply_settings(self):
         self.apply_theme()
@@ -63,7 +66,7 @@ class MainController(QObject):
             self.view.toolbar.fitting_radio.setChecked(True)
     
         for label, checkbox in self.view.toolbar.view_options.checkboxes.items():
-            state = self.model.settings.value(label, False, type=bool)
+            state = self.model.settings.value(label, True, type=bool)
             checkbox.setChecked(state)
 
     def apply_theme(self):
@@ -96,12 +99,12 @@ class MainController(QObject):
     def remove_outliers(self):
         self.plot_controller.remove_outliers(self.model.outliers_coef)
 
-    def show_toast(self, title, text, preset="success"):
+    def show_toast(self, preset, title, text):
         preset_mapping = {
             "success": (ToastPreset.SUCCESS, ToastPreset.SUCCESS_DARK),
             "warning": (ToastPreset.WARNING, ToastPreset.WARNING_DARK),
             "error": (ToastPreset.ERROR, ToastPreset.ERROR_DARK),
-            "information": (ToastPreset.INFORMATION, ToastPreset.INFORMATION_DARK),
+            "info": (ToastPreset.INFORMATION, ToastPreset.INFORMATION_DARK),
         }
 
         current_theme = self.model.theme

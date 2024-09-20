@@ -66,13 +66,13 @@ class SpectralRange(QGroupBox):
         self.range_max.setDecimals(2)
         self.range_max.setRange(-9999.99, 9999.99)
 
-        apply_button = QPushButton("Apply")
+        self.apply = QPushButton("Apply")
 
         h_layout.addWidget(label)
         h_layout.addWidget(self.range_min)
         h_layout.addWidget(QLabel("/"))
         h_layout.addWidget(self.range_max)
-        h_layout.addWidget(apply_button)
+        h_layout.addWidget(self.apply)
 
         vbox_layout.addLayout(h_layout)
 
@@ -125,19 +125,19 @@ class Baseline(QGroupBox):
 
         self.attached = QCheckBox("Attached")
         self.label_sigma = QLabel("Sigma (smoothing):")
-        self.spin_sigma = SpinBox()
+        self.sigma = SpinBox()
 
         self.HLayout3.addWidget(self.attached)
         self.HLayout3.addItem(spacer)
         self.HLayout3.addWidget(self.label_sigma)
-        self.HLayout3.addWidget(self.spin_sigma)
+        self.HLayout3.addWidget(self.sigma)
 
         vbox_layout.addLayout(self.HLayout1)
         vbox_layout.addLayout(self.HLayout2)
         vbox_layout.addLayout(self.HLayout3)
 
-        self.apply_button = QPushButton("Apply")
-        vbox_layout.addWidget(self.apply_button)
+        self.apply = QPushButton("Apply")
+        vbox_layout.addWidget(self.apply)
 
 class Fitting(QGroupBox):
     def __init__(self, parent=None):
@@ -240,13 +240,13 @@ class ModelSelector(QWidget):
         combo_box = QComboBox()
         combo_box.setPlaceholderText("Select a model for fitting")
 
-        apply_button = QPushButton("Apply Model")
+        apply = QPushButton("Apply Model")
 
         load_button = QPushButton("Load Model")
 
         h_layout.addWidget(label)
         h_layout.addWidget(combo_box)
-        h_layout.addWidget(apply_button)
+        h_layout.addWidget(apply)
         h_layout.addWidget(load_button)
 
         h_layout.setStretch(1, 1)
@@ -303,7 +303,7 @@ class ModelBuilder(QWidget):
 
         self.model_settings.baseline.attached.setChecked(baseline['attached'])
         self.model_settings.baseline.order.setValue(baseline['order_max'])
-        self.model_settings.baseline.spin_sigma.setValue(baseline['sigma'])
+        self.model_settings.baseline.sigma.setValue(baseline['sigma'])
         self.model_settings.baseline.slider.setValue(baseline['coef'])
 
         # Normalization

@@ -4,8 +4,11 @@ from .model import Model
 class SettingsController(QObject):
     settingChanged = Signal(str, object)
     removeOutliers = Signal()
-    setSpectrumAttr = Signal(object, str, object)
+    setSpectrumAttr = Signal(str, object)
     baselinePointsChanged = Signal(list)
+    applyBaseline = Signal()
+    applySpectralRange = Signal(float, float)
+    showToast = Signal(str, str, str)
 
     def __init__(self, model_builder, more_settings):
         super().__init__()
@@ -33,23 +36,34 @@ class SettingsController(QObject):
             lambda state: self.settingChanged.emit("save_only_path", state == 2)
         )
 
+        # Spectral range settings connections
+        spectral_range = self.model_builder.model_settings.spectral_range
+        spectral_range.apply.clicked.connect(self.apply_spectral_range)
+
         # Baseline settings connections
         baseline = self.model_builder.model_settings.baseline
         baseline.slider.valueChanged.connect(
-            lambda value: self.setSpectrumAttr.emit(None, "baseline.coef", value)
+            lambda value: self.setSpectrumAttr.emit("baseline.coef", value)
         )
         baseline.semi_auto.toggled.connect(
-            lambda checked: self.setSpectrumAttr.emit(None, "baseline.mode", "Semi-Auto") if checked else None
+            lambda checked: self.setSpectrumAttr.emit("baseline.mode", "Semi-Auto") if checked else None
         )
         baseline.linear.toggled.connect(
-            lambda checked: self.setSpectrumAttr.emit(None, "baseline.mode", "Linear") if checked else None
+            lambda checked: self.setSpectrumAttr.emit("baseline.mode", "Linear") if checked else None
         )
         baseline.polynomial.toggled.connect(
-            lambda checked: self.setSpectrumAttr.emit(None, "baseline.mode", "Polynomial") if checked else None
+            lambda checked: self.setSpectrumAttr.emit("baseline.mode", "Polynomial") if checked else None
         )
         baseline.attached.toggled.connect(
-            lambda checked: self.setSpectrumAttr.emit(None, "baseline.attached", checked)
+            lambda checked: self.setSpectrumAttr.emit("baseline.attached", checked)
         )
+        baseline.sigma.valueChanged.connect(
+            lambda value: self.setSpectrumAttr.emit("baseline.sigma", value)
+        )
+        baseline.order.valueChanged.connect(
+            lambda value: self.setSpectrumAttr.emit("baseline.order_max", value)
+        )
+        baseline.apply.clicked.connect(self.applyBaseline)
 
     def set_model(self, spectrum):
         model = spectrum.save()
@@ -79,3 +93,16 @@ class SettingsController(QObject):
         sorted_x, sorted_y = zip(*points)
 
         self.model.baseline_points = [list(sorted_x), list(sorted_y)]
+
+    def apply_spectral_range(self):
+        spectral_range = self.model_builder.model_settings.spectral_range
+        range_min = spectral_range.range_min.value()
+        range_max = spectral_range.range_max.value()
+
+        # if both are not None and range_min is >= range_max then show an error message
+        if range_min is not None and range_max is not None:
+            if range_min >= range_max:
+                self.showToast.emit("Error", "Invalid spectral range", "Minimum value must be less than maximum value")
+                return
+
+        self.applySpectralRange.emit(range_min, range_max)

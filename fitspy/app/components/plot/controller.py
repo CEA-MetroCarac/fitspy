@@ -1,8 +1,9 @@
 from PySide6.QtCore import QObject, Signal
+from PySide6.QtWidgets import QMessageBox
 from .model import Model
 
 class PlotController(QObject):
-    showToast = Signal(str, str)
+    showToast = Signal(str, str, str)
     decodedSpectraMap = Signal(str, list)
     spectrumLoaded = Signal(str)
     spectrumDeleted = Signal(object)
@@ -30,6 +31,7 @@ class PlotController(QObject):
         self.map2d_plot.tab_widget.intensity_tab.range_slider.valueChanged.connect(lambda: self.map2d_plot.onTabWidgetCurrentChanged(self.model.current_map))
         self.map2d_plot.addMarker.connect(self.set_marker)
         
+        self.model.showToast.connect(self.showToast)
         self.model.spectrumLoaded.connect(self.spectrumLoaded)
         self.model.spectrumDeleted.connect(self.spectrumDeleted)
         self.model.spectraMapDeleted.connect(self.spectraMapDeleted)
@@ -37,6 +39,7 @@ class PlotController(QObject):
         self.model.mapSwitched.connect(self.map2d_plot.set_map)
         self.model.baselinePointsChanged.connect(self.baselinePointsChanged)
         self.model.refreshPlot.connect(self.update_spectraplot)
+        self.model.askConfirmation.connect(self.show_confirmation_dialog)
 
         self.toolbar.fitting_radio.toggled.connect(self.on_click_mode_changed)
         self.spectra_plot.canvas.mpl_connect('button_press_event', self.on_spectra_plot_click)
@@ -94,6 +97,10 @@ class PlotController(QObject):
 
     def on_spectra_plot_click(self, event):
         """Callback for click events on the spectra plot."""
+        # Do not add baseline or peak points when pan or zoom are selected
+        if self.toolbar.mpl_toolbar.is_pan_active() or self.toolbar.mpl_toolbar.is_zoom_active():
+            return
+        
         # if event.button not in [1, 3]:
         #     return  # Ignore middle mouse button
         action = 'add' if event.button == 1 else 'del'
@@ -106,18 +113,44 @@ class PlotController(QObject):
                 self.model.add_peak_point(event.xdata, event.ydata)
         elif action == 'del':
             if point_type == 'baseline':
-                self.model.del_baseline_point(event.xdata, event.ydata)
+                self.model.del_baseline_point(event.xdata)
             else:
-                self.model.del_peak_point(event.xdata, event.ydata)
+                self.model.del_peak_point(event.xdata)
 
-    def set_spectrum_attr(self, fname, attr, value):
-        if fname is None:
+    def set_spectrum_attr(self, attr, value, fnames=None):
+        if fnames is None:
             for spectrum in self.model.current_spectrum:
                 self.model.set_spectrum_attr(spectrum.fname, attr, value)
         else:
-            self.model.set_spectrum_attr(fname, attr, value)
+            for fname in fnames:
+                self.model.set_spectrum_attr(fname, attr, value)
 
         self.update_spectraplot()
 
     def set_baseline_points(self, points):
         self.model.set_baseline_points(points)
+
+    def apply_baseline(self):
+        self.model.preprocess()
+        self.update_spectraplot()
+
+    def apply_spectral_range(self, min, max, fnames=None):
+        if fnames is None:
+            for spectrum in self.model.current_spectrum:
+                self.model.set_spectrum_attr(spectrum.fname, "range_min", min)
+                self.model.set_spectrum_attr(spectrum.fname, "range_max", max)
+        else:
+            for fname in fnames:
+                self.model.set_spectrum_attr(fname, "range_min", min)
+                self.model.set_spectrum_attr(fname, "range_max", max)
+
+        self.model.preprocess()
+        self.update_spectraplot()
+
+    def show_confirmation_dialog(self, message, callback, args, kwargs):
+        reply = QMessageBox.question(None, 'Confirmation', message, QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+        if reply == QMessageBox.Yes:
+            print(args)
+            callback(*args, **kwargs)
+        else:
+            print("Operation aborted by the user.")

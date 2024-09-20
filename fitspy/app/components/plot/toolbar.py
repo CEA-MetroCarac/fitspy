@@ -69,6 +69,18 @@ class CustomNavigationToolbar(NavigationToolbar2QT):
             if icon_name:
                 action.setIcon(self._icon(icon_name))
 
+    def is_pan_active(self):
+        for action in self.actions():
+            if action.text() == 'Pan':
+                return action.isChecked()
+        return False
+
+    def is_zoom_active(self):
+        for action in self.actions():
+            if action.text() == 'Zoom':
+                return action.isChecked()
+        return False
+
 class Toolbar(QWidget):
     def __init__(self, canvas, view_options=ViewOptions, parent=None):
         super().__init__(parent)
