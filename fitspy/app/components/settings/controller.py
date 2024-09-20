@@ -8,6 +8,7 @@ class SettingsController(QObject):
     baselinePointsChanged = Signal(list)
     applyBaseline = Signal()
     applySpectralRange = Signal(float, float)
+    applyNormalization = Signal(bool, object, object)
     showToast = Signal(str, str, str)
 
     def __init__(self, model_builder, more_settings):
@@ -65,6 +66,12 @@ class SettingsController(QObject):
         )
         baseline.apply.clicked.connect(self.applyBaseline)
 
+        # Normalization settings connections
+        normalization = self.model_builder.model_settings.normalization
+        normalization.normalize.toggled.connect(self.apply_normalization)
+        normalization.range_min.editingFinished.connect(self.apply_normalization)
+        normalization.range_max.editingFinished.connect(self.apply_normalization)
+
     def set_model(self, spectrum):
         model = spectrum.save()
         self.model.current_fit_model = model
@@ -106,3 +113,18 @@ class SettingsController(QObject):
                 return
 
         self.applySpectralRange.emit(range_min, range_max)
+
+    def apply_normalization(self, checked=None):
+        if checked is None:
+            checked = self.model_builder.model_settings.normalization.normalize.isChecked()
+
+        normalization = self.model_builder.model_settings.normalization
+        range_min = normalization.range_min.value()
+        range_max = normalization.range_max.value()
+
+        if range_min is not None and range_max is not None and checked:
+            if range_min >= range_max:
+                self.showToast.emit("Error", "Invalid normalization range", "Minimum value must be less than maximum value")
+                return
+
+        self.applyNormalization.emit(checked, range_min, range_max)

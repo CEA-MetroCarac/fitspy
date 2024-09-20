@@ -177,6 +177,7 @@ class Model(QObject):
                     ax.plot(x0[inds], y0[inds], 'o', c='lime')
 
             if first_spectrum:
+                spectrum.preprocess()
                 spectrum.plot(ax,
                             show_outliers=view_options.get("Outliers", False),
                             show_outliers_limit=view_options.get("Outliers limits", False),

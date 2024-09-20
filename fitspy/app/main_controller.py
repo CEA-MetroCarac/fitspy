@@ -53,6 +53,7 @@ class MainController(QObject):
         self.settings_controller.baselinePointsChanged.connect(self.plot_controller.set_baseline_points)
         self.settings_controller.applyBaseline.connect(self.plot_controller.apply_baseline)
         self.settings_controller.applySpectralRange.connect(self.plot_controller.apply_spectral_range)
+        self.settings_controller.applyNormalization.connect(self.plot_controller.apply_normalization)
 
     def apply_settings(self):
         self.apply_theme()

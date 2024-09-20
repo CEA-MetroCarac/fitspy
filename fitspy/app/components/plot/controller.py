@@ -147,6 +147,16 @@ class PlotController(QObject):
         self.model.preprocess()
         self.update_spectraplot()
 
+    def apply_normalization(self, state, min, max):
+        # for all spectrum
+        parent = self.model.current_map if self.model.current_map else self.model.spectra
+        for spectrum in parent:
+            self.model.set_spectrum_attr(spectrum.fname, "normalize", state)
+            self.model.set_spectrum_attr(spectrum.fname, "normalize_range_min", min)
+            self.model.set_spectrum_attr(spectrum.fname, "normalize_range_max", max)
+
+        self.update_spectraplot()
+
     def show_confirmation_dialog(self, message, callback, args, kwargs):
         reply = QMessageBox.question(None, 'Confirmation', message, QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
         if reply == QMessageBox.Yes:
