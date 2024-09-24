@@ -1,5 +1,7 @@
 from PySide6.QtCore import QObject, Signal
 from PySide6.QtWidgets import QMessageBox
+
+from fitspy.core import to_snake_case
 from .model import Model
 
 class PlotController(QObject):
@@ -42,17 +44,22 @@ class PlotController(QObject):
         self.model.askConfirmation.connect(self.show_confirmation_dialog)
 
         self.toolbar.fitting_radio.toggled.connect(self.on_click_mode_changed)
+        self.spectra_plot.canvas.mpl_connect('motion_notify_event', self.on_motion)
         self.spectra_plot.canvas.mpl_connect('button_press_event', self.on_spectra_plot_click)
 
         for label, checkbox in self.view_options.checkboxes.items():
             checkbox.stateChanged.connect(lambda state, cb=checkbox: self.view_option_changed(cb))
+
+    def on_motion(self, event):
+        ax = self.spectra_plot.ax
+        self.model.on_motion(ax, event)
         
     def set_marker(self, spectrum_or_fname_or_coords):
         fname = self.model.current_map.set_marker(spectrum_or_fname_or_coords)
         self.highlightSpectrum.emit(fname)
 
     def view_option_changed(self, checkbox):
-        label = checkbox.text()
+        label = to_snake_case(checkbox.text())
         state = checkbox.isChecked()
         self.settingChanged.emit(label, state)
         self.update_spectraplot()
@@ -110,7 +117,7 @@ class PlotController(QObject):
             if point_type == 'baseline':
                 self.model.add_baseline_point(event.xdata, event.ydata)
             else:
-                self.model.add_peak_point(event.xdata, event.ydata)
+                self.model.add_peak_point(self.spectra_plot.ax, self.model.peak_model, event.xdata, event.ydata)
         elif action == 'del':
             if point_type == 'baseline':
                 self.model.del_baseline_point(event.xdata)
@@ -164,3 +171,6 @@ class PlotController(QObject):
             callback(*args, **kwargs)
         else:
             print("Operation aborted by the user.")
+
+    def update_peak_model(self, model):
+        self.model.peak_model = model

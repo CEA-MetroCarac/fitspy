@@ -20,6 +20,8 @@ class Model(QObject):
         self._spectra = Spectra()
         self.current_map = None
         self.current_spectrum = []
+        self.peak_model = None
+        self.tmp = None
 
     def set_spectrum_attr(self, fname, attr, value):
         spectrum = self.spectra.get_objects(fname, parent=self.current_map or self.spectra)[0]
@@ -91,7 +93,7 @@ class Model(QObject):
     def add_baseline_point(self, x, y):
         first_spectrum = self.current_spectrum[0]
         if first_spectrum.baseline.mode not in ['Linear', 'Polynomial']:
-            self.showToast.emit("info", "No Baseline Mode", "Baseline mode must be 'Linear' or 'Polynomial' to add points.")
+            self.showToast.emit("info", "Baseline Mode", "Baseline mode must be 'Linear' or 'Polynomial' to add points.")
             return
 
         if first_spectrum.baseline.is_subtracted:
@@ -137,25 +139,75 @@ class Model(QObject):
             self.current_spectrum[0].baseline.points = points
             self.refreshPlot.emit()
 
-    def add_peak_point(self, x, y):
-        print(f"Adding peak point at x: {x}, y: {y}")
+    def add_peak_point(self, ax, model, x, y):
+        first_spectrum = self.current_spectrum[0]
+
+        # to take into account the strong aspect ratio in the axis represent.
+        ratio = 1. / ax.get_data_ratio() ** 2
+
+        inds = range(len(first_spectrum.x))
+        x_sp, y_sp = first_spectrum.x, first_spectrum.y
+        dist_min = np.inf
+        for ind in inds:
+            dist = (x_sp[ind] - x) ** 2 + ratio * (y_sp[ind] - y) ** 2
+            if dist < dist_min:
+                dist_min, ind_min = dist, ind
+
+        first_spectrum.add_peak_model(model, x0=x_sp[ind_min])
         self.refreshPlot.emit()
 
     def del_peak_point(self, x):
-        if len(self.current_spectrum[0]) > 0:
+        first_spectrum = self.current_spectrum[0]
+        if len(first_spectrum.peak_models) > 0:
             dist_min = np.inf
-            for i, peak_model in enumerate(self.current_spectrum[0].peak_model):
+            for i, peak_model in enumerate(first_spectrum.peak_models):
                 x0 = peak_model.param_hints["x0"]["value"]
                 dist = abs(x0 - x)
                 if dist < dist_min:
                     dist_min, ind_min = dist, i
-            self.current_spectrum[0].del_peak_model(ind_min)
-            self.current_spectrum[0].result_fit = lambda: None
+            first_spectrum.del_peak_model(ind_min)
+            first_spectrum.result_fit = lambda: None
 
         self.refreshPlot.emit()
 
-        # self.paramsview.update()
-        # self.plot()
+    def on_motion(self, ax, event):
+        def annotate_params(i, color='k'):
+            """ Annotate figure with fit parameters """
+            spectrum = self.current_spectrum[0]
+            x = spectrum.x
+            if not self.line_bkg_visible:
+                model = spectrum.peak_models[i]
+                x0 = model.param_hints['x0']['value']
+            elif i == 0:
+                model = spectrum.bkg_model
+                x0 = 0.5 * (x[0] + x[-1])
+            else:
+                model = spectrum.peak_models[i - 1]
+                x0 = model.param_hints['x0']['value']
+
+            y0 = model.eval(model.make_params(), x=x0)
+            xy = (x0, min(y0, ax.get_ylim()[1]))
+
+            text = []
+            for name, val in model.param_hints.items():
+                text.append(f"{name}: {val['value']:.4g}")
+            text = '\n'.join(text)
+
+            bbox = dict(facecolor='w', edgecolor=color, boxstyle='round')
+            self.tmp = ax.annotate(text, xy=xy, xycoords='data',
+                                    bbox=bbox, verticalalignment='top')
+                
+        if self.lines is not None and event.inaxes == ax:
+            for i, line in enumerate(self.lines):
+                if line.contains(event)[0]:
+                    line.set_linewidth(3)
+                    if self.tmp is not None:
+                        self.tmp.remove()
+                    annotate_params(i, color=line.get_c())
+                else:
+                    line.set_linewidth(0.5)  # TODO linewidth
+
+            ax.figure.canvas.draw_idle()
 
     def preprocess(self):
         for spectrum in self.current_spectrum:
@@ -164,6 +216,9 @@ class Model(QObject):
     def update_spectraplot(self, ax, view_options):
         """ Update the plot with the current spectra """
         ax.clear()
+        if not self.current_spectrum:
+            ax.get_figure().canvas.draw_idle()
+            return
         # plotted_spectra = {line.get_label(): line for line in ax.lines if line.get_label() != "Baseline"}
         # current_spectrum_ids = [str(id(spectrum)) for spectrum in self.current_spectrum]
         first_spectrum = True
@@ -177,8 +232,10 @@ class Model(QObject):
                     ax.plot(x0[inds], y0[inds], 'o', c='lime')
 
             if first_spectrum:
-                spectrum.preprocess()
-                spectrum.plot(ax,
+                baseline = spectrum.baseline
+                    
+
+                self.lines = spectrum.plot(ax,
                             show_outliers=view_options.get("Outliers", False),
                             show_outliers_limit=view_options.get("Outliers limits", False),
                             show_negative_values=view_options.get("Negative values", False),
@@ -188,14 +245,9 @@ class Model(QObject):
                             subtract_baseline=view_options.get("Subtract baseline", False),
                             # label=f"Spectrum_{spectrum_id}"")
                             )
-
-                # Fix duplicate baseline
-                for line in ax.lines:
-                    if line.get_label() == "Baseline":
-                        line.remove()
+                self.line_bkg_visible = view_options.get("Background", False) and spectrum.bkg_model
 
                 # baseline plotting
-                baseline = spectrum.baseline
                 if not baseline.is_subtracted:
                     x, y = spectrum.x, None
                     if baseline.attached or baseline.mode == "Semi-Auto":

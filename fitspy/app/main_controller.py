@@ -2,12 +2,14 @@ from PySide6.QtCore import QObject
 from PySide6.QtWidgets import QApplication
 from pyqttoast import Toast, ToastPreset
 
+from fitspy.core import update_widget_palette, to_snake_case
+
 from .main_model import MainModel
 from .main_view import MainView
-from fitspy.core import update_widget_palette
 from .components.plot import PlotController
 from .components.files import FilesController
 from .components.settings import SettingsController
+
 
 class MainController(QObject):
     def __init__(self):
@@ -18,6 +20,7 @@ class MainController(QObject):
         self.plot_controller = PlotController(self.view.spectra_plot, self.view.measurement_sites, self.view.toolbar)
         self.settings_controller = SettingsController(self.view.fit_model_editor, self.view.more_settings)
         self.setup_connections()
+        self.apply_theme()
         self.apply_settings()
 
     def setup_connections(self):
@@ -54,9 +57,10 @@ class MainController(QObject):
         self.settings_controller.applyBaseline.connect(self.plot_controller.apply_baseline)
         self.settings_controller.applySpectralRange.connect(self.plot_controller.apply_spectral_range)
         self.settings_controller.applyNormalization.connect(self.plot_controller.apply_normalization)
-
+        self.settings_controller.updatePeakModel.connect(self.plot_controller.update_peak_model)
+        self.settings_controller.updatePeakModel.emit(self.view.fit_model_editor.model_settings.fitting.peak_model_combo.currentText())
+    
     def apply_settings(self):
-        self.apply_theme()
         self.view.statusBar.ncpus.setCurrentText(self.model.ncpus)
         self.view.more_settings.other_settings.outliers_coef.setValue(self.model.outliers_coef)
         self.view.more_settings.other_settings.save_only_path.setChecked(self.model.save_only_path)
@@ -67,7 +71,7 @@ class MainController(QObject):
             self.view.toolbar.fitting_radio.setChecked(True)
     
         for label, checkbox in self.view.toolbar.view_options.checkboxes.items():
-            state = self.model.settings.value(label, True, type=bool)
+            state = self.model.settings.value(to_snake_case(label), True, type=bool)
             checkbox.setChecked(state)
 
     def apply_theme(self):

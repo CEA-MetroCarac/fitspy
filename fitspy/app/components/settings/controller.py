@@ -9,6 +9,7 @@ class SettingsController(QObject):
     applyBaseline = Signal()
     applySpectralRange = Signal(float, float)
     applyNormalization = Signal(bool, object, object)
+    updatePeakModel = Signal(str)
     showToast = Signal(str, str, str)
 
     def __init__(self, model_builder, more_settings):
@@ -26,6 +27,9 @@ class SettingsController(QObject):
         self.model.baselinePointsChanged.connect(self.baselinePointsChanged)
         self.model.baselinePointsChanged.connect(self.model_builder.baseline_table.set_points)
         self.model_builder.baseline_table.baselinePointChanged.connect(self.update_baseline_points)
+
+        self.model_builder.model_settings.fitting.peak_model_combo.currentTextChanged.connect(self.updatePeakModel)
+        self.model_builder.model_settings.fitting.bkg_model_combo.currentTextChanged.connect(lambda: print("TODO Implement me"))
         self.other_settings.outliers_coef.valueChanged.connect(
             lambda value: self.settingChanged.emit("outliers_coef", value)
         )

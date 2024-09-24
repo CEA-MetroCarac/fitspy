@@ -159,7 +159,7 @@ class Fitting(QGroupBox):
         spacer = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
         combo_box = QComboBox()
         combo_box.addItems(items)
-        clear_button = QPushButton("Load")
+        load_button = QPushButton("Load")
 
         h_layout = QHBoxLayout()
         h_layout.setSpacing(5)
@@ -168,7 +168,7 @@ class Fitting(QGroupBox):
         h_layout.addWidget(label)
         h_layout.addItem(spacer)
         h_layout.addWidget(combo_box)
-        h_layout.addWidget(clear_button)
+        h_layout.addWidget(load_button)
 
         layout.addLayout(h_layout)
 

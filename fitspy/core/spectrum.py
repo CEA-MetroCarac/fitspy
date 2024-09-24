@@ -107,7 +107,7 @@ class Spectrum:
         (function) that enables to address a 'result_fit.success' status.
     """
     def __init__(self):
-        from fitspy import PEAK_MODELS, PEAK_PARAMS, BKG_MODELS, FIT_PARAMS  # pylint:disable=unused-import
+        from fitspy import FIT_PARAMS
         self.fname = None
         self.range_min = None
         self.range_max = None
@@ -143,7 +143,7 @@ class Spectrum:
 
     def set_attributes(self, model_dict):
         """Set attributes from a dictionary (obtained from a .json reloading)"""
-
+        from fitspy import PEAK_MODELS, BKG_MODELS
         keys = model_dict.keys()
 
         # compatibility with 'old' key names
@@ -339,7 +339,7 @@ class Spectrum:
         peak_model: lmfit.Model
         """
         # pylint:disable=unused-argument, unused-variable
-
+        from fitspy import PEAK_MODELS, PEAK_PARAMS  # pylint:disable=import-outside-toplevel
         peak_model = PEAK_MODELS[model_name]
         prefix = f'm{index:02d}_'
         peak_model = create_model(peak_model, model_name, prefix)
@@ -425,6 +425,7 @@ class Spectrum:
     def get_model_name(model):
         """ from model class attribute return the function name associated
             Ex: Model('LorentzianAsym'...) -> 'lorentzian_asym' """
+        from fitspy import PEAK_MODELS  # pylint:disable=import-outside-toplevel
         if 'prefix' in model.name:
             name_fun = model.name.split(',')[0][6:]
         else:
@@ -444,6 +445,7 @@ class Spectrum:
 
     def set_bkg_model(self, bkg_name):
         """ Set the 'bkg_model' attribute from 'bkg_name' """
+        from fitspy import BKG_MODELS  # pylint:disable=import-outside-toplevel
         assert bkg_name in BKG_MODELS.keys(), f"{bkg_name} not in {BKG_MODELS}"
         if bkg_name == 'None':
             self.bkg_model = None
@@ -698,7 +700,7 @@ class Spectrum:
             ax.hlines(y=y_noise_level, xmin=x[0], xmax=x[-1], colors='r',
                     linestyles='dashed', lw=0.5, label=f'{label}_Noise level' if label else "Noise level")
 
-        if show_baseline and self.baseline.y_eval is not None:
+        if show_baseline and self.baseline.y_eval is not None and self.baseline.is_subtracted:
             ax.plot(x, self.baseline.y_eval, 'g', label=f'{label}_Baseline' if label else "Baseline")
 
         y_bkg = np.zeros_like(x)
@@ -751,6 +753,7 @@ class Spectrum:
 
     def save_params(self, dirname_params):
         """ Save fit parameters in a '.csv' file located in 'dirname_params' """
+        from fitspy import PEAK_PARAMS  # pylint:disable=import-outside-toplevel
         _, name, _ = fileparts(self.fname)
         fname_params = os.path.join(dirname_params, name + '.csv')
         fname_params = check_or_rename(fname_params)

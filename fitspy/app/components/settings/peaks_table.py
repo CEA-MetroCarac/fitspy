@@ -1,3 +1,12 @@
+# EACH ROW IN THE TABLE WILL HAVE THE FOLLOWING COLUMNS:
+# Delete column with the option to select multiple rows and delete them all at once or delete all
+# Prefix: colored text, no edit
+# Label, editable
+# model, combo box, editable
+# x0, editable, spin box
+# Ampli, editable, spin box
+# FWHM, editable, spin box
+
 from PySide6.QtWidgets import QAbstractItemView, QWidget, QHBoxLayout, QGroupBox, QVBoxLayout, QTableWidget, QTableWidgetItem, QLineEdit, QCheckBox, QScrollArea, QComboBox
 from PySide6.QtCore import Qt
 
@@ -22,17 +31,3 @@ class PeaksTable(QGroupBox):
         main_layout.addWidget(scroll_area)
 
         self.setLayout(main_layout)
-
-    # def add_row(self, label, model_items, x0_value, fwhm_value, ampli_value):
-
-# if __name__ == "__main__":
-#     from PySide6.QtWidgets import QApplication
-
-#     app = QApplication([])
-
-#     peaks_table = PeaksTable()
-#     peaks_table.add_row("Label 1", ["Model 1", "Model 2", "Model 3"], 1.0, 1.0, 1.0)
-#     peaks_table.add_row("Label 2", ["Model 1", "Model 2", "Model 3"], 2.0, 2.0, 2.0)
-
-#     peaks_table.show()
-#     app.exec()

@@ -15,6 +15,12 @@ from rsciio import IO_PLUGINS
 
 from PySide6.QtWidgets import QWidget
 
+def to_snake_case(s):
+        import re
+        s = re.sub(r'(?<!^)(?=[A-Z])', '_', s).lower()
+        s = re.sub(r'\s+', '_', s)
+        return s
+
 def update_widget_palette(widget, palette):
     widget.setPalette(palette)
     for child in widget.findChildren(QWidget):
