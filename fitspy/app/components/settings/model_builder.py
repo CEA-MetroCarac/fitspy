@@ -231,7 +231,6 @@ class ModelSettings(QWidget):
 class ModelSelector(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.fit_models = []
         self.initUI()
 
     def initUI(self):

@@ -50,7 +50,8 @@ class SettingsController(QObject):
 
     def save_model(self):
         fit_model = self.model.current_fit_model
-        fit_model.pop("fname")
+        # fit_model.pop("fname")
+        fit_model['baseline'].pop('y_eval')
         fname = QFileDialog.getSaveFileName(None, "Save File", "", TYPES)[0]
         if fname:
             save_to_json(fname, fit_model)
@@ -58,8 +59,9 @@ class SettingsController(QObject):
     def load_model(self):
         fname = QFileDialog.getOpenFileName(None, "Load File", "", TYPES)[0]
         if fname:
-            self.model_builder.model_selector.fit_models.append(fname)
+            # self.model_builder.model_selector.fit_models.append(fname)
             self.model_builder.model_selector.combo_box.addItem(fname)
+            self.model.add_fit_model(fname)
 
     def select_model(self, fname_json):
         self.model.current_fit_model = load_from_json(fname_json)
