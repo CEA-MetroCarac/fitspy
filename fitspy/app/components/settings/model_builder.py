@@ -2,9 +2,9 @@ from pathlib import Path
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QIcon
 from PySide6.QtCore import QSize
-from PySide6.QtWidgets import QDoubleSpinBox, QRadioButton, QSlider, QSpinBox, \
-    QVBoxLayout, QGroupBox, QHBoxLayout, QScrollArea, QPushButton, QCheckBox, \
-    QLabel, QWidget, QComboBox, QSpacerItem, QSizePolicy
+from PySide6.QtWidgets import QDoubleSpinBox, QRadioButton, QButtonGroup, \
+    QSlider, QSpinBox, QVBoxLayout, QGroupBox, QHBoxLayout, QScrollArea, \
+    QPushButton, QCheckBox, QLabel, QWidget, QComboBox, QSpacerItem, QSizePolicy
 
 from .peaks_table import PeaksTable
 from fitspy import PEAK_MODELS, BKG_MODELS
@@ -115,6 +115,12 @@ class Baseline(QGroupBox):
         self.HLayout2.addWidget(self.radio_linear)
         self.HLayout2.addWidget(self.radio_polynomial)
         self.HLayout2.addWidget(self.spin_poly_order)
+
+        self.button_group = QButtonGroup(self)
+        self.button_group.addButton(self.radio_semi_auto)
+        self.button_group.addButton(self.radio_linear)
+        self.button_group.addButton(self.radio_polynomial)
+        self.radio_linear.setChecked(True)
 
         self.HLayout3 = QHBoxLayout()
         self.HLayout3.setSpacing(5)

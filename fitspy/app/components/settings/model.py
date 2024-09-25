@@ -22,9 +22,6 @@ class Model(QObject):
     def fit_models(self):
         return self._fit_models
 
-    @current_fit_model.setter
+    @fit_models.setter
     def fit_models(self, fit_models):
         self._fit_models = fit_models
-
-    def add_fit_model(self, fit_model):
-        self._fit_models.append(fit_model)
