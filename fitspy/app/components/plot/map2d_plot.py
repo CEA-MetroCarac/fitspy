@@ -152,18 +152,18 @@ class Map2DPlot(QMainWindow):
     def add_colorbar(self):
         if not self.colorbar and self.ax.images:
             self.colorbar = self.figure.colorbar(self.ax.images[0], ax=self.ax)
-            self.canvas.draw()
+            self.canvas.draw_idle()
 
     def remove_colorbar(self):
         if self.colorbar:
             self.colorbar.remove()
             self.colorbar = None
-            self.canvas.draw()
+            self.canvas.draw_idle()
 
     def set_map(self, spectramap):
         if not spectramap:
             self.ax.clear()
-            self.canvas.draw()
+            self.canvas.draw_idle()
             self.remove_colorbar()
         else:
             spectramap.plot_map(self.ax, range_slider=self.tab_widget.intensity_tab.range_slider)

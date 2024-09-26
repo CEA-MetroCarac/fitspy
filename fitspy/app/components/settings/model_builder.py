@@ -260,20 +260,20 @@ class ModelBuilder(QWidget):
 
     def initUI(self):
         self.model_settings = ModelSettings(self)
-        self.peak_table = PeaksTable(self)
-        self.limits_chbox = QCheckBox("Limits")
+        self.peaks_table = PeaksTable(self)
+        self.bounds_chbox = QCheckBox("Bounds")
         self.expr_chbox = QCheckBox("Expressions")
-        self.limits_chbox.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        self.bounds_chbox.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
         self.expr_chbox.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
         self.model_selector = ModelSelector(self)
         self.baseline_table = BaselineTable(self)
         self.baseline_table.setMaximumWidth(150)
 
         vbox_layout = QVBoxLayout()
-        vbox_layout.addWidget(self.peak_table)
+        vbox_layout.addWidget(self.peaks_table)
 
         hbox_layout = QHBoxLayout()
-        hbox_layout.addWidget(self.limits_chbox)
+        hbox_layout.addWidget(self.bounds_chbox)
         hbox_layout.addWidget(self.expr_chbox)
         hbox_layout.addWidget(self.model_selector)
 

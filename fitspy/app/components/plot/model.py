@@ -13,6 +13,7 @@ class Model(QObject):
     baselinePointsChanged = Signal(list)
     refreshPlot = Signal()
     askConfirmation = Signal(str, object, tuple, dict)
+    PeaksChanged = Signal(object)
     showToast = Signal(str, str, str)
 
     def __init__(self):
@@ -22,6 +23,7 @@ class Model(QObject):
         self.current_spectrum = []
         self.peak_model = None
         self.tmp = None
+        self.linewidth = 0.5
 
     def set_spectrum_attr(self, fname, attr, value):
         spectrum = self.spectra.get_objects(fname, parent=self.current_map or self.spectra)[0]
@@ -154,6 +156,7 @@ class Model(QObject):
                 dist_min, ind_min = dist, ind
 
         first_spectrum.add_peak_model(model, x0=x_sp[ind_min])
+        self.PeaksChanged.emit(first_spectrum)
         self.refreshPlot.emit()
 
     def del_peak_point(self, x):
@@ -167,7 +170,7 @@ class Model(QObject):
                     dist_min, ind_min = dist, i
             first_spectrum.del_peak_model(ind_min)
             first_spectrum.result_fit = lambda: None
-
+        self.PeaksChanged.emit(first_spectrum)
         self.refreshPlot.emit()
 
     def on_motion(self, ax, event):
@@ -205,7 +208,7 @@ class Model(QObject):
                         self.tmp.remove()
                     annotate_params(i, color=line.get_c())
                 else:
-                    line.set_linewidth(0.5)  # TODO linewidth
+                    line.set_linewidth(self.linewidth)
 
             ax.figure.canvas.draw_idle()
 
@@ -219,6 +222,7 @@ class Model(QObject):
         if not self.current_spectrum:
             ax.get_figure().canvas.draw_idle()
             return
+        
         # plotted_spectra = {line.get_label(): line for line in ax.lines if line.get_label() != "Baseline"}
         # current_spectrum_ids = [str(id(spectrum)) for spectrum in self.current_spectrum]
         first_spectrum = True
@@ -232,8 +236,8 @@ class Model(QObject):
                     ax.plot(x0[inds], y0[inds], 'o', c='lime')
 
             if first_spectrum:
+                result_fit = spectrum.result_fit
                 baseline = spectrum.baseline
-                    
 
                 self.lines = spectrum.plot(ax,
                             show_outliers=view_options.get("Outliers", False),
@@ -260,6 +264,11 @@ class Model(QObject):
 
         if view_options.get("Legend", False):
             ax.legend()
+
+        self.tmp = None
+        self.linewidth = 0.5
+        if hasattr(result_fit, "success") and result_fit.success:
+            self.linewidth = 1
         
             # self.current_map.set_marker(spectrum)
             # self.current_map.plot_map_update()

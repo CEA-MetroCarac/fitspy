@@ -26,7 +26,8 @@ class SettingsController(QObject):
         self.model.currentModelChanged.connect(self.update_model)
         self.model.baselinePointsChanged.connect(self.baselinePointsChanged)
         self.model.baselinePointsChanged.connect(self.model_builder.baseline_table.set_points)
-        self.model_builder.baseline_table.baselinePointChanged.connect(self.update_baseline_points)
+        self.model_builder.baseline_table.baselinePointsChanged.connect(self.set_baseline_points)
+        self.model_builder.bounds_chbox.stateChanged.connect(self.model_builder.peaks_table.show_bounds)
 
         self.model_builder.model_settings.fitting.peak_model_combo.currentTextChanged.connect(self.updatePeakModel)
         self.model_builder.model_settings.fitting.bkg_model_combo.currentTextChanged.connect(lambda: print("TODO Implement me"))
@@ -89,22 +90,6 @@ class SettingsController(QObject):
     def set_baseline_points(self, points):
         self.model.baseline_points = points
 
-    def update_baseline_points(self, index, x, y):
-        baseline_points = self.model.baseline_points
-        baseline_points[0][index] = x
-        baseline_points[1][index] = y
-
-        # Combine the X and Y values into a list of tuples
-        points = list(zip(baseline_points[0], baseline_points[1]))
-
-        # Sort the list of tuples by the X values
-        points.sort(key=lambda point: point[0])
-
-        # Separate the sorted tuples back into the X and Y lists
-        sorted_x, sorted_y = zip(*points)
-
-        self.model.baseline_points = [list(sorted_x), list(sorted_y)]
-
     def apply_spectral_range(self):
         spectral_range = self.model_builder.model_settings.spectral_range
         range_min = spectral_range.range_min.value()
@@ -132,3 +117,14 @@ class SettingsController(QObject):
                 return
 
         self.applyNormalization.emit(checked, range_min, range_max)
+
+    def update_peaks_table(self, spectrum):
+        self.model_builder.peaks_table.clear()
+        for label, model in zip(spectrum.peak_labels, spectrum.peak_models):
+            x0 = model.param_hints["x0"]["value"]
+            ampli = model.param_hints["ampli"]["value"]
+            fwhm = model.param_hints["fwhm"]["value"]
+            model_name = model.name2
+            prefix = model._prefix
+            print(prefix, label, model_name, x0, ampli, fwhm)
+            self.model_builder.peaks_table.add_row(prefix, label, model_name, x0, ampli, fwhm)

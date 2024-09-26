@@ -48,6 +48,7 @@ class MainController(QObject):
         self.plot_controller.settingChanged.connect(self.model.update_setting)
         self.plot_controller.highlightSpectrum.connect(self.files_controller.highlight_spectrum)
         self.plot_controller.baselinePointsChanged.connect(self.settings_controller.set_baseline_points)
+        self.plot_controller.PeaksChanged.connect(self.settings_controller.update_peaks_table)
 
         self.settings_controller.showToast.connect(self.show_toast)
         self.settings_controller.settingChanged.connect(self.set_setting)

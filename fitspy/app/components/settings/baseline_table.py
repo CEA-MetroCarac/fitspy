@@ -1,8 +1,9 @@
-from PySide6.QtWidgets import QLabel, QWidget, QHBoxLayout, QGroupBox, QVBoxLayout, QSizePolicy, QLineEdit, QScrollArea
+from PySide6.QtWidgets import QSizePolicy, QGroupBox, QVBoxLayout, QHeaderView, QLineEdit
 from PySide6.QtCore import Qt, Signal
 
+from .generic_table import GenericTable
 class BaselineTable(QGroupBox):
-    baselinePointChanged = Signal(int, float, float)
+    baselinePointsChanged = Signal(list)
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -15,65 +16,57 @@ class BaselineTable(QGroupBox):
         main_layout = QVBoxLayout(self)
         main_layout.setContentsMargins(5, 5, 5, 5)
 
-        header_layout = QHBoxLayout()
-        x_label = QLabel("X")
-        x_label.setAlignment(Qt.AlignCenter)
-        y_label = QLabel("Y")
-        y_label.setAlignment(Qt.AlignCenter)
-        header_layout.addWidget(x_label)
-        header_layout.addWidget(y_label)
-        main_layout.addLayout(header_layout)
-
-        scroll_area = QScrollArea(self)
-        scroll_area.setWidgetResizable(True)
-
-        self.table = QWidget()
-        self.table_layout = QVBoxLayout(self.table)
-        self.table_layout.setAlignment(Qt.AlignTop)
-
-        scroll_area.setWidget(self.table)
-
-        # Add the scroll area to the main layout
-        main_layout.addWidget(scroll_area)
-
+        self.table = GenericTable(
+            columns={
+                "X": QLineEdit,
+                "Y": QLineEdit
+            },
+            callbacks={
+                "X": self.emit_baseline_point_changed,
+                "Y": self.emit_baseline_point_changed
+            }
+        )
+        self.table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        main_layout.addWidget(self.table)
+        self.table.rowsDeleted.connect(self.emit_baseline_point_changed)
         self.setLayout(main_layout)
 
-    def clear(self):
-        """ Clear the table """
-        while self.table_layout.count():
-            item = self.table_layout.takeAt(0)
-            widget = item.widget()
-            if widget is not None:
-                widget.deleteLater()
-            else:
-                layout = item.layout()
-                if layout is not None:
-                    while layout.count():
-                        sub_item = layout.takeAt(0)
-                        sub_widget = sub_item.widget()
-                        if sub_widget is not None:
-                            sub_widget.deleteLater()
-                    layout.deleteLater()
+    def emit_baseline_point_changed(self):
+        points = self.get_points()
+        self.baselinePointsChanged.emit(points)
 
     def set_points(self, points):
-        self.sort_and_update_table(points)
+        self.table.clear()
+        for (x, y) in zip(points[0], points[1]):
+            self.add_row(x, y)
 
-    def sort_and_update_table(self, points):
-        self.clear()
-        for i, (x, y) in enumerate(zip(points[0], points[1])):
-            self.add_row(i, x, y)
+    def add_row(self, x, y):
+        x_edit = QLineEdit(f"{x:.2f}")  # Only 2 decimals
+        y_edit = QLineEdit(f"{y:.2f}")
 
-    def add_row(self, index, x, y):
-        row = QHBoxLayout()
+        row_widgets = {
+            "X": x_edit,
+            "Y": y_edit
+        }
 
-        x = QLineEdit(f"{x:.2f}")  # Only 2 decimals
-        y = QLineEdit(f"{y:.2f}")
+        x_edit.editingFinished.connect(self.emit_baseline_point_changed)
+        y_edit.editingFinished.connect(self.emit_baseline_point_changed)
 
-        # Couldn't put in Controller
-        x.editingFinished.connect(lambda: self.baselinePointChanged.emit(index, float(x.text()), float(y.text())))
-        y.editingFinished.connect(lambda: self.baselinePointChanged.emit(index, float(x.text()), float(y.text())))
+        self.table.add_row(**row_widgets)
 
-        row.addWidget(x)
-        row.addWidget(y)
-
-        self.table_layout.addLayout(row)
+    def get_points(self):
+        points = []
+        for row in range(self.table.rowCount()):
+            x_widget = self.table.cellWidget(row, self.table.get_column_index("X"))
+            y_widget = self.table.cellWidget(row, self.table.get_column_index("Y"))
+            x_value = float(x_widget.text())
+            y_value = float(y_widget.text())
+            points.append((x_value, y_value))
+        
+        # Sort points by the X values
+        points.sort(key=lambda point: point[0])
+        
+        x_values = [point[0] for point in points]
+        y_values = [point[1] for point in points]
+        
+        return [x_values, y_values]
