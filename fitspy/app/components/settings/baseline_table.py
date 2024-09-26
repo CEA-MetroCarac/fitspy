@@ -20,10 +20,6 @@ class BaselineTable(QGroupBox):
             columns={
                 "X": QLineEdit,
                 "Y": QLineEdit
-            },
-            callbacks={
-                "X": self.emit_baseline_point_changed,
-                "Y": self.emit_baseline_point_changed
             }
         )
         self.table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)

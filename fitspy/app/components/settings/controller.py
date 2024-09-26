@@ -78,17 +78,31 @@ class SettingsController(QObject):
         normalization.range_max.editingFinished.connect(self.apply_normalization)
 
     def set_model(self, spectrum):
-        model = spectrum.save()
+        if isinstance(spectrum, dict):
+            model = spectrum
+        else:
+            model = spectrum.save()
+            
         self.model.current_fit_model = model
+
+    def clear_model(self):
+        self.model.current_fit_model = None
 
     def update_model(self, fit_model):
         self.model_builder.update_model(fit_model)
         self.fit_settings.update_model(fit_model)
         print("UPDATING MODEL")
-        self.set_baseline_points(fit_model['baseline']['points'])
+        
+        points = fit_model.get('baseline', {}).get('points', [[],[]])
+        self.set_baseline_points(points)
+        self.update_peaks_table(fit_model)
 
     def set_baseline_points(self, points):
         self.model.baseline_points = points
+        if points[0]:
+            self.model.blockSignals(True)
+            self.model.current_fit_model['baseline']['points'] = points
+            self.model.blockSignals(False)
 
     def apply_spectral_range(self):
         spectral_range = self.model_builder.model_settings.spectral_range
@@ -120,11 +134,36 @@ class SettingsController(QObject):
 
     def update_peaks_table(self, spectrum):
         self.model_builder.peaks_table.clear()
-        for label, model in zip(spectrum.peak_labels, spectrum.peak_models):
-            x0 = model.param_hints["x0"]["value"]
-            ampli = model.param_hints["ampli"]["value"]
-            fwhm = model.param_hints["fwhm"]["value"]
-            model_name = model.name2
-            prefix = model._prefix
-            print(prefix, label, model_name, x0, ampli, fwhm)
+        if not spectrum:
+            return
+
+        self.model.blockSignals(True)
+
+        def add_row(prefix, label, model_name, x0, ampli, fwhm):
             self.model_builder.peaks_table.add_row(prefix, label, model_name, x0, ampli, fwhm)
+
+        if isinstance(spectrum, dict):
+            fit_model = spectrum
+            peak_models = fit_model.get('peak_models', {})
+            peak_labels = fit_model.get('peak_labels', [])
+
+            for key, model_dict in peak_models.items():
+                label = peak_labels[key]
+                for model_name, params in model_dict.items():
+                    prefix = f'm{key+1:02d}_'
+                    x0 = params["x0"]["value"]
+                    ampli = params["ampli"]["value"]
+                    fwhm = params["fwhm"]["value"]
+                    add_row(prefix, label, model_name, x0, ampli, fwhm)
+        else:
+            for label, model in zip(spectrum.peak_labels, spectrum.peak_models):
+                x0 = model.param_hints["x0"]["value"]
+                ampli = model.param_hints["ampli"]["value"]
+                fwhm = model.param_hints["fwhm"]["value"]
+                model_name = model.name2
+                prefix = model._prefix
+                add_row(prefix, label, model_name, x0, ampli, fwhm)
+
+            self.set_model(spectrum)
+
+        self.model.blockSignals(False)

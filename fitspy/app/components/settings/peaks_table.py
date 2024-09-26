@@ -39,18 +39,39 @@ class PeaksTable(QGroupBox):
                 "FWHM_min": QDoubleSpinBox,
                 "FWHM": QDoubleSpinBox,
                 "FWHM_max": QDoubleSpinBox
-            },
-            callbacks={}
+            }
         )
         self.show_bounds(False)
         main_layout.addWidget(self.table)
-        # row deleted signal redirect
-
+        self.table.rowsDeleted.connect(self.emit_peaks_changed)
         self.setLayout(main_layout)
 
     @property
     def row_count(self):
         return self.table.row_count
+    
+    def get_peaks(self):
+        pass
+        peaks = {}
+        for row in range(self.table.rowCount()):
+            prefix_widget = self.table.cellWidget(row, self.table.get_column_index("Prefix"))
+            label_widget = self.table.cellWidget(row, self.table.get_column_index("Label"))
+            model_widget = self.table.cellWidget(row, self.table.get_column_index("Model"))
+            x0_widget = self.table.cellWidget(row, self.table.get_column_index("x0"))
+            ampli_widget = self.table.cellWidget(row, self.table.get_column_index("Ampli"))
+            fwhm_widget = self.table.cellWidget(row, self.table.get_column_index("FWHM"))
+            peaks[prefix_widget.text()] = {
+                "label": label_widget.text(),
+                "model": model_widget.currentText(),
+                "x0": x0_widget.value(),
+                "ampli": ampli_widget.value(),
+                "fwhm": fwhm_widget.value()
+            }
+    
+    def emit_peaks_changed(self):
+        peaks = self.get_peaks()
+        # TODO emit signal with peaks to update plot
+        print(peaks)
 
     def clear(self):
         self.table.clear()

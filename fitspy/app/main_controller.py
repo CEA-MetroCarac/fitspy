@@ -101,6 +101,7 @@ class MainController(QObject):
             self.settings_controller.set_model(spectrum)
         else:
             self.plot_controller.update_spectraplot()
+            self.settings_controller.clear_model()
 
     def remove_outliers(self):
         self.plot_controller.remove_outliers(self.model.outliers_coef)

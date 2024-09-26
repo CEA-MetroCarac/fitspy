@@ -73,19 +73,19 @@ class FitSettings(QGroupBox):
         self.setLayout(vbox)
 
     def update_model(self, model):
-        fit_params = model['fit_params']
-        
+        fit_params = model.get('fit_params', {})
+    
         # Find the key in FIT_METHODS that matches the value of fit_params["method"]
-        method_value = fit_params['method']
+        method_value = fit_params.get('method')
         method_key = next((key for key, value in FIT_METHODS.items() if value == method_value), None)
         if method_key is not None:
             self.fit_method_combo.setCurrentText(method_key)
 
-        self.fit_negative_checkbox.setChecked(fit_params['fit_negative'])
-        self.fit_outliers_checkbox.setChecked(fit_params['fit_outliers'])
-        self.max_ite_input.setValue(fit_params['max_ite'])
-        self.coef_noise_input.setValue(fit_params['coef_noise'])
-        self.x_tol_input.setValue(fit_params['xtol'])
+        self.fit_negative_checkbox.setChecked(fit_params.get('fit_negative', False))
+        self.fit_outliers_checkbox.setChecked(fit_params.get('fit_outliers', False))
+        self.max_ite_input.setValue(fit_params.get('max_ite', 0))
+        self.coef_noise_input.setValue(fit_params.get('coef_noise', 0.0))
+        self.x_tol_input.setValue(fit_params.get('xtol', 0.0))
 
 class OtherSettings(QGroupBox):
     def __init__(self):

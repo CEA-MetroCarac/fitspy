@@ -1,14 +1,13 @@
-from PySide6.QtWidgets import QApplication, QMainWindow, QTableWidget, QVBoxLayout, QWidget, QHeaderView, QPushButton, QSizePolicy, QAbstractItemView, QLineEdit, QComboBox, QSpinBox
+from PySide6.QtWidgets import QTableWidget, QSizePolicy, QAbstractItemView
 from PySide6.QtCore import Qt, Signal
 
 class GenericTable(QTableWidget):
     rowsDeleted = Signal(list)
 
-    def __init__(self, columns, callbacks=None):
+    def __init__(self, columns):
         super().__init__()
         self.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
         self.columns = columns
-        self.callbacks = callbacks or {}
         self.setColumnCount(len(columns))
         self.setHorizontalHeaderLabels(list(columns.keys()))
         self.row_count = 0
@@ -66,96 +65,3 @@ class GenericTable(QTableWidget):
                     self.row_count -= 1
                     self.rowsDeleted.emit([(row, row_data)])
                     return
-
-
-if __name__ == "__main__":
-    app = QApplication([])
-    app.setStyle("Fusion")
-
-    columns = {
-        "Prefix": QPushButton,
-        "Label": QLineEdit,
-        "Model": QComboBox,
-        "x0": QSpinBox,
-        "Ampli": QSpinBox,
-        "fwhm": QSpinBox
-    }
-
-    def prefix_callback(row_widgets):
-        print(f"Prefix clicked: {row_widgets['Prefix'].text()}")
-        print(f"Label: {row_widgets['Label'].text()}")
-
-    callbacks = {
-        "Prefix": prefix_callback,
-        "Label": lambda row_widgets: print(f"Label edited: {row_widgets['Label'].text()}"),
-        "x0": lambda row_widgets: print(f"x0 {row_widgets['x0'].value()}"),
-        "Ampli": lambda row_widgets: print(f"Ampli {row_widgets['Ampli'].value()}"),
-    }
-
-    peaks_table = GenericTable(columns, callbacks)
-
-    rows_data = [
-    {
-        "Prefix": "m01_",
-        "Label": "Label1",
-        "Model": "Gaussian",
-        "x0": 0,
-        "Ampli": 0,
-        "fwhm": 0
-    },
-    {
-        "Prefix": "m02_",
-        "Label": "Label2",
-        "Model": "Laurentzian",
-        "x0": 1,
-        "Ampli": 1,
-        "fwhm": 1
-    }
-]
-
-    # Loop through the data and add rows to the table
-    for row_data in rows_data:
-        prefix_button = QPushButton(row_data["Prefix"])
-        label_edit = QLineEdit(row_data["Label"])
-        # label_edit.setReadOnly(True)
-        model_combo = QComboBox()
-        model_combo.addItem(row_data["Model"])
-        x0_spin = QSpinBox()
-        x0_spin.setValue(row_data["x0"])
-        ampli_spin = QSpinBox()
-        ampli_spin.setValue(row_data["Ampli"])
-        fwhm_spin = QSpinBox()
-        fwhm_spin.setValue(row_data["fwhm"])
-
-        row_widgets = {
-            "Prefix": prefix_button,
-            "Label": label_edit,
-            "Model": model_combo,
-            "x0": x0_spin,
-            "Ampli": ampli_spin,
-            "fwhm": fwhm_spin
-        }
-
-        # Set the connections for the callbacks
-        prefix_button.clicked.connect(lambda event, rw=row_widgets: callbacks["Prefix"](rw))
-        label_edit.editingFinished.connect(lambda rw=row_widgets: callbacks["Label"](rw))
-        x0_spin.valueChanged.connect(lambda value, rw=row_widgets: callbacks["x0"](rw))
-        ampli_spin.valueChanged.connect(lambda value, rw=row_widgets: callbacks["Ampli"](rw))
-
-        peaks_table.add_row(**row_widgets)
-
-    # Create a button to toggle the visibility of the "Model" column
-    toggle_button = QPushButton("Toggle Model Column")
-    toggle_button.clicked.connect(lambda: peaks_table.toggle_column_visibility("Label"))
-
-    # Set up the main window layout
-    main_window = QMainWindow()
-    central_widget = QWidget()
-    layout = QVBoxLayout()
-    layout.addWidget(peaks_table)
-    layout.addWidget(toggle_button)
-    central_widget.setLayout(layout)
-    main_window.setCentralWidget(central_widget)
-    main_window.show()
-
-    app.exec()

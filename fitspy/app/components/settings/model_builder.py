@@ -286,30 +286,30 @@ class ModelBuilder(QWidget):
 
     def update_model(self, model):
         # Spectral range
-        self.model_settings.spectral_range.range_min.setValue(model['range_min'])
-        self.model_settings.spectral_range.range_max.setValue(model['range_max'])
+        self.model_settings.spectral_range.range_min.setValue(model.get('range_min', 0))
+        self.model_settings.spectral_range.range_max.setValue(model.get('range_max', 0))
 
         # Baseline
-        baseline = model['baseline']
+        baseline = model.get('baseline', {})
         self.model_settings.baseline.semi_auto.setAutoExclusive(False)
         self.model_settings.baseline.linear.setAutoExclusive(False)
         self.model_settings.baseline.polynomial.setAutoExclusive(False)
-        self.model_settings.baseline.semi_auto.setChecked(baseline['mode'] == "Semi-Auto")
-        self.model_settings.baseline.linear.setChecked(baseline['mode'] == "Linear")
-        self.model_settings.baseline.polynomial.setChecked(baseline['mode'] == "Polynomial")
+        self.model_settings.baseline.semi_auto.setChecked(baseline.get('mode', None) == "Semi-Auto")
+        self.model_settings.baseline.linear.setChecked(baseline.get('mode', None) == "Linear")
+        self.model_settings.baseline.polynomial.setChecked(baseline.get('mode', None) == "Polynomial")
         self.model_settings.baseline.semi_auto.setAutoExclusive(True)
         self.model_settings.baseline.linear.setAutoExclusive(True)
         self.model_settings.baseline.polynomial.setAutoExclusive(True)
 
-        self.model_settings.baseline.attached.setChecked(baseline['attached'])
-        self.model_settings.baseline.order.setValue(baseline['order_max'])
-        self.model_settings.baseline.sigma.setValue(baseline['sigma'])
-        self.model_settings.baseline.slider.setValue(baseline['coef'])
+        self.model_settings.baseline.attached.setChecked(baseline.get('attached', False))
+        self.model_settings.baseline.order.setValue(baseline.get('order_max', 0))
+        self.model_settings.baseline.sigma.setValue(baseline.get('sigma', 0))
+        self.model_settings.baseline.slider.setValue(baseline.get('coef', 0))
 
         # Normalization
-        self.model_settings.normalization.range_min.setValue(model['normalize_range_min'])
-        self.model_settings.normalization.range_max.setValue(model['normalize_range_max'])
-        self.model_settings.normalization.normalize.setChecked(model['normalize'])
+        self.model_settings.normalization.range_min.setValue(model.get('normalize_range_min', 0))
+        self.model_settings.normalization.range_max.setValue(model.get('normalize_range_max', 0))
+        self.model_settings.normalization.normalize.setChecked(model.get('normalize', False))
 
 if __name__ == "__main__":
     import sys
