@@ -2,8 +2,9 @@ from pathlib import Path
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QIcon
 from PySide6.QtCore import QSize
-from PySide6.QtWidgets import QRadioButton, QSlider, QVBoxLayout, QGroupBox, QHBoxLayout, QScrollArea, QPushButton, QCheckBox, QLabel, QWidget, QComboBox, QSpacerItem, QSizePolicy
+from PySide6.QtWidgets import QRadioButton, QSlider, QVBoxLayout, QHBoxLayout, QScrollArea, QPushButton, QCheckBox, QLabel, QWidget, QComboBox, QSpacerItem, QSizePolicy
 
+from superqt import QCollapsible
 from fitspy import PEAK_MODELS, BKG_MODELS
 from .custom_spinbox import SpinBox, DoubleSpinBox
 from .peaks_table import PeaksTable
@@ -12,47 +13,16 @@ from .baseline_table import BaselineTable
 project_root = Path(__file__).resolve().parent.parent.parent.parent
 icons = project_root / 'resources' / 'iconpack'
 
-class Normalization(QGroupBox):
+
+class SpectralRange(QCollapsible):
     def __init__(self, parent=None):
-        super().__init__(parent)
+        super().__init__("Spectral range", parent)
         self.initUI()
 
     def initUI(self):
-        h_layout = QHBoxLayout()
-        self.setLayout(h_layout)
-        self.setTitle("Normalization")
-        self.setStyleSheet("QGroupBox { font-weight: bold; }")
+        content_widget = QWidget()
 
-        self.range_min = DoubleSpinBox()
-        self.range_min.setDecimals(2)
-        self.range_min.setRange(-9999.99, 9999.99)
-
-        self.range_max = DoubleSpinBox()
-        self.range_max.setDecimals(2)
-        self.range_max.setRange(-9999.99, 9999.99)
-
-        self.normalize = QCheckBox("Normalize")
-
-        h_layout.addWidget(QLabel("X min/max:"))
-        h_layout.addWidget(self.range_min)
-        h_layout.addWidget(QLabel("/"))
-        h_layout.addWidget(self.range_max)
-        h_layout.addWidget(self.normalize)
-
-
-class SpectralRange(QGroupBox):
-    def __init__(self, parent=None):
-        super().__init__(parent)
-        self.initUI()
-
-    def initUI(self):
-        self.setTitle("Spectral range")
-        self.setStyleSheet("QGroupBox { font-weight: bold; }")
-
-        vbox_layout = QVBoxLayout()
-        self.setLayout(vbox_layout)
-
-        h_layout = QHBoxLayout()
+        h_layout = QHBoxLayout(content_widget)
         h_layout.setSpacing(5)
         h_layout.setContentsMargins(0, 0, 0, 0)
 
@@ -68,25 +38,29 @@ class SpectralRange(QGroupBox):
 
         self.apply = QPushButton("Apply")
 
+        slash_label = QLabel("/")
+        slash_label.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        slash_label.setAlignment(Qt.AlignCenter)
+
         h_layout.addWidget(label)
         h_layout.addWidget(self.range_min)
-        h_layout.addWidget(QLabel("/"))
+        h_layout.addWidget(slash_label)
         h_layout.addWidget(self.range_max)
         h_layout.addWidget(self.apply)
+        self.setContent(content_widget)
+        self.expand(animate=False)
 
-        vbox_layout.addLayout(h_layout)
-
-class Baseline(QGroupBox):
+class Baseline(QCollapsible):
     def __init__(self, parent=None):
-        super().__init__(parent)
+        super().__init__("Baseline", parent)
         self.initUI()
 
     def initUI(self):
-        self.setTitle("Baseline")
-        self.setStyleSheet("QGroupBox { font-weight: bold; }")
-
-        vbox_layout = QVBoxLayout()
-        self.setLayout(vbox_layout)
+        content_widget = QWidget()
+        vbox_layout = QVBoxLayout(content_widget)
+        vbox_layout.setContentsMargins(0, 0, 0, 0)
+        vbox_layout.setSpacing(2)
+        content_widget.setLayout(vbox_layout)
 
         self.HLayout1 = QHBoxLayout()
         self.HLayout1.setSpacing(5)
@@ -95,7 +69,7 @@ class Baseline(QGroupBox):
         self.semi_auto = QRadioButton("Semi-Auto :")
         self.slider = QSlider(Qt.Horizontal)
         self.slider.setRange(0, 10)
-        # self.slider.setValue(5) 
+        # self.slider.setValue(5)
         self.import_button = QPushButton("Import")
 
         self.HLayout1.addWidget(self.semi_auto)
@@ -139,20 +113,58 @@ class Baseline(QGroupBox):
         self.apply = QPushButton("Apply")
         vbox_layout.addWidget(self.apply)
 
-class Fitting(QGroupBox):
+        self.setContent(content_widget)
+        self.expand(animate=False)
+
+class Normalization(QCollapsible):
     def __init__(self, parent=None):
-        super().__init__(parent)
+        super().__init__("Normalization", parent)
         self.initUI()
 
     def initUI(self):
-        self.setTitle("Fitting")
-        self.setStyleSheet("QGroupBox { font-weight: bold; }")
+        content_widget = QWidget()
+        h_layout = QHBoxLayout(content_widget)
+        h_layout.setContentsMargins(0, 0, 0, 0)
 
-        vbox_layout = QVBoxLayout()
-        self.setLayout(vbox_layout)
+        self.range_min = DoubleSpinBox()
+        self.range_min.setDecimals(2)
+        self.range_min.setRange(-9999.99, 9999.99)
+
+        self.range_max = DoubleSpinBox()
+        self.range_max.setDecimals(2)
+        self.range_max.setRange(-9999.99, 9999.99)
+
+        self.normalize = QCheckBox("Normalize")
+
+        slash_label = QLabel("/")
+        slash_label.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        slash_label.setAlignment(Qt.AlignCenter)
+
+        h_layout.addWidget(QLabel("X min/max:"))
+        h_layout.addWidget(self.range_min)
+        h_layout.addWidget(slash_label)
+        h_layout.addWidget(self.range_max)
+        h_layout.addWidget(self.normalize)
+
+        self.setContent(content_widget)
+        self.expand(animate=False)
+
+class Fitting(QCollapsible):
+    def __init__(self, parent=None):
+        super().__init__("Fitting", parent)
+        self.initUI()
+
+    def initUI(self):
+        content_widget = QWidget()
+        vbox_layout = QVBoxLayout(content_widget)
+        vbox_layout.setContentsMargins(0, 0, 0, 0)
+        vbox_layout.setSpacing(2)
 
         self.peak_model_combo = self.create_section(vbox_layout, "Peak model:", PEAK_MODELS.keys())
         self.bkg_model_combo = self.create_section(vbox_layout, "Background model:", BKG_MODELS.keys())
+
+        self.setContent(content_widget)
+        self.expand(animate=False)
 
     def create_section(self, layout, label_text, items=[]):
         label = QLabel(label_text)
@@ -191,7 +203,8 @@ class ModelSettings(QWidget):
         # Create a container widget for the main layout
         container = QWidget()
         main_layout = QVBoxLayout(container)
-        main_layout.setContentsMargins(5, 5, 5, 5)
+        main_layout.setContentsMargins(0, 0, 0, 0)
+        main_layout.setSpacing(0)
 
         # Add the widgets to the main layout
         self.spectral_range = SpectralRange(self)
@@ -223,6 +236,8 @@ class ModelSettings(QWidget):
         scroll_area.setWidget(container)
 
         outer_layout = QVBoxLayout(self)
+        outer_layout.setContentsMargins(0, 0, 0, 0)
+        outer_layout.setSpacing(0)
         outer_layout.addWidget(scroll_area)
 
 class ModelSelector(QWidget):
@@ -270,9 +285,12 @@ class ModelBuilder(QWidget):
         self.baseline_table.setMaximumWidth(150)
 
         vbox_layout = QVBoxLayout()
+        vbox_layout.setSpacing(0)
         vbox_layout.addWidget(self.peaks_table)
+        vbox_layout.setStretch(0, 1)
 
         hbox_layout = QHBoxLayout()
+        hbox_layout.setSpacing(0)
         hbox_layout.addWidget(self.bounds_chbox)
         hbox_layout.addWidget(self.expr_chbox)
         hbox_layout.addWidget(self.model_selector)
