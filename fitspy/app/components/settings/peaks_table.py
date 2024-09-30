@@ -3,6 +3,8 @@ from PySide6.QtWidgets import (
     QLabel, QGroupBox, QVBoxLayout, QPushButton, QDoubleSpinBox, QComboBox, QLineEdit, QHeaderView, QSizePolicy
 )
 from PySide6.QtGui import QIcon
+from PySide6.QtCore import Signal
+
 from matplotlib.colors import rgb2hex
 import matplotlib.cm as cm
 from fitspy import PEAK_MODELS
@@ -13,6 +15,8 @@ project_root = Path(__file__).resolve().parent.parent.parent.parent
 icons = project_root / 'resources' / 'iconpack'
 
 class PeaksTable(QGroupBox):
+    peaksChanged = Signal(dict)
+
     def __init__(self, parent=None):
         super().__init__(parent)
         self.initUI()
@@ -44,6 +48,7 @@ class PeaksTable(QGroupBox):
         self.show_bounds(False)
         main_layout.addWidget(self.table)
         self.table.rowsDeleted.connect(self.emit_peaks_changed)
+        self.table.rowsDeleted.connect(self.update_prefix_colors)
         self.setLayout(main_layout)
 
     @property
@@ -51,32 +56,64 @@ class PeaksTable(QGroupBox):
         return self.table.row_count
     
     def get_peaks(self):
-        pass
-        peaks = {}
+        def get_widget_value(row, column_name):
+            widget = self.table.cellWidget(row, self.table.get_column_index(column_name))
+            if hasattr(widget, 'value'):
+                return widget.value()
+            elif hasattr(widget, 'currentText'):
+                return widget.currentText()
+            else:
+                return widget.text()
+
+        peaks = {
+            'peak_models': {},
+            'peak_labels': []
+        }
+        peak_models = peaks['peak_models']
+        peak_labels = peaks['peak_labels']
+
         for row in range(self.table.rowCount()):
-            prefix_widget = self.table.cellWidget(row, self.table.get_column_index("Prefix"))
-            label_widget = self.table.cellWidget(row, self.table.get_column_index("Label"))
-            model_widget = self.table.cellWidget(row, self.table.get_column_index("Model"))
-            x0_widget = self.table.cellWidget(row, self.table.get_column_index("x0"))
-            ampli_widget = self.table.cellWidget(row, self.table.get_column_index("Ampli"))
-            fwhm_widget = self.table.cellWidget(row, self.table.get_column_index("FWHM"))
-            peaks[prefix_widget.text()] = {
-                "label": label_widget.text(),
-                "model": model_widget.currentText(),
-                "x0": x0_widget.value(),
-                "ampli": ampli_widget.value(),
-                "fwhm": fwhm_widget.value()
+            label = get_widget_value(row, "Label")
+            model_name = get_widget_value(row, "Model")
+
+            peak_labels.append(label)
+
+            if row not in peak_models:
+                peak_models[row] = {}
+            if model_name not in peak_models[row]:
+                peak_models[row][model_name] = {}
+
+            peak_models[row][model_name]['ampli'] = {
+                'min': get_widget_value(row, "Ampli_min"),
+                'max': get_widget_value(row, "Ampli_max"),
+                'value': get_widget_value(row, "Ampli"),
+                'vary': 1, # TODO vary
+                'expr': None # TODO Expr
             }
+            peak_models[row][model_name]['x0'] = {
+                'min': get_widget_value(row, "x0_min"),
+                'max': get_widget_value(row, "x0_max"),
+                'value': get_widget_value(row, "x0"),
+                'vary': 1, # TODO vary
+                'expr': None # TODO Expr
+            }
+            peak_models[row][model_name]['fwhm'] = {
+                'min': get_widget_value(row, "FWHM_min"),
+                'max': get_widget_value(row, "FWHM_max"),
+                'value': get_widget_value(row, "FWHM"),
+                'vary': 1, # TODO vary
+                'expr': None # TODO Expr
+            }
+        return peaks
     
     def emit_peaks_changed(self):
         peaks = self.get_peaks()
-        # TODO emit signal with peaks to update plot
-        print(peaks)
+        self.peaksChanged.emit(peaks)
 
     def clear(self):
         self.table.clear()
 
-    def add_row(self, prefix, label, model_name, x0, ampli, fwhm):
+    def add_row(self, prefix, label, model_name, x0_min, x0, x0_max, ampli_min, ampli, ampli_max, fwhm_min, fwhm, fwhm_max):
         def create_spin_box(value=None):
             spin_box = QDoubleSpinBox()
             spin_box.setMaximum(float("inf"))
@@ -101,17 +138,17 @@ class PeaksTable(QGroupBox):
         model_combo.addItems(model_names)
         model_combo.setCurrentText(model_name)
 
-        x0_min_spin = create_spin_box()
+        x0_min_spin = create_spin_box(x0_min)
         x0_spin = create_spin_box(x0)
-        x0_max_spin = create_spin_box()
+        x0_max_spin = create_spin_box(x0_max)
 
-        ampli_min_spin = create_spin_box()
+        ampli_min_spin = create_spin_box(ampli_min)
         ampli_spin = create_spin_box(ampli)
-        ampli_max_spin = create_spin_box()
+        ampli_max_spin = create_spin_box(ampli_max)
 
-        fwhm_min_spin = create_spin_box()
+        fwhm_min_spin = create_spin_box(fwhm_min)
         fwhm_spin = create_spin_box(fwhm)
-        fwhm_max_spin = create_spin_box()
+        fwhm_max_spin = create_spin_box(fwhm_max)
 
         row_widgets = {
             "Prefix": prefix_button,
@@ -129,6 +166,12 @@ class PeaksTable(QGroupBox):
         }
 
         self.table.add_row(**row_widgets)
+
+    def update_prefix_colors(self):
+        for row in range(self.table.rowCount()):
+            prefix_button = self.table.cellWidget(row, self.table.get_column_index("Prefix"))
+            color = rgb2hex(self.cmap(row % self.cmap.N))
+            prefix_button.setStyleSheet(f"color: {color};")
 
     def show_bounds(self, show):
         columns_to_toggle = ["x0_min", "x0_max", "Ampli_min", "Ampli_max", "FWHM_min", "FWHM_max"]

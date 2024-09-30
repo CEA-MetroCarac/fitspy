@@ -176,3 +176,8 @@ class PlotController(QObject):
 
     def update_peak_model(self, model):
         self.model.peak_model = model
+
+    def set_peaks(self, peaks):
+        spectrum = self.model.current_spectrum[0]
+        spectrum.set_attributes(peaks)
+        self.update_spectraplot()

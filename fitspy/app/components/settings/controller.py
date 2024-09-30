@@ -10,6 +10,7 @@ class SettingsController(QObject):
     applySpectralRange = Signal(float, float)
     applyNormalization = Signal(bool, object, object)
     updatePeakModel = Signal(str)
+    setPeaks = Signal(object)
     showToast = Signal(str, str, str)
 
     def __init__(self, model_builder, more_settings):
@@ -31,6 +32,7 @@ class SettingsController(QObject):
 
         self.model_builder.model_settings.fitting.peak_model_combo.currentTextChanged.connect(self.updatePeakModel)
         self.model_builder.model_settings.fitting.bkg_model_combo.currentTextChanged.connect(lambda: print("TODO Implement me"))
+        self.model_builder.peaks_table.peaksChanged.connect(self.set_new_peaks)
         self.other_settings.outliers_coef.valueChanged.connect(
             lambda value: self.settingChanged.emit("outliers_coef", value)
         )
@@ -82,8 +84,15 @@ class SettingsController(QObject):
             model = spectrum
         else:
             model = spectrum.save()
-            
         self.model.current_fit_model = model
+
+    def set_new_peaks(self, model_dict):
+        self.model.blockSignals(True)
+        for key, value in model_dict.items():
+            self.model.current_fit_model[key] = value
+        self.model.blockSignals(False)
+        
+        self.setPeaks.emit(model_dict)
 
     def clear_model(self):
         self.model.current_fit_model = None
@@ -139,8 +148,14 @@ class SettingsController(QObject):
 
         self.model.blockSignals(True)
 
-        def add_row(prefix, label, model_name, x0, ampli, fwhm):
-            self.model_builder.peaks_table.add_row(prefix, label, model_name, x0, ampli, fwhm)
+        def extract_params(param_dict):
+            return param_dict["min"], param_dict["value"], param_dict["max"]
+
+        def add_row_from_params(prefix, label, model_name, params):
+            x0_min, x0, x0_max = extract_params(params["x0"])
+            ampli_min, ampli, ampli_max = extract_params(params["ampli"])
+            fwhm_min, fwhm, fwhm_max = extract_params(params["fwhm"])
+            self.model_builder.peaks_table.add_row(prefix, label, model_name, x0_min, x0, x0_max, ampli_min, ampli, ampli_max, fwhm_min, fwhm, fwhm_max)
 
         if isinstance(spectrum, dict):
             fit_model = spectrum
@@ -149,21 +164,12 @@ class SettingsController(QObject):
 
             for key, model_dict in peak_models.items():
                 label = peak_labels[key]
+                prefix = f'm{key+1:02d}_'
                 for model_name, params in model_dict.items():
-                    prefix = f'm{key+1:02d}_'
-                    x0 = params["x0"]["value"]
-                    ampli = params["ampli"]["value"]
-                    fwhm = params["fwhm"]["value"]
-                    add_row(prefix, label, model_name, x0, ampli, fwhm)
+                    add_row_from_params(prefix, label, model_name, params)
         else:
             for label, model in zip(spectrum.peak_labels, spectrum.peak_models):
-                x0 = model.param_hints["x0"]["value"]
-                ampli = model.param_hints["ampli"]["value"]
-                fwhm = model.param_hints["fwhm"]["value"]
-                model_name = model.name2
-                prefix = model._prefix
-                add_row(prefix, label, model_name, x0, ampli, fwhm)
-
+                add_row_from_params(model._prefix, label, model.name2, model.param_hints)
             self.set_model(spectrum)
 
         self.model.blockSignals(False)

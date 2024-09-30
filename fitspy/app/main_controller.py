@@ -60,6 +60,7 @@ class MainController(QObject):
         self.settings_controller.applyNormalization.connect(self.plot_controller.apply_normalization)
         self.settings_controller.updatePeakModel.connect(self.plot_controller.update_peak_model)
         self.settings_controller.updatePeakModel.emit(self.view.fit_model_editor.model_settings.fitting.peak_model_combo.currentText())
+        self.settings_controller.setPeaks.connect(self.plot_controller.set_peaks)
     
     def apply_settings(self):
         self.view.statusBar.ncpus.setCurrentText(self.model.ncpus)
