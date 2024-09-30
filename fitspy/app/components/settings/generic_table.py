@@ -1,4 +1,4 @@
-from PySide6.QtWidgets import QTableWidget, QSizePolicy, QAbstractItemView
+from PySide6.QtWidgets import QTableWidget, QSizePolicy, QCheckBox, QWidget, QHBoxLayout, QAbstractItemView
 from PySide6.QtCore import Qt, Signal
 
 class GenericTable(QTableWidget):
@@ -23,6 +23,16 @@ class GenericTable(QTableWidget):
         self.insertRow(self.row_count)
         for col, header in enumerate(self.columns.keys()):
             widget = kwargs.get(header, self.columns[header]())
+            
+            if isinstance(widget, QCheckBox):
+                container = QWidget()
+                layout = QHBoxLayout()
+                layout.setContentsMargins(0, 0, 0, 0)
+                layout.addWidget(widget)
+                layout.setAlignment(widget, Qt.AlignCenter)
+                container.setLayout(layout)
+                widget = container
+            
             self.setCellWidget(self.row_count, col, widget)
         self.row_count += 1
 

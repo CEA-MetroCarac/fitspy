@@ -1,6 +1,7 @@
 from pathlib import Path
 from PySide6.QtWidgets import (
-    QLabel, QGroupBox, QVBoxLayout, QPushButton, QComboBox, QLineEdit, QHeaderView
+    QLabel, QGroupBox, QVBoxLayout, QPushButton, QComboBox, QLineEdit,
+    QCheckBox, QHeaderView, QWidget
 )
 from PySide6.QtGui import QIcon
 from PySide6.QtCore import Signal
@@ -28,7 +29,7 @@ class PeaksTable(QGroupBox):
         self.setStyleSheet("QGroupBox { font-weight: bold; }")
 
         main_layout = QVBoxLayout(self)
-        main_layout.setContentsMargins(5, 5, 5, 5)
+        main_layout.setContentsMargins(0, 0, 0, 0)
 
         self.table = GenericTable(
             columns={
@@ -38,12 +39,15 @@ class PeaksTable(QGroupBox):
                 "x0_min": DoubleSpinBox,
                 "x0": DoubleSpinBox,
                 "x0_max": DoubleSpinBox,
+                "x0_vary": QCheckBox,
                 "Ampli_min": DoubleSpinBox,
                 "Ampli": DoubleSpinBox,
                 "Ampli_max": DoubleSpinBox,
+                "Ampli_vary": QCheckBox,
                 "FWHM_min": DoubleSpinBox,
                 "FWHM": DoubleSpinBox,
-                "FWHM_max": DoubleSpinBox
+                "FWHM_max": DoubleSpinBox,
+                "FWHM_vary": QCheckBox
             }
         )
         self.show_bounds(False)
@@ -59,7 +63,14 @@ class PeaksTable(QGroupBox):
     def get_peaks(self):
         def get_widget_value(row, column_name):
             widget = self.table.cellWidget(row, self.table.get_column_index(column_name))
-            if hasattr(widget, 'value'):
+
+            if isinstance(widget, QWidget):
+                layout = widget.layout()
+                if layout is not None and layout.count() == 1:
+                    widget = layout.itemAt(0).widget() 
+            if isinstance(widget, QCheckBox):
+                return widget.isChecked()
+            elif hasattr(widget, 'value'):
                 return widget.value()
             elif hasattr(widget, 'currentText'):
                 return widget.currentText()
@@ -88,21 +99,21 @@ class PeaksTable(QGroupBox):
                 'min': get_widget_value(row, "Ampli_min"),
                 'max': get_widget_value(row, "Ampli_max"),
                 'value': get_widget_value(row, "Ampli"),
-                'vary': 1, # TODO vary
+                'vary': get_widget_value(row, "Ampli_vary"),
                 'expr': None # TODO Expr
             }
             peak_models[row][model_name]['x0'] = {
                 'min': get_widget_value(row, "x0_min"),
                 'max': get_widget_value(row, "x0_max"),
                 'value': get_widget_value(row, "x0"),
-                'vary': 1, # TODO vary
+                'vary': get_widget_value(row, "x0_vary"),
                 'expr': None # TODO Expr
             }
             peak_models[row][model_name]['fwhm'] = {
                 'min': get_widget_value(row, "FWHM_min"),
                 'max': get_widget_value(row, "FWHM_max"),
                 'value': get_widget_value(row, "FWHM"),
-                'vary': 1, # TODO vary
+                'vary': get_widget_value(row, "FWHM_vary"),
                 'expr': None # TODO Expr
             }
         return peaks

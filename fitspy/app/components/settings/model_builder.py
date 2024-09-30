@@ -281,6 +281,7 @@ class ModelBuilder(QWidget):
         self.baseline_table.setMaximumWidth(150)
 
         vbox_layout = QVBoxLayout()
+        vbox_layout.setContentsMargins(0, 0, 0, 0)
         vbox_layout.setSpacing(0)
         vbox_layout.addWidget(self.peaks_table)
         vbox_layout.setStretch(0, 1)
