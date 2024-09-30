@@ -5,6 +5,9 @@ from PySide6.QtWidgets import QToolButton, QMenu, QCheckBox, QWidgetAction, QRad
 from matplotlib.backends.backend_qtagg import NavigationToolbar2QT
 import matplotlib.cbook as cbook
 
+from fitspy import DEFAULTS
+from fitspy.core import to_title_case
+
 project_root = Path(__file__).resolve().parent.parent.parent.parent
 icons = project_root / 'resources' / 'iconpack'
 
@@ -85,22 +88,11 @@ class Toolbar(QWidget):
     def __init__(self, canvas, view_options=ViewOptions, parent=None):
         super().__init__(parent)
         self.canvas = canvas
-        self.view_options = None if view_options is None else view_options(
-            checkboxes=[("Legend", "Legend"),
-            ("Fit", "Fit"),
-            ("Negative values", "Negative values"),
-            ("Outliers", "Outliers"),
-            ("Outliers limits", "Outliers limits"),
-            ("Noise level", "Noise level"),
-            ("Baseline", "Baseline"),
-            ("Subtract baseline", "Subtract baseline"),
-            ("Background", "Background"),
-            ("Residual", "Residual"),
-            ("Peaks", "Peaks"),
-            # ("Raw", "Raw"),
-            # ("Filled", "Filled"),
-            # ("Colors", "Colors")
-            ])
+
+        # Generate checkboxes dynamically from DEFAULTS
+        checkboxes = [(to_title_case(key), to_title_case(key)) for key in DEFAULTS['view_options'].keys()]  # (text, tooltip)
+
+        self.view_options = None if view_options is None else view_options(checkboxes=checkboxes)
         self.initUI()
 
     def initUI(self):

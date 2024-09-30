@@ -24,6 +24,7 @@ class Model(QObject):
         self.peak_model = None
         self.tmp = None
         self.linewidth = 0.5
+        self.lines = None
 
     def set_spectrum_attr(self, fname, attr, value):
         spectrum = self.spectra.get_objects(fname, parent=self.current_map or self.spectra)[0]
@@ -257,6 +258,21 @@ class Model(QObject):
                     if baseline.attached or baseline.mode == "Semi-Auto":
                         y = spectrum.y
                     baseline.plot(ax, x, y, attached=baseline.attached)
+
+                # Peak labels
+                if view_options.get("Peak labels", True):
+                    from fitspy.core import closest_index
+                    dy = 0.02 * spectrum.y.max()
+                    for i, label in enumerate(spectrum.peak_labels):
+                        if label == '':
+                            continue
+                        model = spectrum.peak_models[i]
+                        x0 = model.param_hints['x0']['value']
+                        y = spectrum.y[closest_index(spectrum.x, x0)]
+                        xy = (x0, y + dy)
+                        xytext = (x0, y + 4 * dy)
+                        ax.annotate(label, xy=xy, xytext=xytext, xycoords='data',
+                                        ha='center', size=14, arrowprops=dict(fc='k'))
 
                 first_spectrum = False
             else:

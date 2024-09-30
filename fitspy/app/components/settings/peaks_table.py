@@ -120,6 +120,7 @@ class PeaksTable(QGroupBox):
             spin_box.setMinimumWidth(60)
             if value:
                 spin_box.setValue(value)
+            spin_box.editingFinished.connect(self.emit_peaks_changed)
             return spin_box
         
         prefix_button = QPushButton(
@@ -132,11 +133,13 @@ class PeaksTable(QGroupBox):
         prefix_button.clicked.connect(lambda: self.table.remove_widget_row(prefix_button))
 
         label_edit = QLineEdit(label)
+        label_edit.editingFinished.connect(self.emit_peaks_changed)
 
         model_names = list(PEAK_MODELS.keys())
         model_combo = QComboBox()
         model_combo.addItems(model_names)
         model_combo.setCurrentText(model_name)
+        model_combo.currentIndexChanged.connect(self.emit_peaks_changed)
 
         x0_min_spin = create_spin_box(x0_min)
         x0_spin = create_spin_box(x0)

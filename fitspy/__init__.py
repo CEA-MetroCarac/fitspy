@@ -41,5 +41,6 @@ DEFAULTS = {
         "background": True,
         "residual": True,
         "peaks": True,
+        "peak_labels": True,
     },
 }

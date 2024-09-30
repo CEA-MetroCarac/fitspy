@@ -73,7 +73,8 @@ class MainController(QObject):
             self.view.toolbar.fitting_radio.setChecked(True)
     
         for label, checkbox in self.view.toolbar.view_options.checkboxes.items():
-            state = self.model.settings.value(to_snake_case(label), True, type=bool)
+            setting = f"view_options_{to_snake_case(label)}"
+            state = self.model.settings.value(setting, True, type=bool)
             checkbox.setChecked(state)
 
     def apply_theme(self):

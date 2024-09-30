@@ -13,22 +13,16 @@ class MainModel(QObject):
         def create_setting(default, type, signal=None):
             return {"value": None, "default": default, "type": type, "signal": signal}
 
-        self._settings = {
-            "theme": create_setting(DEFAULTS["theme"], str, self.themeChanged),
-            "ncpus": create_setting(DEFAULTS["ncpus"], str),
-            "outliers_coef": create_setting(DEFAULTS["outliers_coef"], float),
-            "save_only_path": create_setting(DEFAULTS["save_only_path"], bool),
-            "click_mode": create_setting(DEFAULTS["click_mode"], str),
-            "baseline": create_setting(DEFAULTS["view_options"]["baseline"], bool),
-            "negative_values": create_setting(DEFAULTS["view_options"]["negative_values"], bool),
-            "outliers": create_setting(DEFAULTS["view_options"]["outliers"], bool),
-            "outliers_limits": create_setting(DEFAULTS["view_options"]["outliers_limits"], bool),
-            "noise_level": create_setting(DEFAULTS["view_options"]["noise_level"], bool),
-            "subtract_baseline": create_setting(DEFAULTS["view_options"]["subtract_baseline"], bool),
-            "background": create_setting(DEFAULTS["view_options"]["background"], bool),
-            "residual": create_setting(DEFAULTS["view_options"]["residual"], bool),
-            "peaks": create_setting(DEFAULTS["view_options"]["peaks"], bool),
-        }
+        self._settings = {}
+        
+        # Dynamically generate settings from DEFAULTS
+        for key, default in DEFAULTS.items():
+            if isinstance(default, dict):
+                for sub_key, sub_default in default.items():
+                    full_key = f"{key}_{sub_key}"
+                    self._settings[full_key] = create_setting(sub_default, type(sub_default))
+            else:
+                self._settings[key] = create_setting(default, type(default))
         
         for key, setting in self._settings.items():
             setting["value"] = self.settings.value(key, setting["default"], type=setting["type"])

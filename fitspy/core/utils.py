@@ -21,6 +21,11 @@ def to_snake_case(s):
         s = re.sub(r'\s+', '_', s)
         return s
 
+def to_title_case(any_case_str):
+    """Convert a string from any case to Title Case with only the first word capitalized."""
+    words = re.findall(r'[A-Za-z][^A-Z_\s]*', any_case_str)
+    return ' '.join([words[0].capitalize()] + [word.lower() for word in words[1:]])
+
 def update_widget_palette(widget, palette):
     widget.setPalette(palette)
     for child in widget.findChildren(QWidget):
