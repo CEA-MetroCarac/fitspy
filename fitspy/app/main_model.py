@@ -9,25 +9,35 @@ class MainModel(QObject):
     def __init__(self):
         super().__init__()
         self.settings = QSettings("CEA-MetroCarac", "Fitspy")  # these are stored in registry
-        
+        self._settings = {}
+        self._initialize_settings()
+
+    def _initialize_settings(self):
+        """Initialize settings from DEFAULTS and QSettings."""
+        signal_map = {
+            "theme": self.themeChanged
+        }
+
         def create_setting(default, type, signal=None):
             return {"value": None, "default": default, "type": type, "signal": signal}
 
-        self._settings = {}
-        
         # Dynamically generate settings from DEFAULTS
         for key, default in DEFAULTS.items():
             if isinstance(default, dict):
                 for sub_key, sub_default in default.items():
                     full_key = f"{key}_{sub_key}"
-                    self._settings[full_key] = create_setting(sub_default, type(sub_default))
+                    signal = signal_map.get(full_key)
+                    self._settings[full_key] = create_setting(sub_default, type(sub_default), signal)
             else:
-                self._settings[key] = create_setting(default, type(default))
+                signal = signal_map.get(key)
+                self._settings[key] = create_setting(default, type(default), signal)
         
+        # Set initial values from QSettings
         for key, setting in self._settings.items():
             setting["value"] = self.settings.value(key, setting["default"], type=setting["type"])
 
     def update_setting(self, label, state):
+        """Update a setting and emit its signal if applicable."""
         if label in self._settings:
             self._settings[label]["value"] = state
             self.settings.setValue(label, state)
@@ -48,7 +58,7 @@ class MainModel(QObject):
             super().__setattr__(name, value)
 
     def dark_palette(self):
-        """Palette color for dark mode of the appli's GUI"""
+        """Palette color for dark mode of the app's GUI"""
         dark_palette = QPalette()
         dark_palette.setColor(QPalette.Window, QColor(70, 70, 70))
         dark_palette.setColor(QPalette.WindowText, Qt.white)
@@ -67,7 +77,7 @@ class MainModel(QObject):
         return dark_palette
 
     def light_palette(self):
-        """Palette color for light mode of the appli's GUI"""
+        """Palette color for light mode of the app's GUI"""
         light_palette = QPalette()
         light_palette.setColor(QPalette.Window, QColor(225, 225, 225))
         light_palette.setColor(QPalette.WindowText, Qt.black)
@@ -86,6 +96,7 @@ class MainModel(QObject):
         return light_palette
     
     def restore_defaults(self):
+        """Restore all settings to their default values."""
         self.settings.clear()
         for key, setting in self._settings.items():
             self.update_setting(key, setting["default"])
