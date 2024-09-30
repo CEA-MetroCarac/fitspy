@@ -19,10 +19,8 @@ class CommonTab(QWidget):
 
         range_min = DoubleSpinBox()
         range_min.setDecimals(2)
-        range_min.setRange(-9999.99, 9999.99)
         range_max = DoubleSpinBox()
         range_max.setDecimals(2)
-        range_max.setRange(-9999.99, 9999.99)
 
         self.export_button = QPushButton("Export .csv")
 

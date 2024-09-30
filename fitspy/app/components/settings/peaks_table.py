@@ -1,6 +1,6 @@
 from pathlib import Path
 from PySide6.QtWidgets import (
-    QLabel, QGroupBox, QVBoxLayout, QPushButton, QDoubleSpinBox, QComboBox, QLineEdit, QHeaderView, QSizePolicy
+    QLabel, QGroupBox, QVBoxLayout, QPushButton, QComboBox, QLineEdit, QHeaderView
 )
 from PySide6.QtGui import QIcon
 from PySide6.QtCore import Signal
@@ -10,6 +10,7 @@ import matplotlib.cm as cm
 from fitspy import PEAK_MODELS
 
 from .generic_table import GenericTable
+from .custom_spinbox import DoubleSpinBox
 
 project_root = Path(__file__).resolve().parent.parent.parent.parent
 icons = project_root / 'resources' / 'iconpack'
@@ -34,15 +35,15 @@ class PeaksTable(QGroupBox):
                 "Prefix": QLabel,
                 "Label": QLineEdit,
                 "Model": QComboBox,
-                "x0_min": QDoubleSpinBox,
-                "x0": QDoubleSpinBox,
-                "x0_max": QDoubleSpinBox,
-                "Ampli_min": QDoubleSpinBox,
-                "Ampli": QDoubleSpinBox,
-                "Ampli_max": QDoubleSpinBox,
-                "FWHM_min": QDoubleSpinBox,
-                "FWHM": QDoubleSpinBox,
-                "FWHM_max": QDoubleSpinBox
+                "x0_min": DoubleSpinBox,
+                "x0": DoubleSpinBox,
+                "x0_max": DoubleSpinBox,
+                "Ampli_min": DoubleSpinBox,
+                "Ampli": DoubleSpinBox,
+                "Ampli_max": DoubleSpinBox,
+                "FWHM_min": DoubleSpinBox,
+                "FWHM": DoubleSpinBox,
+                "FWHM_max": DoubleSpinBox
             }
         )
         self.show_bounds(False)
@@ -115,8 +116,7 @@ class PeaksTable(QGroupBox):
 
     def add_row(self, prefix, label, model_name, x0_min, x0, x0_max, ampli_min, ampli, ampli_max, fwhm_min, fwhm, fwhm_max):
         def create_spin_box(value=None):
-            spin_box = QDoubleSpinBox()
-            spin_box.setMaximum(float("inf"))
+            spin_box = DoubleSpinBox(empty_value=float("inf"))
             spin_box.setMinimumWidth(60)
             if value:
                 spin_box.setValue(value)
