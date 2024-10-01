@@ -87,10 +87,9 @@ class SettingsController(QObject):
         self.model.current_fit_model = model
 
     def set_new_peaks(self, model_dict):
-        self.model.blockSignals(True)
+        # Uncesseray to block signals as the update occurs key by key
         for key, value in model_dict.items():
             self.model.current_fit_model[key] = value
-        self.model.blockSignals(False)
         
         self.setPeaks.emit(model_dict)
 
@@ -109,9 +108,8 @@ class SettingsController(QObject):
     def set_baseline_points(self, points):
         self.model.baseline_points = points
         if points[0]:
-            self.model.blockSignals(True)
+            # Uncesseray to block signals, signals are not triggered when setting specific keys
             self.model.current_fit_model['baseline']['points'] = points
-            self.model.blockSignals(False)
 
     def apply_spectral_range(self):
         spectral_range = self.model_builder.model_settings.spectral_range
@@ -149,13 +147,37 @@ class SettingsController(QObject):
         self.model.blockSignals(True)
 
         def extract_params(param_dict):
-            return param_dict["min"], param_dict["value"], param_dict["max"]
+            return {
+                "min": param_dict["min"],
+                "value": param_dict["value"],
+                "max": param_dict["max"],
+                "vary": param_dict["vary"]
+            }
 
         def add_row_from_params(prefix, label, model_name, params):
-            x0_min, x0, x0_max = extract_params(params["x0"])
-            ampli_min, ampli, ampli_max = extract_params(params["ampli"])
-            fwhm_min, fwhm, fwhm_max = extract_params(params["fwhm"])
-            self.model_builder.peaks_table.add_row(prefix, label, model_name, x0_min, x0, x0_max, ampli_min, ampli, ampli_max, fwhm_min, fwhm, fwhm_max)
+            x0_params = extract_params(params["x0"])
+            ampli_params = extract_params(params["ampli"])
+            fwhm_params = extract_params(params["fwhm"])
+
+            row_params = {
+                "prefix": prefix,
+                "label": label,
+                "model_name": model_name,
+                "x0_min": x0_params["min"],
+                "x0": x0_params["value"],
+                "x0_max": x0_params["max"],
+                "x0_vary": x0_params["vary"],
+                "ampli_min": ampli_params["min"],
+                "ampli": ampli_params["value"],
+                "ampli_max": ampli_params["max"],
+                "ampli_vary": ampli_params["vary"],
+                "fwhm_min": fwhm_params["min"],
+                "fwhm": fwhm_params["value"],
+                "fwhm_max": fwhm_params["max"],
+                "fwhm_vary": fwhm_params["vary"]
+            }
+
+            self.model_builder.peaks_table.add_row(**row_params)
 
         if isinstance(spectrum, dict):
             fit_model = spectrum

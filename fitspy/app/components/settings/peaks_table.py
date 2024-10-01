@@ -125,7 +125,7 @@ class PeaksTable(QGroupBox):
     def clear(self):
         self.table.clear()
 
-    def add_row(self, prefix, label, model_name, x0_min, x0, x0_max, ampli_min, ampli, ampli_max, fwhm_min, fwhm, fwhm_max):
+    def add_row(self, **params):
         def create_spin_box(value=None):
             spin_box = DoubleSpinBox(empty_value=float("inf"))
             spin_box.setMinimumWidth(60)
@@ -133,9 +133,15 @@ class PeaksTable(QGroupBox):
                 spin_box.setValue(value)
             spin_box.editingFinished.connect(self.emit_peaks_changed)
             return spin_box
-        
+
+        def create_checkbox(checked=False):
+            checkbox = QCheckBox()
+            checkbox.setChecked(checked)
+            checkbox.stateChanged.connect(self.emit_peaks_changed)
+            return checkbox
+
         prefix_button = QPushButton(
-            text=prefix,
+            text=params["prefix"],
             icon=QIcon(str(icons / 'close.png')),
             toolTip="Delete peak"
         )
@@ -143,26 +149,29 @@ class PeaksTable(QGroupBox):
         prefix_button.setStyleSheet(f"color: {color};")
         prefix_button.clicked.connect(lambda: self.table.remove_widget_row(prefix_button))
 
-        label_edit = QLineEdit(label)
+        label_edit = QLineEdit(params["label"])
         label_edit.editingFinished.connect(self.emit_peaks_changed)
 
         model_names = list(PEAK_MODELS.keys())
         model_combo = QComboBox()
         model_combo.addItems(model_names)
-        model_combo.setCurrentText(model_name)
+        model_combo.setCurrentText(params["model_name"])
         model_combo.currentIndexChanged.connect(self.emit_peaks_changed)
 
-        x0_min_spin = create_spin_box(x0_min)
-        x0_spin = create_spin_box(x0)
-        x0_max_spin = create_spin_box(x0_max)
+        x0_min_spin = create_spin_box(params["x0_min"])
+        x0_spin = create_spin_box(params["x0"])
+        x0_max_spin = create_spin_box(params["x0_max"])
+        x0_vary_checkbox = create_checkbox(params["x0_vary"])
 
-        ampli_min_spin = create_spin_box(ampli_min)
-        ampli_spin = create_spin_box(ampli)
-        ampli_max_spin = create_spin_box(ampli_max)
+        ampli_min_spin = create_spin_box(params["ampli_min"])
+        ampli_spin = create_spin_box(params["ampli"])
+        ampli_max_spin = create_spin_box(params["ampli_max"])
+        ampli_vary_checkbox = create_checkbox(params["ampli_vary"])
 
-        fwhm_min_spin = create_spin_box(fwhm_min)
-        fwhm_spin = create_spin_box(fwhm)
-        fwhm_max_spin = create_spin_box(fwhm_max)
+        fwhm_min_spin = create_spin_box(params["fwhm_min"])
+        fwhm_spin = create_spin_box(params["fwhm"])
+        fwhm_max_spin = create_spin_box(params["fwhm_max"])
+        fwhm_vary_checkbox = create_checkbox(params["fwhm_vary"])
 
         row_widgets = {
             "Prefix": prefix_button,
@@ -171,12 +180,15 @@ class PeaksTable(QGroupBox):
             "x0_min": x0_min_spin,
             "x0": x0_spin,
             "x0_max": x0_max_spin,
+            "x0_vary": x0_vary_checkbox,
             "Ampli_min": ampli_min_spin,
             "Ampli": ampli_spin,
             "Ampli_max": ampli_max_spin,
+            "Ampli_vary": ampli_vary_checkbox,
             "FWHM_min": fwhm_min_spin,
             "FWHM": fwhm_spin,
-            "FWHM_max": fwhm_max_spin
+            "FWHM_max": fwhm_max_spin,
+            "FWHM_vary": fwhm_vary_checkbox
         }
 
         self.table.add_row(**row_widgets)

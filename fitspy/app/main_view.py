@@ -120,9 +120,11 @@ class MainView(QMainWindow):
         self.sidebar_layout = QVBoxLayout(self.sidebar)
         self.sidebar_layout.addWidget(self.maps_list)
         self.sidebar_layout.addWidget(self.spectrum_list)
-        self.sidebar.setMaximumWidth(250)
 
         self.main_splitter.addWidget(self.sidebar)
         self.main_splitter.setStretchFactor(0, 1)
         self.main_splitter.setStretchFactor(1, 0)
-        self.main_splitter.setSizes([self.width() - self.sidebar.width(), self.sidebar.width()])
+
+        # Set initial sizes for the splitter
+        initial_sidebar_width = 200
+        self.main_splitter.setSizes([self.width() - initial_sidebar_width, initial_sidebar_width])
