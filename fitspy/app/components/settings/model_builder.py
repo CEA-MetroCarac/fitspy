@@ -120,7 +120,6 @@ class Baseline(QGroupBox):
         self.button_group.addButton(self.radio_semi_auto)
         self.button_group.addButton(self.radio_linear)
         self.button_group.addButton(self.radio_polynomial)
-        self.radio_linear.setChecked(True)
 
         self.HLayout3 = QHBoxLayout()
         self.HLayout3.setSpacing(5)

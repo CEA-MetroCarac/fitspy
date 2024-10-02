@@ -51,12 +51,12 @@ class SettingsController(QObject):
     def save_model(self):
         spectral_range = self.model_builder.model_settings.spectral_range
         baseline = self.model_builder.model_settings.baseline
+        baseline_mode = baseline.button_group.checkedButton()
         normalization = self.model_builder.model_settings.normalization
         fitting = self.model_builder.model_settings.fitting
 
         params_baseline = {
-            'mode': [button.text() for button in baseline.button_group.buttons()
-                     if button.isChecked()][0],
+            'mode': baseline_mode.text() if baseline_mode else None,
             'coef': baseline.slider.value(),
             'points': [[], []],
             'order_max': baseline.spin_poly_order.value(),
