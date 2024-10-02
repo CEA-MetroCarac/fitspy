@@ -13,7 +13,7 @@ from PySide6.QtWidgets import (
     QApplication,
 )
 
-from fitspy import FIT_METHODS
+from fitspy import FIT_METHODS, DEFAULTS
 from .custom_spinbox import SpinBox, DoubleSpinBox
 
 class FitSettings(QGroupBox):
@@ -27,65 +27,61 @@ class FitSettings(QGroupBox):
 
         vbox = QVBoxLayout()
 
-        self.fit_negative_checkbox = QCheckBox("Fit negative values:")
-        self.fit_outliers_checkbox = QCheckBox("Fit outliers:")
-        self.coef_noise_label = QLabel("Coefficient noise:")
-        self.coef_noise_input = DoubleSpinBox()
-        self.max_ite_label = QLabel("Maximum iterations:")
-        self.max_ite_input = SpinBox()
-        self.fit_method_label = QLabel("Fit method:")
-        self.fit_method_combo = QComboBox()
-        self.fit_method_combo.addItems(FIT_METHODS.keys())
-        self.x_tol_label = QLabel("x-tolerance:")
-        self.x_tol_input = DoubleSpinBox()
-        self.x_tol_input.setDecimals(6)
+        self.fit_negative = QCheckBox("Fit negative values:")
+        self.fit_negative.setChecked(DEFAULTS["fit_params"]["fit_negative"])
 
-        vbox.addWidget(self.fit_negative_checkbox)
-        vbox.addWidget(self.fit_outliers_checkbox)
+        self.fit_outliers = QCheckBox("Fit outliers:")
+        self.fit_outliers.setChecked(DEFAULTS["fit_params"]["fit_outliers"])
+
+        self.coef_noise_label = QLabel("Coefficient noise:")
+        self.coef_noise = DoubleSpinBox()
+        self.coef_noise.setValue(DEFAULTS["fit_params"]["coef_noise"])
+
+        self.max_ite_label = QLabel("Maximum iterations:")
+        self.max_ite = SpinBox()
+        self.max_ite.setValue(DEFAULTS["fit_params"]["max_ite"])
+
+        self.method_label = QLabel("Fit method:")
+        self.method = QComboBox()
+        self.method.addItems(FIT_METHODS.keys())
+        self.method.setCurrentText(DEFAULTS["fit_params"]["method"])
+
+        self.xtol_label = QLabel("x-tolerance:")
+        self.xtol = DoubleSpinBox()
+        self.xtol.setDecimals(6)
+        self.xtol.setValue(DEFAULTS["fit_params"]["xtol"])
+
+        vbox.addWidget(self.fit_negative)
+        vbox.addWidget(self.fit_outliers)
 
         hbox0 = QHBoxLayout()
         hbox0.addWidget(self.coef_noise_label)
-        hbox0.addWidget(self.coef_noise_input)
+        hbox0.addWidget(self.coef_noise)
         spacer = QSpacerItem(20, 0, QSizePolicy.Minimum, QSizePolicy.Minimum)
         hbox0.addItem(spacer)
         vbox.addLayout(hbox0)
 
         hbox1 = QHBoxLayout()
         hbox1.addWidget(self.max_ite_label)
-        hbox1.addWidget(self.max_ite_input)
+        hbox1.addWidget(self.max_ite)
         hbox1.addItem(spacer)
         vbox.addLayout(hbox1)
 
         hbox2 = QHBoxLayout()
-        hbox2.addWidget(self.fit_method_label)
-        hbox2.addWidget(self.fit_method_combo)
+        hbox2.addWidget(self.method_label)
+        hbox2.addWidget(self.method)
         hbox2.addItem(spacer)
         vbox.addLayout(hbox2)
 
         hbox3 = QHBoxLayout()
-        hbox3.addWidget(self.x_tol_label)
-        hbox3.addWidget(self.x_tol_input)
+        hbox3.addWidget(self.xtol_label)
+        hbox3.addWidget(self.xtol)
         hbox3.addItem(spacer)
         vbox.addLayout(hbox3)
 
         vbox.addItem(QSpacerItem(0, 20, QSizePolicy.Minimum, QSizePolicy.Expanding))
 
         self.setLayout(vbox)
-
-    def update_model(self, model):
-        fit_params = model.get('fit_params', {})
-    
-        # Find the key in FIT_METHODS that matches the value of fit_params["method"]
-        method_value = fit_params.get('method')
-        method_key = next((key for key, value in FIT_METHODS.items() if value == method_value), None)
-        if method_key is not None:
-            self.fit_method_combo.setCurrentText(method_key)
-
-        self.fit_negative_checkbox.setChecked(fit_params.get('fit_negative', False))
-        self.fit_outliers_checkbox.setChecked(fit_params.get('fit_outliers', False))
-        self.max_ite_input.setValue(fit_params.get('max_ite', 0))
-        self.coef_noise_input.setValue(fit_params.get('coef_noise', 0.0))
-        self.x_tol_input.setValue(fit_params.get('xtol', 0.0))
 
 class OtherSettings(QGroupBox):
     def __init__(self):

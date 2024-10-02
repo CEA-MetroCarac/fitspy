@@ -64,6 +64,12 @@ class MainController(QObject):
     
     def apply_settings(self):
         self.view.statusBar.ncpus.setCurrentText(self.model.ncpus)
+        self.view.more_settings.fit_settings.method.setCurrentText(self.model.fit_params_method)
+        self.view.more_settings.fit_settings.fit_negative.setChecked(self.model.fit_params_fit_negative)
+        self.view.more_settings.fit_settings.fit_outliers.setChecked(self.model.fit_params_fit_outliers)
+        self.view.more_settings.fit_settings.max_ite.setValue(self.model.fit_params_max_ite)
+        self.view.more_settings.fit_settings.coef_noise.setValue(self.model.fit_params_coef_noise)
+        self.view.more_settings.fit_settings.xtol.setValue(self.model.fit_params_xtol)
         self.view.more_settings.other_settings.outliers_coef.setValue(self.model.outliers_coef)
         self.view.more_settings.other_settings.save_only_path.setChecked(self.model.save_only_path)
 

@@ -1,6 +1,8 @@
 from PySide6.QtCore import QObject, Signal
 from .model import Model
 
+from fitspy import FIT_METHODS
+
 class SettingsController(QObject):
     settingChanged = Signal(str, object)
     removeOutliers = Signal()
@@ -11,6 +13,7 @@ class SettingsController(QObject):
     applyNormalization = Signal(bool, object, object)
     updatePeakModel = Signal(str)
     setPeaks = Signal(object)
+    fitRequested = Signal(object)
     showToast = Signal(str, str, str)
 
     def __init__(self, model_builder, more_settings):
@@ -32,7 +35,29 @@ class SettingsController(QObject):
 
         self.model_builder.model_settings.fitting.peak_model_combo.currentTextChanged.connect(self.updatePeakModel)
         self.model_builder.model_settings.fitting.bkg_model_combo.currentTextChanged.connect(lambda: print("TODO Implement me"))
-        self.model_builder.peaks_table.peaksChanged.connect(self.set_new_peaks)
+        self.model_builder.model_settings.fit_button.clicked.connect(self.request_fit)
+        self.model_builder.peaks_table.peaksChanged.connect(self.update_model_dict)
+
+        self.fit_settings.fit_negative.toggled.connect(
+            lambda checked: self.update_model_dict_with_key("fit_params.fit_negative", checked)
+        )
+        self.fit_settings.fit_outliers.toggled.connect(
+            lambda checked: self.update_model_dict_with_key("fit_params.fit_outliers", checked)
+        )
+        self.fit_settings.method.currentTextChanged.connect(
+            lambda text: self.update_model_dict_with_key("fit_params.method", FIT_METHODS[text])
+        )
+        self.fit_settings.max_ite.valueChanged.connect(
+            lambda value: self.update_model_dict_with_key("fit_params.max_ite", value)
+        )
+        self.fit_settings.coef_noise.valueChanged.connect(
+            lambda value: self.update_model_dict_with_key("fit_params.coef_noise", value)
+        )
+        self.fit_settings.xtol.valueChanged.connect(
+            lambda value: self.update_model_dict_with_key("fit_params.xtol", value)
+        )
+
+
         self.other_settings.outliers_coef.valueChanged.connect(
             lambda value: self.settingChanged.emit("outliers_coef", value)
         )
@@ -40,8 +65,8 @@ class SettingsController(QObject):
             self.removeOutliers
         )
 
-        self.other_settings.save_only_path.stateChanged.connect(
-            lambda state: self.settingChanged.emit("save_only_path", state == 2)
+        self.other_settings.save_only_path.toggled.connect(
+            lambda checked: self.settingChanged.emit("save_only_path", checked)
         )
 
         # Spectral range settings connections
@@ -51,25 +76,25 @@ class SettingsController(QObject):
         # Baseline settings connections
         baseline = self.model_builder.model_settings.baseline
         baseline.slider.valueChanged.connect(
-            lambda value: self.setSpectrumAttr.emit("baseline.coef", value)
+            lambda value: self.update_and_emit("baseline.coef", value)
         )
         baseline.semi_auto.toggled.connect(
-            lambda checked: self.setSpectrumAttr.emit("baseline.mode", "Semi-Auto") if checked else None
+            lambda checked: self.update_and_emit("baseline.mode", "Semi-Auto") if checked else None
         )
         baseline.linear.toggled.connect(
-            lambda checked: self.setSpectrumAttr.emit("baseline.mode", "Linear") if checked else None
+            lambda checked: self.update_and_emit("baseline.mode", "Linear") if checked else None
         )
         baseline.polynomial.toggled.connect(
-            lambda checked: self.setSpectrumAttr.emit("baseline.mode", "Polynomial") if checked else None
+            lambda checked: self.update_and_emit("baseline.mode", "Polynomial") if checked else None
         )
         baseline.attached.toggled.connect(
-            lambda checked: self.setSpectrumAttr.emit("baseline.attached", checked)
+            lambda checked: self.update_and_emit("baseline.attached", checked)
         )
         baseline.sigma.valueChanged.connect(
-            lambda value: self.setSpectrumAttr.emit("baseline.sigma", value)
+            lambda value: self.update_and_emit("baseline.sigma", value)
         )
         baseline.order.valueChanged.connect(
-            lambda value: self.setSpectrumAttr.emit("baseline.order_max", value)
+            lambda value: self.update_and_emit("baseline.order_max", value)
         )
         baseline.apply.clicked.connect(self.applyBaseline)
 
@@ -79,6 +104,21 @@ class SettingsController(QObject):
         normalization.range_min.editingFinished.connect(self.apply_normalization)
         normalization.range_max.editingFinished.connect(self.apply_normalization)
 
+    def update_and_emit(self, key, value):
+        # self.update_model_dict_with_key(key, value)
+        self.setSpectrumAttr.emit(key, value)
+
+    def update_model_dict_with_key(self, key, value):
+        self.model.blockSignals(True)
+        keys = key.split('.')
+        current_dict = self.model.current_fit_model
+        for k in keys[:-1]:
+            if k not in current_dict:
+                current_dict[k] = {}
+            current_dict = current_dict[k]
+        current_dict[keys[-1]] = value
+        self.model.blockSignals(False)
+    
     def set_model(self, spectrum):
         if isinstance(spectrum, dict):
             model = spectrum
@@ -86,19 +126,20 @@ class SettingsController(QObject):
             model = spectrum.save()
         self.model.current_fit_model = model
 
-    def set_new_peaks(self, model_dict):
+    def update_model_dict(self, model_dict):
         # Uncesseray to block signals as the update occurs key by key
         for key, value in model_dict.items():
             self.model.current_fit_model[key] = value
         
-        self.setPeaks.emit(model_dict)
+        if 'peak_models' in model_dict or 'peak_label' in model_dict:
+            self.setPeaks.emit(model_dict)
 
     def clear_model(self):
-        self.model.current_fit_model = None
+        self.model.current_fit_model = {}
 
     def update_model(self, fit_model):
         self.model_builder.update_model(fit_model)
-        self.fit_settings.update_model(fit_model)
+        # self.fit_settings.update_model(fit_model)
         print("UPDATING MODEL")
         
         points = fit_model.get('baseline', {}).get('points', [[],[]])
@@ -121,6 +162,11 @@ class SettingsController(QObject):
             if range_min >= range_max:
                 self.showToast.emit("Error", "Invalid spectral range", "Minimum value must be less than maximum value")
                 return
+        
+        self.update_model_dict({
+            "range_min": range_min,
+            "range_max": range_max
+        })
 
         self.applySpectralRange.emit(range_min, range_max)
 
@@ -136,7 +182,8 @@ class SettingsController(QObject):
             if range_min >= range_max:
                 self.showToast.emit("Error", "Invalid normalization range", "Minimum value must be less than maximum value")
                 return
-
+            
+        self.update_model_dict({'normalize': checked, 'normalize_range_min': range_min, 'normalize_range_max': range_max})
         self.applyNormalization.emit(checked, range_min, range_max)
 
     def update_peaks_table(self, spectrum):
@@ -195,3 +242,7 @@ class SettingsController(QObject):
             self.set_model(spectrum)
 
         self.model.blockSignals(False)
+
+    def request_fit(self):
+        model_dict = self.model.current_fit_model
+        self.fitRequested.emit(model_dict)

@@ -6,7 +6,7 @@ class Model(QObject):
 
     def __init__(self):
         super().__init__()
-        self._current_fit_model = None
+        self._current_fit_model = {}
         self._baseline_points = []
 
     @property

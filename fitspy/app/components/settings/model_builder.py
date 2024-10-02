@@ -222,10 +222,10 @@ class ModelSettings(QWidget):
             toolTip="Save the fit model as a JSON file",
         )
         save_button.setIconSize(QSize(20, 20))
-        fit_button = QPushButton("Fit")
+        self.fit_button = QPushButton("Fit")
 
         HLayout.addWidget(save_button)
-        HLayout.addWidget(fit_button)
+        HLayout.addWidget(self.fit_button)
 
         main_layout.addLayout(HLayout)
 
