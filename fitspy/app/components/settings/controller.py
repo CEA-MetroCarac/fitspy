@@ -10,83 +10,117 @@ TYPES = "JSON Files (*.json);;All Files (*)"
 class SettingsController(QObject):
     settingChanged = Signal(str, object)
     removeOutliers = Signal()
+    setSpectrumAttr = Signal(str, object)
+    baselinePointsChanged = Signal(list)
+    applyBaseline = Signal()
+    applySpectralRange = Signal(float, float)
+    applyNormalization = Signal(bool, object, object)
+    updatePeakModel = Signal(str)
+    setPeaks = Signal(object)
+    showToast = Signal(str, str, str)
 
     def __init__(self, model_builder, more_settings):
         super().__init__()
         self.model = Model()
         self.model_builder = model_builder
         self.more_settings = more_settings
-        self.fit_settings = more_settings.fit_settings
         self.solver_settings = more_settings.solver_settings
-        self.export_settings = more_settings.export_settings
+        self.other_settings = more_settings.other_settings
         self.setup_connections()
 
     def setup_connections(self):
-        self.model.currentModelChanged.connect(self.update_model)
+        model_settings = self.model_builder.model_settings
+        model_selector = self.model_builder.model_selector
+        self.model.currentModelChanged.connect(self.apply_model)
 
-        self.solver_settings.outliers_coef.valueChanged.connect(
-            lambda value: self.settingChanged.emit("outliers_coef", value))
-        self.solver_settings.outliers_removal.clicked.connect(
-            self.removeOutliers)
+        # Spectral range settings
+        spectral_range = model_settings.spectral_range
+        spectral_range.apply.clicked.connect(self.apply_spectral_range)
 
-        self.export_settings.save_only_path.stateChanged.connect(
+        # Baseline settings connections
+        baseline = model_settings.baseline
+        baseline.slider.valueChanged.connect(
+            lambda value: self.setSpectrumAttr.emit("baseline.coef", value)
+        )
+        baseline.semi_auto.toggled.connect(
+            lambda checked: self.setSpectrumAttr.emit("baseline.mode", "Semi-Auto") if checked else None
+        )
+        baseline.linear.toggled.connect(
+            lambda checked: self.setSpectrumAttr.emit("baseline.mode", "Linear") if checked else None
+        )
+        baseline.polynomial.toggled.connect(
+            lambda checked: self.setSpectrumAttr.emit("baseline.mode", "Polynomial") if checked else None
+        )
+        baseline.attached.toggled.connect(
+            lambda checked: self.setSpectrumAttr.emit("baseline.attached", checked)
+        )
+        baseline.sigma.valueChanged.connect(
+            lambda value: self.setSpectrumAttr.emit("baseline.sigma", value)
+        )
+        baseline.order.valueChanged.connect(
+            lambda value: self.setSpectrumAttr.emit("baseline.order_max", value)
+        )
+        baseline.apply.clicked.connect(self.applyBaseline)
+
+        # Normalization settings
+        normalization = model_settings.normalization
+        normalization.normalize.toggled.connect(self.apply_normalization)
+        normalization.range_min.editingFinished.connect(self.apply_normalization)
+        normalization.range_max.editingFinished.connect(self.apply_normalization)
+
+        # Fitting settings
+        model_settings.fitting.peak_model.currentTextChanged.connect(self.updatePeakModel)
+        model_settings.fitting.background_model.currentTextChanged.connect(lambda: print("TODO Implement me"))
+
+        # Save model
+        model_settings.save_button.clicked.connect(self.save_model)
+
+        # Peaks + Baseline Table
+        self.model_builder.baseline_table.baselinePointsChanged.connect(self.set_baseline_points)
+        self.model_builder.bounds_chbox.stateChanged.connect(self.model_builder.peaks_table.show_bounds)
+        self.model_builder.peaks_table.peaksChanged.connect(self.set_new_peaks)
+        self.model.baselinePointsChanged.connect(self.baselinePointsChanged)
+        self.model.baselinePointsChanged.connect(self.model_builder.baseline_table.set_points)
+
+        # Model selector
+        model_selector.load_button.clicked.connect(self.load_model)
+        model_selector.combo_box.currentTextChanged.connect(self.select_model)
+        model_selector.apply.clicked.connect(self.apply_model)
+
+        # Other settings
+        self.other_settings.outliers_coef.valueChanged.connect(
+            lambda value: self.settingChanged.emit("outliers_coef", value)
+        )
+        self.other_settings.outliers_removal.clicked.connect(
+            self.removeOutliers
+        )
+
+        self.other_settings.save_only_path.stateChanged.connect(
             lambda state: self.settingChanged.emit("save_only_path", state == 2)
         )
 
-        model_settings = self.model_builder.model_settings
-        model_selector = self.model_builder.model_selector
-        model_settings.save_button.clicked.connect(self.save_model)
-        model_selector.load_button.clicked.connect(self.load_model)
-        model_selector.combo_box.currentTextChanged.connect(self.select_model)
-        model_selector.apply_button.clicked.connect(self.apply_model)
-
     def set_model(self, spectrum):
-        model = spectrum.save()
+        """ Set the current model to the spectrum model"""
+        if isinstance(spectrum, dict):
+            model = spectrum
+        else:
+            model = spectrum.save()
         self.model.current_fit_model = model
 
-    def update_model(self, fit_model):
-        self.model_builder.update_model(fit_model)
-        self.fit_settings.update_model(fit_model)
+    def set_new_peaks(self, model_dict):
+        # Uncesseray to block signals as the update occurs key by key
+        for key, value in model_dict.items():
+            self.model.current_fit_model[key] = value
+        
+        self.setPeaks.emit(model_dict)
+
+    def clear_model(self):
+        self.model.current_fit_model = None
 
     def save_model(self):
-        spectral_range = self.model_builder.model_settings.spectral_range
-        baseline = self.model_builder.model_settings.baseline
-        baseline_mode = baseline.button_group.checkedButton()
-        normalization = self.model_builder.model_settings.normalization
-        fitting = self.model_builder.model_settings.fitting
-
-        params_baseline = {
-            'mode': baseline_mode.text() if baseline_mode else None,
-            'coef': baseline.slider.value(),
-            'points': [[], []],
-            'order_max': baseline.spin_poly_order.value(),
-            'attached': baseline.attached.isChecked(),
-            'sigma': baseline.spin_sigma.value()}
-
-        params_fit = {
-            'method': self.fit_settings.fit_method_combo.currentText(),
-            'fit_negative': self.fit_settings.fit_negative_checkbox.isChecked(),
-            'fit_outliers': self.fit_settings.fit_outliers_checkbox.isChecked(),
-            'coef_noise': self.fit_settings.coef_noise_input.value(),
-            'max_ite': self.fit_settings.max_ite_input.value(),
-            'xtol': self.fit_settings.xtol_input.value()}
-
-        params_tot = {
-            'range_min': spectral_range.range_min.value(),
-            'range_max': spectral_range.range_max.value(),
-            'normalize': normalization.normalize.isChecked(),
-            'normalize_range_min': normalization.range_min.value(),
-            'normalize_range_max': normalization.range_max.value(),
-            'baseline': params_baseline,
-            'fit_params': params_fit,
-            'background_model': fitting.background_model.currentText(),
-            'peak_labels': [],
-            'peak_models': {},
-        }
-
         fname = QFileDialog.getSaveFileName(None, "Save File", "", TYPES)[0]
         if fname:
-            save_to_json(fname, params_tot)
+            save_to_json(fname, self.model.current_fit_model)
 
     def load_model(self):
         fname = QFileDialog.getOpenFileName(None, "Load File", "", TYPES)[0]
@@ -102,5 +136,102 @@ class SettingsController(QObject):
     def select_model(self, fname):
         self.model.current_fit_model = load_from_json(fname)
 
-    def apply_model(self):
-        pass
+    def apply_model(self, fit_model):
+        """ Reflects the changes in the model to the GUI """
+        self.model_builder.update_model(fit_model)
+        self.solver_settings.update_model(fit_model)
+        points = fit_model.get('baseline', {}).get('points', [[],[]])
+        self.set_baseline_points(points)
+        self.update_peaks_table(fit_model)
+
+
+    def set_baseline_points(self, points):
+        self.model.baseline_points = points
+        if points[0]:
+            # Uncesseray to block signals, signals are not triggered when setting specific keys
+            self.model.current_fit_model['baseline']['points'] = points
+
+    def apply_spectral_range(self):
+        spectral_range = self.model_builder.model_settings.spectral_range
+        range_min = spectral_range.range_min.value()
+        range_max = spectral_range.range_max.value()
+
+        # if both are not None and range_min is >= range_max then show an error message
+        if range_min is not None and range_max is not None:
+            if range_min >= range_max:
+                self.showToast.emit("Error", "Invalid spectral range", "Minimum value must be less than maximum value")
+                return
+
+        self.applySpectralRange.emit(range_min, range_max)
+
+    def apply_normalization(self, checked=None):
+        if checked is None:
+            checked = self.model_builder.model_settings.normalization.normalize.isChecked()
+
+        normalization = self.model_builder.model_settings.normalization
+        range_min = normalization.range_min.value()
+        range_max = normalization.range_max.value()
+
+        if range_min is not None and range_max is not None and checked:
+            if range_min >= range_max:
+                self.showToast.emit("Error", "Invalid normalization range", "Minimum value must be less than maximum value")
+                return
+
+        self.applyNormalization.emit(checked, range_min, range_max)
+
+    def update_peaks_table(self, spectrum):
+        self.model_builder.peaks_table.clear()
+        if not spectrum:
+            return
+
+        self.model.blockSignals(True)
+
+        def extract_params(param_dict):
+            return {
+                "min": param_dict["min"],
+                "value": param_dict["value"],
+                "max": param_dict["max"],
+                "vary": param_dict["vary"]
+            }
+
+        def add_row_from_params(prefix, label, model_name, params):
+            x0_params = extract_params(params["x0"])
+            ampli_params = extract_params(params["ampli"])
+            fwhm_params = extract_params(params["fwhm"])
+
+            row_params = {
+                "prefix": prefix,
+                "label": label,
+                "model_name": model_name,
+                "x0_min": x0_params["min"],
+                "x0": x0_params["value"],
+                "x0_max": x0_params["max"],
+                "x0_vary": x0_params["vary"],
+                "ampli_min": ampli_params["min"],
+                "ampli": ampli_params["value"],
+                "ampli_max": ampli_params["max"],
+                "ampli_vary": ampli_params["vary"],
+                "fwhm_min": fwhm_params["min"],
+                "fwhm": fwhm_params["value"],
+                "fwhm_max": fwhm_params["max"],
+                "fwhm_vary": fwhm_params["vary"]
+            }
+
+            self.model_builder.peaks_table.add_row(**row_params)
+
+        if isinstance(spectrum, dict):
+            fit_model = spectrum
+            peak_models = fit_model.get('peak_models', {})
+            peak_labels = fit_model.get('peak_labels', [])
+
+            for key, model_dict in peak_models.items():
+                label = peak_labels[key]
+                prefix = f'm{key+1:02d}_'
+                for model_name, params in model_dict.items():
+                    add_row_from_params(prefix, label, model_name, params)
+        else:
+            for label, model in zip(spectrum.peak_labels, spectrum.peak_models):
+                add_row_from_params(model._prefix, label, model.name2, model.param_hints)
+            self.set_model(spectrum)
+
+        self.model.blockSignals(False)

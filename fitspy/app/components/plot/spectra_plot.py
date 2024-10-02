@@ -5,7 +5,7 @@ from matplotlib.figure import Figure
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
 
 class SpectraPlot(QWidget):
-    showToast = Signal(str, str)
+    showToast = Signal(str, str, str)
 
     def __init__(self):
         super().__init__()
@@ -33,7 +33,7 @@ class SpectraPlot(QWidget):
         pixmap = QPixmap.fromImage(QImage(buffer, width, height, QImage.Format_ARGB32))
 
         clipboard.setPixmap(pixmap)
-        self.showToast.emit("Figure copied to clipboard","")
+        self.showToast.emit("SUCCESS", "Figure copied to clipboard", "")
 
 if __name__ == "__main__":
     import sys

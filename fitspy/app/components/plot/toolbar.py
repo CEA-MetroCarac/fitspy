@@ -5,6 +5,9 @@ from PySide6.QtWidgets import QToolButton, QMenu, QCheckBox, QWidgetAction, QRad
 from matplotlib.backends.backend_qtagg import NavigationToolbar2QT
 import matplotlib.cbook as cbook
 
+from fitspy import DEFAULTS
+from fitspy.core import to_title_case
+
 project_root = Path(__file__).resolve().parent.parent.parent.parent
 icons = project_root / 'resources' / 'iconpack'
 
@@ -69,32 +72,34 @@ class CustomNavigationToolbar(NavigationToolbar2QT):
             if icon_name:
                 action.setIcon(self._icon(icon_name))
 
+    def is_pan_active(self):
+        for action in self.actions():
+            if action.text() == 'Pan':
+                return action.isChecked()
+        return False
+
+    def is_zoom_active(self):
+        for action in self.actions():
+            if action.text() == 'Zoom':
+                return action.isChecked()
+        return False
+
 class Toolbar(QWidget):
     def __init__(self, canvas, view_options=ViewOptions, parent=None):
         super().__init__(parent)
         self.canvas = canvas
-        self.view_options = None if view_options is None else view_options(
-            checkboxes=[("Legend", "Legend"),
-            ("Fit", "Fit"),
-            ("Negative values", "Negative values"),
-            ("Outliers", "Outliers"),
-            ("Outliers limits", "Outliers limits"),
-            ("Noise level", "Noise level"),
-            ("Baseline", "Baseline"),
-            ("Background", "Background"),
-            ("Residual", "Residual"),
-            ("Peaks", "Peaks"),
-            ("Raw", "Raw"),
-            # ("Filled", "Filled"),
-            # ("Colors", "Colors")
-            ])
+
+        # Generate checkboxes dynamically from DEFAULTS
+        checkboxes = [(to_title_case(key), to_title_case(key)) for key in DEFAULTS['view_options'].keys()]  # (text, tooltip)
+
+        self.view_options = None if view_options is None else view_options(checkboxes=checkboxes)
         self.initUI()
 
     def initUI(self):
         hbox = QHBoxLayout()
         self.mpl_toolbar = CustomNavigationToolbar(self.canvas)
-        baseline_radio = QRadioButton("Baseline")
-        peaks_radio = QRadioButton("Fitting")
+        self.baseline_radio = QRadioButton("Baseline")
+        self.fitting_radio = QRadioButton("Fitting")
         self.copy_button = QPushButton(
             icon=QIcon(str(icons / "clipboard-copy.png")),
             toolTip="Copy Figure to Clipboard",
@@ -106,8 +111,8 @@ class Toolbar(QWidget):
 
         hbox.addWidget(self.mpl_toolbar)
         hbox.addItem(spacer1)
-        hbox.addWidget(baseline_radio)
-        hbox.addWidget(peaks_radio)
+        hbox.addWidget(self.baseline_radio)
+        hbox.addWidget(self.fitting_radio)
         hbox.addItem(spacer2)
         if self.view_options:
             hbox.addWidget(self.view_options)

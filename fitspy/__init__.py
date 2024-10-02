@@ -3,8 +3,6 @@ from lmfit.models import (ConstantModel, LinearModel, ParabolicModel,
 from .core.models import (gaussian, lorentzian, gaussian_asym, lorentzian_asym,
                            pseudovoigt)
 
-from .core import *
-
 VERSION = "2024.8dev"
 
 PEAK_MODELS = {"Gaussian": gaussian,
@@ -31,4 +29,18 @@ DEFAULTS = {
     'ncpus' : 'Auto',
     'outliers_coef': 1.5,
     'save_only_path': True,
+    'click_mode': 'baseline',
+    'view_options': {
+        "fit": True,
+        "negative_values": True,
+        "outliers": True,
+        "outliers_limits": True,
+        "noise_level": True,
+        "baseline": True,
+        "subtract_baseline": True,
+        "background": True,
+        "residual": True,
+        "peaks": True,
+        "peak_labels": True,
+    },
 }

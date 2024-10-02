@@ -28,15 +28,21 @@ class SpectrumList(QWidget):
 
         main_layout = QVBoxLayout()
         title_layout = QHBoxLayout()
+        button_layout = QHBoxLayout()
+        combined_layout = QVBoxLayout()
 
         title_layout.addWidget(self.title_label)
         title_layout.addWidget(self.count_label)
         title_layout.addStretch()  # horizontal spacer
-        title_layout.addWidget(self.sel_all)
-        title_layout.addWidget(self.rm_btn)
-        title_layout.addWidget(self.save_btn)
 
-        main_layout.addLayout(title_layout)
+        button_layout.addWidget(self.sel_all)
+        button_layout.addWidget(self.rm_btn)
+        button_layout.addWidget(self.save_btn)
+
+        combined_layout.addLayout(title_layout)
+        combined_layout.addLayout(button_layout)
+
+        main_layout.addLayout(combined_layout)
         main_layout.addWidget(self.list)
 
         self.setLayout(main_layout)

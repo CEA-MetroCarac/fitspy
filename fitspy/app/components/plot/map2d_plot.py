@@ -1,8 +1,11 @@
 from PySide6.QtCore import Qt, Signal
-from PySide6.QtWidgets import QMainWindow, QDockWidget, QWidget, QVBoxLayout, QLabel, QDoubleSpinBox, QHBoxLayout, QTabWidget, QSizePolicy, QPushButton
+from PySide6.QtWidgets import QMainWindow, QDockWidget, QWidget, QVBoxLayout, QLabel, QHBoxLayout, QTabWidget, QPushButton
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_qtagg import FigureCanvas
 from superqt import QLabeledDoubleRangeSlider as QRangeSlider
+
+from fitspy.app.components.settings import DoubleSpinBox
+
 
 class CommonTab(QWidget):
     def __init__(self, parent=None):
@@ -14,12 +17,10 @@ class CommonTab(QWidget):
         self.layout.setSpacing(3)
         h_layout1 = QHBoxLayout()
 
-        range_min = QDoubleSpinBox()
+        range_min = DoubleSpinBox()
         range_min.setDecimals(2)
-        range_min.setRange(-9999.99, 9999.99)
-        range_max = QDoubleSpinBox()
+        range_max = DoubleSpinBox()
         range_max.setDecimals(2)
-        range_max.setRange(-9999.99, 9999.99)
 
         self.export_button = QPushButton("Export .csv")
 
@@ -149,18 +150,18 @@ class Map2DPlot(QMainWindow):
     def add_colorbar(self):
         if not self.colorbar and self.ax.images:
             self.colorbar = self.figure.colorbar(self.ax.images[0], ax=self.ax)
-            self.canvas.draw()
+            self.canvas.draw_idle()
 
     def remove_colorbar(self):
         if self.colorbar:
             self.colorbar.remove()
             self.colorbar = None
-            self.canvas.draw()
+            self.canvas.draw_idle()
 
     def set_map(self, spectramap):
         if not spectramap:
             self.ax.clear()
-            self.canvas.draw()
+            self.canvas.draw_idle()
             self.remove_colorbar()
         else:
             spectramap.plot_map(self.ax, range_slider=self.tab_widget.intensity_tab.range_slider)

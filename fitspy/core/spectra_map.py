@@ -153,7 +153,7 @@ class SpectraMap(Spectra):
                                 #   self.xrange[0], self.xrange[1],
                                 #   valinit=self.xrange)
         # self.slider.on_changed(self.plot_map_update)
-        fig.canvas.draw()
+        fig.canvas.draw_idle()
 
     def plot_map_update(self, xrange=None, var='Intensity', label='',
                         vmin=None, vmax=None):
@@ -184,7 +184,7 @@ class SpectraMap(Spectra):
         if vmax is not None:
             self.img.norm.vmax = vmax
         # self.cbar.update_normal(self.img)
-        self.ax.get_figure().canvas.draw()
+        self.ax.get_figure().canvas.draw_idle()
 
     def remove_markers(self, canvas=None):
         """ Remove all markers in the 2D-map """
@@ -194,7 +194,7 @@ class SpectraMap(Spectra):
 
         if hasattr(self, 'marker') and self.marker is not None:
             [x.remove() for x in self.marker]
-            canvas.draw()
+            canvas.draw_idle()
             self.marker = None
 
     def set_marker(self, spectrum_or_fname_or_coords, canvas=None):
@@ -219,7 +219,7 @@ class SpectraMap(Spectra):
             x = self.xy_map[0][closest_index(self.xy_map[0], x)]
             y = self.xy_map[1][closest_index(self.xy_map[1], y)]
             self.marker = self.ax.plot(x, y, 'rs', ms=9, mfc='none')
-            canvas.draw()
+            canvas.draw_idle()
             return f"X={x}  Y={y}"
         else:
             if isinstance(spectrum_or_fname_or_coords, str):
@@ -230,7 +230,7 @@ class SpectraMap(Spectra):
             x, y = self.spectrum_coords(spectrum)
 
         self.marker = self.ax.plot(x, y, 'rs', ms=9, mfc='none')
-        canvas.draw()
+        canvas.draw_idle()
         return None
 
     def export_to_csv(self, fname):

@@ -9,63 +9,56 @@ class MainModel(QObject):
     def __init__(self):
         super().__init__()
         self.settings = QSettings("CEA-MetroCarac", "Fitspy")  # these are stored in registry
-        self._theme = self.settings.value("theme", DEFAULTS["theme"])
-        self._ncpus = self.settings.value("ncpus", DEFAULTS["ncpus"])
-        self._outliers_coef = self.settings.value("outliers_coef", DEFAULTS["outliers_coef"], type=float)
-        self._save_only_path = self.settings.value("save_only_path", DEFAULTS["save_only_path"], type=bool)
+        self._settings = {}
+        self._initialize_settings()
+
+    def _initialize_settings(self):
+        """Initialize settings from DEFAULTS and QSettings."""
+        signal_map = {
+            "theme": self.themeChanged
+        }
+
+        def create_setting(default, type, signal=None):
+            return {"value": None, "default": default, "type": type, "signal": signal}
+
+        # Dynamically generate settings from DEFAULTS
+        for key, default in DEFAULTS.items():
+            if isinstance(default, dict):
+                for sub_key, sub_default in default.items():
+                    full_key = f"{key}_{sub_key}"
+                    signal = signal_map.get(full_key)
+                    self._settings[full_key] = create_setting(sub_default, type(sub_default), signal)
+            else:
+                signal = signal_map.get(key)
+                self._settings[key] = create_setting(default, type(default), signal)
+        
+        # Set initial values from QSettings
+        for key, setting in self._settings.items():
+            setting["value"] = self.settings.value(key, setting["default"], type=setting["type"])
 
     def update_setting(self, label, state):
-        self.settings.setValue(label, state)
+        """Update a setting and emit its signal if applicable."""
+        if label in self._settings:
+            self._settings[label]["value"] = state
+            self.settings.setValue(label, state)
+            if self._settings[label]["signal"]:
+                self._settings[label]["signal"].emit()
 
-    @property
-    def theme(self):
-        return self._theme
+    def __getattr__(self, name):
+        if name in self._settings:
+            return self._settings[name]["value"]
+        raise AttributeError(f"'MainModel' object has no attribute '{name}'")
 
-    @theme.setter
-    def theme(self, value):
-        if value in ["light", "dark"] and value != self._theme:
-            self._theme = value
-            self.settings.setValue("theme", value)
-            self.themeChanged.emit()
-
-    @property
-    def ncpus(self):
-        return self._ncpus
-
-    @ncpus.setter
-    def ncpus(self, value):
-        if value == "Auto" or value.isdigit():
-            if value != self._ncpus:
-                self._ncpus = value
-                self.settings.setValue("ncpus", value)
+    def __setattr__(self, name, value):
+        if name in ["_settings", "settings", "themeChanged", "defaultsRestored"]:
+            super().__setattr__(name, value)
+        elif name in self._settings:
+            self.update_setting(name, value)
         else:
-            raise ValueError("ncpus must be 'Auto' or a string representing a positive integer")
-        
-    @property
-    def outliers_coef(self):
-        return self._outliers_coef
-    
-    @outliers_coef.setter
-    def outliers_coef(self, value):
-        if value > 0:
-            if value != self._outliers_coef:
-                self._outliers_coef = value
-                self.settings.setValue("outliers_coef", value)
-        else:
-            raise ValueError("outliers_coef must be a positive float")
-        
-    @property
-    def save_only_path(self):
-        return self._save_only_path
-    
-    @save_only_path.setter
-    def save_only_path(self, value):
-        if value != self._save_only_path:
-            self._save_only_path = value
-            self.settings.setValue("save_only_path", value)
+            super().__setattr__(name, value)
 
     def dark_palette(self):
-        """Palette color for dark mode of the appli's GUI"""
+        """Palette color for dark mode of the app's GUI"""
         dark_palette = QPalette()
         dark_palette.setColor(QPalette.Window, QColor(70, 70, 70))
         dark_palette.setColor(QPalette.WindowText, Qt.white)
@@ -84,7 +77,7 @@ class MainModel(QObject):
         return dark_palette
 
     def light_palette(self):
-        """Palette color for light mode of the appli's GUI"""
+        """Palette color for light mode of the app's GUI"""
         light_palette = QPalette()
         light_palette.setColor(QPalette.Window, QColor(225, 225, 225))
         light_palette.setColor(QPalette.WindowText, Qt.black)
@@ -103,9 +96,8 @@ class MainModel(QObject):
         return light_palette
     
     def restore_defaults(self):
+        """Restore all settings to their default values."""
         self.settings.clear()
-        self._theme = DEFAULTS["theme"]
-        self.ncpus = DEFAULTS["ncpus"]
-        self.outliers_coef = DEFAULTS["outliers_coef"]
-        self.save_only_path = DEFAULTS["save_only_path"]
+        for key, setting in self._settings.items():
+            self.update_setting(key, setting["default"])
         self.defaultsRestored.emit()

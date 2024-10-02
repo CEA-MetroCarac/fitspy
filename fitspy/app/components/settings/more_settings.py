@@ -7,24 +7,22 @@ from PySide6.QtWidgets import (
     QVBoxLayout,
     QHBoxLayout,
     QCheckBox,
-    QSpinBox,
     QComboBox,
-    QDoubleSpinBox,
     QLabel,
     QSpacerItem,
     QApplication,
 )
 
 from fitspy import FIT_METHODS
+from .custom_spinbox import SpinBox, DoubleSpinBox
 
-
-class FitSettings(QGroupBox):
+class SolverSettings(QGroupBox):
     def __init__(self):
         super().__init__()
         self.initUI()
 
     def initUI(self):
-        self.setTitle("Fit Algorithm settings:")
+        self.setTitle("Fit Solver Settings:")
         self.setStyleSheet("QGroupBox { font-weight: bold; }")
 
         vbox = QVBoxLayout()
@@ -32,14 +30,14 @@ class FitSettings(QGroupBox):
         self.fit_negative_checkbox = QCheckBox("Fit negative values:")
         self.fit_outliers_checkbox = QCheckBox("Fit outliers:")
         self.coef_noise_label = QLabel("Coefficient noise:")
-        self.coef_noise_input = QDoubleSpinBox()
+        self.coef_noise_input = DoubleSpinBox()
         self.max_ite_label = QLabel("Maximum iterations:")
-        self.max_ite_input = QSpinBox()
+        self.max_ite_input = SpinBox()
         self.fit_method_label = QLabel("Fit method:")
         self.fit_method_combo = QComboBox()
         self.fit_method_combo.addItems(FIT_METHODS.keys())
         self.xtol_label = QLabel("xtol:")
-        self.xtol_input = QDoubleSpinBox()
+        self.xtol_input = DoubleSpinBox()
         self.xtol_input.setDecimals(6)
 
         vbox.addWidget(self.fit_negative_checkbox)
@@ -48,25 +46,26 @@ class FitSettings(QGroupBox):
         hbox0 = QHBoxLayout()
         hbox0.addWidget(self.coef_noise_label)
         hbox0.addWidget(self.coef_noise_input)
-        hbox0.addItem(QSpacerItem(20, 0, QSizePolicy.Minimum, QSizePolicy.Minimum))
+        spacer = QSpacerItem(20, 0, QSizePolicy.Minimum, QSizePolicy.Minimum)
+        hbox0.addItem(spacer)
         vbox.addLayout(hbox0)
 
         hbox1 = QHBoxLayout()
         hbox1.addWidget(self.max_ite_label)
         hbox1.addWidget(self.max_ite_input)
-        hbox1.addItem(QSpacerItem(20, 0, QSizePolicy.Minimum, QSizePolicy.Minimum))
+        hbox1.addItem(spacer)
         vbox.addLayout(hbox1)
 
         hbox2 = QHBoxLayout()
         hbox2.addWidget(self.fit_method_label)
         hbox2.addWidget(self.fit_method_combo)
-        hbox2.addItem(QSpacerItem(20, 0, QSizePolicy.Minimum, QSizePolicy.Minimum))
+        hbox2.addItem(spacer)
         vbox.addLayout(hbox2)
 
         hbox3 = QHBoxLayout()
         hbox3.addWidget(self.xtol_label)
         hbox3.addWidget(self.xtol_input)
-        hbox3.addItem(QSpacerItem(20, 0, QSizePolicy.Minimum, QSizePolicy.Minimum))
+        hbox3.addItem(spacer)
         vbox.addLayout(hbox3)
 
         vbox.addItem(QSpacerItem(0, 20, QSizePolicy.Minimum, QSizePolicy.Expanding))
@@ -74,28 +73,27 @@ class FitSettings(QGroupBox):
         self.setLayout(vbox)
 
     def update_model(self, model):
-        fit_params = model['fit_params']
-        
+        fit_params = model.get('fit_params', {})
+    
         # Find the key in FIT_METHODS that matches the value of fit_params["method"]
-        method_value = fit_params['method']
+        method_value = fit_params.get('method')
         method_key = next((key for key, value in FIT_METHODS.items() if value == method_value), None)
         if method_key is not None:
             self.fit_method_combo.setCurrentText(method_key)
 
-        self.fit_negative_checkbox.setChecked(fit_params['fit_negative'])
-        self.fit_outliers_checkbox.setChecked(fit_params['fit_outliers'])
-        self.max_ite_input.setValue(fit_params['max_ite'])
-        self.coef_noise_input.setValue(fit_params['coef_noise'])
-        self.xtol_input.setValue(fit_params['xtol'])
+        self.fit_negative_checkbox.setChecked(fit_params.get('fit_negative', False))
+        self.fit_outliers_checkbox.setChecked(fit_params.get('fit_outliers', False))
+        self.max_ite_input.setValue(fit_params.get('max_ite', 0))
+        self.coef_noise_input.setValue(fit_params.get('coef_noise', 0.0))
+        self.xtol_input.setValue(fit_params.get('xtol', 0.0))
 
-
-class SolverSettings(QGroupBox):
+class OtherSettings(QGroupBox):
     def __init__(self):
         super().__init__()
         self.initUI()
 
     def initUI(self):
-        self.setTitle("Solver settings:")
+        self.setTitle("Other settings:")
         self.setStyleSheet("QGroupBox { font-weight: bold; }")
 
         vbox = QVBoxLayout()
@@ -106,7 +104,7 @@ class SolverSettings(QGroupBox):
         self.coef_label = QLabel("Coef:")
         hbox.addWidget(self.coef_label)
 
-        self.outliers_coef = QDoubleSpinBox()
+        self.outliers_coef = DoubleSpinBox()
         self.outliers_coef.setRange(0.0, 100.0)
         self.outliers_coef.setSingleStep(0.1)
         hbox.addWidget(self.outliers_coef)
@@ -115,27 +113,12 @@ class SolverSettings(QGroupBox):
         self.outliers_removal.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
         hbox.addWidget(self.outliers_removal)
 
-        vbox.addLayout(hbox)
-        self.setLayout(vbox)
-
-class ExportSettings(QGroupBox):
-    def __init__(self):
-        super().__init__()
-        self.initUI()
-
-    def initUI(self):
-        self.setTitle("Export settings:")
-        self.setStyleSheet("QGroupBox { font-weight: bold; }")
-
-        vbox = QVBoxLayout()
-        vbox.setAlignment(Qt.AlignTop)
-
-        hbox = QHBoxLayout()
-
-        self.save_only_path = QCheckBox("Save only path")
-        hbox.addWidget(self.save_only_path)
+        hbox_2 = QHBoxLayout()
+        self.save_only_path = QCheckBox("Save spectrum file path only", toolTip="If unchecked, saves the spectrum data")
+        hbox_2.addWidget(self.save_only_path)
 
         vbox.addLayout(hbox)
+        vbox.addLayout(hbox_2)
         self.setLayout(vbox)
 
 class MoreSettings(QWidget):
@@ -147,12 +130,10 @@ class MoreSettings(QWidget):
         hbox = QHBoxLayout()
         hbox.setContentsMargins(10, 10, 10, 10)
 
-        self.fit_settings = FitSettings()
         self.solver_settings = SolverSettings()
-        self.export_settings = ExportSettings()
-        hbox.addWidget(self.fit_settings)
+        self.other_settings = OtherSettings()
         hbox.addWidget(self.solver_settings)
-        hbox.addWidget(self.export_settings)
+        hbox.addWidget(self.other_settings)
 
         self.setLayout(hbox)
 
