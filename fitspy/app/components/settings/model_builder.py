@@ -2,7 +2,9 @@ from pathlib import Path
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QIcon
 from PySide6.QtCore import QSize
-from PySide6.QtWidgets import QRadioButton, QSlider, QVBoxLayout, QHBoxLayout, QScrollArea, QPushButton, QCheckBox, QLabel, QWidget, QComboBox, QSpacerItem, QSizePolicy
+from PySide6.QtWidgets import QRadioButton, QSlider, QVBoxLayout, \
+    QHBoxLayout, QScrollArea, QPushButton, QCheckBox, QLabel, \
+    QWidget, QComboBox, QSpacerItem, QSizePolicy, QButtonGroup
 
 from superqt import QCollapsible
 from fitspy import PEAK_MODELS, BKG_MODELS
@@ -48,6 +50,7 @@ class SpectralRange(QCollapsible):
         self.setContent(content_widget)
         self.expand(animate=False)
 
+
 class Baseline(QCollapsible):
     def __init__(self, parent=None):
         super().__init__("Baseline", parent)
@@ -59,6 +62,8 @@ class Baseline(QCollapsible):
         vbox_layout.setContentsMargins(0, 0, 0, 0)
         vbox_layout.setSpacing(2)
         content_widget.setLayout(vbox_layout)
+
+        spacer = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
 
         self.HLayout1 = QHBoxLayout()
         self.HLayout1.setSpacing(5)
@@ -80,7 +85,6 @@ class Baseline(QCollapsible):
 
         self.linear = QRadioButton("Linear")
         self.polynomial = QRadioButton("Polynomial")
-        spacer = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
         self.label_order = QLabel("Order:")
         self.order = SpinBox()
 
@@ -90,6 +94,11 @@ class Baseline(QCollapsible):
         self.HLayout2.addItem(spacer)
         self.HLayout2.addWidget(self.label_order)
         self.HLayout2.addWidget(self.order)
+
+        self.button_group = QButtonGroup(self)
+        self.button_group.addButton(self.semi_auto)
+        self.button_group.addButton(self.linear)
+        self.button_group.addButton(self.polynomial)
 
         self.HLayout3 = QHBoxLayout()
         self.HLayout3.setSpacing(5)
@@ -156,8 +165,12 @@ class Fitting(QCollapsible):
         vbox_layout.setContentsMargins(0, 0, 0, 0)
         vbox_layout.setSpacing(2)
 
-        self.peak_model_combo = self.create_section(vbox_layout, "Peak model:", PEAK_MODELS.keys())
-        self.bkg_model_combo = self.create_section(vbox_layout, "Background model:", BKG_MODELS.keys())
+        self.peak_model = self.create_section(vbox_layout,
+                                              "Peak model:",
+                                              PEAK_MODELS.keys())
+        self.background_model = self.create_section(vbox_layout,
+                                                    "Background model:",
+                                                    BKG_MODELS.keys())
 
         self.setContent(content_widget)
         self.expand(animate=False)
@@ -181,6 +194,7 @@ class Fitting(QCollapsible):
         layout.addLayout(h_layout)
 
         return combo_box
+
 
 class ModelSettings(QWidget):
     def __init__(self, parent=None):
@@ -216,15 +230,16 @@ class ModelSettings(QWidget):
         HLayout.setSpacing(0)
         HLayout.setContentsMargins(0, 0, 0, 0)
 
-        save_button = QPushButton(
+        self.save_button = QPushButton(
             text="Save Model",
             icon=QIcon(str(icons / "save.png")),
             toolTip="Save the fit model as a JSON file",
         )
-        save_button.setIconSize(QSize(20, 20))
+        self.save_button.setIconSize(QSize(20, 20))
+
         self.fit_button = QPushButton("Fit")
 
-        HLayout.addWidget(save_button)
+        HLayout.addWidget(self.save_button)
         HLayout.addWidget(self.fit_button)
 
         main_layout.addLayout(HLayout)
@@ -235,6 +250,7 @@ class ModelSettings(QWidget):
         outer_layout.setContentsMargins(0, 0, 0, 0)
         outer_layout.setSpacing(0)
         outer_layout.addWidget(scroll_area)
+
 
 class ModelSelector(QWidget):
     def __init__(self, parent=None):
@@ -248,21 +264,22 @@ class ModelSelector(QWidget):
 
         label = QLabel("Select a model:")
 
-        combo_box = QComboBox()
-        combo_box.setPlaceholderText("Select a model for fitting")
+        self.combo_box = QComboBox()
+        self.combo_box.setPlaceholderText("Select a model for fitting")
 
-        apply = QPushButton("Apply Model")
+        self.apply = QPushButton("Apply Model")
 
-        load_button = QPushButton("Load Model")
+        self.load_button = QPushButton("Load Model")
 
         h_layout.addWidget(label)
-        h_layout.addWidget(combo_box)
-        h_layout.addWidget(apply)
-        h_layout.addWidget(load_button)
+        h_layout.addWidget(self.combo_box)
+        h_layout.addWidget(self.apply)
+        h_layout.addWidget(self.load_button)
 
         h_layout.setStretch(1, 1)
 
         self.setLayout(h_layout)
+
 
 class ModelBuilder(QWidget):
     def __init__(self):
@@ -305,26 +322,28 @@ class ModelBuilder(QWidget):
         self.model_settings.spectral_range.range_max.setValue(model.get('range_max', 0))
 
         # Baseline
-        baseline = model.get('baseline', {})
-        self.model_settings.baseline.semi_auto.setAutoExclusive(False)
-        self.model_settings.baseline.linear.setAutoExclusive(False)
-        self.model_settings.baseline.polynomial.setAutoExclusive(False)
-        self.model_settings.baseline.semi_auto.setChecked(baseline.get('mode', None) == "Semi-Auto")
-        self.model_settings.baseline.linear.setChecked(baseline.get('mode', None) == "Linear")
-        self.model_settings.baseline.polynomial.setChecked(baseline.get('mode', None) == "Polynomial")
-        self.model_settings.baseline.semi_auto.setAutoExclusive(True)
-        self.model_settings.baseline.linear.setAutoExclusive(True)
-        self.model_settings.baseline.polynomial.setAutoExclusive(True)
+        baseline = self.model_settings.baseline
+        baseline_model = model.get('baseline', {})
+        baseline.semi_auto.setAutoExclusive(False)
+        baseline.linear.setAutoExclusive(False)
+        baseline.polynomial.setAutoExclusive(False)
+        baseline.semi_auto.setChecked(baseline_model.get('mode', None) == "Semi-Auto")
+        baseline.linear.setChecked(baseline_model.get('mode', None) == "Linear")
+        baseline.polynomial.setChecked(baseline_model.get('mode', None) == "Polynomial")
+        baseline.semi_auto.setAutoExclusive(True)
+        baseline.linear.setAutoExclusive(True)
+        baseline.polynomial.setAutoExclusive(True)
 
-        self.model_settings.baseline.attached.setChecked(baseline.get('attached', False))
-        self.model_settings.baseline.order.setValue(baseline.get('order_max', 0))
-        self.model_settings.baseline.sigma.setValue(baseline.get('sigma', 0))
-        self.model_settings.baseline.slider.setValue(baseline.get('coef', 0))
+        baseline.attached.setChecked(baseline_model.get('attached', False))
+        baseline.order.setValue(baseline_model.get('order_max', 0))
+        baseline.sigma.setValue(baseline_model.get('sigma', 0))
+        baseline.slider.setValue(baseline_model.get('coef', 0))
 
         # Normalization
-        self.model_settings.normalization.range_min.setValue(model.get('normalize_range_min', 0))
-        self.model_settings.normalization.range_max.setValue(model.get('normalize_range_max', 0))
-        self.model_settings.normalization.normalize.setChecked(model.get('normalize', False))
+        normalization = self.model_settings.normalization
+        normalization.range_min.setValue(model.get('normalize_range_min', 0))
+        normalization.range_max.setValue(model.get('normalize_range_max', 0))
+        normalization.normalize.setChecked(model.get('normalize', False))
 
 if __name__ == "__main__":
     import sys

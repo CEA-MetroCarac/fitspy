@@ -16,7 +16,7 @@ from PySide6.QtWidgets import (
 from fitspy import FIT_METHODS, DEFAULTS
 from .custom_spinbox import SpinBox, DoubleSpinBox
 
-class FitSettings(QGroupBox):
+class SolverSettings(QGroupBox):
     def __init__(self):
         super().__init__()
         self.initUI()
@@ -126,12 +126,13 @@ class MoreSettings(QWidget):
         hbox = QHBoxLayout()
         hbox.setContentsMargins(10, 10, 10, 10)
 
-        self.fit_settings = FitSettings()
+        self.solver_settings = SolverSettings()
         self.other_settings = OtherSettings()
-        hbox.addWidget(self.fit_settings)
+        hbox.addWidget(self.solver_settings)
         hbox.addWidget(self.other_settings)
 
         self.setLayout(hbox)
+
 
 if __name__ == "__main__":
     import sys
