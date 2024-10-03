@@ -27,12 +27,10 @@ class StatusBar(QStatusBar):
         self.addWidget(self.label_19)
 
         self.ncpus = QComboBox(self)
-        self.ncpus.setObjectName("ncpus")
         self.populate_cpu_choices()
         self.addWidget(self.ncpus)
 
         self.progressText = QLabel(self)
-        self.progressText.setObjectName("progressText")
         self.addWidget(self.progressText)
 
         rightAlignedWidget = QWidget(self)
@@ -40,8 +38,10 @@ class StatusBar(QStatusBar):
         rightAlignedLayout.setContentsMargins(0, 0, 0, 0)
         rightAlignedLayout.addStretch()
 
+        self.cpuCountLabel = QLabel(self)
+        rightAlignedLayout.addWidget(self.cpuCountLabel)
+
         self.progressBar = QProgressBar(rightAlignedWidget)
-        self.progressBar.setObjectName("progressBar")
         sizePolicy.setHeightForWidth(self.progressBar.sizePolicy().hasHeightForWidth())
         self.progressBar.setSizePolicy(sizePolicy)
         self.progressBar.setMinimumSize(QSize(200, 10))

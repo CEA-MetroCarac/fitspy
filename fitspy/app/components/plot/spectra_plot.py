@@ -33,7 +33,7 @@ class SpectraPlot(QWidget):
         pixmap = QPixmap.fromImage(QImage(buffer, width, height, QImage.Format_ARGB32))
 
         clipboard.setPixmap(pixmap)
-        self.showToast.emit("SUCCESS", "Figure copied to clipboard", "")
+        self.showToast.emit("success", "Figure copied to clipboard", "")
 
 if __name__ == "__main__":
     import sys

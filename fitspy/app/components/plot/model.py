@@ -1,30 +1,10 @@
 from copy import deepcopy
-import numpy as np
+from threading import Thread
 from collections import defaultdict
+import numpy as np
+
 from PySide6.QtCore import QObject, Signal
-
 from fitspy.core import Spectra, Spectrum
-
-# class SpectraWorker(QObject):
-#     from superqt.utils import thread_worker
-#     progress_updated = Signal(int)
-#     finished = Signal()
-#     errored = Signal(Exception)
-
-#     def __init__(self, spectra):
-#         super().__init__()
-#         self.spectra = spectra
-
-#     @thread_worker
-#     def apply_model(self, model_dict, fnames=None, ncpus=1):
-#         try:
-#             self.spectra.apply_model(model_dict, fnames, ncpus)
-#             print(self.spectra.pbar_index)
-#             yield 100  # Emit 100% progress when done
-#         except Exception as e:
-#             self.errored.emit(e)
-#         finally:
-#             self.finished.emit()
 
 
 class Model(QObject):
@@ -37,6 +17,7 @@ class Model(QObject):
     refreshPlot = Signal()
     askConfirmation = Signal(str, object, tuple, dict)
     PeaksChanged = Signal(object)
+    progressUpdated = Signal(object, int, int)
     showToast = Signal(str, str, str)
 
     def __init__(self):
@@ -48,22 +29,6 @@ class Model(QObject):
         self.tmp = None
         self.linewidth = 0.5
         self.lines = None
-        # self.worker = SpectraWorker(self._spectra)
-        # self.worker.progress_updated.connect(self.update_progress_bar)
-        # self.worker.finished.connect(self.on_worker_finished)
-        # self.worker.errored.connect(self.on_worker_errored)
-
-    def update_progress_bar(self, value):
-        # self.progressbar.setValue(value)
-        print(value)
-
-    def on_worker_finished(self):
-        self.refreshPlot.emit()
-        # Additional cleanup or UI updates
-
-    def on_worker_errored(self, exc):
-        print(f"Error: {exc}")
-        # Handle the error
 
     def set_spectrum_attr(self, fname, attr, value):
         spectrum = self.spectra.get_objects(fname, parent=self.current_map or self.spectra)[0]
@@ -337,9 +302,7 @@ class Model(QObject):
         model_dict = model_dict #or deepcopy(self.model_dict)
 
         if model_dict is None:
-            # showerror(message='No model has been loaded')
-            print("No model has been loaded")
-            # show toast
+            self.showToast('error', 'No model has been loaded', '')
             return
 
         if fnames is None:
@@ -347,24 +310,20 @@ class Model(QObject):
             fnames = [fnames[i] for i in self.fileselector.lbox.curselection()]
 
         nfiles = len(fnames)
-        # ncpus = self.get_ncpus(nfiles=nfiles)
 
         if fit_params is not None:
             for fname in fnames:
                 spectrum, _ = self.spectra.get_objects(fname)
                 spectrum.fit_params = deepcopy(fit_params)
 
-        # self.worker.apply_model(model_dict, fnames, ncpus).start()
-        from threading import Thread
         self.spectra.pbar_index = 0
         show_progressbar = False
+
         args = (model_dict, fnames, ncpus, show_progressbar)
         thread = Thread(target=self.spectra.apply_model, args=args)
         thread.start()
-        print(self.spectra.pbar_index)
-        # self.progressbar.update(self.spectra, nfiles, ncpus)
+        self.progressUpdated.emit(self.spectra, nfiles, ncpus)
         thread.join()
         # self.colorize_from_fit_status(fnames)
         # self.reassign_current_spectrum(self.current_spectrum.fname)
-        # self.update()
         self.refreshPlot.emit()

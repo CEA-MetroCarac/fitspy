@@ -14,6 +14,7 @@ class PlotController(QObject):
     highlightSpectrum = Signal(str)
     baselinePointsChanged = Signal(list)
     PeaksChanged = Signal(object)
+    progressUpdated = Signal(object, int, int)
 
     def __init__(self, spectra_plot, map2d_plot, toolbar):
         super().__init__()
@@ -43,6 +44,7 @@ class PlotController(QObject):
         self.model.baselinePointsChanged.connect(self.baselinePointsChanged)
         self.model.refreshPlot.connect(self.update_spectraplot)
         self.model.PeaksChanged.connect(self.PeaksChanged)
+        self.model.progressUpdated.connect(self.progressUpdated)
         self.model.askConfirmation.connect(self.show_confirmation_dialog)
 
         self.toolbar.fitting_radio.toggled.connect(self.on_click_mode_changed)

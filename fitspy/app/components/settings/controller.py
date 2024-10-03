@@ -200,7 +200,7 @@ class SettingsController(QObject):
         # if both are not None and range_min is >= range_max then show an error message
         if range_min is not None and range_max is not None:
             if range_min >= range_max:
-                self.showToast.emit("Error", "Invalid spectral range", "Minimum value must be less than maximum value")
+                self.showToast.emit("error", "Invalid spectral range", "Minimum value must be less than maximum value")
                 return
         self.update_model_dict({
             "range_min": range_min,
@@ -219,7 +219,7 @@ class SettingsController(QObject):
 
         if range_min is not None and range_max is not None and checked:
             if range_min >= range_max:
-                self.showToast.emit("Error", "Invalid normalization range", "Minimum value must be less than maximum value")
+                self.showToast.emit("error", "Invalid normalization range", "Minimum value must be less than maximum value")
                 return
 
         self.update_model_dict({'normalize': checked, 'normalize_range_min': range_min, 'normalize_range_max': range_max})

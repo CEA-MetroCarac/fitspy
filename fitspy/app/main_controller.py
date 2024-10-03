@@ -50,6 +50,7 @@ class MainController(QObject):
         self.plot_controller.highlightSpectrum.connect(self.files_controller.highlight_spectrum)
         self.plot_controller.baselinePointsChanged.connect(self.settings_controller.set_baseline_points)
         self.plot_controller.PeaksChanged.connect(self.settings_controller.update_peaks_table)
+        self.plot_controller.progressUpdated.connect(self.update_progress)
 
         self.settings_controller.showToast.connect(self.show_toast)
         self.settings_controller.settingChanged.connect(self.set_setting)
@@ -150,3 +151,13 @@ class MainController(QObject):
         nfiles = len(self.files_controller.get_selected_fnames())
         ncpus = self.get_ncpus(nfiles=nfiles)
         self.plot_controller.fit(model_dict, ncpus)
+
+    def update_progress(self, spectra, nfiles, ncpu=None):
+        if ncpu:
+            max_cpus = os.cpu_count()
+            self.view.statusBar.cpuCountLabel.setText(f"CPUs: {ncpu}/{max_cpus}")
+        percent = 0
+        while percent < 100:
+            percent = 100 * spectra.pbar_index / nfiles
+            self.view.statusBar.progressBar.setValue(percent)
+            QApplication.processEvents()
