@@ -76,7 +76,8 @@ class SettingsController(QObject):
         model_settings.fitting.background_model.currentTextChanged.connect(lambda: print("TODO Implement me"))
 
         # Save model
-        model_settings.save_button.clicked.connect(self.save_model)
+        model_settings.save.clicked.connect(self.save_model)
+        model_settings.fit.clicked.connect(self.request_fit)
 
         # Peaks + Baseline Table
         self.model_builder.baseline_table.baselinePointsChanged.connect(self.set_baseline_points)

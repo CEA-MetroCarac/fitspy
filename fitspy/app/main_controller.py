@@ -1,3 +1,4 @@
+import os
 from PySide6.QtCore import QObject
 from PySide6.QtWidgets import QApplication
 from pyqttoast import Toast, ToastPreset
@@ -61,6 +62,7 @@ class MainController(QObject):
         self.settings_controller.updatePeakModel.connect(self.plot_controller.update_peak_model)
         self.settings_controller.updatePeakModel.emit(self.view.fit_model_editor.model_settings.fitting.peak_model.currentText())
         self.settings_controller.setPeaks.connect(self.plot_controller.set_peaks)
+        self.settings_controller.fitRequested.connect(self.fit)
     
     def apply_settings(self):
         self.view.statusBar.ncpus.setCurrentText(self.model.ncpus)
@@ -135,3 +137,16 @@ class MainController(QObject):
         toast.applyPreset(selected_preset)
 
         toast.show()
+
+    def get_ncpus(self, nfiles):
+        """ Return the number of CPUs to work with """
+        ncpus = self.model.ncpus #or self.fit_settings.params['ncpus'].get()
+        if ncpus == "Auto":
+            return max(1, min(int(nfiles / 8), int(os.cpu_count() / 2)))
+        else:
+            return int(ncpus)
+
+    def fit(self, model_dict):
+        nfiles = len(self.files_controller.get_selected_fnames())
+        ncpus = self.get_ncpus(nfiles=nfiles)
+        self.plot_controller.fit(model_dict, ncpus)

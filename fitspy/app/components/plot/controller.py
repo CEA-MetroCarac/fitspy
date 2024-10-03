@@ -163,7 +163,8 @@ class PlotController(QObject):
             self.model.set_spectrum_attr(spectrum.fname, "normalize", state)
             self.model.set_spectrum_attr(spectrum.fname, "normalize_range_min", min)
             self.model.set_spectrum_attr(spectrum.fname, "normalize_range_max", max)
-
+            spectrum.preprocess()
+            
         self.update_spectraplot()
 
     def show_confirmation_dialog(self, message, callback, args, kwargs):
@@ -181,3 +182,9 @@ class PlotController(QObject):
         spectrum = self.model.current_spectrum[0]
         spectrum.set_attributes(peaks)
         self.update_spectraplot()
+
+    def fit(self, model_dict, ncpus):
+        print("Fitting")
+        fit_params = model_dict.get('fit_params', {})
+        fnames = [spectrum.fname for spectrum in self.model.current_spectrum]
+        self.model.apply_model(model_dict=model_dict, fnames=fnames, fit_params=fit_params, ncpus=ncpus)

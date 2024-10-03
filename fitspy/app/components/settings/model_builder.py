@@ -230,17 +230,17 @@ class ModelSettings(QWidget):
         HLayout.setSpacing(0)
         HLayout.setContentsMargins(0, 0, 0, 0)
 
-        self.save_button = QPushButton(
+        self.save = QPushButton(
             text="Save Model",
             icon=QIcon(str(icons / "save.png")),
             toolTip="Save the fit model as a JSON file",
         )
-        self.save_button.setIconSize(QSize(20, 20))
+        self.save.setIconSize(QSize(20, 20))
 
-        self.fit_button = QPushButton("Fit")
+        self.fit = QPushButton("Fit")
 
-        HLayout.addWidget(self.save_button)
-        HLayout.addWidget(self.fit_button)
+        HLayout.addWidget(self.save)
+        HLayout.addWidget(self.fit)
 
         main_layout.addLayout(HLayout)
 

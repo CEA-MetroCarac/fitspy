@@ -131,3 +131,6 @@ class FilesController(QObject):
                 list_widget.blockSignals(False)
                 self.update_selection(list_widget, self.spectrum_list.count_label, emit_marker=False)
                 break
+
+    def get_selected_fnames(self):
+        return [item.text() for item in self.spectrum_list.list.selectedItems()]
