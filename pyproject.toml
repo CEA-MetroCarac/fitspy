@@ -40,7 +40,7 @@ dependencies = [
 ]
 
 [tool.setuptools.package-data]
-"fitspy" = ["resources/iconpack/*.png"]
+"fitspy" = ["resources/iconpack/*.png", "resources/iconpack/*.svg"]
 
 [project.scripts]
 fitspy = "fitspy.app.main:main"
