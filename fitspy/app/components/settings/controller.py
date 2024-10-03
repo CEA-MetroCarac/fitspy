@@ -40,20 +40,21 @@ class SettingsController(QObject):
         spectral_range = model_settings.spectral_range
         spectral_range.apply.clicked.connect(self.apply_spectral_range)
 
-        # Baseline settings connections
+        # Baseline settings
         baseline = self.model_builder.model_settings.baseline
+        baseline_modes = {
+        baseline.semi_auto: "Semi-Auto",
+        baseline.linear: "Linear",
+        baseline.polynomial: "Polynomial"
+        }
+
+        for button, mode in baseline_modes.items():
+            button.toggled.connect(lambda checked, mode=mode: self.update_and_emit("baseline.mode", mode) if checked else None)
+    
         baseline.slider.valueChanged.connect(
             lambda value: self.update_and_emit("baseline.coef", value)
         )
-        baseline.semi_auto.toggled.connect(
-            lambda checked: self.update_and_emit("baseline.mode", "Semi-Auto") if checked else None
-        )
-        baseline.linear.toggled.connect(
-            lambda checked: self.update_and_emit("baseline.mode", "Linear") if checked else None
-        )
-        baseline.polynomial.toggled.connect(
-            lambda checked: self.update_and_emit("baseline.mode", "Polynomial") if checked else None
-        )
+
         baseline.attached.toggled.connect(
             lambda checked: self.update_and_emit("baseline.attached", checked)
         )

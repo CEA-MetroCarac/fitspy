@@ -321,15 +321,11 @@ class ModelBuilder(QWidget):
         # Baseline
         baseline = self.model_settings.baseline
         baseline_model = model.get('baseline', {})
-        baseline.semi_auto.setAutoExclusive(False)
-        baseline.linear.setAutoExclusive(False)
-        baseline.polynomial.setAutoExclusive(False)
+        baseline.button_group.setExclusive(False)
         baseline.semi_auto.setChecked(baseline_model.get('mode', None) == "Semi-Auto")
         baseline.linear.setChecked(baseline_model.get('mode', None) == "Linear")
         baseline.polynomial.setChecked(baseline_model.get('mode', None) == "Polynomial")
-        baseline.semi_auto.setAutoExclusive(True)
-        baseline.linear.setAutoExclusive(True)
-        baseline.polynomial.setAutoExclusive(True)
+        baseline.button_group.setExclusive(True)
 
         baseline.attached.setChecked(baseline_model.get('attached', False))
         baseline.order.setValue(baseline_model.get('order_max', 0))
