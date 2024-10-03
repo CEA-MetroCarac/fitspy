@@ -1,4 +1,3 @@
-from pathlib import Path
 from PySide6.QtWidgets import (
     QLabel, QGroupBox, QVBoxLayout, QPushButton, QComboBox, QLineEdit,
     QCheckBox, QHeaderView, QWidget
@@ -9,12 +8,11 @@ from PySide6.QtCore import Signal
 from matplotlib.colors import rgb2hex
 import matplotlib.cm as cm
 from fitspy import PEAK_MODELS
+from fitspy.core import get_icon_path
 
 from .generic_table import GenericTable
 from .custom_spinbox import DoubleSpinBox
 
-project_root = Path(__file__).resolve().parent.parent.parent.parent
-icons = project_root / 'resources' / 'iconpack'
 
 class PeaksTable(QGroupBox):
     peaksChanged = Signal(dict)
@@ -142,7 +140,7 @@ class PeaksTable(QGroupBox):
 
         prefix_button = QPushButton(
             text=params["prefix"],
-            icon=QIcon(str(icons / 'close.png')),
+            icon=QIcon(get_icon_path('close.png')),
             toolTip="Delete peak"
         )
         color = rgb2hex(self.cmap(self.row_count % self.cmap.N))

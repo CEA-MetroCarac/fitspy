@@ -1,12 +1,10 @@
-from pathlib import Path
 from PySide6.QtGui import QIcon
 from PySide6.QtCore import QSize
 from PySide6.QtWidgets import QWidget, QLabel, QPushButton, QVBoxLayout, QHBoxLayout
 
+from fitspy.core import get_icon_path
 from .dragndrop_list import DragAndDropList
 
-project_root = Path(__file__).resolve().parent.parent.parent.parent
-icons = project_root / 'resources' / 'iconpack'
 
 class SpectrumList(QWidget):
     def __init__(self, parent=None):
@@ -17,11 +15,11 @@ class SpectrumList(QWidget):
         self.title_label = QLabel("Spectrum:")
         self.count_label = QLabel("")
 
-        self.sel_all = QPushButton(icon=QIcon(str(icons / 'select-all.png')))
+        self.sel_all = QPushButton(icon=QIcon(get_icon_path('select-all.png')))
         self.sel_all.setIconSize(QSize(20, 20))
-        self.rm_btn = QPushButton(icon=QIcon(str(icons / 'remove.png')))
+        self.rm_btn = QPushButton(icon=QIcon(get_icon_path('remove.png')))
         self.rm_btn.setIconSize(QSize(20, 20))
-        self.save_btn = QPushButton(icon=QIcon(str(icons / 'save.png')))
+        self.save_btn = QPushButton(icon=QIcon(get_icon_path('save.png')))
         self.save_btn.setIconSize(QSize(20, 20))
 
         self.list = DragAndDropList()

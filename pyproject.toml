@@ -39,6 +39,9 @@ dependencies = [
     "pywin32; platform_system == 'Windows'",
 ]
 
+[tool.setuptools.package-data]
+"fitspy" = ["resources/iconpack/*.png"]
+
 [project.scripts]
 fitspy = "fitspy.app.main:main"
 

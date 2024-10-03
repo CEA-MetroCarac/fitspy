@@ -1,4 +1,3 @@
-from pathlib import Path
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QIcon
 from PySide6.QtCore import QSize
@@ -8,12 +7,10 @@ from PySide6.QtWidgets import QRadioButton, QSlider, QVBoxLayout, \
 
 from superqt import QCollapsible
 from fitspy import PEAK_MODELS, BKG_MODELS
+from fitspy.core import get_icon_path
 from .custom_spinbox import SpinBox, DoubleSpinBox
 from .peaks_table import PeaksTable
 from .baseline_table import BaselineTable
-
-project_root = Path(__file__).resolve().parent.parent.parent.parent
-icons = project_root / 'resources' / 'iconpack'
 
 
 class SpectralRange(QCollapsible):
@@ -232,7 +229,7 @@ class ModelSettings(QWidget):
 
         self.save = QPushButton(
             text="Save Model",
-            icon=QIcon(str(icons / "save.png")),
+            icon=QIcon(get_icon_path("save.png")),
             toolTip="Save the fit model as a JSON file",
         )
         self.save.setIconSize(QSize(20, 20))

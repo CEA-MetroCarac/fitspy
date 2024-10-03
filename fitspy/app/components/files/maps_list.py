@@ -1,12 +1,9 @@
-from pathlib import Path
 from PySide6.QtGui import QIcon
 from PySide6.QtCore import QSize
 from PySide6.QtWidgets import QWidget, QLabel, QPushButton, QListWidget, QVBoxLayout, QHBoxLayout
 
+from fitspy.core import get_icon_path
 from .dragndrop_list import DragAndDropList
-
-project_root = Path(__file__).resolve().parent.parent.parent.parent
-icons = project_root / 'resources' / 'iconpack'
 
 class MapsList(QWidget):
     def __init__(self, parent=None):
@@ -17,10 +14,10 @@ class MapsList(QWidget):
         self.title_label = QLabel("Maps:")
         self.count_label = QLabel("")
 
-        self.deselect_btn = QPushButton(icon=QIcon(str(icons / 'deselect.png')),
+        self.deselect_btn = QPushButton(icon=QIcon(get_icon_path('deselect.png')),
                                         toolTip="Deselect all. Go back to default spectrum list.")
         self.deselect_btn.setIconSize(QSize(20, 20))
-        self.rm_btn = QPushButton(icon=QIcon(str(icons / 'remove.png')))
+        self.rm_btn = QPushButton(icon=QIcon(get_icon_path('remove.png')))
         self.rm_btn.setIconSize(QSize(20, 20))
 
         self.list = DragAndDropList(selection_mode=QListWidget.SingleSelection)

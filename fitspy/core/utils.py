@@ -26,6 +26,12 @@ def to_title_case(any_case_str):
     words = re.findall(r'[A-Za-z][^A-Z_\s]*', any_case_str)
     return ' '.join([words[0].capitalize()] + [word.lower() for word in words[1:]])
 
+def get_icon_path(icon_name):
+    """ Return the QIcon object from the icon name """
+    import importlib.resources as pkg_resources
+    icon_path = pkg_resources.files('fitspy.resources.iconpack') / icon_name
+    return str(icon_path)
+
 def update_widget_palette(widget, palette):
     widget.setPalette(palette)
     for child in widget.findChildren(QWidget):

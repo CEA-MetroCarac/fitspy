@@ -1,10 +1,8 @@
-from pathlib import Path
 from PySide6.QtGui import QIcon, QAction
 from PySide6.QtWidgets import QSizePolicy, QToolBar, QWidget
 from PySide6.QtCore import QSize
 
-project_root = Path(__file__).resolve().parent.parent.parent
-icons = project_root / 'resources' / 'iconpack'
+from fitspy.core import get_icon_path
 
 class MenuBar(QToolBar):
     def __init__(self):
@@ -14,42 +12,42 @@ class MenuBar(QToolBar):
     def init_ui(self):
         self.actionManual = QAction(
             self,
-            icon=QIcon(str(icons / "manual.png")),
+            icon=QIcon(get_icon_path("manual.png")),
             toolTip="Manual",
         )
         self.actionDarkMode = QAction(
             self,
-            icon=QIcon(str(icons / "dark.png")),
+            icon=QIcon(get_icon_path("dark.png")),
             toolTip="Dark Mode",
         )
         self.actionLightMode = QAction(
             self,
-            icon=QIcon(str(icons / "light-mode.svg")),
+            icon=QIcon(get_icon_path("light-mode.svg")),
             toolTip="Light Mode",
         )
         self.actionAbout = QAction(
             self,
-            icon=QIcon(str(icons / "about.png")),
+            icon=QIcon(get_icon_path("about.png")),
             toolTip="About",
         )
         self.actionOpen = QAction(
             self,
-            icon=QIcon(str(icons / "icons8-folder-96.png")),
+            icon=QIcon(get_icon_path("icons8-folder-96.png")),
             toolTip="Open spectra data, saved work or Excel file",
         )
         self.actionSave = QAction(
             self,
-            icon=QIcon(str(icons / "save.png")),
+            icon=QIcon(get_icon_path("save.png")),
             toolTip="Save current work",
         )
         self.actionClearEnv = QAction(
             self,
-            icon=QIcon(str(icons / "clear.png")),
+            icon=QIcon(get_icon_path("clear.png")),
             toolTip="Clear the environment",
         )
         self.actionRestoreDefaults = QAction(
             self,
-            icon=QIcon(str(icons / "reinit_settings.png")),
+            icon=QIcon(get_icon_path("reinit_settings.png")),
             toolTip="Restore default settings",
         )
 

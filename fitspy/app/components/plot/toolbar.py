@@ -1,4 +1,3 @@
-from pathlib import Path
 from PySide6.QtCore import QSize, Qt
 from PySide6.QtGui import QIcon, QPixmap, QColor
 from PySide6.QtWidgets import QToolButton, QMenu, QCheckBox, QWidgetAction, QRadioButton, QPushButton, QSpacerItem, QSizePolicy, QHBoxLayout, QWidget
@@ -6,10 +5,8 @@ from matplotlib.backends.backend_qtagg import NavigationToolbar2QT
 import matplotlib.cbook as cbook
 
 from fitspy import DEFAULTS
-from fitspy.core import to_title_case
+from fitspy.core import to_title_case, get_icon_path
 
-project_root = Path(__file__).resolve().parent.parent.parent.parent
-icons = project_root / 'resources' / 'iconpack'
 
 class ViewOptions(QToolButton):
     def __init__(self, checkboxes, parent=None):
@@ -101,7 +98,7 @@ class Toolbar(QWidget):
         self.baseline_radio = QRadioButton("Baseline")
         self.fitting_radio = QRadioButton("Fitting")
         self.copy_button = QPushButton(
-            icon=QIcon(str(icons / "clipboard-copy.png")),
+            icon=QIcon(get_icon_path("clipboard-copy.png")),
             toolTip="Copy Figure to Clipboard",
         )
         self.copy_button.setIconSize(QSize(24, 24))
