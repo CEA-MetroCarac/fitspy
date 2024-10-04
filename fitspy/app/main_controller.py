@@ -28,7 +28,7 @@ class MainController(QObject):
         self.view.menuBar.actionRestoreDefaults.triggered.connect(self.model.restore_defaults)
         self.view.menuBar.actionLightMode.triggered.connect(lambda: self.set_setting("theme", "light"))
         self.view.menuBar.actionDarkMode.triggered.connect(lambda: self.set_setting("theme", "dark"))
-        self.view.statusBar.ncpus.currentTextChanged.connect(lambda ncpus: self.set_setting("ncpus", ncpus))
+        self.view.statusBox.ncpus.currentTextChanged.connect(lambda ncpus: self.set_setting("ncpus", ncpus))
         self.model.themeChanged.connect(self.on_theme_changed)
         self.model.defaultsRestored.connect(self.apply_settings)
 
@@ -66,7 +66,7 @@ class MainController(QObject):
         self.settings_controller.fitRequested.connect(self.fit)
     
     def apply_settings(self):
-        self.view.statusBar.ncpus.setCurrentText(self.model.ncpus)
+        self.view.statusBox.ncpus.setCurrentText(self.model.ncpus)
         self.view.more_settings.solver_settings.method.setCurrentText(self.model.fit_params_method)
         self.view.more_settings.solver_settings.fit_negative.setChecked(self.model.fit_params_fit_negative)
         self.view.more_settings.solver_settings.fit_outliers.setChecked(self.model.fit_params_fit_outliers)
@@ -155,9 +155,10 @@ class MainController(QObject):
     def update_progress(self, spectra, nfiles, ncpu=None):
         if ncpu:
             max_cpus = os.cpu_count()
-            self.view.statusBar.cpuCountLabel.setText(f"CPUs: {ncpu}/{max_cpus}")
+            self.view.statusBox.cpuCountLabel.setText(f"CPUs: {ncpu}/{max_cpus}")
         percent = 0
         while percent < 100:
             percent = 100 * spectra.pbar_index / nfiles
-            self.view.statusBar.progressBar.setValue(percent)
+            self.view.statusBox.progressLabel.setText(f"{spectra.pbar_index}/{nfiles}")
+            self.view.statusBox.progressBar.setValue(percent)
             QApplication.processEvents()

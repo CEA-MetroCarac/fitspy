@@ -23,6 +23,7 @@ class MapsList(QWidget):
         self.list = DragAndDropList(selection_mode=QListWidget.SingleSelection)
 
         main_layout = QVBoxLayout()
+        main_layout.setContentsMargins(0, 0, 0, 0)
         title_layout = QHBoxLayout()
 
         title_layout.addWidget(self.title_label)

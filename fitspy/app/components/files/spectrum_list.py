@@ -25,6 +25,7 @@ class SpectrumList(QWidget):
         self.list = DragAndDropList()
 
         main_layout = QVBoxLayout()
+        main_layout.setContentsMargins(0, 0, 0, 0)
         title_layout = QHBoxLayout()
         button_layout = QHBoxLayout()
         combined_layout = QVBoxLayout()

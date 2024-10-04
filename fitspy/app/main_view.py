@@ -7,7 +7,7 @@ from PySide6.QtWidgets import (
 
 from .components import MenuBar
 from .components.plot import SpectraPlot, Map2DPlot, Toolbar
-from .components.settings import StatusBar, ModelBuilder, MoreSettings
+from .components.settings import StatusBox, ModelBuilder, MoreSettings
 from .components.files import MapsList, SpectrumList
 
 project_root = Path(__file__).resolve().parent.parent
@@ -40,10 +40,6 @@ class MainView(QMainWindow):
 
         self.verticalLayout.addWidget(self.central)
         self.setCentralWidget(self.centralwidget)
-
-        self.statusBar = StatusBar()
-        self.statusBar.setContentsMargins(10, 0, 0, 0)
-        self.setStatusBar(self.statusBar)
 
     def init_splitter(self):
         self.splitter = QSplitter(Qt.Vertical)
@@ -115,16 +111,18 @@ class MainView(QMainWindow):
     def init_sidebar(self):
         self.maps_list = MapsList()
         self.spectrum_list = SpectrumList()
+        self.statusBox = StatusBox()
 
         self.sidebar = QWidget()
         self.sidebar_layout = QVBoxLayout(self.sidebar)
-        self.sidebar_layout.addWidget(self.maps_list)
-        self.sidebar_layout.addWidget(self.spectrum_list)
+        self.sidebar_layout.addWidget(self.maps_list, 4)
+        self.sidebar_layout.addWidget(self.spectrum_list, 6)
+        self.sidebar_layout.addWidget(self.statusBox, 0)
 
         self.main_splitter.addWidget(self.sidebar)
         self.main_splitter.setStretchFactor(0, 1)
         self.main_splitter.setStretchFactor(1, 0)
 
         # Set initial sizes for the splitter
-        initial_sidebar_width = 200
+        initial_sidebar_width = 170
         self.main_splitter.setSizes([self.width() - initial_sidebar_width, initial_sidebar_width])
