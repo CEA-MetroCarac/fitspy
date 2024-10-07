@@ -64,9 +64,13 @@ class MainController(QObject):
         self.settings_controller.updatePeakModel.emit(self.view.fit_model_editor.model_settings.fitting.peak_model.currentText())
         self.settings_controller.setPeaks.connect(self.plot_controller.set_peaks)
         self.settings_controller.fitRequested.connect(self.fit)
+
+        app = QApplication.instance()
+        app.aboutToQuit.connect(lambda: self.set_setting("figure_options_title", self.view.spectra_plot.ax.get_title()))
     
     def apply_settings(self):
         self.view.statusBox.ncpus.setCurrentText(self.model.ncpus)
+        self.view.spectra_plot.ax.set_title(self.model.figure_options_title)
         self.view.more_settings.solver_settings.method.setCurrentText(self.model.fit_params_method)
         self.view.more_settings.solver_settings.fit_negative.setChecked(self.model.fit_params_fit_negative)
         self.view.more_settings.solver_settings.fit_outliers.setChecked(self.model.fit_params_fit_outliers)

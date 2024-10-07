@@ -223,7 +223,10 @@ class Model(QObject):
 
     def update_spectraplot(self, ax, view_options):
         """ Update the plot with the current spectra """
+        current_title = ax.get_title()
         ax.clear()
+        ax.set_title(current_title)
+        
         if not self.current_spectrum:
             ax.get_figure().canvas.draw_idle()
             return

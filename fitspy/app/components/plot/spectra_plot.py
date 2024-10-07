@@ -4,6 +4,7 @@ from PySide6.QtGui import QClipboard, QImage, QPixmap
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
 
+
 class SpectraPlot(QWidget):
     showToast = Signal(str, str, str)
 
