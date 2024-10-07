@@ -28,7 +28,7 @@ class Model(QObject):
         self.peak_model = None
         self.tmp = None
         self.linewidth = 0.5
-        self.lines = None
+        self.lines = []
 
     def set_spectrum_attr(self, fname, attr, value):
         spectrum = self.spectra.get_objects(fname, parent=self.current_map or self.spectra)[0]
@@ -205,7 +205,7 @@ class Model(QObject):
             self.tmp = ax.annotate(text, xy=xy, xycoords='data',
                                     bbox=bbox, verticalalignment='top')
                 
-        if self.lines is not None and event.inaxes == ax:
+        if len(self.lines)>0 and event.inaxes == ax:
             for i, line in enumerate(self.lines):
                 if line.contains(event)[0]:
                     line.set_linewidth(3)
