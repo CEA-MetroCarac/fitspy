@@ -208,8 +208,8 @@ class ModelSettings(QWidget):
         scroll_area.setWidgetResizable(True)
 
         # Create a container widget for the main layout
-        container = QWidget()
-        main_layout = QVBoxLayout(container)
+        self.container = QWidget()
+        main_layout = QVBoxLayout(self.container)
         main_layout.setContentsMargins(0, 0, 0, 0)
         main_layout.setSpacing(0)
 
@@ -241,7 +241,7 @@ class ModelSettings(QWidget):
 
         main_layout.addLayout(HLayout)
 
-        scroll_area.setWidget(container)
+        scroll_area.setWidget(self.container)
 
         outer_layout = QVBoxLayout(self)
         outer_layout.setContentsMargins(0, 0, 0, 0)
@@ -264,12 +264,15 @@ class ModelSelector(QWidget):
         self.combo_box = QComboBox()
         self.combo_box.setPlaceholderText("Select a model for fitting")
 
+        self.preview = QCheckBox("Preview")
+
         self.apply = QPushButton("Apply Model")
 
         self.load_button = QPushButton("Load Model")
 
         h_layout.addWidget(label)
         h_layout.addWidget(self.combo_box)
+        h_layout.addWidget(self.preview)
         h_layout.addWidget(self.apply)
         h_layout.addWidget(self.load_button)
 
@@ -337,12 +340,3 @@ class ModelBuilder(QWidget):
         normalization.range_min.setValue(model.get('normalize_range_min', 0))
         normalization.range_max.setValue(model.get('normalize_range_max', 0))
         normalization.normalize.setChecked(model.get('normalize', False))
-
-if __name__ == "__main__":
-    import sys
-    from PySide6.QtWidgets import QApplication
-
-    app = QApplication(sys.argv)
-    model_builder = ModelBuilder()
-    model_builder.show()
-    sys.exit(app.exec())

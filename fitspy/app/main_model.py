@@ -57,42 +57,55 @@ class MainModel(QObject):
         else:
             super().__setattr__(name, value)
 
+    def _set_palette_colors(self, palette, colors):
+        for role, color in colors.items():
+            if isinstance(color, Qt.GlobalColor):
+                color = QColor(color)
+            palette.setColor(role, color)
+            palette.setColor(QPalette.Disabled, role, color.darker(150))
+
     def dark_palette(self):
         """Palette color for dark mode of the app's GUI"""
         dark_palette = QPalette()
-        dark_palette.setColor(QPalette.Window, QColor(70, 70, 70))
-        dark_palette.setColor(QPalette.WindowText, Qt.white)
-        dark_palette.setColor(QPalette.Base, QColor(65, 65, 65))
-        dark_palette.setColor(QPalette.AlternateBase, QColor(45, 45, 45))
-        dark_palette.setColor(QPalette.ToolTipBase, QColor(53, 53, 53))
-        dark_palette.setColor(QPalette.ToolTipText, Qt.white)
-        dark_palette.setColor(QPalette.Text, Qt.white)
-        dark_palette.setColor(QPalette.Button, QColor(64, 64, 64))
-        dark_palette.setColor(QPalette.ButtonText, Qt.white)
-        dark_palette.setColor(QPalette.BrightText, Qt.red)
-        dark_palette.setColor(QPalette.Link, QColor(42, 130, 218))
-        dark_palette.setColor(QPalette.Highlight, QColor(42, 130, 218))
-        dark_palette.setColor(QPalette.HighlightedText, Qt.white)
-        dark_palette.setColor(QPalette.PlaceholderText, QColor(140, 140, 140))
+        colors = {
+            QPalette.Window: QColor(70, 70, 70),
+            QPalette.WindowText: Qt.white,
+            QPalette.Base: QColor(65, 65, 65),
+            QPalette.AlternateBase: QColor(45, 45, 45),
+            QPalette.ToolTipBase: QColor(53, 53, 53),
+            QPalette.ToolTipText: Qt.white,
+            QPalette.Text: Qt.white,
+            QPalette.Button: QColor(64, 64, 64),
+            QPalette.ButtonText: Qt.white,
+            QPalette.BrightText: Qt.red,
+            QPalette.Link: QColor(42, 130, 218),
+            QPalette.Highlight: QColor(42, 130, 218),
+            QPalette.HighlightedText: Qt.white,
+            QPalette.PlaceholderText: QColor(140, 140, 140)
+        }
+        self._set_palette_colors(dark_palette, colors)
         return dark_palette
 
     def light_palette(self):
         """Palette color for light mode of the app's GUI"""
         light_palette = QPalette()
-        light_palette.setColor(QPalette.Window, QColor(225, 225, 225))
-        light_palette.setColor(QPalette.WindowText, Qt.black)
-        light_palette.setColor(QPalette.Base, QColor(215, 215, 215))
-        light_palette.setColor(QPalette.AlternateBase, QColor(230, 230, 230))
-        light_palette.setColor(QPalette.ToolTipBase, QColor(255, 255, 255))
-        light_palette.setColor(QPalette.ToolTipText, Qt.black)
-        light_palette.setColor(QPalette.Text, Qt.black)
-        light_palette.setColor(QPalette.Button, QColor(230, 230, 230))
-        light_palette.setColor(QPalette.ButtonText, Qt.black)
-        light_palette.setColor(QPalette.BrightText, Qt.red)
-        light_palette.setColor(QPalette.Link, QColor(42, 130, 218))
-        light_palette.setColor(QPalette.Highlight, QColor(42, 130, 218))
-        light_palette.setColor(QPalette.HighlightedText, Qt.black)
-        light_palette.setColor(QPalette.PlaceholderText, QColor(150, 150, 150))
+        colors = {
+            QPalette.Window: QColor(225, 225, 225),
+            QPalette.WindowText: Qt.black,
+            QPalette.Base: QColor(215, 215, 215),
+            QPalette.AlternateBase: QColor(230, 230, 230),
+            QPalette.ToolTipBase: QColor(255, 255, 255),
+            QPalette.ToolTipText: Qt.black,
+            QPalette.Text: Qt.black,
+            QPalette.Button: QColor(230, 230, 230),
+            QPalette.ButtonText: Qt.black,
+            QPalette.BrightText: Qt.red,
+            QPalette.Link: QColor(42, 130, 218),
+            QPalette.Highlight: QColor(42, 130, 218),
+            QPalette.HighlightedText: Qt.black,
+            QPalette.PlaceholderText: QColor(150, 150, 150)
+        }
+        self._set_palette_colors(light_palette, colors)
         return light_palette
     
     def restore_defaults(self):

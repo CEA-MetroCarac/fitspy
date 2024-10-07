@@ -1,6 +1,6 @@
-import json
+import copy
 from PySide6.QtCore import QObject, Signal
-from PySide6.QtWidgets import QFileDialog
+from PySide6.QtWidgets import QFileDialog, QWidget
 from .model import Model
 
 from fitspy import FIT_METHODS
@@ -29,6 +29,7 @@ class SettingsController(QObject):
         self.more_settings = more_settings
         self.solver_settings = more_settings.solver_settings
         self.other_settings = more_settings.other_settings
+        self._backup_fit_model = None
         self.setup_connections()
 
     def setup_connections(self):
@@ -89,8 +90,8 @@ class SettingsController(QObject):
 
         # Model selector
         model_selector.load_button.clicked.connect(self.load_model)
-        model_selector.combo_box.currentTextChanged.connect(self.select_model)
-        model_selector.apply.clicked.connect(self.apply_model)
+        model_selector.apply.clicked.connect(lambda: self.select_model(model_selector.combo_box.currentText()))
+        model_selector.preview.toggled.connect(self.preview_model)
 
         # Other settings
         self.solver_settings.fit_negative.toggled.connect(
@@ -124,7 +125,7 @@ class SettingsController(QObject):
         )
 
     def update_and_emit(self, key, value):
-        # self.update_model_dict_with_key(key, value)
+        self.update_model_dict_with_key(key, value)
         self.setSpectrumAttr.emit(key, value)
 
     def update_model_dict_with_key(self, key, value):
@@ -173,21 +174,21 @@ class SettingsController(QObject):
 
             index = self.model_builder.model_selector.combo_box.findText(fname)
             self.model_builder.model_selector.combo_box.setCurrentIndex(index)
-            self.select_model(fname)
 
     def select_model(self, fname):
-        self.model.current_fit_model = load_from_json(fname)
+        model = load_from_json(fname)
+        model.pop('fname', None)	
+        self.model.current_fit_model = model
 
     def apply_model(self, fit_model):
         """ Reflects the changes in the model to the GUI """
         self.model_builder.update_model(fit_model)
-
         points = fit_model.get('baseline', {}).get('points', [[],[]])
         self.set_baseline_points(points)
         self.update_peaks_table(fit_model)
 
 
-    def set_baseline_points(self, points):
+    def set_baseline_points(self, points=[[],[]]):
         self.model.baseline_points = points
         if points[0]:
             # Uncesseray to block signals, signals are not triggered when setting specific keys
@@ -276,6 +277,8 @@ class SettingsController(QObject):
                 prefix = f'm{key+1:02d}_'
                 for model_name, params in model_dict.items():
                     add_row_from_params(prefix, label, model_name, params)
+
+            self.update_model_dict(fit_model)
         else:
             for label, model in zip(spectrum.peak_labels, spectrum.peak_models):
                 add_row_from_params(model._prefix, label, model.name2, model.param_hints)
@@ -286,3 +289,41 @@ class SettingsController(QObject):
     def request_fit(self):
         model_dict = self.model.current_fit_model
         self.fitRequested.emit(model_dict)
+
+    def preview_model(self, checked):
+        combo_box = self.model_builder.model_selector.combo_box
+        current_index = combo_box.currentIndex()
+        current_text = combo_box.currentText().replace(" (Preview)", "")
+
+        def lock_inputs(state):
+            # List of parent widgets to disable their children
+            parent_widgets = [
+                self.model_builder.model_settings.container,  # to keep the scroll bar enabled
+                self.model_builder.model_selector,
+                self.model_builder.baseline_table,
+                self.model_builder.peaks_table
+            ]
+
+            for parent in parent_widgets:
+                for widget in parent.findChildren(QWidget):
+                    widget.setDisabled(state)
+
+            # Keep the preview checkbox enabled
+            self.model_builder.model_selector.preview.setDisabled(False)
+        
+        if checked:
+            # Backup the current fit model
+            self._backup_fit_model = copy.deepcopy(self.model.current_fit_model)
+            combo_box.setItemText(current_index, current_text + " (Preview)")
+            model = load_from_json(current_text)
+            lock_inputs(True)
+
+        else:
+            # Restore the backup fit model
+            if self._backup_fit_model is not None:
+                model = copy.deepcopy(self._backup_fit_model)
+                # self._backup_fit_model = None
+            combo_box.setItemText(current_index, current_text)
+            lock_inputs(False)
+
+        self.apply_model(model)
