@@ -42,18 +42,19 @@ If you want to contribute to improve the Fitspy source code, you can send us a `
 TODO List
 ---------
 
-TODO MenuBar:
-    - [ ] Implement CLEAR + SAVE GLOBAL STATE+ OPEN GLOBAL STATE (drag n drop & open button should call same function)
-    - [ ] About + Manual
+TODO Base:
+    Menubar:
+      - [ ] Implement CLEAR + SAVE GLOBAL STATE+ OPEN GLOBAL STATE (drag n drop & open button should call same function)
+      - [ ] About + Manual
 
-TODO Toolbar:
-    - [ ] Add checkbox “preserve axis” (= preserve zoom)
+    Toolbar:
+      - [ ] Add checkbox “preserve axis” (= preserve zoom)
 
-TODO Peaks Table:
-    - [ ] Add missing columns for some Peak Models
-    - [ ] Add background parameters (in table or elsewhere in GUI)
-    - [ ] Add expressions
-    - [ ] Connect min + max to setLimits/setRange + showToast alert
+    Peaks Table:
+      - [ ] Add missing columns for some Peak Models
+      - [ ] Add background parameters (in table or elsewhere in GUI)
+      - [ ] Add expressions
+      - [ ] Connect min + max to setLimits/setRange + showToast alert
 
 TODO Fixes:
     - [ ] Manage callbacks when no files have been loaded (allow saving model, placing points, and baseline without loading spectra)
