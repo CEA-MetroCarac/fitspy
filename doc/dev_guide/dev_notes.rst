@@ -89,3 +89,9 @@ TODO Nice to Have:
 .. _https://stackoverflow.com/questions/77748488/how-to-dynamically-change-the-sheet-type-theme-during-runtime: https://stackoverflow.com/questions/77748488/how-to-dynamically-change-the-sheet-type-theme-during-runtime
     - [ ] Idea : scroll on plot to edit nearest peak bounds (VOIR STASH)
     - [ ] Automatically re-open last saved .fitspy workspace
+
+TODO Production:
+    - [ ] Update documentation
+    - [ ] Update Github Actions tests + Auto Pypi Pre-release/Pre-release, see `https://github.com/CEA-MetroCarac/pyvsnr/tree/main/.github/workflows`_
+.. _https://github.com/CEA-MetroCarac/pyvsnr/tree/main/.github/workflows:
+    - [ ] Update Zenodo
