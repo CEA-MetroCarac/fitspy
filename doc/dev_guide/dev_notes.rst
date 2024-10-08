@@ -53,6 +53,10 @@ TODO Base:
       - [ ] Add background parameters (in table or elsewhere in GUI)
       - [ ] Add expressions
       - [ ] Connect min + max to setLimits/setRange + showToast alert
+    2DMap:
+      - [ ] Implement Min/Max (replace with a DoubleRangedSlider ?)
+      - [x] Add Label choice and plot update
+      - [ ] Add a button to copy 2D Map in clipboard ? (add mpl toolbar ?)
 
 TODO Fixes:
     - [ ] Manage callbacks when no files have been loaded (allow saving model, placing points, and baseline without loading spectra)
