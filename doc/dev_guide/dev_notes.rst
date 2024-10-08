@@ -46,10 +46,8 @@ TODO Base:
     Menubar:
       - [ ] Implement CLEAR + SAVE GLOBAL STATE+ OPEN GLOBAL STATE (drag n drop & open button should call same function)
       - [ ] About + Manual
-
     Toolbar:
       - [ ] Add checkbox “preserve axis” (= preserve zoom)
-
     Peaks Table:
       - [ ] Add missing columns for some Peak Models
       - [ ] Add background parameters (in table or elsewhere in GUI)
@@ -66,7 +64,6 @@ TODO Fixes:
 TODO Opti:
     - [ ] MULTIPROC BASELINE via apply_model ?
     - [ ] Useless calls to apply_model at start ? `settings_controller.py > apply_model(self, fit_model)`_
-.. _settings_controller.py > apply_model(self, fit_model): https://github.com/CEA-MetroCarac/fitspy/blob/cfee0e6c881045447feed2105ec79c208b8d6a5a/fitspy/app/components/settings/controller.py#L183C9-L183C20
     - [ ] Optimize plotting by using setxdata and setydata instead of replotting the whole figure
 
 TODO Others:
@@ -86,12 +83,14 @@ TODO Nice to Have:
     - [ ] update dynamically the 2D map figure during fitting
     - [ ] Fitspy Icon for taskbar
     - [ ] Plot Dark/Light theme `https://stackoverflow.com/questions/77748488/how-to-dynamically-change-the-sheet-type-theme-during-runtime`_
-.. _https://stackoverflow.com/questions/77748488/how-to-dynamically-change-the-sheet-type-theme-during-runtime: https://stackoverflow.com/questions/77748488/how-to-dynamically-change-the-sheet-type-theme-during-runtime
     - [ ] Idea : scroll on plot to edit nearest peak bounds (VOIR STASH)
     - [ ] Automatically re-open last saved .fitspy workspace
 
 TODO Production:
     - [ ] Update documentation
     - [ ] Update Github Actions tests + Auto Pypi Pre-release/Pre-release, see `https://github.com/CEA-MetroCarac/pyvsnr/tree/main/.github/workflows`_
-.. _https://github.com/CEA-MetroCarac/pyvsnr/tree/main/.github/workflows:
     - [ ] Update Zenodo
+
+.. _settings_controller.py > apply_model(self, fit_model): https://github.com/CEA-MetroCarac/fitspy/blob/cfee0e6c881045447feed2105ec79c208b8d6a5a/fitspy/app/components/settings/controller.py#L183C9-L183C20
+.. _https://stackoverflow.com/questions/77748488/how-to-dynamically-change-the-sheet-type-theme-during-runtime: https://stackoverflow.com/questions/77748488/how-to-dynamically-change-the-sheet-type-theme-during-runtime
+.. _https://github.com/CEA-MetroCarac/pyvsnr/tree/main/.github/workflows: https://github.com/CEA-MetroCarac/pyvsnr/tree/main/.github/workflows 
