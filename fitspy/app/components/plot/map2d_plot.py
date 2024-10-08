@@ -1,5 +1,5 @@
 from PySide6.QtCore import Qt, Signal
-from PySide6.QtWidgets import QMainWindow, QDockWidget, QWidget, QVBoxLayout, QLabel, QHBoxLayout, QTabWidget, QPushButton
+from PySide6.QtWidgets import QMainWindow, QComboBox, QWidget, QVBoxLayout, QLabel, QHBoxLayout, QPushButton, QTabWidget, QDockWidget
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_qtagg import FigureCanvas
 from superqt import QLabeledDoubleRangeSlider as QRangeSlider
@@ -33,6 +33,22 @@ class CommonTab(QWidget):
 
         self.layout.addLayout(h_layout1)
 
+class CommonTabWithCombo(CommonTab):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.initUI()
+
+    def initUI(self):
+        label = QLabel("Label: ")
+        self.combo = QComboBox()
+
+        hbox = QHBoxLayout()
+        hbox.addWidget(label)
+        hbox.addWidget(self.combo)
+
+        self.layout.addLayout(hbox)
+
+
 class IntensityTab(CommonTab):
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -49,38 +65,6 @@ class IntensityTab(CommonTab):
 
         self.layout.addLayout(h_layout2)
 
-class x0Tab(CommonTab):
-    def __init__(self, parent=None):
-        super().__init__(parent)
-        self.initUI()
-
-    def initUI(self):
-        self.layout.addWidget(QLabel("X0"))
-
-class FWHMLTab(CommonTab):
-    def __init__(self, parent=None):
-        super().__init__(parent)
-        self.initUI()
-
-    def initUI(self):
-        self.layout.addWidget(QLabel("FWHM_L"))
-
-class FWHMRTab(CommonTab):
-    def __init__(self, parent=None):
-        super().__init__(parent)
-        self.initUI()
-
-    def initUI(self):
-        self.layout.addWidget(QLabel("FWHM_R"))
-
-class AlphaTab(CommonTab):
-    def __init__(self, parent=None):
-        super().__init__(parent)
-        self.initUI()
-
-    def initUI(self):
-        self.layout.addWidget(QLabel("Alpha"))
-
 class Settings(QTabWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -88,13 +72,15 @@ class Settings(QTabWidget):
 
     def initUI(self):
         self.intensity_tab = IntensityTab()
-        self.x0_tab = x0Tab()
-        self.fwhml_tab = FWHMLTab()
-        self.fwhmr_tab = FWHMRTab()
-        self.alpha_tab = AlphaTab()
+        self.x0_tab = CommonTabWithCombo()
+        self.fwhm_tab = CommonTabWithCombo()
+        self.fwhml_tab = CommonTabWithCombo()
+        self.fwhmr_tab = CommonTabWithCombo()
+        self.alpha_tab = CommonTabWithCombo()
 
         self.addTab(self.intensity_tab, "Intensity (sum)")
         self.addTab(self.x0_tab, "x0")
+        self.addTab(self.fwhm_tab, "fwhm")
         self.addTab(self.fwhml_tab, "fwhm_l")
         self.addTab(self.fwhmr_tab, "fwhm_r")
         self.addTab(self.alpha_tab, "alpha")
@@ -170,10 +156,34 @@ class Map2DPlot(QMainWindow):
             else:
                 self.remove_colorbar()
 
-    def onTabWidgetCurrentChanged(self, spectramap):
+    def update_labels(self, spectramap):
+        # Collect unique labels from all spectra
+        labels = sorted(list(set([label for spectrum in spectramap
+                                for label in spectrum.peak_labels])))
+
+        current_tab = self.tab_widget.currentWidget()
+        
+        # Clear and update the combo box of the current tab
+        if hasattr(current_tab, 'combo'):
+            current_tab.combo.clear()
+            current_tab.combo.addItems(labels)
+
+    def update_plot(self, spectramap):
         xrange = self.tab_widget.intensity_tab.range_slider.value()
         var = self.tab_widget.tabText(self.tab_widget.currentIndex())
-        spectramap.plot_map_update(xrange=xrange, var=var)
+        
+        current_tab = self.tab_widget.currentWidget()
+        if hasattr(current_tab, 'combo'):
+            label = current_tab.combo.currentText()
+        else:
+            label = ''
+        
+        spectramap.plot_map_update(xrange=xrange, var=var, label=label)
+
+    def onTabWidgetCurrentChanged(self, spectramap):
+        self.update_labels(spectramap)
+        self.update_plot(spectramap)
+
 
 if __name__ == "__main__":
     import sys

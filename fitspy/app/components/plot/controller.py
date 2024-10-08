@@ -35,6 +35,11 @@ class PlotController(QObject):
         self.map2d_plot.tab_widget.intensity_tab.range_slider.valueChanged.connect(lambda: self.map2d_plot.onTabWidgetCurrentChanged(self.model.current_map))
         self.map2d_plot.addMarker.connect(self.set_marker)
         
+        for i in range(self.map2d_plot.tab_widget.count()):
+            tab = self.map2d_plot.tab_widget.widget(i)
+            if hasattr(tab, 'combo'):
+                tab.combo.currentIndexChanged.connect(lambda: self.map2d_plot.update_plot(self.model.current_map))
+
         self.model.showToast.connect(self.showToast)
         self.model.spectrumLoaded.connect(self.spectrumLoaded)
         self.model.spectrumDeleted.connect(self.spectrumDeleted)
