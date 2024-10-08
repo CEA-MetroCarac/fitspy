@@ -1,21 +1,3 @@
-<!-- TODO restore callbacks -->
-<!-- TODO restore examples/ -->
-<!-- TODO assets/resources.qrc useful ? -->
-<!-- TODO update README.md -->
-<!-- TODO update pyproject.toml -->
-<!-- TODO update CITATION.cff -->
-<!-- TODO update doc/ -->
-<!-- TODO what is conftest.py ? -->
-<!-- TODO add tests/ back -->
-<!-- TODO add github workflows back -->
-<!-- TODO update paper/ -->
-<!-- # TODO : change 'fit_params' from spectrum to spectra attribute (?)
-# TODO : manage callbacks when no files have been loaded
-# TODO : enable remove() with curselection()
-# TODO : auto_eval() with multiprocessing capabilities
-# TODO : A single 'Apply All' for all the settings -->
-
-
 [![PyPI](https://badge.fury.io/py/fitspy.svg)](https://pypi.org/project/fitspy/)
 [![Github](https://img.shields.io/badge/GitHub-GPL--3.0-informational)](https://github.com/CEA-MetroCarac/fitspy)
 [![Doc](https://img.shields.io/badge/%F0%9F%95%AE-docs-green.svg)](https://cea-metrocarac.github.io/fitspy/doc/index.html)
