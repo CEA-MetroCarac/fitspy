@@ -1,4 +1,4 @@
-from PySide6.QtCore import QObject, Signal
+from PySide6.QtCore import QObject, Signal, QTimer
 from PySide6.QtWidgets import QMessageBox
 
 from fitspy.core import to_snake_case
@@ -23,7 +23,20 @@ class PlotController(QObject):
         self.map2d_plot = map2d_plot
         self.toolbar = toolbar
         self.view_options = toolbar.view_options
+        self.init_click_timer()
         self.setup_connections()
+
+    def init_click_timer(self):
+        def reset_click_counter():
+            self.consecutive_clicks = 0
+            
+        self.consecutive_clicks = 0
+        self.click_threshold = 3
+        self.click_interval = 1000
+        self.click_timer = QTimer()
+        self.click_timer.setInterval(self.click_interval)
+        self.click_timer.setSingleShot(True)
+        self.click_timer.timeout.connect(reset_click_counter)
     
     def setup_connections(self):
         self.toolbar.copy_button.clicked.connect(self.spectra_plot.copy_figure)
@@ -117,7 +130,13 @@ class PlotController(QObject):
         """Callback for click events on the spectra plot."""
         # Do not add baseline or peak points when pan or zoom are selected
         if self.toolbar.mpl_toolbar.is_pan_active() or self.toolbar.mpl_toolbar.is_zoom_active():
+            self.consecutive_clicks += 1
+            self.click_timer.start()
+            if self.consecutive_clicks > self.click_threshold:
+                self.showToast.emit("INFO", "Pan/Zoom Mode", "If you want to add baseline or peak points, disable pan/zoom mode.")
             return
+        else:
+            self.consecutive_clicks = 0
         
         # if event.button not in [1, 3]:
         #     return  # Ignore middle mouse button

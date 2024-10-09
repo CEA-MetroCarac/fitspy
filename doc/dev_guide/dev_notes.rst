@@ -46,7 +46,7 @@ TODO Base:
       - [ ] Implement CLEAR + SAVE GLOBAL STATE+ OPEN GLOBAL STATE (drag n drop & open button should call same function)
       - [ ] About + Manual
     Toolbar:
-      - [ ] Add checkbox “preserve axis” (= preserve zoom)
+      - [x] Add checkbox “preserve axis” (= preserve zoom)
     Peaks Table:
       - [ ] Add missing columns for some Peak Models
       - [ ] Add background parameters (in table or elsewhere in GUI)
@@ -64,6 +64,7 @@ TODO Fixes:
     - [ ] Normalization is messing with baseline/peaks_points and maybe more (for e.g. when applying normalization to a spectrum with a baseline, the baseline points are not normalized)
     - [ ] Baseline_points, empty Y if attached ?
     - [ ] Icons color dont follow theme
+    - [ ] Toast bar is not visually moving when on_motion is constantly called (may be a pyqttoast issue), to test click fast on the plot while pan/zoom is active
 
 TODO Opti:
     - [ ] MULTIPROC BASELINE via apply_model ?
@@ -89,6 +90,7 @@ TODO Nice to Have:
     - [ ] Plot Dark/Light theme `https://stackoverflow.com/questions/77748488/how-to-dynamically-change-the-sheet-type-theme-during-runtime`_
     - [ ] Idea : scroll on plot to edit nearest peak bounds
     - [ ] Automatically re-open last saved .fitspy workspace
+    - [x] Warn user to disable pan/zoom if 3 clicks are detected in a short time (indicating user might want to place a peak/baseline point)
 
 TODO Production:
     - [ ] Update documentation
