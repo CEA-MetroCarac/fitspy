@@ -70,7 +70,7 @@ class PlotController(QObject):
         self.highlightSpectrum.emit(fname)
 
     def view_option_changed(self, checkbox):
-        label = to_snake_case(checkbox.text())
+        label = f"view_options_{to_snake_case(checkbox.text())}"
         state = checkbox.isChecked()
         self.settingChanged.emit(label, state)
         self.update_spectraplot()

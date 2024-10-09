@@ -137,6 +137,8 @@ class SettingsController(QObject):
                 current_dict[k] = {}
             current_dict = current_dict[k]
         current_dict[keys[-1]] = value
+        if key.startswith('fit_params'):
+            self.settingChanged.emit(key.replace('.', '_'), value)
         self.model.blockSignals(False)
     
     def set_model(self, spectrum):

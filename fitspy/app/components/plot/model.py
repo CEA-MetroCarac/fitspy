@@ -220,9 +220,29 @@ class Model(QObject):
     def preprocess(self):
         for spectrum in self.current_spectrum:
             spectrum.preprocess()
+ 
+    def get_view_limits(self, ax):
+        """Get the current view limits of the plot."""
+        if not ax.has_data():
+            return None, None
+        xlim = ax.get_xlim()
+        ylim = ax.get_ylim()
+        return xlim, ylim
+
+    def set_view_limits(self, ax, xlim, ylim):
+        if xlim and ylim:
+            ax.set_xlim(xlim)
+            ax.set_ylim(ylim)
+
+    def store_original_view_limits(self, ax):
+        self.original_xlim, self.original_ylim = self.get_view_limits(ax)
 
     def update_spectraplot(self, ax, view_options):
         """ Update the plot with the current spectra """
+        xlim, ylim = self.get_view_limits(ax)
+        if not hasattr(self, 'original_xlim') or not hasattr(self, 'original_ylim'):
+            self.store_original_view_limits(ax)
+
         current_title = ax.get_title()
         ax.clear()
         ax.set_title(current_title)
@@ -231,8 +251,6 @@ class Model(QObject):
             ax.get_figure().canvas.draw_idle()
             return
         
-        # plotted_spectra = {line.get_label(): line for line in ax.lines if line.get_label() != "Baseline"}
-        # current_spectrum_ids = [str(id(spectrum)) for spectrum in self.current_spectrum]
         first_spectrum = True
         for spectrum in self.current_spectrum:
             x0, y0 = spectrum.x0, spectrum.y0
@@ -255,7 +273,6 @@ class Model(QObject):
                             show_baseline=view_options.get("Baseline", False),
                             show_background=view_options.get("Background", False),
                             subtract_baseline=view_options.get("Subtract baseline", False),
-                            # label=f"Spectrum_{spectrum_id}"")
                             )
                 self.line_bkg_visible = view_options.get("Background", False) and spectrum.bkg_model
 
@@ -293,9 +310,8 @@ class Model(QObject):
         if hasattr(result_fit, "success") and result_fit.success:
             self.linewidth = 1
         
-            # self.current_map.set_marker(spectrum)
-            # self.current_map.plot_map_update()
-            # self.current_map.plot_map(self.current_map.ax)
+        if view_options.get('Preserve axes', False):
+            self.set_view_limits(ax, xlim, ylim)
         
         # refresh the plot
         ax.get_figure().canvas.draw_idle()

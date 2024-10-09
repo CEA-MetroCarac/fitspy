@@ -46,6 +46,7 @@ DEFAULTS = {
         "residual": True,
         "peaks": True,
         "peak_labels": True,
+        'preserve_axes': False,
     },
     "fit_params": {
         "method": "Leastsq",
