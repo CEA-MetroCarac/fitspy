@@ -180,9 +180,6 @@ class Map2DPlot(QMainWindow):
             current_tab.vrange_slider.setRange(rvmin, rvmax)
             current_tab.vrange_slider.setValue((rvmin, rvmax))
 
-        vmin, vmax = current_tab.vrange_slider.value()
-        spectramap.plot_map_update(vmin=vmin, vmax=vmax, xrange=xrange, var=var, label=label)
-
     # Colorbar Functions
     def add_colorbar(self):
         if not self.colorbar and self.ax.images:

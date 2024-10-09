@@ -28,10 +28,9 @@ Visual Studio Code Setup to Preview .rst Files
 
 2. **Install Dependencies**:
    - Open the terminal in Visual Studio Code (`Ctrl+` ` `).
-   - Run the following commands to install Sphinx and other useful tools:
-     ```sh
-     pip install sphinx doc8 rstcheck sphinx-rtd-theme
-     ```
+   - Run the following commands to install Sphinx and other useful tools::
+
+     pip install sphinx doc8 rstcheck sphinx-rtd-theme sphinx-copybutton
 
 Pull Requests
 -------------
@@ -88,7 +87,7 @@ TODO Nice to Have:
     - [ ] update dynamically the 2D map figure during fitting
     - [ ] Fitspy Icon for taskbar
     - [ ] Plot Dark/Light theme `https://stackoverflow.com/questions/77748488/how-to-dynamically-change-the-sheet-type-theme-during-runtime`_
-    - [ ] Idea : scroll on plot to edit nearest peak bounds (VOIR STASH)
+    - [ ] Idea : scroll on plot to edit nearest peak bounds
     - [ ] Automatically re-open last saved .fitspy workspace
 
 TODO Production:
