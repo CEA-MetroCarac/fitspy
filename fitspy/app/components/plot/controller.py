@@ -37,7 +37,9 @@ class PlotController(QObject):
         
         for i in range(self.map2d_plot.tab_widget.count()):
             tab = self.map2d_plot.tab_widget.widget(i)
+            tab.vrange_slider.valueChanged.connect(lambda: self.map2d_plot.update_plot(self.model.current_map))
             if hasattr(tab, 'combo'):
+                # FIXME FIX MAP2DPLOT MVC
                 tab.combo.currentIndexChanged.connect(lambda: self.map2d_plot.update_plot(self.model.current_map))
 
         self.model.showToast.connect(self.showToast)

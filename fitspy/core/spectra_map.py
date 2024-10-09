@@ -143,8 +143,10 @@ class SpectraMap(Spectra):
 
         if range_slider is not None:
             _min, _max = self[0].x0.min(), self[0].x0.max()
+            range_slider.blockSignals(True)
             range_slider.setRange(_min, _max)
             range_slider.setValue((_min, _max))
+            range_slider.blockSignals(False)
 
         # self.cbar = plt.colorbar(self.img, ax=self.ax)
 
@@ -183,7 +185,7 @@ class SpectraMap(Spectra):
             self.img.norm.vmin = vmin
         if vmax is not None:
             self.img.norm.vmax = vmax
-        # self.cbar.update_normal(self.img)
+        # # self.cbar.update_normal(self.img)
         self.ax.get_figure().canvas.draw_idle()
 
     def remove_markers(self, canvas=None):

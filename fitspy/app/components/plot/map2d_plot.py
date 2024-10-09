@@ -4,8 +4,7 @@ from matplotlib.figure import Figure
 from matplotlib.backends.backend_qtagg import FigureCanvas
 from superqt import QLabeledDoubleRangeSlider as QRangeSlider
 
-from fitspy.app.components.settings import DoubleSpinBox
-
+import numpy as np
 
 class CommonTab(QWidget):
     def __init__(self, parent=None):
@@ -14,21 +13,20 @@ class CommonTab(QWidget):
 
     def initCommonUI(self):
         self.layout = QVBoxLayout(self)
-        self.layout.setSpacing(3)
+        self.layout.setSpacing(0)
+        self.layout.setContentsMargins(0, 0, 0, 0)
         h_layout1 = QHBoxLayout()
 
-        range_min = DoubleSpinBox()
-        range_min.setDecimals(2)
-        range_max = DoubleSpinBox()
-        range_max.setDecimals(2)
+        self.vrange_slider = QRangeSlider()
+        self.vrange_slider.setRange(0,0)
+        self.vrange_slider.setDecimals(2)
+        self.vrange_slider.setOrientation(Qt.Horizontal)
 
         self.export_button = QPushButton("Export .csv")
 
-        h_layout1.addWidget(QLabel("Min/Max:"))
-        h_layout1.addWidget(range_min)
-        h_layout1.addWidget(QLabel("/"))
-        h_layout1.addWidget(range_max)
-        h_layout1.addStretch()
+        h_layout1.addWidget(QLabel("Range:"))
+        h_layout1.addWidget(self.vrange_slider)
+        # h_layout1.addStretch() # Adds spacer
         h_layout1.addWidget(self.export_button)
 
         self.layout.addLayout(h_layout1)
@@ -118,6 +116,7 @@ class Map2DPlot(QMainWindow):
         self.dock_widget.setWidget(self.dock_container)
         self.addDockWidget(Qt.RightDockWidgetArea, self.dock_widget)
 
+    # Event Handlers
     def on_click(self, event):
         """Callback for mouse click event."""
         x, y = event.xdata, event.ydata
@@ -133,6 +132,58 @@ class Map2DPlot(QMainWindow):
             self.tab_widget.setVisible(False)
             self.remove_colorbar()
 
+    def onTabWidgetCurrentChanged(self, spectramap):
+        self.update_labels(spectramap)
+        self.update_plot(spectramap)
+
+    # Plotting Functions
+    def set_map(self, spectramap):
+        if not spectramap:
+            self.clear_map()
+        else:
+            self.plot_spectramap(spectramap)
+            self.update_colorbar()
+            self.update_vrange_slider(spectramap)
+
+    def clear_map(self):
+        self.ax.clear()
+        self.canvas.draw_idle()
+        self.remove_colorbar()
+
+    def plot_spectramap(self, spectramap):
+        spectramap.plot_map(self.ax, range_slider=self.tab_widget.intensity_tab.range_slider)
+
+    def update_plot(self, spectramap):
+        xrange = self.tab_widget.intensity_tab.range_slider.value()
+        var = self.tab_widget.tabText(self.tab_widget.currentIndex())
+        current_tab = self.tab_widget.currentWidget()
+
+        if hasattr(current_tab, 'combo'):
+            label = current_tab.combo.currentText()
+        else:
+            label = ''
+
+        if hasattr(current_tab, 'vrange_slider'):
+            current_tab.vrange_slider.blockSignals(True)
+            self.update_plot_map(spectramap, xrange, var, label, current_tab)
+            current_tab.vrange_slider.blockSignals(False)
+
+        vmin, vmax = current_tab.vrange_slider.value()
+        spectramap.plot_map_update(vmin=vmin, vmax=vmax, xrange=xrange, var=var, label=label)
+
+    def update_plot_map(self, spectramap, xrange, var, label, current_tab):
+        spectramap.plot_map_update(xrange=xrange, var=var, label=label)
+        vmin, vmax = current_tab.vrange_slider.minimum(), current_tab.vrange_slider.maximum()
+        rvmin, rvmax = np.nanmin(spectramap.arr), np.nanmax(spectramap.arr)
+
+        if (vmin, vmax) != (rvmin, rvmax) and not np.all(np.isnan(spectramap.arr)):
+            current_tab.vrange_slider.setRange(rvmin, rvmax)
+            current_tab.vrange_slider.setValue((rvmin, rvmax))
+
+        vmin, vmax = current_tab.vrange_slider.value()
+        spectramap.plot_map_update(vmin=vmin, vmax=vmax, xrange=xrange, var=var, label=label)
+
+    # Colorbar Functions
     def add_colorbar(self):
         if not self.colorbar and self.ax.images:
             self.colorbar = self.figure.colorbar(self.ax.images[0], ax=self.ax)
@@ -144,45 +195,40 @@ class Map2DPlot(QMainWindow):
             self.colorbar = None
             self.canvas.draw_idle()
 
-    def set_map(self, spectramap):
-        if not spectramap:
-            self.ax.clear()
-            self.canvas.draw_idle()
-            self.remove_colorbar()
+    def update_colorbar(self):
+        if self.dock_widget.isFloating():
+            self.add_colorbar()
         else:
-            spectramap.plot_map(self.ax, range_slider=self.tab_widget.intensity_tab.range_slider)
-            if self.dock_widget.isFloating():
-                self.add_colorbar()
-            else:
-                self.remove_colorbar()
+            self.remove_colorbar()
+
+    # Utility Functions
+    def collect_unique_labels(self, spectramap):
+        return sorted(list(set([label for spectrum in spectramap for label in spectrum.peak_labels])))
 
     def update_labels(self, spectramap):
-        # Collect unique labels from all spectra
-        labels = sorted(list(set([label for spectrum in spectramap
-                                for label in spectrum.peak_labels])))
+        labels = self.collect_unique_labels(spectramap)
+        self.update_combo_box(labels)
 
+    def update_combo_box(self, labels):
         current_tab = self.tab_widget.currentWidget()
-        
-        # Clear and update the combo box of the current tab
         if hasattr(current_tab, 'combo'):
             current_tab.combo.clear()
             current_tab.combo.addItems(labels)
 
-    def update_plot(self, spectramap):
-        xrange = self.tab_widget.intensity_tab.range_slider.value()
-        var = self.tab_widget.tabText(self.tab_widget.currentIndex())
-        
-        current_tab = self.tab_widget.currentWidget()
-        if hasattr(current_tab, 'combo'):
-            label = current_tab.combo.currentText()
-        else:
-            label = ''
-        
-        spectramap.plot_map_update(xrange=xrange, var=var, label=label)
+    def update_vrange_slider(self, spectramap, current_tab=None):
+        if current_tab is None:
+            current_tab = self.tab_widget.currentWidget()
 
-    def onTabWidgetCurrentChanged(self, spectramap):
-        self.update_labels(spectramap)
-        self.update_plot(spectramap)
+        if hasattr(current_tab, 'vrange_slider'):
+            current_tab.vrange_slider.blockSignals(True)
+            self.set_slider_range_and_value(current_tab, spectramap)
+            current_tab.vrange_slider.blockSignals(False)
+
+    def set_slider_range_and_value(self, current_tab, spectramap):
+        rvmin, rvmax = np.nanmin(spectramap.arr), np.nanmax(spectramap.arr)
+        if not np.all(np.isnan(spectramap.arr)):
+            current_tab.vrange_slider.setRange(rvmin, rvmax)
+            current_tab.vrange_slider.setValue((rvmin, rvmax))
 
 
 if __name__ == "__main__":

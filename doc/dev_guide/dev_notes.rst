@@ -54,11 +54,12 @@ TODO Base:
       - [ ] Add expressions
       - [ ] Connect min + max to setLimits/setRange + showToast alert
     2DMap:
-      - [ ] Implement Min/Max (replace with a DoubleRangedSlider ?)
+      - [x] Implement Min/Max (replace with a DoubleRangedSlider ?)
       - [x] Add Label choice and plot update
       - [ ] Add a button to copy 2D Map in clipboard ? (add mpl toolbar ?)
 
 TODO Fixes:
+    - [ ] maps2d_plot.py not following MVC pattern, it should only contain view code
     - [ ] Manage callbacks when no files have been loaded (allow saving model, placing points, and baseline without loading spectra)
     - [ ] Spectrum list is disordered compared to the map. When browsing through the spectra in the list, it should traverse the map from top to bottom and left to right.
     - [ ] Normalization is messing with baseline/peaks_points and maybe more (for e.g. when applying normalization to a spectrum with a baseline, the baseline points are not normalized)
