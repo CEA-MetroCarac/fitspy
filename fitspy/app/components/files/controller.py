@@ -56,12 +56,16 @@ class FilesController(QObject):
 
     def update_list_widget(self, list_widget, files):
         """Refresh the list widget with the files and update the label."""
-        current_items = {list_widget.item(i).text() for i in range(list_widget.count())}
-        new_items = set(files)
+        current_items = [list_widget.item(i).text() for i in range(list_widget.count())]
+        new_items = files  # Keep new_items as a list to preserve order
 
-        # Determine items to add and remove
-        items_to_add = new_items - current_items
-        items_to_remove = current_items - new_items
+        # Convert lists to sets for set operations
+        current_items_set = set(current_items)
+        new_items_set = set(new_items)
+
+        # Determine items to add and remove using set operations
+        items_to_add = list(new_items_set - current_items_set)
+        items_to_remove = list(current_items_set - new_items_set)
 
         # Block signals to prevent multiple onSelectionUpdate calls
         list_widget.blockSignals(True)
@@ -73,8 +77,9 @@ class FilesController(QObject):
                 list_widget.takeItem(i)
 
         # Add new items
-        for file_path in items_to_add:
-            list_widget.addItem(file_path)
+        for file_path in new_items:
+            if file_path in items_to_add:
+                list_widget.addItem(file_path)
 
         # Unblock signals after updating
         list_widget.blockSignals(False)
