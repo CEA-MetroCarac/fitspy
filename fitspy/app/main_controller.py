@@ -117,13 +117,8 @@ class MainController(QObject):
             save_to_json(fname, data)
 
     def clean(self):
-        fnames = list(self.files_controller.model.spectramaps_fnames.keys())
-        print(fnames)
-        for fname in fnames:
-            self.files_controller.model.del_map(fname)
-        fnames = self.files_controller.model.spectrum_fnames
-        print(fnames)
-        self.files_controller.model.remove_files(fnames)
+        # Remove all spectra and maps
+        self.files_controller.clear()
 
     def apply_theme(self):
         app = QApplication.instance()

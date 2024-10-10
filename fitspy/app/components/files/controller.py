@@ -134,3 +134,13 @@ class FilesController(QObject):
 
     def get_selected_fnames(self):
         return [item.text() for item in self.spectrum_list.list.selectedItems()]
+    
+    def clear(self):
+        # Del Maps
+        fnames = list(self.model.spectramaps_fnames.keys())
+        for fname in fnames:
+            self.del_map(fname)
+
+        # Del Independents Spectrum
+        fnames = self.model.spectrum_fnames
+        self.del_spectrum(fnames)
