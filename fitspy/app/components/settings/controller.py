@@ -84,6 +84,7 @@ class SettingsController(QObject):
         self.model_builder.baseline_table.baselinePointsChanged.connect(self.set_baseline_points)
         self.model_builder.bounds_chbox.stateChanged.connect(self.model_builder.peaks_table.show_bounds)
         self.model_builder.peaks_table.peaksChanged.connect(self.update_model_dict)
+        self.model_builder.peaks_table.showToast.connect(self.showToast)
         self.model.baselinePointsChanged.connect(self.baselinePointsChanged)
         self.model.baselinePointsChanged.connect(self.model_builder.baseline_table.set_points)
 

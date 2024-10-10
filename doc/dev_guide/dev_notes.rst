@@ -45,26 +45,25 @@ TODO Base:
     Menubar:
       - [ ] Implement CLEAR + SAVE GLOBAL STATE+ OPEN GLOBAL STATE (drag n drop & open button should call same function)
       - [ ] About + Manual (could redirect to sphinx doc)
-    Toolbar:
-      - [x] Add checkbox “preserve axis” (= preserve zoom)
     Peaks Table:
       - [ ] Add missing columns for some Peak Models
       - [ ] Add background parameters (in table or elsewhere in GUI)
       - [ ] Add expressions
-      - [ ] Connect min + max to setMinimum/setMaximum/setRange + showToast alert
+      - [x] User Warning for incorrect bounds
+    Toolbar:
+      - [x] Add checkbox “preserve axis” (= preserve zoom)
     2DMap:
       - [x] Implement Min/Max (replace with a DoubleRangedSlider ?)
       - [x] Add Label choice and plot update
-      - [ ] Add a button to copy 2D Map in clipboard ? (add mpl toolbar ?)
 
 TODO Fixes:
     - [ ] maps2d_plot.py not following MVC pattern, it should only contain view code
     - [ ] Manage callbacks when no files have been loaded (allow saving model, placing points, and baseline without loading spectra)
-    - [x] Spectrum list is disordered compared to the map. When browsing through the spectra in the list, it should traverse the map from top to bottom and left to right.
     - [ ] Normalization is messing with baseline/peaks_points and maybe more (for e.g. when applying normalization to a spectrum with a baseline, the baseline points are not normalized)
     - [ ] Baseline_points, empty Y if attached ?
-    - [x] Icons color dont follow theme
     - [ ] Toast bar is not visually moving when on_motion is constantly called (may be a pyqttoast issue), to test click fast on the plot while pan/zoom is active
+    - [x] Icons color dont follow theme
+    - [x] Spectrum list is disordered compared to the map. When browsing through the spectra in the list, it should traverse the map from top to bottom and left to right.
 
 TODO Opti:
     - [ ] MULTIPROC BASELINE via apply_model ?
@@ -72,6 +71,7 @@ TODO Opti:
     - [ ] Optimize plotting by using setxdata and setydata instead of replotting the whole figure
 
 TODO Others:
+    - [ ] Change peak table colum _vary to _fixed
     - [ ] Save selected spectrum per spectramap to reselect it after spectramap change ?
     - [ ] Store model folder for next sessions in QSettings ?
     - [ ] Why using np.float64 for baseline points ??
@@ -90,6 +90,7 @@ TODO Nice to Have:
     - [ ] Plot Dark/Light theme `https://stackoverflow.com/questions/77748488/how-to-dynamically-change-the-sheet-type-theme-during-runtime`_
     - [ ] Idea : scroll on plot to edit nearest peak bounds
     - [ ] Automatically re-open last saved .fitspy workspace
+    - [ ] Add a button to copy 2D Map in clipboard ? (add mpl toolbar ?)
     - [x] Warn user to disable pan/zoom if 3 clicks are detected in a short time (indicating user might want to place a peak/baseline point)
 
 TODO Production:

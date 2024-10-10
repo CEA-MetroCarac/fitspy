@@ -16,6 +16,7 @@ from .custom_spinbox import DoubleSpinBox
 
 class PeaksTable(QGroupBox):
     peaksChanged = Signal(dict)
+    showToast = Signal(str, str, str)
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -118,6 +119,18 @@ class PeaksTable(QGroupBox):
     
     def emit_peaks_changed(self):
         peaks = self.get_peaks()
+        
+        # if there is a peak with incorrect bounds, show a warning and return
+        for peak in peaks['peak_models'].values():
+            for model in peak.values():
+                for param in model.values():
+                    if param['min'] > param['max']:
+                        self.showToast.emit("WARNING", "Invalid bounds", "Minimum value must be less than maximum value.")
+                        return
+                    if not (param['min'] <= param['value'] <= param['max']):
+                        self.showToast.emit("WARNING", "Value out of bounds", f"Value {param['value']} must be between {param['min']} and {param['max']}.")
+                        return
+
         self.peaksChanged.emit(peaks)
 
     def clear(self):
