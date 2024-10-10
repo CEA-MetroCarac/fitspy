@@ -14,6 +14,27 @@ from lmfit.models import ExpressionModel
 from rsciio import IO_PLUGINS
 
 from PySide6.QtWidgets import QWidget
+from PySide6.QtGui import QIcon, QPixmap, QImage
+
+def replace_icon_colors(icon, old_color, new_color):
+    pixmap = icon.pixmap(icon.availableSizes()[0])
+    image = pixmap.toImage()
+    image = image.convertToFormat(QImage.Format_ARGB32)
+
+    width = image.width()
+    height = image.height()
+
+    ptr = image.bits()
+    arr = np.array(ptr).reshape((height, width, 4))
+
+    old_color_arr = np.array([old_color.red(), old_color.green(), old_color.blue()])
+    new_color_arr = np.array([new_color.red(), new_color.green(), new_color.blue(), new_color.alpha()])
+
+    mask = np.all(arr[:, :, :3] == old_color_arr, axis=-1)
+    arr[mask, :3] = new_color_arr[:3]  # Replace only the RGB channels
+
+    new_image = QImage(arr.data, width, height, image.bytesPerLine(), QImage.Format_ARGB32)
+    return QIcon(QPixmap.fromImage(new_image))
 
 def to_snake_case(s):
         import re

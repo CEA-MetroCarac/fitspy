@@ -22,7 +22,7 @@ class MenuBar(QToolBar):
         )
         self.actionLightMode = QAction(
             self,
-            icon=QIcon(get_icon_path("light-mode.svg")),
+            icon=QIcon(get_icon_path("light-mode.png")),
             toolTip="Light Mode",
         )
         self.actionAbout = QAction(

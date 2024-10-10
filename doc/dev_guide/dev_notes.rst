@@ -63,7 +63,7 @@ TODO Fixes:
     - [ ] Spectrum list is disordered compared to the map. When browsing through the spectra in the list, it should traverse the map from top to bottom and left to right.
     - [ ] Normalization is messing with baseline/peaks_points and maybe more (for e.g. when applying normalization to a spectrum with a baseline, the baseline points are not normalized)
     - [ ] Baseline_points, empty Y if attached ?
-    - [ ] Icons color dont follow theme
+    - [x] Icons color dont follow theme
     - [ ] Toast bar is not visually moving when on_motion is constantly called (may be a pyqttoast issue), to test click fast on the plot while pan/zoom is active
 
 TODO Opti:

@@ -1,9 +1,10 @@
 import os
 from PySide6.QtCore import QObject
+from PySide6.QtGui import QColor
 from PySide6.QtWidgets import QApplication
 from pyqttoast import Toast, ToastPreset
 
-from fitspy.core import update_widget_palette, to_snake_case
+from fitspy.core import update_widget_palette, to_snake_case, replace_icon_colors
 
 from .main_model import MainModel
 from .main_view import MainView
@@ -92,14 +93,35 @@ class MainController(QObject):
 
     def apply_theme(self):
         app = QApplication.instance()
-        if self.model.theme == "dark":
-            palette = self.model.dark_palette()
-        else:
-            palette = self.model.light_palette()
-
+        palette = self.model.dark_palette() if self.model.theme == "dark" else self.model.light_palette()
         app.setPalette(palette)
         update_widget_palette(self.view, palette)
+        self.update_menu_icons(palette)
         self.view.toolbar.update_toolbar_icons()
+
+    def update_menu_icons(self, palette):
+        def update_icon(widget, old_color, new_color):
+            current_icon = widget.icon()
+            if not current_icon.isNull():
+                new_icon = replace_icon_colors(current_icon, old_color, new_color)
+                widget.setIcon(new_icon)
+
+        def determine_colors(background_color):
+            if background_color.value() < 128:
+                return QColor(0, 0, 0), QColor(230, 230, 230)
+            else:
+                return QColor(230, 230, 230), QColor(0, 0, 0)
+
+        background_color = palette.color(self.view.backgroundRole())
+        old_color, new_color = determine_colors(background_color)
+
+        widgets = (
+            [action for action in self.view.menuBar.actions()] +
+            [self.view.maps_list.deselect_btn, self.view.spectrum_list.sel_all, self.view.toolbar.copy_button]
+        )
+
+        for widget in widgets:
+            update_icon(widget, old_color, new_color)
 
     def on_theme_changed(self):
         self.apply_theme()
