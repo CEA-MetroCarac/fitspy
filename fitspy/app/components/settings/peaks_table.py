@@ -138,14 +138,14 @@ class PeaksTable(QGroupBox):
             checkbox.stateChanged.connect(self.emit_peaks_changed)
             return checkbox
 
-        prefix_button = QPushButton(
+        prefix_btn = QPushButton(
             text=params["prefix"],
             icon=QIcon(get_icon_path('close.png')),
             toolTip="Delete peak"
         )
         color = rgb2hex(self.cmap(self.row_count % self.cmap.N))
-        prefix_button.setStyleSheet(f"color: {color};")
-        prefix_button.clicked.connect(lambda: self.table.remove_widget_row(prefix_button))
+        prefix_btn.setStyleSheet(f"color: {color};")
+        prefix_btn.clicked.connect(lambda: self.table.remove_widget_row(prefix_btn))
 
         label_edit = QLineEdit(params["label"])
         label_edit.editingFinished.connect(self.emit_peaks_changed)
@@ -172,7 +172,7 @@ class PeaksTable(QGroupBox):
         fwhm_vary_checkbox = create_checkbox(params["fwhm_vary"])
 
         row_widgets = {
-            "Prefix": prefix_button,
+            "Prefix": prefix_btn,
             "Label": label_edit,
             "Model": model_combo,
             "x0_min": x0_min_spin,
@@ -193,9 +193,9 @@ class PeaksTable(QGroupBox):
 
     def update_prefix_colors(self):
         for row in range(self.table.rowCount()):
-            prefix_button = self.table.cellWidget(row, self.table.get_column_index("Prefix"))
+            prefix_btn = self.table.cellWidget(row, self.table.get_column_index("Prefix"))
             color = rgb2hex(self.cmap(row % self.cmap.N))
-            prefix_button.setStyleSheet(f"color: {color};")
+            prefix_btn.setStyleSheet(f"color: {color};")
 
     def show_bounds(self, show):
         columns_to_toggle = ["x0_min", "x0_max", "Ampli_min", "Ampli_max", "FWHM_min", "FWHM_max"]

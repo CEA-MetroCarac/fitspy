@@ -39,7 +39,7 @@ class PlotController(QObject):
         self.click_timer.timeout.connect(reset_click_counter)
     
     def setup_connections(self):
-        self.toolbar.copy_button.clicked.connect(self.spectra_plot.copy_figure)
+        self.toolbar.copy_btn.clicked.connect(self.spectra_plot.copy_figure)
         self.spectra_plot.showToast.connect(self.showToast)
 
         self.map2d_plot.canvas.mpl_connect('button_press_event', self.map2d_plot.on_click)

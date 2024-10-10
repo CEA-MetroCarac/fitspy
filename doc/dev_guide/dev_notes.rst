@@ -44,7 +44,7 @@ TODO List
 TODO Base:
     Menubar:
       - [ ] Implement CLEAR + SAVE GLOBAL STATE+ OPEN GLOBAL STATE (drag n drop & open button should call same function)
-      - [ ] About + Manual
+      - [ ] About + Manual (could redirect to sphinx doc)
     Toolbar:
       - [x] Add checkbox “preserve axis” (= preserve zoom)
     Peaks Table:

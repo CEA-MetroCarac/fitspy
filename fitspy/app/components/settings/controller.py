@@ -29,7 +29,6 @@ class SettingsController(QObject):
         self.more_settings = more_settings
         self.solver_settings = more_settings.solver_settings
         self.other_settings = more_settings.other_settings
-        self._backup_fit_model = None
         self.setup_connections()
 
     def setup_connections(self):
@@ -89,7 +88,7 @@ class SettingsController(QObject):
         self.model.baselinePointsChanged.connect(self.model_builder.baseline_table.set_points)
 
         # Model selector
-        model_selector.load_button.clicked.connect(self.load_model)
+        model_selector.load_btn.clicked.connect(self.load_model)
         model_selector.apply.clicked.connect(lambda: self.select_model(model_selector.combo_box.currentText()))
         model_selector.preview.toggled.connect(self.preview_model)
 
@@ -315,16 +314,15 @@ class SettingsController(QObject):
         
         if checked:
             # Backup the current fit model
-            self._backup_fit_model = copy.deepcopy(self.model.current_fit_model)
+            self.model.backup_fit_model = copy.deepcopy(self.model.current_fit_model)
             combo_box.setItemText(current_index, current_text + " (Preview)")
             model = load_from_json(current_text)
             lock_inputs(True)
 
         else:
             # Restore the backup fit model
-            if self._backup_fit_model is not None:
-                model = copy.deepcopy(self._backup_fit_model)
-                # self._backup_fit_model = None
+            if self.model.backup_fit_model is not None:
+                model = copy.deepcopy(self.model.backup_fit_model)
             combo_box.setItemText(current_index, current_text)
             lock_inputs(False)
 

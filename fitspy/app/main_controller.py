@@ -117,7 +117,7 @@ class MainController(QObject):
 
         widgets = (
             [action for action in self.view.menuBar.actions()] +
-            [self.view.maps_list.deselect_btn, self.view.spectrum_list.sel_all, self.view.toolbar.copy_button]
+            [self.view.maps_list.deselect_btn, self.view.spectrum_list.sel_all, self.view.toolbar.copy_btn]
         )
 
         for widget in widgets:

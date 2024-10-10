@@ -97,11 +97,11 @@ class Toolbar(QWidget):
         self.mpl_toolbar = CustomNavigationToolbar(self.canvas)
         self.baseline_radio = QRadioButton("Baseline")
         self.fitting_radio = QRadioButton("Fitting")
-        self.copy_button = QPushButton(
+        self.copy_btn = QPushButton(
             icon=QIcon(get_icon_path("clipboard-copy.png")),
             toolTip="Copy Figure to Clipboard",
         )
-        self.copy_button.setIconSize(QSize(24, 24))
+        self.copy_btn.setIconSize(QSize(24, 24))
 
         spacer1 = QSpacerItem(0, 0, QSizePolicy.Expanding, QSizePolicy.Minimum)
         spacer2 = QSpacerItem(50, 0, QSizePolicy.Fixed, QSizePolicy.Minimum)
@@ -113,7 +113,7 @@ class Toolbar(QWidget):
         hbox.addItem(spacer2)
         if self.view_options:
             hbox.addWidget(self.view_options)
-        hbox.addWidget(self.copy_button)
+        hbox.addWidget(self.copy_btn)
 
         self.setLayout(hbox)
 

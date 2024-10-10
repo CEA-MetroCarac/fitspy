@@ -22,12 +22,12 @@ class CommonTab(QWidget):
         self.vrange_slider.setDecimals(2)
         self.vrange_slider.setOrientation(Qt.Horizontal)
 
-        self.export_button = QPushButton("Export .csv")
+        self.export_btn = QPushButton("Export .csv")
 
         h_layout1.addWidget(QLabel("Range:"))
         h_layout1.addWidget(self.vrange_slider)
         # h_layout1.addStretch() # Adds spacer
-        h_layout1.addWidget(self.export_button)
+        h_layout1.addWidget(self.export_btn)
 
         self.layout.addLayout(h_layout1)
 

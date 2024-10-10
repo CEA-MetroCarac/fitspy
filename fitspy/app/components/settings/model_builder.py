@@ -70,11 +70,11 @@ class Baseline(QCollapsible):
         self.slider = QSlider(Qt.Horizontal)
         self.slider.setRange(0, 10)
         # self.slider.setValue(5)
-        self.import_button = QPushButton("Import")
+        self.import_btn = QPushButton("Import")
 
         self.HLayout1.addWidget(self.semi_auto)
         self.HLayout1.addWidget(self.slider)
-        self.HLayout1.addWidget(self.import_button)
+        self.HLayout1.addWidget(self.import_btn)
 
         self.HLayout2 = QHBoxLayout()
         self.HLayout2.setSpacing(5)
@@ -177,7 +177,7 @@ class Fitting(QCollapsible):
         spacer = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
         combo_box = QComboBox()
         combo_box.addItems(items)
-        load_button = QPushButton("Load")
+        load_btn = QPushButton("Load")
 
         h_layout = QHBoxLayout()
         h_layout.setSpacing(5)
@@ -186,7 +186,7 @@ class Fitting(QCollapsible):
         h_layout.addWidget(label)
         h_layout.addItem(spacer)
         h_layout.addWidget(combo_box)
-        h_layout.addWidget(load_button)
+        h_layout.addWidget(load_btn)
 
         layout.addLayout(h_layout)
 
@@ -268,13 +268,13 @@ class ModelSelector(QWidget):
 
         self.apply = QPushButton("Apply Model")
 
-        self.load_button = QPushButton("Load Model")
+        self.load_btn = QPushButton("Load Model")
 
         h_layout.addWidget(label)
         h_layout.addWidget(self.combo_box)
         h_layout.addWidget(self.preview)
         h_layout.addWidget(self.apply)
-        h_layout.addWidget(self.load_button)
+        h_layout.addWidget(self.load_btn)
 
         h_layout.setStretch(1, 1)
 

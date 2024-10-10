@@ -1,6 +1,5 @@
 from PySide6.QtCore import QObject, Signal
 
-
 class Model(QObject):
     currentModelChanged = Signal(dict)
     baselinePointsChanged = Signal(list)
@@ -10,29 +9,22 @@ class Model(QObject):
         self._current_fit_model = {}
         self._fit_models = []
         self._baseline_points = []
+        self._backup_fit_model = None
 
-    @property
-    def current_fit_model(self):
-        return self._current_fit_model
+        self._create_property('current_fit_model', self.currentModelChanged)
+        self._create_property('baseline_points', self.baselinePointsChanged)
+        self._create_property('fit_models')
+        self._create_property('backup_fit_model')
 
-    @current_fit_model.setter
-    def current_fit_model(self, fit_model):
-        self._current_fit_model = fit_model
-        self.currentModelChanged.emit(fit_model)
+    def _create_property(self, attr_name, signal=None):
+        private_name = f'_{attr_name}'
 
-    @property
-    def baseline_points(self):
-        return self._baseline_points
-    
-    @baseline_points.setter
-    def baseline_points(self, points):
-        self._baseline_points = points
-        self.baselinePointsChanged.emit(points)
+        def getter(self):
+            return getattr(self, private_name)
 
-    @property
-    def fit_models(self):
-        return self._fit_models
+        def setter(self, value):
+            setattr(self, private_name, value)
+            if signal:
+                signal.emit(value)
 
-    @fit_models.setter
-    def fit_models(self, fit_models):
-        self._fit_models = fit_models
+        setattr(self.__class__, attr_name, property(getter, setter))
