@@ -139,7 +139,9 @@ class SpectraMap(Spectra):
         # fig.subplots_adjust(top=0.92)
         # self.ax_slider = fig.add_axes([0.2, 0.92, 0.4, 0.05])
 
-        self.img = self.ax.imshow(self.arr, extent=self.extent)
+        # Y axis is inverted
+        extent = [self.extent[0], self.extent[1], self.extent[3], self.extent[2]]
+        self.img = self.ax.imshow(self.arr, extent=extent, origin='lower')
 
         if range_slider is not None:
             _min, _max = self[0].x0.min(), self[0].x0.max()
