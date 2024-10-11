@@ -30,7 +30,7 @@ class MainController(QObject):
     def setup_connections(self):
         self.view.menuBar.actionOpen.triggered.connect(self.open)
         self.view.menuBar.actionSave.triggered.connect(self.save)
-        self.view.menuBar.actionClearEnv.triggered.connect(self.clean)
+        self.view.menuBar.actionClearEnv.triggered.connect(self.clear)
 
         self.view.menuBar.actionRestoreDefaults.triggered.connect(self.model.restore_defaults)
         self.view.menuBar.actionLightMode.triggered.connect(lambda: self.set_setting("theme", "light"))
@@ -116,7 +116,7 @@ class MainController(QObject):
                 'model': self.settings_controller.model.current_fit_model}
             save_to_json(fname, data)
 
-    def clean(self):
+    def clear(self):
         # Remove all spectra and maps
         self.files_controller.clear()
 
