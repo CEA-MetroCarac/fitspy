@@ -48,7 +48,7 @@ TODO Base:
     Peaks Table:
       - [ ] Add missing columns for some Peak Models
       - [ ] Add background parameters (in table or elsewhere in GUI)
-      - [x] (VIEW DONE) Implement expressions
+      - [ ] (VIEW DONE) Implement expressions
       - [x] User Warning for incorrect bounds
     Toolbar:
       - [x] Add checkbox “preserve axis” (= preserve zoom)
@@ -95,6 +95,7 @@ TODO Nice to Have:
     - [x] Warn user to disable pan/zoom if 3 clicks are detected in a short time (indicating user might want to place a peak/baseline point)
 
 TODO Production:
+    - [ ] Get rid of MANIFEST.in, use pyproject.toml instead
     - [ ] Update documentation
     - [ ] Update Github Actions tests + Auto Pypi Pre-release/Pre-release, see `https://github.com/CEA-MetroCarac/pyvsnr/tree/main/.github/workflows`_
     - [ ] Update Zenodo
