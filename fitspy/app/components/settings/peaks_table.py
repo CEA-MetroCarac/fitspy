@@ -1,6 +1,6 @@
 from PySide6.QtWidgets import (
     QLabel, QGroupBox, QVBoxLayout, QPushButton, QComboBox, QLineEdit,
-    QCheckBox, QHeaderView, QWidget
+    QCheckBox, QHeaderView, QWidget, QHBoxLayout
 )
 from PySide6.QtGui import QIcon
 from PySide6.QtCore import Signal
@@ -12,6 +12,57 @@ from fitspy.core import get_icon_path
 
 from .generic_table import GenericTable
 from .custom_spinbox import DoubleSpinBox
+
+
+class SpinBoxGroupWithExpression(QWidget):
+    def __init__(self, min_value=None, value=None, max_value=None, expr=None, parent=None):
+        super().__init__(parent)
+        self.layout = QVBoxLayout(self)
+        self.layout.setContentsMargins(0, 0, 0, 0)
+        self.layout.setSpacing(0)
+
+        self.spin_box_layout = QHBoxLayout()
+        self.min_spin_box = DoubleSpinBox(empty_value=float("inf"))
+        self.value_spin_box = DoubleSpinBox(empty_value=float("inf"))
+        self.max_spin_box = DoubleSpinBox(empty_value=float("inf"))
+
+        min_width = 55
+        self.min_spin_box.setMinimumWidth(min_width)
+        self.value_spin_box.setMinimumWidth(min_width)
+        self.max_spin_box.setMinimumWidth(min_width)
+
+        if min_value is not None:
+            self.min_spin_box.setValue(min_value)
+        if value is not None:
+            self.value_spin_box.setValue(value)
+        if max_value is not None:
+            self.max_spin_box.setValue(max_value)
+
+        self.spin_box_layout.addWidget(self.min_spin_box)
+        self.spin_box_layout.addWidget(self.value_spin_box)
+        self.spin_box_layout.addWidget(self.max_spin_box)
+
+        self.expr_edit = QLineEdit()
+        if expr is not None:
+            self.expr_edit.setText(expr)
+
+        self.layout.addLayout(self.spin_box_layout)
+        self.layout.addWidget(self.expr_edit)
+
+    def get_values(self):
+        return {
+            'min': self.min_spin_box.value(),
+            'value': self.value_spin_box.value(),
+            'max': self.max_spin_box.value(),
+            'expr': self.expr_edit.text()
+        }
+
+    def show_expr(self, show):
+        self.expr_edit.setVisible(show)
+
+    def show_bounds(self, show):
+        self.min_spin_box.setVisible(show)
+        self.max_spin_box.setVisible(show)
 
 
 class PeaksTable(QGroupBox):
@@ -35,17 +86,11 @@ class PeaksTable(QGroupBox):
                 "Prefix": QLabel,
                 "Label": QLineEdit,
                 "Model": QComboBox,
-                "x0_min": DoubleSpinBox,
-                "x0": DoubleSpinBox,
-                "x0_max": DoubleSpinBox,
+                "MIN | X0 | MAX": SpinBoxGroupWithExpression,
                 "x0_vary": QCheckBox,
-                "Ampli_min": DoubleSpinBox,
-                "Ampli": DoubleSpinBox,
-                "Ampli_max": DoubleSpinBox,
+                "MIN | Ampli | MAX": SpinBoxGroupWithExpression,
                 "Ampli_vary": QCheckBox,
-                "FWHM_min": DoubleSpinBox,
-                "FWHM": DoubleSpinBox,
-                "FWHM_max": DoubleSpinBox,
+                "MIN | FWHM | MAX": SpinBoxGroupWithExpression,
                 "FWHM_vary": QCheckBox
             }
         )
@@ -61,12 +106,15 @@ class PeaksTable(QGroupBox):
     
     def get_peaks(self):
         def get_widget_value(row, column_name):
-            widget = self.table.cellWidget(row, self.table.get_column_index(column_name))
+            widget = self.table.cellWidget(row, self.table.get_column_index(column_name))         
 
-            if isinstance(widget, QWidget):
+            if isinstance(widget, SpinBoxGroupWithExpression):
+                return widget.get_values()
+            elif isinstance(widget, QWidget):
                 layout = widget.layout()
                 if layout is not None and layout.count() == 1:
-                    widget = layout.itemAt(0).widget() 
+                    widget = layout.itemAt(0).widget()
+            
             if isinstance(widget, QCheckBox):
                 return widget.isChecked()
             elif hasattr(widget, 'value'):
@@ -94,26 +142,30 @@ class PeaksTable(QGroupBox):
             if model_name not in peak_models[row]:
                 peak_models[row][model_name] = {}
 
+            ampli = get_widget_value(row, "MIN | Ampli | MAX")
+            x0 = get_widget_value(row, "MIN | X0 | MAX")
+            fwhm = get_widget_value(row, "MIN | FWHM | MAX")
+
             peak_models[row][model_name]['ampli'] = {
-                'min': get_widget_value(row, "Ampli_min"),
-                'max': get_widget_value(row, "Ampli_max"),
-                'value': get_widget_value(row, "Ampli"),
+                'min': ampli['min'],
+                'max': ampli['max'],
+                'value': ampli['value'],
                 'vary': get_widget_value(row, "Ampli_vary"),
-                'expr': None # TODO Expr
+                'expr': ampli['expr']
             }
             peak_models[row][model_name]['x0'] = {
-                'min': get_widget_value(row, "x0_min"),
-                'max': get_widget_value(row, "x0_max"),
-                'value': get_widget_value(row, "x0"),
+                'min': x0['min'],
+                'max': x0['max'],
+                'value': x0['value'],
                 'vary': get_widget_value(row, "x0_vary"),
-                'expr': None # TODO Expr
+                'expr': x0['expr']
             }
             peak_models[row][model_name]['fwhm'] = {
-                'min': get_widget_value(row, "FWHM_min"),
-                'max': get_widget_value(row, "FWHM_max"),
-                'value': get_widget_value(row, "FWHM"),
+                'min': fwhm['min'],
+                'max': fwhm['max'],
+                'value': fwhm['value'],
                 'vary': get_widget_value(row, "FWHM_vary"),
-                'expr': None # TODO Expr
+                'expr': fwhm['expr']
             }
         return peaks
     
@@ -136,14 +188,16 @@ class PeaksTable(QGroupBox):
     def clear(self):
         self.table.clear()
 
-    def add_row(self, **params):
-        def create_spin_box(value=None):
-            spin_box = DoubleSpinBox(empty_value=float("inf"))
-            spin_box.setMinimumWidth(60)
-            if value:
-                spin_box.setValue(value)
-            spin_box.editingFinished.connect(self.emit_peaks_changed)
-            return spin_box
+    def add_row(self, show_bounds, show_expr, **params):
+        def create_spin_box_group_with_expr(min_value=None, value=None, max_value=None, expr=None):
+            widget = SpinBoxGroupWithExpression(min_value, value, max_value, expr)
+            widget.min_spin_box.editingFinished.connect(self.emit_peaks_changed)
+            widget.value_spin_box.editingFinished.connect(self.emit_peaks_changed)
+            widget.max_spin_box.editingFinished.connect(self.emit_peaks_changed)
+            widget.expr_edit.editingFinished.connect(self.emit_peaks_changed)
+            widget.show_bounds(show_bounds)
+            widget.show_expr(show_expr)
+            return widget
 
         def create_checkbox(checked=False):
             checkbox = QCheckBox()
@@ -169,40 +223,29 @@ class PeaksTable(QGroupBox):
         model_combo.setCurrentText(params["model_name"])
         model_combo.currentIndexChanged.connect(self.emit_peaks_changed)
 
-        x0_min_spin = create_spin_box(params["x0_min"])
-        x0_spin = create_spin_box(params["x0"])
-        x0_max_spin = create_spin_box(params["x0_max"])
+        x0_widget = create_spin_box_group_with_expr(params["x0_min"], params["x0"], params["x0_max"])
         x0_vary_checkbox = create_checkbox(params["x0_vary"])
 
-        ampli_min_spin = create_spin_box(params["ampli_min"])
-        ampli_spin = create_spin_box(params["ampli"])
-        ampli_max_spin = create_spin_box(params["ampli_max"])
+        ampli_widget = create_spin_box_group_with_expr(params["ampli_min"], params["ampli"], params["ampli_max"])
         ampli_vary_checkbox = create_checkbox(params["ampli_vary"])
 
-        fwhm_min_spin = create_spin_box(params["fwhm_min"])
-        fwhm_spin = create_spin_box(params["fwhm"])
-        fwhm_max_spin = create_spin_box(params["fwhm_max"])
+        fwhm_widget = create_spin_box_group_with_expr(params["fwhm_min"], params["fwhm"], params["fwhm_max"])
         fwhm_vary_checkbox = create_checkbox(params["fwhm_vary"])
 
         row_widgets = {
             "Prefix": prefix_btn,
             "Label": label_edit,
             "Model": model_combo,
-            "x0_min": x0_min_spin,
-            "x0": x0_spin,
-            "x0_max": x0_max_spin,
+            "MIN | X0 | MAX": x0_widget,
             "x0_vary": x0_vary_checkbox,
-            "Ampli_min": ampli_min_spin,
-            "Ampli": ampli_spin,
-            "Ampli_max": ampli_max_spin,
+            "MIN | Ampli | MAX": ampli_widget,
             "Ampli_vary": ampli_vary_checkbox,
-            "FWHM_min": fwhm_min_spin,
-            "FWHM": fwhm_spin,
-            "FWHM_max": fwhm_max_spin,
+            "MIN | FWHM | MAX": fwhm_widget,
             "FWHM_vary": fwhm_vary_checkbox
         }
 
         self.table.add_row(**row_widgets)
+        self.table.resizeRowsToContents()
 
     def update_prefix_colors(self):
         for row in range(self.table.rowCount()):
@@ -211,14 +254,22 @@ class PeaksTable(QGroupBox):
             prefix_btn.setStyleSheet(f"color: {color};")
 
     def show_bounds(self, show):
-        columns_to_toggle = ["x0_min", "x0_max", "Ampli_min", "Ampli_max", "FWHM_min", "FWHM_max"]
-        
-        for column in columns_to_toggle:
-            column_index = self.table.get_column_index(column)
-            self.table.setColumnHidden(column_index, not show)
+        for row in range(self.table.rowCount()):
+            for column_name in ["MIN | X0 | MAX", "MIN | Ampli | MAX", "MIN | FWHM | MAX"]:
+                widget = self.table.cellWidget(row, self.table.get_column_index(column_name))
+                if isinstance(widget, SpinBoxGroupWithExpression):
+                    widget.show_bounds(show)
 
         header = self.table.horizontalHeader()
         if show:
             header.setSectionResizeMode(QHeaderView.ResizeToContents)
         else:
             header.setSectionResizeMode(QHeaderView.Stretch)
+
+    def show_expr(self, show):
+        for row in range(self.table.rowCount()):
+            for column_name in ["MIN | X0 | MAX", "MIN | Ampli | MAX", "MIN | FWHM | MAX"]:
+                widget = self.table.cellWidget(row, self.table.get_column_index(column_name))
+                if isinstance(widget, SpinBoxGroupWithExpression):
+                    widget.show_expr(show)
+            self.table.resizeRowsToContents()

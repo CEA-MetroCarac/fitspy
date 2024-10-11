@@ -83,6 +83,7 @@ class SettingsController(QObject):
         # Peaks + Baseline Table
         self.model_builder.baseline_table.baselinePointsChanged.connect(self.set_baseline_points)
         self.model_builder.bounds_chbox.stateChanged.connect(self.model_builder.peaks_table.show_bounds)
+        self.model_builder.expr_chbox.stateChanged.connect(self.model_builder.peaks_table.show_expr)
         self.model_builder.peaks_table.peaksChanged.connect(self.update_model_dict)
         self.model_builder.peaks_table.showToast.connect(self.showToast)
         self.model.baselinePointsChanged.connect(self.baselinePointsChanged)
@@ -155,7 +156,7 @@ class SettingsController(QObject):
         # Uncesseray to block signals as the update occurs key by key
         for key, value in model_dict.items():
             self.model.current_fit_model[key] = value
-        
+
         if 'peak_models' in model_dict or 'peak_label' in model_dict:
             self.setPeaks.emit(model_dict)
 
@@ -267,7 +268,9 @@ class SettingsController(QObject):
                 "fwhm_vary": fwhm_params["vary"]
             }
 
-            self.model_builder.peaks_table.add_row(**row_params)
+            show_bounds = self.model_builder.bounds_chbox.isChecked()
+            show_expr = self.model_builder.expr_chbox.isChecked()
+            self.model_builder.peaks_table.add_row(show_bounds, show_expr, **row_params)
 
         if isinstance(spectrum, dict):
             fit_model = spectrum

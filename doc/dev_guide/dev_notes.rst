@@ -48,11 +48,12 @@ TODO Base:
     Peaks Table:
       - [ ] Add missing columns for some Peak Models
       - [ ] Add background parameters (in table or elsewhere in GUI)
-      - [ ] Add expressions
+      - [x] (VIEW DONE) Implement expressions
       - [x] User Warning for incorrect bounds
     Toolbar:
       - [x] Add checkbox “preserve axis” (= preserve zoom)
     2DMap:
+      - [ ] Implement back export .csv
       - [x] Implement Min/Max (replace with a DoubleRangedSlider ?)
       - [x] Add Label choice and plot update
 
