@@ -252,14 +252,14 @@ class GUI(Callbacks):
                         command=self.apply_baseline_settings), 1, 1)
         order_entry = Entry(fr, textvariable=self.baseline_order_max, width=2)
         add(order_entry, 1, 2, W)
-        order_entry.bind("<KeyRelease>", self.apply_baseline_settings)
+        order_entry.bind("<KeyRelease>", lambda _: self.apply_baseline_settings())
 
         add(Checkbutton(fr, variable=self.baseline_attached, text='Attached',
                         command=self.apply_baseline_settings), 2, 0)
         add(Label(fr, text="Sigma (smoothing) :"), 2, 1, E)
         sigma_entry = Entry(fr, textvariable=self.baseline_sigma, width=4)
         add(sigma_entry, 2, 2, W)
-        sigma_entry.bind("<KeyRelease>", self.apply_baseline_settings)
+        sigma_entry.bind("<KeyRelease>", lambda _: self.apply_baseline_settings())
 
         add(Button(fr, text="Apply to All",
                    command=self.apply_baseline_settings_to_all), 3, 1, W)
