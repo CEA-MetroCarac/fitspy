@@ -65,6 +65,7 @@ TODO Fixes:
     - [ ] Toast bar is not visually moving when on_motion is constantly called (may be a pyqttoast issue), to test click fast on the plot while pan/zoom is active
     - [x] Icons color dont follow theme
     - [x] Spectrum list is disordered compared to the map. When browsing through the spectra in the list, it should traverse the map from top to bottom and left to right.
+    - [x] Port updates commit 6d303df (main)
 
 TODO Opti:
     - [ ] MULTIPROC BASELINE via apply_model ?

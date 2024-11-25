@@ -104,7 +104,9 @@ class BaseLine:
         elif self.mode == 'Semi-Auto':
             with warnings.catch_warnings():
                 warnings.simplefilter("ignore")
-                mask = y > 0
+                mask = np.zeros_like(y, dtype=bool)
+                mask[::mask.size // 1024] = True
+                mask[y <= 0] = False
                 self.y_eval = arpls(y[mask], coef=self.coef)
                 if False in mask:
                     func_interp = interp1d(x[mask], self.y_eval,
