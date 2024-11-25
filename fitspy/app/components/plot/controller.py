@@ -4,6 +4,7 @@ from PySide6.QtWidgets import QMessageBox
 from fitspy.core import to_snake_case
 from .model import Model
 
+
 class PlotController(QObject):
     showToast = Signal(str, str, str)
     decodedSpectraMap = Signal(str, list)
@@ -47,7 +48,7 @@ class PlotController(QObject):
         self.map2d_plot.tab_widget.currentChanged.connect(lambda: self.map2d_plot.onTabWidgetCurrentChanged(self.model.current_map))
         self.map2d_plot.tab_widget.intensity_tab.range_slider.valueChanged.connect(lambda: self.map2d_plot.onTabWidgetCurrentChanged(self.model.current_map))
         self.map2d_plot.addMarker.connect(self.set_marker)
-        
+
         for i in range(self.map2d_plot.tab_widget.count()):
             tab = self.map2d_plot.tab_widget.widget(i)
             tab.vrange_slider.valueChanged.connect(lambda: self.map2d_plot.update_plot(self.model.current_map))
@@ -77,10 +78,11 @@ class PlotController(QObject):
     def on_motion(self, event):
         ax = self.spectra_plot.ax
         self.model.on_motion(ax, event)
-        
+
     def set_marker(self, spectrum_or_fname_or_coords):
-        fname = self.model.current_map.set_marker(spectrum_or_fname_or_coords)
-        self.highlightSpectrum.emit(fname)
+        if self.model.current_map:
+            fname = self.model.current_map.set_marker(spectrum_or_fname_or_coords)
+            self.highlightSpectrum.emit(fname)
 
     def view_option_changed(self, checkbox):
         label = f"view_options_{to_snake_case(checkbox.text())}"
@@ -192,7 +194,7 @@ class PlotController(QObject):
             self.model.set_spectrum_attr(spectrum.fname, "normalize_range_min", min)
             self.model.set_spectrum_attr(spectrum.fname, "normalize_range_max", max)
             spectrum.preprocess()
-            
+
         self.update_spectraplot()
 
     def show_confirmation_dialog(self, message, callback, args, kwargs):

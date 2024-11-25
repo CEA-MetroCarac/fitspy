@@ -1,16 +1,19 @@
 import os
 from PySide6.QtCore import QObject
 from PySide6.QtGui import QColor
-from PySide6.QtWidgets import QApplication
+from PySide6.QtWidgets import QApplication, QFileDialog
 from pyqttoast import Toast, ToastPreset
 
 from fitspy.core import update_widget_palette, to_snake_case, replace_icon_colors
+from fitspy.core.utils import save_to_json, load_from_json
 
 from .main_model import MainModel
 from .main_view import MainView
 from .components.plot import PlotController
 from .components.files import FilesController
 from .components.settings import SettingsController
+
+TYPES = "JSON Files (*.json);;All Files (*)"
 
 
 class MainController(QObject):
@@ -26,6 +29,10 @@ class MainController(QObject):
         self.apply_settings()
 
     def setup_connections(self):
+        self.view.menuBar.actionOpen.triggered.connect(self.open)
+        self.view.menuBar.actionSave.triggered.connect(self.save)
+        self.view.menuBar.actionClearEnv.triggered.connect(self.clear)
+
         self.view.menuBar.actionRestoreDefaults.triggered.connect(self.model.restore_defaults)
         self.view.menuBar.actionLightMode.triggered.connect(lambda: self.set_setting("theme", "light"))
         self.view.menuBar.actionDarkMode.triggered.connect(lambda: self.set_setting("theme", "dark"))
@@ -68,7 +75,7 @@ class MainController(QObject):
 
         app = QApplication.instance()
         app.aboutToQuit.connect(lambda: self.set_setting("figure_options_title", self.view.spectra_plot.ax.get_title()))
-    
+
     def apply_settings(self):
         self.view.statusBox.ncpus.setCurrentText(self.model.ncpus)
         self.view.spectra_plot.ax.set_title(self.model.figure_options_title)
@@ -85,11 +92,32 @@ class MainController(QObject):
             self.view.toolbar.baseline_radio.setChecked(True)
         elif self.model.click_mode == "fitting":
             self.view.toolbar.fitting_radio.setChecked(True)
-    
+
         for label, checkbox in self.view.toolbar.view_options.checkboxes.items():
             setting = f"view_options_{to_snake_case(label)}"
             state = self.model.settings.value(setting, True, type=bool)
             checkbox.setChecked(state)
+
+    def open(self):
+        fname = QFileDialog.getOpenFileName(None, "Load File", "", TYPES)[0]
+        if fname:
+            data = load_from_json(fname)
+            self.files_controller.spectrum_list = data['files']['spectrum_list']
+            self.files_controller.maps_list = data['files']['maps_list']
+            self.settings_controller.model.current_fit_model = data['model']
+
+    def save(self):
+        fname = QFileDialog.getSaveFileName(None, "Save File", "", TYPES)[0]
+        if fname:
+            data = {
+                'files': {'spectrum_list': self.files_controller.model.spectrum_fnames,
+                          'maps_list': list(self.files_controller.model.spectramaps_fnames.keys())},
+                'model': self.settings_controller.model.current_fit_model}
+            save_to_json(fname, data)
+
+    def clear(self):
+        # Remove all spectra and maps
+        self.files_controller.clear()
 
     def apply_theme(self):
         app = QApplication.instance()
@@ -167,7 +195,7 @@ class MainController(QObject):
 
     def get_ncpus(self, nfiles):
         """ Return the number of CPUs to work with """
-        ncpus = self.model.ncpus #or self.fit_settings.params['ncpus'].get()
+        ncpus = self.model.ncpus  # or self.fit_settings.params['ncpus'].get()
         if ncpus == "Auto":
             return max(1, min(int(nfiles / 8), int(os.cpu_count() / 2)))
         else:

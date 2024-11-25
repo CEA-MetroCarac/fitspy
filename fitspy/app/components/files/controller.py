@@ -45,7 +45,11 @@ class FilesController(QObject):
         self.model.del_spectrum(items)
 
     def del_map(self, fname):
-        self.model.del_map(fname)
+        if isinstance(fname, list):
+            for item in fname:
+                self.model.del_map(item)
+        else:
+            self.model.del_map(fname)
 
     def update_spectrum_list(self, spectramap):
         if spectramap is not None:
@@ -139,3 +143,12 @@ class FilesController(QObject):
 
     def get_selected_fnames(self):
         return [item.text() for item in self.spectrum_list.list.selectedItems()]
+    
+    def clear(self):
+        # Del Maps
+        fnames = list(self.model.spectramaps_fnames.keys())
+        self.del_map(fnames)
+
+        # Del Independents Spectrum
+        fnames = self.model.spectrum_fnames
+        self.del_spectrum(fnames)

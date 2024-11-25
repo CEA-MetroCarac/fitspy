@@ -50,11 +50,11 @@ class Model(QObject):
         spectramap, fnames = next(iter(items.items()))
 
         if spectramap is not None:
-            for fname in fnames:
-                self._spectramaps_fnames[spectramap].remove(fname)
+            self._spectramaps_fnames[spectramap] = [
+                fname for fname in self._spectramaps_fnames[spectramap] if fname not in fnames
+            ]
         else:
-            for fname in fnames:
-                self._spectrum_fnames.remove(fname)
+            self._spectrum_fnames = [fname for fname in self._spectrum_fnames if fname not in fnames]
 
         # Emit the signal once for the modified spectramap
         self.spectrumListChanged.emit(spectramap)
