@@ -13,7 +13,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 from .spectrum import Spectrum
-from fitspy.core import fileparts, save_to_json, load_from_json
+from fitspy.core import fileparts, save_to_json, load_from_json, DELIMITER
 from .utils_mp import fit_mp
 
 
@@ -249,6 +249,13 @@ class Spectra(list):
                 sys.stdout.write(msg)
         if show_progressbar:
             print()
+
+    def set_attributes(self, models, delimiter="", map_name=""):
+        for spectrum in self:
+            spectrum.set_attributes(models[f"{map_name}{delimiter}{spectrum.fname}"])
+        if hasattr(self, "spectra_maps"):
+            for spectramap in self.spectra_maps:
+                spectramap.set_attributes(models, DELIMITER, spectramap.fname)
 
     def save(self, fname_json=None, fnames=None):
         """

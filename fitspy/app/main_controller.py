@@ -1,11 +1,10 @@
 import os
 from PySide6.QtCore import QObject
 from PySide6.QtGui import QColor
-from PySide6.QtWidgets import QApplication, QFileDialog
+from PySide6.QtWidgets import QApplication, QFileDialog, QMessageBox
 from pyqttoast import Toast, ToastPreset
 
-from fitspy.core import update_widget_palette, to_snake_case, replace_icon_colors
-from fitspy.core.utils import save_to_json, load_from_json
+from fitspy.core import update_widget_palette, to_snake_case, replace_icon_colors, save_to_json, DELIMITER
 
 from .main_model import MainModel
 from .main_view import MainView
@@ -13,8 +12,7 @@ from .components.plot import PlotController
 from .components.files import FilesController
 from .components.settings import SettingsController
 
-TYPES = "JSON Files (*.json);;All Files (*)"
-
+TYPES = "Fitspy Workspace (*.fspy);;Spectrum/Spectramap (*.json *.txt);;JSON Files (*.json);;Text Files (*.txt)"
 
 class MainController(QObject):
     def __init__(self):
@@ -40,6 +38,8 @@ class MainController(QObject):
         self.model.themeChanged.connect(self.on_theme_changed)
         self.model.defaultsRestored.connect(self.apply_settings)
 
+        self.files_controller.showToast.connect(self.show_toast)
+        self.files_controller.askConfirmation.connect(self.show_confirmation_dialog)
         self.files_controller.loadSpectrum.connect(self.plot_controller.load_spectrum)
         self.files_controller.loadSpectraMap.connect(self.plot_controller.load_map)
         self.files_controller.delSpectrum.connect(self.plot_controller.del_spectrum)
@@ -48,8 +48,10 @@ class MainController(QObject):
         self.files_controller.spectraChanged.connect(self.change_current_fit_model)
         self.files_controller.mapChanged.connect(self.plot_controller.switch_map)
         self.files_controller.addMarker.connect(self.plot_controller.set_marker)
+        self.files_controller.loadState.connect(self.load_state)
 
         self.plot_controller.showToast.connect(self.show_toast)
+        self.plot_controller.askConfirmation.connect(self.show_confirmation_dialog)
         self.plot_controller.spectrumLoaded.connect(self.files_controller.add_spectrum)
         self.plot_controller.spectrumDeleted.connect(self.files_controller.del_spectrum)
         self.plot_controller.spectraMapDeleted.connect(self.files_controller.del_map)
@@ -98,21 +100,35 @@ class MainController(QObject):
             state = self.model.settings.value(setting, True, type=bool)
             checkbox.setChecked(state)
 
+    def load_state(self, selected, models):
+        # Restore model attributes to each spectrum
+        self.plot_controller.model.spectra.set_attributes(models)
+
+        # TODO CONFIRMATION DIALOG: IT NEEDS TO CONTINUE THE FUNCTION ONLY IF THE USER CLICKS YES (after self.clear only)
+        # self.show_confirmation_dialog("Loading saved work will clear the current environment. Do you want to proceed?", self.clear)
+
+        # Restore selection
+        self.files_controller.set_selection(self.view.maps_list.list, selected['map'])
+        self.files_controller.set_selection(self.view.spectrum_list.list, selected['spectra'])
+
     def open(self):
-        fname = QFileDialog.getOpenFileName(None, "Load File", "", TYPES)[0]
-        if fname:
-            data = load_from_json(fname)
-            self.files_controller.spectrum_list = data['files']['spectrum_list']
-            self.files_controller.maps_list = data['files']['maps_list']
-            self.settings_controller.model.current_fit_model = data['model']
+        fnames = QFileDialog.getOpenFileNames(None, "Load File", "", TYPES)[0]
+        self.files_controller.load_files(fnames)
 
     def save(self):
-        fname = QFileDialog.getSaveFileName(None, "Save File", "", TYPES)[0]
+        maps_list, spectrum_list = self.files_controller.get_all_fnames()
+        map, spectra = self.files_controller.get_full_selection()
+        fname = QFileDialog.getSaveFileName(None, "Save File", "", "Fitspy Workspace (*.fspy)")[0]
         if fname:
+            # Getting the models of all spectrum objects
+            fit_models = self.plot_controller.get_fit_models(DELIMITER)
+            
             data = {
-                'files': {'spectrum_list': self.files_controller.model.spectrum_fnames,
-                          'maps_list': list(self.files_controller.model.spectramaps_fnames.keys())},
-                'model': self.settings_controller.model.current_fit_model}
+                'files': {'maps_list': maps_list,
+                          'spectrum_list': spectrum_list},
+                'selected': {'map': map, 'spectra': spectra},
+                'models': fit_models
+            }
             save_to_json(fname, data)
 
     def clear(self):
@@ -170,6 +186,16 @@ class MainController(QObject):
 
     def remove_outliers(self):
         self.plot_controller.remove_outliers(self.model.outliers_coef)
+
+    def show_confirmation_dialog(self, message, callback=None, args=(), kwargs={}):
+        reply = QMessageBox.question(None, 'Confirmation', message, QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+        if reply == QMessageBox.Yes:
+            if callback:
+                callback(*args, **kwargs)
+            return True
+        else:
+            print("Operation aborted by the user.")
+            return False
 
     def show_toast(self, preset, title, text):
         preset_mapping = {

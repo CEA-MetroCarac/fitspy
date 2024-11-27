@@ -318,7 +318,7 @@ class Model(QObject):
 
     def apply_model(self, model_dict=None, fnames=None, fit_params=None, ncpus=None):
         """ Apply model to the selected spectra """
-        model_dict = model_dict #or deepcopy(self.model_dict)
+        # model_dict = deepcopy(self.model_dict)
 
         if model_dict is None:
             self.showToast('error', 'No model has been loaded', '')
@@ -346,3 +346,13 @@ class Model(QObject):
         # self.colorize_from_fit_status(fnames)
         # self.reassign_current_spectrum(self.current_spectrum.fname)
         self.refreshPlot.emit()
+
+    def get_fit_models(self, delimiter):
+        fit_models = {}
+        for spectramap in self.spectra.spectra_maps:
+            for spectrum in spectramap:
+                fit_models[f"{spectramap.fname}{delimiter}{spectrum.fname}"] = spectrum.save()
+        for spectrum in self.spectra:
+            fit_models[spectrum.fname] = spectrum.save()
+
+        return fit_models

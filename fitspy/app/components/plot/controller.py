@@ -1,5 +1,4 @@
 from PySide6.QtCore import QObject, Signal, QTimer
-from PySide6.QtWidgets import QMessageBox
 
 from fitspy.core import to_snake_case
 from .model import Model
@@ -7,6 +6,7 @@ from .model import Model
 
 class PlotController(QObject):
     showToast = Signal(str, str, str)
+    askConfirmation = Signal(str, object, tuple, dict)
     decodedSpectraMap = Signal(str, list)
     spectrumLoaded = Signal(str)
     spectrumDeleted = Signal(object)
@@ -66,7 +66,7 @@ class PlotController(QObject):
         self.model.refreshPlot.connect(self.update_spectraplot)
         self.model.PeaksChanged.connect(self.PeaksChanged)
         self.model.progressUpdated.connect(self.progressUpdated)
-        self.model.askConfirmation.connect(self.show_confirmation_dialog)
+        self.model.askConfirmation.connect(self.askConfirmation)
 
         self.toolbar.fitting_radio.toggled.connect(self.on_click_mode_changed)
         self.spectra_plot.canvas.mpl_connect('motion_notify_event', self.on_motion)
@@ -116,6 +116,9 @@ class PlotController(QObject):
 
     def get_spectrum(self, fname):
         return self.model.spectra.get_objects(fname)[0]
+    
+    def get_fit_models(self, delimiter):
+        return self.model.get_fit_models(delimiter)
 
     def remove_outliers(self, coef):
         self.model.spectra.outliers_limit_calculation(coef=coef)
@@ -197,18 +200,12 @@ class PlotController(QObject):
 
         self.update_spectraplot()
 
-    def show_confirmation_dialog(self, message, callback, args, kwargs):
-        reply = QMessageBox.question(None, 'Confirmation', message, QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
-        if reply == QMessageBox.Yes:
-            print(args)
-            callback(*args, **kwargs)
-        else:
-            print("Operation aborted by the user.")
-
     def update_peak_model(self, model):
         self.model.peak_model = model
 
     def set_peaks(self, peaks):
+        if not self.model.current_spectrum:
+            return
         spectrum = self.model.current_spectrum[0]
         spectrum.set_attributes(peaks)
         self.update_spectraplot()

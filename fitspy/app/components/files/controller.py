@@ -2,6 +2,8 @@ from PySide6.QtCore import QObject, Signal
 from .model import Model
 
 class FilesController(QObject):
+    showToast = Signal(str, str, str)
+    askConfirmation = Signal(str, object, tuple, dict)
     loadSpectrum = Signal(list)
     loadSpectraMap = Signal(str)
     delSpectrum = Signal(object, list)
@@ -9,6 +11,7 @@ class FilesController(QObject):
     mapChanged = Signal(object)  # Can be a string or None
     spectraChanged = Signal(list)
     addMarker = Signal(str)
+    loadState = Signal(dict, dict)
 
     def __init__(self, spectrum_list, maps_list):
         super().__init__()
@@ -21,22 +24,28 @@ class FilesController(QObject):
     def setup_connections(self):
         self.mapChanged.connect(self.model.set_current_map)
 
+        self.model.showToast.connect(self.showToast)
+        self.model.askConfirmation.connect(self.askConfirmation)
         self.model.loadSpectrum.connect(self.loadSpectrum)
         self.model.loadSpectraMap.connect(self.loadSpectraMap)
         self.model.delSpectrum.connect(self.delSpectrum)
         self.model.delSpectraMap.connect(self.delSpectraMap)
         self.model.spectrumListChanged.connect(self.update_spectrum_list)
         self.model.mapsListChanged.connect(lambda: self.update_list_widget(self.maps_list.list, self.model.spectramaps_fnames))
+        self.model.loadState.connect(self.loadState)
 
-        self.spectrum_list.list.filesDropped.connect(self.model.load_files)
+        self.spectrum_list.list.filesDropped.connect(self.load_files)
         self.spectrum_list.list.itemSelectionChanged.connect(lambda: self.update_selection(self.spectrum_list.list, self.spectrum_list.count_label))
         self.spectrum_list.sel_all.clicked.connect(self.spectrum_list.list.selectAll)
         self.spectrum_list.rm_btn.clicked.connect(lambda: self.remove_selected_files(self.spectrum_list.list))
 
-        self.maps_list.list.filesDropped.connect(self.model.load_files)
+        self.maps_list.list.filesDropped.connect(self.load_files)
         self.maps_list.list.itemSelectionChanged.connect(lambda: self.update_map_selection(self.maps_list.list, self.spectrum_list.list))
         self.maps_list.deselect_btn.clicked.connect(lambda: self.maps_list.list.clearSelection())
         self.maps_list.rm_btn.clicked.connect(lambda: self.remove_selected_files(self.maps_list.list))
+
+    def load_files(self, files):
+        self.model.load_files(files)
 
     def add_spectrum(self, fname):
         self.model.add_spectrum(fname)
@@ -143,6 +152,37 @@ class FilesController(QObject):
 
     def get_selected_fnames(self):
         return [item.text() for item in self.spectrum_list.list.selectedItems()]
+    
+    def get_selected_map_fname(self):
+        return self.model.current_map
+    
+    def get_full_selection(self):
+        return self.get_selected_map_fname(), self.get_selected_fnames()
+    
+    def get_fnames(self):
+        return self.model.spectrum_fnames
+    
+    def get_map_fnames(self):
+        return list(self.model.spectramaps_fnames.keys())
+    
+    def get_all_fnames(self):
+        return self.get_map_fnames(), self.get_fnames()
+    
+    def set_selection(self, list_widget, selection_list, emit_signal=True):
+        if not isinstance(selection_list, list):
+            selection_list = []
+
+        list_widget.blockSignals(True)
+        list_widget.clearSelection()
+
+        for i in range(list_widget.count()):
+            item = list_widget.item(i)
+            if item.text() in selection_list:
+                item.setSelected(True)
+        list_widget.blockSignals(False)
+
+        if emit_signal:
+            list_widget.itemSelectionChanged.emit()
     
     def clear(self):
         # Del Maps

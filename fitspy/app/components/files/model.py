@@ -1,5 +1,5 @@
 from PySide6.QtCore import QObject, Signal
-from fitspy.core import get_dim
+from fitspy.core import get_dim, load_from_json
 
 class Model(QObject):
     spectrumListChanged = Signal(object)
@@ -8,6 +8,9 @@ class Model(QObject):
     loadSpectrum = Signal(list)
     delSpectrum = Signal(object, list)
     delSpectraMap = Signal(str)
+    loadState = Signal(dict, dict)
+    showToast = Signal(str, str, str)
+    askConfirmation = Signal(str, object, tuple, dict)
 
     def __init__(self):
         super().__init__()
@@ -59,6 +62,31 @@ class Model(QObject):
         # Emit the signal once for the modified spectramap
         self.spectrumListChanged.emit(spectramap)
 
+    def load_saved_work(self, files):
+        """Load saved work if a .fspy file is present."""
+        if isinstance(files, str):
+            files = [files]
+        elif not isinstance(files, list):
+            raise TypeError("files must be a list of file paths or a single file path as a string")
+
+        fitspy_files = [f for f in files if f.endswith('.fspy')]
+
+        if len(fitspy_files) == 1:
+            self.showToast.emit("SUCCESS", "Work loaded.", "")
+            fitspy_file = fitspy_files[0]
+            files.remove(fitspy_file)
+            data = load_from_json(fitspy_file)
+            self.load_files(data['files']['spectrum_list'] + data['files']['maps_list'])
+            self.loadState.emit(data['selected'], data['models'])
+            return True, files
+
+        if len(fitspy_files) > 1:
+            self.showToast.emit("WARNING", "Only one work can be loaded at a time.", "Please select only one .fspy file or .json/.txt files.")
+            files = [f for f in files if f not in fitspy_files]
+            return False, files
+
+        return False, files
+
     def load_spectrum_files(self, files):
         """Load spectrum files and emit signal if new files are added."""
         new_files = [file for file in files if file not in self._spectrum_fnames]
@@ -76,10 +104,15 @@ class Model(QObject):
         del self._spectramaps_fnames[file]
         self.mapsListChanged.emit()
 
-    def load_files(self, files):
+    def load_files(self, files: list):
         """Load files and categorize them as spectrum or spectramap files."""
         spectrum_files = []
         spectramap_files = []
+
+        # if a saved work is loaded, no need to continue
+        success, files = self.load_saved_work(files)
+        if success or not files:
+            return
 
         for file in files:
             if get_dim(file) == 2:  # 2D map

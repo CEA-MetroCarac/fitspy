@@ -160,3 +160,5 @@ cython_debug/
 
 # Windows thumbnail cache
 Thumbs.db
+
+*.fspy

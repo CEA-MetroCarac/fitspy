@@ -190,7 +190,6 @@ class SettingsController(QObject):
         self.set_baseline_points(points)
         self.update_peaks_table(fit_model)
 
-
     def set_baseline_points(self, points=[[],[]]):
         self.model.baseline_points = points
         if points[0]:

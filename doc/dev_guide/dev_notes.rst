@@ -43,7 +43,7 @@ TODO List
 
 TODO Base:
     Menubar:
-      - [ ] Implement CLEAR + SAVE GLOBAL STATE+ OPEN GLOBAL STATE (drag n drop & open button should call same function)
+      - [ ] Implement CLEAR + SAVE GLOBAL STATE + OPEN GLOBAL STATE (drag n drop & open button should call same function)
       - [ ] About + Manual (could redirect to sphinx doc)
     Peaks Table:
       - [ ] Add missing columns for some Peak Models
@@ -73,6 +73,7 @@ TODO Opti:
     - [ ] Optimize plotting by using setxdata and setydata instead of replotting the whole figure
 
 TODO Others:
+    - [ ] Explicit types in functions (e.g. `def func(arg: type) -> type:`)
     - [ ] Change peak table colum _vary to _fixed
     - [ ] Save selected spectrum per spectramap to reselect it after spectramap change ?
     - [ ] Store model folder for next sessions in QSettings ?
@@ -91,7 +92,7 @@ TODO Nice to Have:
     - [ ] Fitspy Icon for taskbar
     - [ ] Plot Dark/Light theme `https://stackoverflow.com/questions/77748488/how-to-dynamically-change-the-sheet-type-theme-during-runtime`_
     - [ ] Idea : scroll on plot to edit nearest peak bounds
-    - [ ] Automatically re-open last saved .fitspy workspace
+    - [ ] Automatically re-open last saved .fspy workspace
     - [ ] Add a button to copy 2D Map in clipboard ? (add mpl toolbar ?)
     - [x] Warn user to disable pan/zoom if 3 clicks are detected in a short time (indicating user might want to place a peak/baseline point)
 
