@@ -99,8 +99,8 @@ class PlotController(QObject):
     def load_spectrum(self, fnames):
         self.model.load_spectrum(fnames)
 
-    def del_spectrum(self, map, fnames):
-        self.model.del_spectrum(map, fnames)
+    def del_spectrum(self, items):
+        self.model.del_spectrum(items)
 
     def del_map(self, fname):
         self.model.del_map(fname)

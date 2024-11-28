@@ -49,21 +49,27 @@ class Model(QObject):
             self.spectra.append(spectrum)
             self.spectrumLoaded.emit(fname)
 
-    def del_spectrum(self, map_fname, fnames):
-        """Remove the spectrum(s) with the given file name(s)."""
+    def del_spectrum(self, items):
+        """Remove the spectrum(s) with the given file name(s).
+        
+        Args:
+            items (dict): A dictionary where keys can be None or a spectramap fname,
+                        and values are always a list of fname.
+        """
         deleted_spectra = defaultdict(list)
 
-        if map_fname:
-            parent = next((sm for sm in self.spectra.spectra_maps if sm.fname == map_fname), None)
-        else:
-            parent = self.spectra
-        
-        for fname in fnames:
-            spectrum = self.spectra.get_objects(fname, parent)[0]
-            parent.remove(spectrum)
+        for map_fname, fnames in items.items():
+            if map_fname:
+                parent = next((sm for sm in self.spectra.spectra_maps if sm.fname == map_fname), None)
+            else:
+                parent = self.spectra
+            
+            for fname in fnames:
+                spectrum = self.spectra.get_objects(fname, parent)[0]
+                parent.remove(spectrum)
 
-            parent_fname = getattr(parent, "fname", None)
-            deleted_spectra[parent_fname].append(fname)
+                parent_fname = getattr(parent, "fname", None)
+                deleted_spectra[parent_fname].append(fname)
 
         self.spectrumDeleted.emit(deleted_spectra)
 
@@ -348,11 +354,17 @@ class Model(QObject):
         self.refreshPlot.emit()
 
     def get_fit_models(self, delimiter):
+        def process_spectrum(spectrum, prefix=""):
+            model_dict = spectrum.save()
+            model_dict['baseline'].pop('y_eval', None)
+            fit_models[f"{prefix}{spectrum.fname}"] = model_dict
+
         fit_models = {}
         for spectramap in self.spectra.spectra_maps:
             for spectrum in spectramap:
-                fit_models[f"{spectramap.fname}{delimiter}{spectrum.fname}"] = spectrum.save()
+                process_spectrum(spectrum, f"{spectramap.fname}{delimiter}")
+
         for spectrum in self.spectra:
-            fit_models[spectrum.fname] = spectrum.save()
+            process_spectrum(spectrum)
 
         return fit_models

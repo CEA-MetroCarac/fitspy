@@ -104,8 +104,12 @@ class MainController(QObject):
         # Restore model attributes to each spectrum
         self.plot_controller.model.spectra.set_attributes(models)
 
-        # TODO CONFIRMATION DIALOG: IT NEEDS TO CONTINUE THE FUNCTION ONLY IF THE USER CLICKS YES (after self.clear only)
-        # self.show_confirmation_dialog("Loading saved work will clear the current environment. Do you want to proceed?", self.clear)
+        # Delete spectrum that are in spectrum list but not in models (deleted by user from map(s))
+        spectrum_ids = self.files_controller.get_all_spectrum_ids(DELIMITER)
+        items = [fname for fname in spectrum_ids if fname not in models]  # spectrum_ids to be deleted
+        if items:
+            items = self.files_controller.convert_spectrum_ids_to_dict(items, DELIMITER)
+            self.files_controller.remove_files(items)
 
         # Restore selection
         self.files_controller.set_selection(self.view.maps_list.list, selected['map'])
@@ -116,9 +120,10 @@ class MainController(QObject):
         self.files_controller.load_files(fnames)
 
     def save(self):
-        maps_list, spectrum_list = self.files_controller.get_all_fnames()
+        maps_list = self.files_controller.get_map_fnames()
+        spectrum_list = self.files_controller.get_spectrum_fnames()
         map, spectra = self.files_controller.get_full_selection()
-        fname = QFileDialog.getSaveFileName(None, "Save File", "", "Fitspy Workspace (*.fspy)")[0]
+        fname = QFileDialog.getSaveFileName(None, "Save File", "", TYPES.split(";;")[0])[0]
         if fname:
             # Getting the models of all spectrum objects
             fit_models = self.plot_controller.get_fit_models(DELIMITER)

@@ -43,7 +43,7 @@ TODO List
 
 TODO Base:
     Menubar:
-      - [ ] Implement CLEAR + SAVE GLOBAL STATE + OPEN GLOBAL STATE (drag n drop & open button should call same function)
+      - [x] Implement CLEAR + SAVE GLOBAL STATE + OPEN GLOBAL STATE (drag n drop & open button should call same function)
       - [ ] About + Manual (could redirect to sphinx doc)
     Peaks Table:
       - [ ] Add missing columns for some Peak Models
@@ -58,11 +58,9 @@ TODO Base:
       - [x] Add Label choice and plot update
 
 TODO Fixes:
-    - [ ] maps2d_plot.py not following MVC pattern, it should only contain view code
     - [ ] Manage callbacks when no files have been loaded (allow saving model, placing points, and baseline without loading spectra)
     - [ ] Normalization is messing with baseline/peaks_points and maybe more (for e.g. when applying normalization to a spectrum with a baseline, the baseline points are not normalized)
     - [ ] Baseline_points, empty Y if attached ?
-    - [ ] Toast bar is not visually moving when on_motion is constantly called (may be a pyqttoast issue), to test click fast on the plot while pan/zoom is active
     - [x] Icons color dont follow theme
     - [x] Spectrum list is disordered compared to the map. When browsing through the spectra in the list, it should traverse the map from top to bottom and left to right.
     - [x] Port updates commit 6d303df (main)
@@ -73,7 +71,8 @@ TODO Opti:
     - [ ] Optimize plotting by using setxdata and setydata instead of replotting the whole figure
 
 TODO Others:
-    - [ ] Explicit types in functions (e.g. `def func(arg: type) -> type:`)
+    - [ ] Inconsitencies in args names fnames vs files
+    - [ ] Explicit types in functions might be useful for maintainers(e.g. `def func(arg: type) -> type:`)
     - [ ] Change peak table colum _vary to _fixed
     - [ ] Save selected spectrum per spectramap to reselect it after spectramap change ?
     - [ ] Store model folder for next sessions in QSettings ?
@@ -88,6 +87,7 @@ TODO Others:
     - [ ] update paper/
 
 TODO Nice to Have:
+    - [ ] add a confirmation prompt before load_state to avoid erasing current work
     - [ ] update dynamically the 2D map figure during fitting
     - [ ] Fitspy Icon for taskbar
     - [ ] Plot Dark/Light theme `https://stackoverflow.com/questions/77748488/how-to-dynamically-change-the-sheet-type-theme-during-runtime`_

@@ -252,7 +252,10 @@ class Spectra(list):
 
     def set_attributes(self, models, delimiter="", map_name=""):
         for spectrum in self:
-            spectrum.set_attributes(models[f"{map_name}{delimiter}{spectrum.fname}"])
+            try:
+                spectrum.set_attributes(models[f"{map_name}{delimiter}{spectrum.fname}"])
+            except KeyError:
+                pass
         if hasattr(self, "spectra_maps"):
             for spectramap in self.spectra_maps:
                 spectramap.set_attributes(models, DELIMITER, spectramap.fname)

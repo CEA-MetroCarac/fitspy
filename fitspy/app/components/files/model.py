@@ -6,7 +6,7 @@ class Model(QObject):
     mapsListChanged = Signal()
     loadSpectraMap = Signal(str)
     loadSpectrum = Signal(list)
-    delSpectrum = Signal(object, list)
+    delSpectrum = Signal(dict)
     delSpectraMap = Signal(str)
     loadState = Signal(dict, dict)
     showToast = Signal(str, str, str)
@@ -40,7 +40,9 @@ class Model(QObject):
 
     def del_spectrum(self, items):
         """
-        Remove spectra from the model and emit signal.
+        Remove spectra from the model and emit signal. Should not be manually called,
+        this function is a called at the end of a signal chain to only reflect the deletion after the object is removed.
+        If you want to remove a spectrum, use remove_files() instead.
 
         Parameters:
         items (dict): A dictionary where keys can be None or a spectramap fname, 
@@ -126,15 +128,28 @@ class Model(QObject):
             self.load_spectramap_files(spectramap_files)
 
     def remove_files(self, files):
-        """Remove files from the model and emit signals if files are removed."""
+        """Remove files from the model and emit signals if files are removed.
+        
+        Args:
+            files (list or dict): A list of files or a dictionary where keys can be None or a spectramap fname,
+                                and values are always a list of fname.
+                                
+                                When passed as a list, it should only be used by the app itself because 
+                                when a user deletes spectrum from the list, we know these spectrum are 
+                                from the current map due to how the app is built. Otherwise, a dictionary 
+                                is necessary to identify each spectrum (whether it is from a map or not).
+        """
         if not files:
             print("No files selected for deletion.")
             return
 
-        if files[0] in self._spectramaps_fnames:  # Remove SpectraMap
-            self.delSpectraMap.emit(files[0])
-        else:
-            self.delSpectrum.emit(self.current_map, files)
+        if isinstance(files, list):
+            if files[0] in self._spectramaps_fnames:  # Remove SpectraMap
+                self.delSpectraMap.emit(files[0])
+            else:
+                self.delSpectrum.emit({self.current_map: files})
+        elif isinstance(files, dict):
+            self.delSpectrum.emit(files)
 
     def update_spectramap(self, map, fnames):
         """Update the spectramap with new filenames and emit signal."""

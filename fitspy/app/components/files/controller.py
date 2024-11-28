@@ -6,7 +6,7 @@ class FilesController(QObject):
     askConfirmation = Signal(str, object, tuple, dict)
     loadSpectrum = Signal(list)
     loadSpectraMap = Signal(str)
-    delSpectrum = Signal(object, list)
+    delSpectrum = Signal(dict)
     delSpectraMap = Signal(str)
     mapChanged = Signal(object)  # Can be a string or None
     spectraChanged = Signal(list)
@@ -126,11 +126,14 @@ class FilesController(QObject):
 
         if emit_marker and fnames and self.model.current_map:
             self.addMarker.emit(fnames[0])
+        
+    def remove_files(self, fnames):
+        self.model.remove_files(fnames)
 
     def remove_selected_files(self, list_widget):
         """Remove the currently selected files from the model."""
         selected_items = [item.text() for item in list_widget.selectedItems()]
-        self.model.remove_files(selected_items)
+        self.remove_files(selected_items)
 
     def update_spectramap(self, map_fname, fnames):
         """Update the lists widgets with the spectra related to the 2D-map."""
@@ -151,26 +154,60 @@ class FilesController(QObject):
                 break
 
     def get_selected_fnames(self):
+        """Return the selected filenames in the spectrum list."""
         return [item.text() for item in self.spectrum_list.list.selectedItems()]
     
     def get_selected_map_fname(self):
+        """Return the selected map filename."""
         return self.model.current_map
     
     def get_full_selection(self):
+        """Return the selected map filename and the selected spectrum filenames."""
         return self.get_selected_map_fname(), self.get_selected_fnames()
     
-    def get_fnames(self):
+    def get_spectrum_fnames(self, map_fname=None):
+        """Return the list of spectrum filenames for the given map filename."""
+        if map_fname:
+            return self.model.spectramaps_fnames[map_fname]
         return self.model.spectrum_fnames
     
     def get_map_fnames(self):
+        """Return the list of map filenames."""
         return list(self.model.spectramaps_fnames.keys())
     
-    def get_all_fnames(self):
-        return self.get_map_fnames(), self.get_fnames()
+    def get_all_spectrum_ids(self, delimiter):
+        """Return the list of all spectrum IDs across all maps.
+        
+        The format is: map_fname + delimiter + spectrum_fname.
+        """
+        all_spectrum_ids = []
+        map_fnames = self.get_map_fnames() + [None]  # Include None for spectrum without map
+        for map_fname in map_fnames:
+            spectrum_fnames = self.get_spectrum_fnames(map_fname)
+            for spectrum_fname in spectrum_fnames:
+                all_spectrum_ids.append(f"{map_fname}{delimiter}{spectrum_fname}")
+        return all_spectrum_ids
+    
+    def convert_spectrum_ids_to_dict(self, spectrum_ids, delimiter):
+        """Convert a list of spectrum IDs into a dictionary.
+        
+        The dictionary format is: {map_fname: [spectrum_fname, ...], ...}
+        """
+        spectrum_dict = {}
+        for spectrum_id in spectrum_ids:
+            if delimiter in spectrum_id:
+                map_fname, spectrum_fname = spectrum_id.split(delimiter)
+            else:
+                map_fname, spectrum_fname = None, spectrum_id
+            
+            if map_fname not in spectrum_dict:
+                spectrum_dict[map_fname] = []
+            spectrum_dict[map_fname].append(spectrum_fname)
+        return spectrum_dict
     
     def set_selection(self, list_widget, selection_list, emit_signal=True):
         if not isinstance(selection_list, list):
-            selection_list = []
+            selection_list = [selection_list]
 
         list_widget.blockSignals(True)
         list_widget.clearSelection()
@@ -185,10 +222,12 @@ class FilesController(QObject):
             list_widget.itemSelectionChanged.emit()
     
     def clear(self):
-        # Del Maps
-        fnames = list(self.model.spectramaps_fnames.keys())
-        self.del_map(fnames)
-
-        # Del Independents Spectrum
-        fnames = self.model.spectrum_fnames
-        self.del_spectrum(fnames)
+        map_fnames = list(self.model.spectramaps_fnames.keys())  # Maps
+        fnames = self.model.spectrum_fnames  # Independents Spectrum
+            
+        # Using remove_files acts as if the user would manually delete everything
+        # thus, the signals to delete the spectrum objects associated to files are emitted
+        for map in map_fnames:
+            self.remove_files([map])
+        if fnames:
+            self.remove_files(fnames)
