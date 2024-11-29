@@ -42,6 +42,7 @@ TODO List
 ---------
 
 TODO Base:
+    - [ ] Update save/load mechanisms to include data or not based on 'save spectrum file path only' checkbox state
     Menubar:
       - [x] Implement CLEAR + SAVE GLOBAL STATE + OPEN GLOBAL STATE (drag n drop & open button should call same function)
       - [ ] About + Manual (could redirect to sphinx doc)
@@ -94,6 +95,7 @@ TODO Nice to Have:
     - [ ] Idea : scroll on plot to edit nearest peak bounds
     - [ ] Automatically re-open last saved .fspy workspace
     - [ ] Add a button to copy 2D Map in clipboard ? (add mpl toolbar ?)
+    - [x] Add shortcuts for menu actions
     - [x] Warn user to disable pan/zoom if 3 clicks are detected in a short time (indicating user might want to place a peak/baseline point)
 
 TODO Production:

@@ -33,17 +33,21 @@ class MenuBar(QToolBar):
         self.actionOpen = QAction(
             self,
             icon=QIcon(get_icon_path("icons8-folder-96.png")),
-            toolTip="Open spectra data, saved work or Excel file",
+            toolTip="Open spectra data, saved work or Excel file (Ctrl+O)",
+            shortcut="Ctrl+O",
         )
         self.actionSave = QAction(
             self,
             icon=QIcon(get_icon_path("save.png")),
-            toolTip="Save current work",
+            toolTip="Save current work (Ctrl+S)",
+            shortcut="Ctrl+S",
         )
         self.actionClearEnv = QAction(
             self,
             icon=QIcon(get_icon_path("clear.png")),
-            toolTip="Clear the environment",
+            toolTip="Clear the environment (Ctrl+Shift+C)",
+            shortcut="Ctrl+Shift+C",
+            
         )
         self.actionRestoreDefaults = QAction(
             self,
