@@ -196,10 +196,10 @@ class FilesController(QObject):
         """
         spectrum_dict = {}
         for spectrum_id in spectrum_ids:
-            if delimiter in spectrum_id:
-                map_fname, spectrum_fname = spectrum_id.split(delimiter)
-            else:
-                map_fname, spectrum_fname = None, spectrum_id
+            map_fname, spectrum_fname = spectrum_id.split(delimiter)
+            
+            if map_fname == 'None':
+                map_fname = 'None'
             
             if map_fname not in spectrum_dict:
                 spectrum_dict[map_fname] = []

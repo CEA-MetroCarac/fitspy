@@ -210,6 +210,9 @@ class PlotController(QObject):
         spectrum.set_attributes(peaks)
         self.update_spectraplot()
 
+    def set_spectra_attributes(self, models):
+        self.model.spectra.set_attributes(models)
+
     def fit(self, model_dict, ncpus):
         fit_params = model_dict.get('fit_params', {})
         fnames = [spectrum.fname for spectrum in self.model.current_spectrum]

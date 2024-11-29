@@ -365,6 +365,6 @@ class Model(QObject):
                 process_spectrum(spectrum, f"{spectramap.fname}{delimiter}")
 
         for spectrum in self.spectra:
-            process_spectrum(spectrum)
+            process_spectrum(spectrum, f"None{delimiter}")
 
         return fit_models

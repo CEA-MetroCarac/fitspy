@@ -118,9 +118,8 @@ class Model(QObject):
         spectrum_files = []
         spectramap_files = []
 
-        # if a saved work is loaded, no need to continue
         files = self.load_saved_work(files)
-        if not files:
+        if not files:  # if all files have been loaded, no need to continue
             return
 
         for file in files:

@@ -102,7 +102,7 @@ class MainController(QObject):
 
     def load_state(self, selected, models):
         # Restore model attributes to each spectrum
-        self.plot_controller.model.spectra.set_attributes(models)
+        self.plot_controller.set_spectra_attributes(models)
 
         # Delete spectrum that are in spectrum list but not in models (deleted by user from map(s))
         spectrum_ids = self.files_controller.get_all_spectrum_ids(DELIMITER)
