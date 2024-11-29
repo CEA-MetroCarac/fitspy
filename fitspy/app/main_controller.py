@@ -61,6 +61,7 @@ class MainController(QObject):
         self.plot_controller.baselinePointsChanged.connect(self.settings_controller.set_baseline_points)
         self.plot_controller.PeaksChanged.connect(self.settings_controller.update_peaks_table)
         self.plot_controller.progressUpdated.connect(self.update_progress)
+        self.plot_controller.exportCSV.connect(self.export_to_csv)
 
         self.settings_controller.showToast.connect(self.show_toast)
         self.settings_controller.settingChanged.connect(self.set_setting)
@@ -251,3 +252,21 @@ class MainController(QObject):
             self.view.statusBox.progressLabel.setText(f"{spectra.pbar_index}/{nfiles}")
             self.view.statusBox.progressBar.setValue(percent)
             QApplication.processEvents()
+
+    def export_to_csv(self, spectramap):
+        from pathlib import Path
+
+        fname = Path(spectramap.fname).stem
+        var = self.view.measurement_sites.get_current_title()
+
+        if "Intensity" in var:
+            fname += "_intensity"
+        else:
+            label = getattr(spectramap, 'label', None)
+            fname += f"_{var}_{label.get()}" if label else f"_{var}"
+
+        fname = QFileDialog.getSaveFileName(None, "Save File", f"{fname}.csv", "CSV Files (*.csv)")[0]
+
+        if fname:
+            spectramap.export_to_csv(fname)
+            self.show_toast("SUCCESS", "Exported", f"{fname} has been saved.")

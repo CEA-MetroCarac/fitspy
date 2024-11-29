@@ -204,6 +204,8 @@ class Map2DPlot(QMainWindow):
 
     def update_labels(self, spectramap):
         labels = self.collect_unique_labels(spectramap)
+        if labels:
+            spectramap.label = labels[0]
         self.update_combo_box(labels)
 
     def update_combo_box(self, labels):
@@ -226,6 +228,9 @@ class Map2DPlot(QMainWindow):
         if not np.all(np.isnan(spectramap.arr)):
             current_tab.vrange_slider.setRange(rvmin, rvmax)
             current_tab.vrange_slider.setValue((rvmin, rvmax))
+
+    def get_current_title(self):
+        return self.tab_widget.tabText(self.tab_widget.currentIndex())
 
 
 if __name__ == "__main__":

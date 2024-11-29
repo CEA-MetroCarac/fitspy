@@ -54,7 +54,7 @@ TODO Base:
     Toolbar:
       - [x] Add checkbox “preserve axis” (= preserve zoom)
     2DMap:
-      - [ ] Implement back export .csv
+      - [x] Implement back export .csv
       - [x] Implement Min/Max (replace with a DoubleRangedSlider ?)
       - [x] Add Label choice and plot update
 
