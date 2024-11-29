@@ -109,12 +109,10 @@ class OtherSettings(QGroupBox):
         self.outliers_removal.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
         hbox.addWidget(self.outliers_removal)
 
-        hbox_2 = QHBoxLayout()
         self.save_only_path = QCheckBox("Save spectrum file path only", toolTip="If unchecked, saves the spectrum data")
-        hbox_2.addWidget(self.save_only_path)
 
         vbox.addLayout(hbox)
-        vbox.addLayout(hbox_2)
+        vbox.addWidget(self.save_only_path)
         self.setLayout(vbox)
 
 class MoreSettings(QWidget):

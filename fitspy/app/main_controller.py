@@ -137,6 +137,10 @@ class MainController(QObject):
             save_to_json(fname, data)
 
     def clear(self):
+        if self.files_controller.get_all_spectrum_ids(DELIMITER):
+            if not self.show_confirmation_dialog("Current work will be cleared. Continue ?"):
+                return
+
         # Remove all spectra and maps
         self.files_controller.clear()
 

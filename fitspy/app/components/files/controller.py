@@ -33,6 +33,7 @@ class FilesController(QObject):
         self.model.spectrumListChanged.connect(self.update_spectrum_list)
         self.model.mapsListChanged.connect(lambda: self.update_list_widget(self.maps_list.list, self.model.spectramaps_fnames))
         self.model.loadState.connect(self.loadState)
+        self.model.clear.connect(self.clear)
 
         self.spectrum_list.list.filesDropped.connect(self.load_files)
         self.spectrum_list.list.itemSelectionChanged.connect(lambda: self.update_selection(self.spectrum_list.list, self.spectrum_list.count_label))

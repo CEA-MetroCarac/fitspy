@@ -11,6 +11,7 @@ class Model(QObject):
     loadState = Signal(dict, dict)
     showToast = Signal(str, str, str)
     askConfirmation = Signal(str, object, tuple, dict)
+    clear = Signal()
 
     def __init__(self):
         super().__init__()
@@ -66,6 +67,12 @@ class Model(QObject):
 
     def load_saved_work(self, files):
         """Load saved work if a .fspy file is present."""
+        def handle_loading(data):
+            self.clear.emit()
+            self.load_files(data['files']['spectrum_list'] + data['files']['maps_list'])
+            self.loadState.emit(data['selected'], data['models'])
+            self.showToast.emit("SUCCESS", "Work loaded.", "")
+
         if isinstance(files, str):
             files = [files]
         elif not isinstance(files, list):
@@ -74,20 +81,20 @@ class Model(QObject):
         fitspy_files = [f for f in files if f.endswith('.fspy')]
 
         if len(fitspy_files) == 1:
-            self.showToast.emit("SUCCESS", "Work loaded.", "")
             fitspy_file = fitspy_files[0]
             files.remove(fitspy_file)
             data = load_from_json(fitspy_file)
-            self.load_files(data['files']['spectrum_list'] + data['files']['maps_list'])
-            self.loadState.emit(data['selected'], data['models'])
-            return True, files
+            # No confirmation needed if workspace is empty
+            if not self.spectramaps_fnames and not self.spectrum_fnames:
+                handle_loading(data)
+            else:
+                self.askConfirmation.emit("Loading .fspy work will replace current work. Continue ?", lambda: handle_loading(data), (), {})
 
         if len(fitspy_files) > 1:
             self.showToast.emit("WARNING", "Only one work can be loaded at a time.", "Please select only one .fspy file or .json/.txt files.")
             files = [f for f in files if f not in fitspy_files]
-            return False, files
 
-        return False, files
+        return files
 
     def load_spectrum_files(self, files):
         """Load spectrum files and emit signal if new files are added."""
@@ -112,8 +119,8 @@ class Model(QObject):
         spectramap_files = []
 
         # if a saved work is loaded, no need to continue
-        success, files = self.load_saved_work(files)
-        if success or not files:
+        files = self.load_saved_work(files)
+        if not files:
             return
 
         for file in files:
