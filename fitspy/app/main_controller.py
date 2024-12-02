@@ -133,8 +133,15 @@ class MainController(QObject):
                 'files': {'maps_list': maps_list,
                           'spectrum_list': spectrum_list},
                 'selected': {'map': map, 'spectra': spectra},
-                'models': fit_models
+                'models': fit_models,
+                'data': {}
             }
+
+            if not self.model.save_only_path:
+                spectrum_ids = list(data['models'].keys())
+                for id in spectrum_ids:
+                    data['data'][id] = self.plot_controller.model.get_spectrum_by_id(id, DELIMITER).compress()
+
             save_to_json(fname, data)
 
     def clear(self):

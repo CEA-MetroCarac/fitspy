@@ -4,6 +4,7 @@ utilities functions
 import os
 import re
 import json
+import base64, zlib
 from pathlib import Path
 import importlib
 import itertools
@@ -295,3 +296,13 @@ def eval_noise_amplitude(y):
     mask = np.sign(delta1) * np.sign(delta2) == -1
     ampli_noise = np.median(np.abs(delta1[mask] - delta2[mask]) / 2)
     return ampli_noise
+
+def compress(array):
+    """Compress and encode a numpy array to a base64 string."""
+    compressed = zlib.compress(array.tobytes())
+    return base64.b64encode(compressed).decode()
+
+def decompress(string, dtype=np.float64):
+    """Decode and decompress a base64 string to a numpy array."""
+    compressed = base64.b64decode(string)
+    return np.frombuffer(zlib.decompress(compressed), dtype=dtype)

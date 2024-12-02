@@ -17,6 +17,7 @@ from lmfit.models import ConstantModel, LinearModel, ParabolicModel, \
 from .utils import get_1d_profile
 from .utils import closest_index, fileparts, check_or_rename
 from .utils import save_to_json, load_from_json, eval_noise_amplitude
+from .utils import compress, decompress
 from .baseline import BaseLine
 
 
@@ -818,6 +819,24 @@ class Spectrum:
             save_to_json(fname_json, model_dict_json)
 
         return model_dict
+    
+    def compress(self):
+        """Compress the spectrum data."""
+        return {
+            'x0': compress(self.x0),
+            'y0': compress(self.y0)
+        }
+    
+    @staticmethod
+    def decompress(data):
+        """Decompress the spectrum data."""
+        x0 = decompress(data['x0'])
+        y0 = decompress(data['y0'])
+
+        spectrum = Spectrum()
+        spectrum.x0 = x0
+        spectrum.y0 = y0
+        return spectrum
 
     @staticmethod
     def load(fname_json, preprocess=False):

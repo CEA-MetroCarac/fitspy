@@ -368,3 +368,25 @@ class Model(QObject):
             process_spectrum(spectrum, f"None{delimiter}")
 
         return fit_models
+    
+    def get_spectrum_by_id(self, spectrum_id, delimiter):
+        """Get the spectrum object by its ID and delimiter."""
+        if delimiter not in spectrum_id:
+            raise ValueError(f"Delimiter '{delimiter}' not found in spectrum_id '{spectrum_id}'")
+        
+        map_fname, spectrum_fname = spectrum_id.split(delimiter)
+
+        if map_fname == "None":
+            map_fname = None
+
+        if map_fname:
+            parent = next((sm for sm in self.spectra.spectra_maps if sm.fname == map_fname), None)
+        else:
+            parent = self.spectra
+
+        if parent is None:
+            raise ValueError(f"Spectra map '{map_fname}' not found")
+        
+        spectrum, parent = self.spectra.get_objects(spectrum_fname, parent)
+
+        return spectrum
