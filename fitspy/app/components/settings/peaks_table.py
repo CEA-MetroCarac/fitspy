@@ -3,7 +3,7 @@ from PySide6.QtWidgets import (
     QCheckBox, QHeaderView, QWidget, QHBoxLayout
 )
 from PySide6.QtGui import QIcon
-from PySide6.QtCore import Signal
+from PySide6.QtCore import Qt, Signal
 
 from matplotlib.colors import rgb2hex
 import matplotlib.cm as cm
@@ -12,6 +12,14 @@ from fitspy.core import get_icon_path
 
 from .generic_table import GenericTable
 from .custom_spinbox import DoubleSpinBox
+
+MODEL_PARAMETERS = {
+    "gaussian": ["MIN | X0 | MAX", "X0_vary", "MIN | Ampli | MAX", "Ampli_vary", "MIN | FWHM | MAX", "FWHM_vary"],
+    "lorentzian": ["MIN | X0 | MAX", "X0_vary", "MIN | Ampli | MAX", "Ampli_vary", "MIN | FWHM | MAX", "FWHM_vary"],
+    "pseudovoigt": ["MIN | X0 | MAX", "X0_vary", "MIN | Ampli | MAX", "Ampli_vary", "MIN | FWHM | MAX", "FWHM_vary", "MIN | ALPHA | MAX", "Alpha_vary"],
+    "gaussianasym" : ["MIN | X0 | MAX", "X0_vary", "MIN | Ampli | MAX", "Ampli_vary", "MIN | FWHM_L | MAX", "FWHM_L_vary", "MIN | FWHM_R | MAX", "FWHM_R_vary"],
+    "lorentzianasym" : ["MIN | X0 | MAX", "X0_vary", "MIN | Ampli | MAX", "Ampli_vary", "MIN | FWHM_L | MAX", "FWHM_L_vary", "MIN | FWHM_R | MAX", "FWHM_R_vary"]
+}
 
 
 class SpinBoxGroupWithExpression(QWidget):
@@ -64,6 +72,29 @@ class SpinBoxGroupWithExpression(QWidget):
         self.min_spin_box.setVisible(show)
         self.max_spin_box.setVisible(show)
 
+class CenteredCheckBox(QWidget):
+    def __init__(self, checked=False, callback=None, parent=None):
+        super().__init__(parent)
+        self.layout = QHBoxLayout(self)
+        self.layout.setContentsMargins(0, 0, 0, 0)
+        self.layout.setSpacing(0)
+
+        self.checkbox = QCheckBox()
+        self.checkbox.setChecked(checked)
+        self.layout.addWidget(self.checkbox)
+        self.layout.setAlignment(self.checkbox, Qt.AlignCenter)
+
+        if callback:
+            self.checkbox.stateChanged.connect(callback)
+
+    def __getattr__(self, name):
+        return getattr(self.checkbox, name)
+
+    def isChecked(self):
+        return self.checkbox.isChecked()
+    
+    def setChecked(self, checked):
+        self.checkbox.setChecked(checked)
 
 class PeaksTable(QGroupBox):
     peaksChanged = Signal(dict)
@@ -73,6 +104,8 @@ class PeaksTable(QGroupBox):
         super().__init__(parent)
         self.initUI()
         self.cmap = cm.get_cmap("tab10")
+        self.show_bounds_state = None
+        self.show_expr_state = None
 
     def initUI(self):
         self.setTitle("Peak table")
@@ -85,13 +118,7 @@ class PeaksTable(QGroupBox):
             columns={
                 "Prefix": QLabel,
                 "Label": QLineEdit,
-                "Model": QComboBox,
-                "MIN | X0 | MAX": SpinBoxGroupWithExpression,
-                "x0_vary": QCheckBox,
-                "MIN | Ampli | MAX": SpinBoxGroupWithExpression,
-                "Ampli_vary": QCheckBox,
-                "MIN | FWHM | MAX": SpinBoxGroupWithExpression,
-                "FWHM_vary": QCheckBox
+                "Model": QComboBox
             }
         )
         self.show_bounds(False)
@@ -106,16 +133,13 @@ class PeaksTable(QGroupBox):
     
     def get_peaks(self):
         def get_widget_value(row, column_name):
-            widget = self.table.cellWidget(row, self.table.get_column_index(column_name))         
+            # case insensitive search
+            column_names = [col_name.lower() for col_name in self.table.columns]   
+            widget = self.table.cellWidget(row, column_names.index(column_name.lower()))
 
             if isinstance(widget, SpinBoxGroupWithExpression):
                 return widget.get_values()
-            elif isinstance(widget, QWidget):
-                layout = widget.layout()
-                if layout is not None and layout.count() == 1:
-                    widget = layout.itemAt(0).widget()
-            
-            if isinstance(widget, QCheckBox):
+            elif isinstance(widget, CenteredCheckBox):
                 return widget.isChecked()
             elif hasattr(widget, 'value'):
                 return widget.value()
@@ -142,34 +166,23 @@ class PeaksTable(QGroupBox):
             if model_name not in peak_models[row]:
                 peak_models[row][model_name] = {}
 
-            ampli = get_widget_value(row, "MIN | Ampli | MAX")
-            x0 = get_widget_value(row, "MIN | X0 | MAX")
-            fwhm = get_widget_value(row, "MIN | FWHM | MAX")
-
-            peak_models[row][model_name]['ampli'] = {
-                'min': ampli['min'],
-                'max': ampli['max'],
-                'value': ampli['value'],
-                'vary': get_widget_value(row, "Ampli_vary"),
-                'expr': ampli['expr']
-            }
-            peak_models[row][model_name]['x0'] = {
-                'min': x0['min'],
-                'max': x0['max'],
-                'value': x0['value'],
-                'vary': get_widget_value(row, "x0_vary"),
-                'expr': x0['expr']
-            }
-            peak_models[row][model_name]['fwhm'] = {
-                'min': fwhm['min'],
-                'max': fwhm['max'],
-                'value': fwhm['value'],
-                'vary': get_widget_value(row, "FWHM_vary"),
-                'expr': fwhm['expr']
-            }
+            params = MODEL_PARAMETERS[model_name.lower()]
+            for param in params:
+                if 'MIN |' and '| MAX' in param:
+                    param_name = param.split(' | ')[1].lower()
+                    param_dict = get_widget_value(row, param)
+                    peak_models[row][model_name][param_name] = {
+                        'min': param_dict['min'],
+                        'max': param_dict['max'],
+                        'value': param_dict['value'],
+                        'vary': get_widget_value(row, f"{param_name}_vary"),
+                        'expr': param_dict['expr']
+                    }
         return peaks
     
     def emit_peaks_changed(self):
+        self.update_columns_based_on_model()
+
         peaks = self.get_peaks()
         
         # if there is a peak with incorrect bounds, show a warning and return
@@ -185,26 +198,75 @@ class PeaksTable(QGroupBox):
 
         self.peaksChanged.emit(peaks)
 
+    def create_spin_box_group_with_expr(self, min_value=0, value=0, max_value=0, expr=''):
+        widget = SpinBoxGroupWithExpression(min_value, value, max_value, expr)
+        widget.min_spin_box.editingFinished.connect(self.emit_peaks_changed)
+        widget.value_spin_box.editingFinished.connect(self.emit_peaks_changed)
+        widget.max_spin_box.editingFinished.connect(self.emit_peaks_changed)
+        widget.expr_edit.editingFinished.connect(self.emit_peaks_changed)
+        widget.show_bounds(self.show_bounds_state)
+        widget.show_expr(self.show_expr_state)
+        return widget
+
+    def update_columns_based_on_model(self):
+        required_columns = ["Prefix", "Label", "Model"]
+
+        # Getting additional required columns based on used models
+        for row in range(self.table.rowCount()):
+            model_name = self.table.cellWidget(row, self.table.get_column_index("Model")).currentText().lower()
+            parameters = MODEL_PARAMETERS.get(model_name, [])
+            required_columns.extend(parameters)
+
+        # Remove unnecessary columns
+        for column in list(self.table.columns.keys()):
+            if column not in required_columns:
+                self.table.remove_column(column)
+
+        # Add missing columns
+        for column in required_columns:
+            if column not in self.table.columns:
+                if "MIN" in column and "MAX" in column:
+                    self.table.add_column(column, SpinBoxGroupWithExpression)
+                elif column.endswith("_vary"):
+                    self.table.add_column(column, CenteredCheckBox)
+                else:
+                    self.table.add_column(column, QLabel)
+
+        # Update each row
+        for row in range(self.table.rowCount()):
+            model_name = self.table.cellWidget(row, self.table.get_column_index("Model")).currentText().lower()
+            parameters = MODEL_PARAMETERS.get(model_name, [])
+
+            # Set widgets for required parameters
+            for param in parameters:
+                widget = self.table.cellWidget(row, self.table.get_column_index(param))
+                if widget is None or isinstance(widget, QWidget) and not widget.children():
+                    if "MIN |" in param and "| MAX" in param:
+                        existing_widget = self.table.cellWidget(row, self.table.get_column_index(param))
+                        if not isinstance(existing_widget, SpinBoxGroupWithExpression):
+                            widget = self.create_spin_box_group_with_expr()
+                            self.table.setCellWidget(row, self.table.get_column_index(param), widget)
+                    elif param.endswith("_vary"):
+                        existing_widget = self.table.cellWidget(row, self.table.get_column_index(param))
+                        if not isinstance(existing_widget, CenteredCheckBox):
+                            widget = CenteredCheckBox(callback=self.emit_peaks_changed)
+                            self.table.setCellWidget(row, self.table.get_column_index(param), widget)
+
+            # Remove widgets for parameters not required by the model
+            for column in self.table.columns:
+                if column not in ["Prefix", "Label", "Model"] + parameters:
+                    empty_widget = QWidget()
+                    self.table.setCellWidget(row, self.table.get_column_index(column), empty_widget)
+
+        self.table.resizeRowsToContents()
+       
+
     def clear(self):
         self.table.clear()
 
     def add_row(self, show_bounds, show_expr, **params):
-        def create_spin_box_group_with_expr(min_value=None, value=None, max_value=None, expr=None):
-            widget = SpinBoxGroupWithExpression(min_value, value, max_value, expr)
-            widget.min_spin_box.editingFinished.connect(self.emit_peaks_changed)
-            widget.value_spin_box.editingFinished.connect(self.emit_peaks_changed)
-            widget.max_spin_box.editingFinished.connect(self.emit_peaks_changed)
-            widget.expr_edit.editingFinished.connect(self.emit_peaks_changed)
-            widget.show_bounds(show_bounds)
-            widget.show_expr(show_expr)
-            return widget
-
-        def create_checkbox(checked=False):
-            checkbox = QCheckBox()
-            checkbox.setChecked(checked)
-            checkbox.stateChanged.connect(self.emit_peaks_changed)
-            return checkbox
-
+        self.show_bounds_state = show_bounds
+        self.show_expr_state = show_expr
         prefix_btn = QPushButton(
             text=params["prefix"],
             icon=QIcon(get_icon_path('close.png')),
@@ -223,29 +285,44 @@ class PeaksTable(QGroupBox):
         model_combo.setCurrentText(params["model_name"])
         model_combo.currentIndexChanged.connect(self.emit_peaks_changed)
 
-        x0_widget = create_spin_box_group_with_expr(params["x0_min"], params["x0"], params["x0_max"])
-        x0_vary_checkbox = create_checkbox(params["x0_vary"])
-
-        ampli_widget = create_spin_box_group_with_expr(params["ampli_min"], params["ampli"], params["ampli_max"])
-        ampli_vary_checkbox = create_checkbox(params["ampli_vary"])
-
-        fwhm_widget = create_spin_box_group_with_expr(params["fwhm_min"], params["fwhm"], params["fwhm_max"])
-        fwhm_vary_checkbox = create_checkbox(params["fwhm_vary"])
-
         row_widgets = {
-            "Prefix": prefix_btn,
-            "Label": label_edit,
-            "Model": model_combo,
-            "MIN | X0 | MAX": x0_widget,
-            "x0_vary": x0_vary_checkbox,
-            "MIN | Ampli | MAX": ampli_widget,
-            "Ampli_vary": ampli_vary_checkbox,
-            "MIN | FWHM | MAX": fwhm_widget,
-            "FWHM_vary": fwhm_vary_checkbox
+        "Prefix": prefix_btn,
+        "Label": label_edit,
+        "Model": model_combo
         }
 
+        model_name = params["model_name"].lower()
+        parameters = MODEL_PARAMETERS.get(model_name, [])
+
+        for param in parameters:
+            # Getting min, value, max and expr values
+            if "MIN |" in param and "| MAX" in param:
+                param_key = param.split('|')[1].strip().lower()
+                min_value = params.get(f"{param_key}_min")
+                value = params.get(f"{param_key}")
+                max_value = params.get(f"{param_key}_max")
+                expr = params.get(f"{param_key}_expr")
+                widget = self.create_spin_box_group_with_expr(min_value, value, max_value, expr)
+                widget.show_bounds(show_bounds)
+                widget.show_expr(show_expr)
+                row_widgets[param] = widget
+            elif param.endswith("_vary"):
+                checked = params.get(param, False)
+                widget = CenteredCheckBox(checked, callback=self.emit_peaks_changed)
+                row_widgets[param] = widget
+
+        # Ensure all columns are added to the table
+        for column in row_widgets.keys():
+            if column not in self.table.columns:
+                if "MIN |" in column and "| MAX" in column:
+                    self.table.add_column(column, SpinBoxGroupWithExpression)
+                elif column.endswith("_vary"):
+                    self.table.add_column(column, CenteredCheckBox)
+                else:
+                    self.table.add_column(column, type(row_widgets[column]))
+
         self.table.add_row(**row_widgets)
-        self.table.resizeRowsToContents()
+        self.update_columns_based_on_model()
 
     def update_prefix_colors(self):
         for row in range(self.table.rowCount()):
@@ -255,21 +332,23 @@ class PeaksTable(QGroupBox):
 
     def show_bounds(self, show):
         for row in range(self.table.rowCount()):
-            for column_name in ["MIN | X0 | MAX", "MIN | Ampli | MAX", "MIN | FWHM | MAX"]:
-                widget = self.table.cellWidget(row, self.table.get_column_index(column_name))
-                if isinstance(widget, SpinBoxGroupWithExpression):
-                    widget.show_bounds(show)
-
-        header = self.table.horizontalHeader()
+            for column_name in self.table.columns:
+                if "MIN |" in column_name and "| MAX" in column_name:
+                    widget = self.table.cellWidget(row, self.table.get_column_index(column_name))
+                    if isinstance(widget, SpinBoxGroupWithExpression):
+                        widget.show_bounds(show)
+        self.show_bounds_state = show
         if show:
-            header.setSectionResizeMode(QHeaderView.ResizeToContents)
+            self.table.set_header_resize_mode(QHeaderView.ResizeToContents)
         else:
-            header.setSectionResizeMode(QHeaderView.Stretch)
+            self.table.set_header_resize_mode(QHeaderView.Stretch)
 
     def show_expr(self, show):
         for row in range(self.table.rowCount()):
-            for column_name in ["MIN | X0 | MAX", "MIN | Ampli | MAX", "MIN | FWHM | MAX"]:
-                widget = self.table.cellWidget(row, self.table.get_column_index(column_name))
-                if isinstance(widget, SpinBoxGroupWithExpression):
-                    widget.show_expr(show)
+            for column_name in self.table.columns:
+                if "MIN |" in column_name and "| MAX" in column_name:
+                    widget = self.table.cellWidget(row, self.table.get_column_index(column_name))
+                    if isinstance(widget, SpinBoxGroupWithExpression):
+                        widget.show_expr(show)
             self.table.resizeRowsToContents()
+        self.show_expr_state = show

@@ -238,34 +238,28 @@ class SettingsController(QObject):
 
         def extract_params(param_dict):
             return {
-                "min": param_dict["min"],
-                "value": param_dict["value"],
-                "max": param_dict["max"],
-                "vary": param_dict["vary"]
-            }
+            "min": param_dict.get("min"),
+            "value": param_dict.get("value"),
+            "max": param_dict.get("max"),
+            "vary": param_dict.get("vary"),
+            # "expr": param_dict.get("expr"),
+        }
 
         def add_row_from_params(prefix, label, model_name, params):
-            x0_params = extract_params(params["x0"])
-            ampli_params = extract_params(params["ampli"])
-            fwhm_params = extract_params(params["fwhm"])
-
             row_params = {
-                "prefix": prefix,
-                "label": label,
-                "model_name": model_name,
-                "x0_min": x0_params["min"],
-                "x0": x0_params["value"],
-                "x0_max": x0_params["max"],
-                "x0_vary": x0_params["vary"],
-                "ampli_min": ampli_params["min"],
-                "ampli": ampli_params["value"],
-                "ampli_max": ampli_params["max"],
-                "ampli_vary": ampli_params["vary"],
-                "fwhm_min": fwhm_params["min"],
-                "fwhm": fwhm_params["value"],
-                "fwhm_max": fwhm_params["max"],
-                "fwhm_vary": fwhm_params["vary"]
+            "prefix": prefix,
+            "label": label,
+            "model_name": model_name,
             }
+
+            for param_name, param_data in params.items():
+                param_values = extract_params(param_data)
+                param_key = param_name.lower()
+                row_params[f"{param_key}_min"] = param_values.get("min")
+                row_params[param_key] = param_values.get("value")
+                row_params[f"{param_key}_max"] = param_values.get("max")
+                row_params[f"{param_key}_vary"] = param_values.get("vary")
+                # row_params[f"{param_key}_expr"] = param_values.get("expr")
 
             show_bounds = self.model_builder.bounds_chbox.isChecked()
             show_expr = self.model_builder.expr_chbox.isChecked()

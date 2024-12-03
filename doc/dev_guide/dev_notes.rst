@@ -42,14 +42,14 @@ TODO List
 ---------
 
 TODO Base:
-    - [ ] Update save/load mechanisms to include data or not based on 'save spectrum file path only' checkbox state
+    - [ ] restore spectrum colorize_from_fit_status
     Menubar:
       - [x] Implement CLEAR + SAVE GLOBAL STATE + OPEN GLOBAL STATE (drag n drop & open button should call same function)
       - [ ] About + Manual (could redirect to sphinx doc)
     Peaks Table:
-      - [ ] Add missing columns for some Peak Models
       - [ ] Add background parameters (in table or elsewhere in GUI)
-      - [ ] (VIEW DONE) Implement expressions
+      - [x] Add missing columns for some Peak Models
+      - [x] Implement expressions
       - [x] User Warning for incorrect bounds
     Toolbar:
       - [x] Add checkbox “preserve axis” (= preserve zoom)
@@ -59,6 +59,7 @@ TODO Base:
       - [x] Add Label choice and plot update
 
 TODO Fixes:
+    - [ ] Peaks labels can sometimes overflow the plot
     - [ ] Manage callbacks when no files have been loaded (allow saving model, placing points, and baseline without loading spectra)
     - [ ] Normalization is messing with baseline/peaks_points and maybe more (for e.g. when applying normalization to a spectrum with a baseline, the baseline points are not normalized)
     - [ ] Baseline_points, empty Y if attached ?
@@ -69,9 +70,10 @@ TODO Fixes:
 TODO Opti:
     - [ ] MULTIPROC BASELINE via apply_model ?
     - [ ] Useless calls to apply_model at start ? `settings_controller.py > apply_model(self, fit_model)`_
-    - [ ] Optimize plotting by using setxdata and setydata instead of replotting the whole figure
+    - [ ] Optimize plotting (setxdata and setydata instead of replotting the whole figure ?)
 
 TODO Others:
+    - [ ] Defaults values for peaks (and maybe more) may be irrelevant depending on data's nature
     - [ ] Inconsitencies in args names fnames vs files
     - [ ] Explicit types in functions might be useful for maintainers(e.g. `def func(arg: type) -> type:`)
     - [ ] Change peak table colum _vary to _fixed
@@ -88,12 +90,13 @@ TODO Others:
     - [ ] update paper/
 
 TODO Nice to Have:
+    - [ ] Multirow-edit for peaks settings (see https://stackoverflow.com/questions/14586715/how-can-i-achieve-to-update-multiple-rows-in-a-qtableview)
+    - [ ] Update save/load mechanisms to include data or not based on 'save spectrum file path only' checkbox state
     - [ ] add a confirmation prompt before load_state to avoid erasing current work
     - [ ] update dynamically the 2D map figure during fitting
     - [ ] Fitspy Icon for taskbar
     - [ ] Plot Dark/Light theme `https://stackoverflow.com/questions/77748488/how-to-dynamically-change-the-sheet-type-theme-during-runtime`_
     - [ ] Idea : scroll on plot to edit nearest peak bounds
-    - [ ] Automatically re-open last saved .fspy workspace
     - [ ] Add a button to copy 2D Map in clipboard ? (add mpl toolbar ?)
     - [x] Add shortcuts for menu actions
     - [x] Warn user to disable pan/zoom if 3 clicks are detected in a short time (indicating user might want to place a peak/baseline point)

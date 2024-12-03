@@ -3,7 +3,7 @@ from lmfit.models import (ConstantModel, LinearModel, ParabolicModel,
 from .core.models import (gaussian, lorentzian, gaussian_asym, lorentzian_asym,
                            pseudovoigt)
 
-VERSION = "2024.8dev"
+VERSION = "2024.12dev"
 
 PEAK_MODELS = {"Gaussian": gaussian,
                "Lorentzian": lorentzian,

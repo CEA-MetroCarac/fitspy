@@ -54,6 +54,17 @@ pip install fitspy
 pip install git+https://github.com/CEA-MetroCarac/fitspy@pyside6
 ```
 
+<!-- after release
+```bash
+pip install git+https://github.com/CEA-MetroCarac/fitspy
+```
+
+and tkinter version:
+```bash
+pip install git+https://github.com/CEA-MetroCarac/fitspy@tkinter
+```
+ -->
+
 *(See the [documentation](https://cea-metrocarac.github.io/fitspy/doc/user_guide/intro.html#install-and-launching) for more details)*
 
 ## Tests and examples execution
