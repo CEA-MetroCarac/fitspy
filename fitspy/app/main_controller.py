@@ -75,6 +75,7 @@ class MainController(QObject):
         self.settings_controller.updatePeakModel.connect(self.plot_controller.update_peak_model)
         self.settings_controller.updatePeakModel.emit(self.view.fit_model_editor.model_settings.fitting.peak_model.currentText())
         self.settings_controller.setPeaks.connect(self.plot_controller.set_peaks)
+        self.settings_controller.setBkg.connect(self.plot_controller.set_bkg)
         self.settings_controller.fitRequested.connect(self.fit)
 
         app = QApplication.instance()
@@ -90,7 +91,6 @@ class MainController(QObject):
         self.view.more_settings.solver_settings.coef_noise.setValue(self.model.fit_params_coef_noise)
         self.view.more_settings.solver_settings.xtol.setValue(self.model.fit_params_xtol)
         self.view.more_settings.other_settings.outliers_coef.setValue(self.model.outliers_coef)
-        self.view.more_settings.other_settings.save_only_path.setChecked(self.model.save_only_path)
 
         if self.model.click_mode == "baseline":
             self.view.toolbar.baseline_radio.setChecked(True)

@@ -96,7 +96,7 @@ class CenteredCheckBox(QWidget):
     def setChecked(self, checked):
         self.checkbox.setChecked(checked)
 
-class PeaksTable(QGroupBox):
+class PeaksTable(QWidget):
     peaksChanged = Signal(dict)
     showToast = Signal(str, str, str)
 
@@ -108,9 +108,6 @@ class PeaksTable(QGroupBox):
         self.show_expr_state = None
 
     def initUI(self):
-        self.setTitle("Peak table")
-        self.setStyleSheet("QGroupBox { font-weight: bold; }")
-
         main_layout = QVBoxLayout(self)
         main_layout.setContentsMargins(0, 0, 0, 0)
 

@@ -215,6 +215,14 @@ class PlotController(QObject):
         spectrum.set_attributes(peaks)
         self.update_spectraplot()
 
+    def set_bkg(self, bkg):
+        if not self.model.current_spectrum:
+            return
+        for spectrum in self.model.current_spectrum:
+            spectrum.set_attributes(bkg)
+            
+        self.update_spectraplot()
+
     def set_spectra_attributes(self, models):
         self.model.spectra.set_attributes(models)
 

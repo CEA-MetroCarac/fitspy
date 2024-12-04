@@ -12,6 +12,7 @@ class BaselineTable(QGroupBox):
     def initUI(self):
         self.setTitle("Baseline table")
         self.setStyleSheet("QGroupBox { font-weight: bold; }")
+        self.setMaximumWidth(150)
 
         main_layout = QVBoxLayout(self)
         main_layout.setContentsMargins(5, 5, 5, 5)

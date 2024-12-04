@@ -43,11 +43,12 @@ TODO List
 
 TODO Base:
     - [x] restore spectrum colorize_from_fit_status
+    - [ ] Implement peaks model + bkg model load button
     Menubar:
       - [x] Implement CLEAR + SAVE GLOBAL STATE + OPEN GLOBAL STATE (drag n drop & open button should call same function)
       - [ ] About + Manual (could redirect to sphinx doc)
     Peaks Table:
-      - [ ] Add background parameters (in table or elsewhere in GUI)
+      - [x] Add background parameters (in table or elsewhere in GUI)
       - [x] Add missing columns for some Peak Models
       - [x] Implement expressions
       - [x] User Warning for incorrect bounds
@@ -68,6 +69,7 @@ TODO Fixes:
     - [x] Port updates commit 6d303df (main)
 
 TODO Opti:
+    - [ ] Refactor peaks_table.py + bkg_table.py by creating a new class
     - [ ] MULTIPROC BASELINE via apply_model ?
     - [ ] Useless calls to apply_model at start ? `settings_controller.py > apply_model(self, fit_model)`_
     - [ ] Optimize plotting (setxdata and setydata instead of replotting the whole figure ?)
@@ -92,6 +94,8 @@ TODO Others:
 
 TODO Nice to Have:
     - [ ] Multirow-edit for peaks settings (see https://stackoverflow.com/questions/14586715/how-can-i-achieve-to-update-multiple-rows-in-a-qtableview)
+    - [ ] See multiple spectrum with their baseline subtracted or not (need to redefine what to plot for secondary spectrum instead of just x0+y0)
+    - [ ] New View option 'subtract bkg' (see existing 'subtract baseline')
     - [ ] Update save/load mechanisms to include data or not based on 'save spectrum file path only' checkbox state
     - [ ] add a confirmation prompt before load_state to avoid erasing current work
     - [ ] update dynamically the 2D map figure during fitting

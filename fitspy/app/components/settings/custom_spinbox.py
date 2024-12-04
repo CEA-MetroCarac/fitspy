@@ -6,6 +6,7 @@ class DoubleSpinBox(QDoubleSpinBox):
         super().__init__(parent)
         self.empty_value = empty_value
         self.setMaximum(float("inf"))
+        self.setMinimum(-float("inf"))
         self.lineEdit().textChanged.connect(self.handle_empty_text)
 
     def handle_empty_text(self):

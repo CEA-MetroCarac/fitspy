@@ -18,7 +18,8 @@ class SettingsController(QObject):
     applySpectralRange = Signal(float, float)
     applyNormalization = Signal(bool, object, object)
     updatePeakModel = Signal(str)
-    setPeaks = Signal(object)
+    setPeaks = Signal(dict)
+    setBkg = Signal(dict)
     fitRequested = Signal(object)
     showToast = Signal(str, str, str)
 
@@ -73,8 +74,8 @@ class SettingsController(QObject):
         normalization.range_max.editingFinished.connect(self.apply_normalization)
 
         # Fitting settings
-        model_settings.fitting.peak_model.currentTextChanged.connect(self.updatePeakModel)
-        model_settings.fitting.background_model.currentTextChanged.connect(lambda: print("TODO Implement me"))
+        model_settings.fitting.peak_model.currentTextChanged.connect(self.switch_peak_model)
+        model_settings.fitting.background_model.currentTextChanged.connect(self.switch_bkg_model)
 
         # Save model
         model_settings.save.clicked.connect(self.save_model)
@@ -84,8 +85,12 @@ class SettingsController(QObject):
         self.model_builder.baseline_table.baselinePointsChanged.connect(self.set_baseline_points)
         self.model_builder.bounds_chbox.stateChanged.connect(self.model_builder.peaks_table.show_bounds)
         self.model_builder.expr_chbox.stateChanged.connect(self.model_builder.peaks_table.show_expr)
+        self.model_builder.bounds_chbox.stateChanged.connect(self.model_builder.bkg_table.show_bounds)
+        self.model_builder.expr_chbox.stateChanged.connect(self.model_builder.bkg_table.show_expr)
         self.model_builder.peaks_table.peaksChanged.connect(self.update_model_dict)
         self.model_builder.peaks_table.showToast.connect(self.showToast)
+        self.model_builder.bkg_table.bkgChanged.connect(self.update_model_dict)
+        self.model_builder.bkg_table.showToast.connect(self.showToast)
         self.model.baselinePointsChanged.connect(self.baselinePointsChanged)
         self.model.baselinePointsChanged.connect(self.model_builder.baseline_table.set_points)
 
@@ -119,10 +124,6 @@ class SettingsController(QObject):
         )
         self.other_settings.outliers_removal.clicked.connect(
             self.removeOutliers
-        )
-
-        self.other_settings.save_only_path.stateChanged.connect(
-            lambda state: self.settingChanged.emit("save_only_path", state == 2)
         )
 
     def update_and_emit(self, key, value):
@@ -159,6 +160,8 @@ class SettingsController(QObject):
 
         if 'peak_models' in model_dict or 'peak_label' in model_dict:
             self.setPeaks.emit(model_dict)
+        if 'bkg_model' in model_dict:
+            self.setBkg.emit(model_dict)
 
     def clear_model(self):
         self.model.current_fit_model = {}
@@ -324,3 +327,12 @@ class SettingsController(QObject):
             lock_inputs(False)
 
         self.apply_model(model)
+
+    def switch_peak_model(self, model_name):
+        self.model_builder.tab_widget.setCurrentIndex(0)
+        self.updatePeakModel.emit(model_name)
+
+    def switch_bkg_model(self, model_name):
+        self.model_builder.bkg_table.bkg_model = model_name
+        self.model_builder.bkg_table.update_columns_based_on_model()
+        self.model_builder.tab_widget.setCurrentIndex(1)

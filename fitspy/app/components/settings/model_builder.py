@@ -3,13 +3,15 @@ from PySide6.QtGui import QIcon
 from PySide6.QtCore import QSize
 from PySide6.QtWidgets import QRadioButton, QSlider, QVBoxLayout, \
     QHBoxLayout, QScrollArea, QPushButton, QCheckBox, QLabel, \
-    QWidget, QComboBox, QSpacerItem, QSizePolicy, QButtonGroup
+    QWidget, QComboBox, QSpacerItem, QSizePolicy, QButtonGroup, \
+    QTabWidget
 
 from superqt import QCollapsible
 from fitspy import PEAK_MODELS, BKG_MODELS
 from fitspy.core import get_icon_path
 from .custom_spinbox import SpinBox, DoubleSpinBox
 from .peaks_table import PeaksTable
+from .bkg_table import BkgTable
 from .baseline_table import BaselineTable
 
 
@@ -288,33 +290,48 @@ class ModelBuilder(QWidget):
 
     def initUI(self):
         self.model_settings = ModelSettings(self)
-        self.peaks_table = PeaksTable(self)
+        self.baseline_table = BaselineTable(self)
+        self.setupTabWidget()
+
         self.bounds_chbox = QCheckBox("Bounds")
         self.expr_chbox = QCheckBox("Expressions")
         self.bounds_chbox.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
         self.expr_chbox.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
         self.model_selector = ModelSelector(self)
-        self.baseline_table = BaselineTable(self)
-        self.baseline_table.setMaximumWidth(150)
+
+        hbox_layout = QHBoxLayout()
+        hbox_layout.addWidget(self.bounds_chbox)
+        hbox_layout.addWidget(self.expr_chbox)
+        hbox_layout.addWidget(self.model_selector)
+
+        vbox_layout = QVBoxLayout()
+        vbox_layout.setContentsMargins(0, 0, 0, 0)
+        vbox_layout.setSpacing(0)
+        vbox_layout.addWidget(self.tab_widget)
+        vbox_layout.addLayout(hbox_layout)
+
+        layout = QHBoxLayout(self)
+        layout.setContentsMargins(2, 2, 2, 2)
+        layout.setSpacing(0)
+        layout.addWidget(self.model_settings)
+        layout.addLayout(vbox_layout)
+        layout.addWidget(self.baseline_table)
+
+    def setupTabWidget(self):
+        self.tab_widget = QTabWidget()
+        tab_content = QWidget()
+        self.peaks_table = PeaksTable(self)
+        self.bkg_table = BkgTable(self)
 
         vbox_layout = QVBoxLayout()
         vbox_layout.setContentsMargins(0, 0, 0, 0)
         vbox_layout.setSpacing(0)
         vbox_layout.addWidget(self.peaks_table)
         vbox_layout.setStretch(0, 1)
+        tab_content.setLayout(vbox_layout)
 
-        hbox_layout = QHBoxLayout()
-        hbox_layout.setSpacing(0)
-        hbox_layout.addWidget(self.bounds_chbox)
-        hbox_layout.addWidget(self.expr_chbox)
-        hbox_layout.addWidget(self.model_selector)
-
-        vbox_layout.addLayout(hbox_layout)
-
-        layout = QHBoxLayout(self)
-        layout.addWidget(self.model_settings)
-        layout.addLayout(vbox_layout)
-        layout.addWidget(self.baseline_table)
+        self.tab_widget.addTab(tab_content, "Peaks Table")
+        self.tab_widget.addTab(self.bkg_table, "Bkg Model")
 
     def update_model(self, model):
         # Spectral range
