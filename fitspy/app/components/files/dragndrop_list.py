@@ -1,6 +1,6 @@
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import QListWidget, QAbstractItemView
-from PySide6.QtGui import QDragEnterEvent, QDropEvent, QDragLeaveEvent, QPainter, QPalette
+from PySide6.QtGui import QDragEnterEvent, QDropEvent, QDragLeaveEvent, QPainter, QPalette, QColor
 
 class DragAndDropList(QListWidget):
     filesDropped = Signal(list)
@@ -59,3 +59,15 @@ class DragAndDropList(QListWidget):
             painter.drawText(rect, Qt.AlignCenter, text)
 
             painter.restore()
+
+    def colorize_items(self, fnames=None, color=None):
+        if fnames is None:
+            fnames = [self.item(i).text() for i in range(self.count())]
+
+        for i in range(self.count()):
+            item = self.item(i)
+            if item.text() in fnames:
+                if color is None:
+                    item.setBackground(self.palette().base())
+                else:
+                    item.setBackground(QColor(color))

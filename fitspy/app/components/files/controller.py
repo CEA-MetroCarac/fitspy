@@ -206,6 +206,45 @@ class FilesController(QObject):
             spectrum_dict[map_fname].append(spectrum_fname)
         return spectrum_dict
     
+    def colorize_from_fit_status(self, fit_status: dict):
+        """
+        Colorize the items in the spectrum list based on the fit status.
+
+        Parameters:
+        fit_status (dict): A dictionary where keys are filenames (str) and values are lmfit.model.ModelResult objects.
+                        The ModelResult objects should have a 'success' attribute indicating the fit status.
+        """
+        if not fit_status:
+            # Colorize all items in white if fit_status is empty
+            self.spectrum_list.list.colorize_items()
+            return
+        # OTHER IDEA of implementation that works:
+        # for fname, result_fit in fit_status.items():
+        #     if hasattr(result_fit, 'success'):
+        #         color = 'green' if result_fit.success else 'orange'
+        #     else:
+        #         color = 'white'
+            
+        #     self.spectrum_list.list.colorize_items([fname], color)
+        color_groups = {
+            'green': [],
+            'orange': [],
+            None: []  # default bkg color
+        }
+
+        for fname, result_fit in fit_status.items():
+            if hasattr(result_fit, 'success'):
+                if result_fit.success:
+                    color_groups['green'].append(fname)
+                else:
+                    color_groups['orange'].append(fname)
+            else:
+                color_groups[None].append(fname)
+
+        for color, fnames in color_groups.items():
+            if fnames:
+                self.spectrum_list.list.colorize_items(fnames, color)
+    
     def set_selection(self, list_widget, selection_list, emit_signal=True):
         if not isinstance(selection_list, list):
             selection_list = [selection_list]

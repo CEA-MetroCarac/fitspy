@@ -18,6 +18,7 @@ class Model(QObject):
     askConfirmation = Signal(str, object, tuple, dict)
     PeaksChanged = Signal(object)
     progressUpdated = Signal(object, int, int)
+    colorizeFromFitStatus = Signal(dict)
     showToast = Signal(str, str, str)
 
     def __init__(self):
@@ -335,11 +336,13 @@ class Model(QObject):
             fnames = [fnames[i] for i in self.fileselector.lbox.curselection()]
 
         nfiles = len(fnames)
+        fit_status = {fname: None for fname in fnames}
 
         if fit_params is not None:
             for fname in fnames:
                 spectrum, _ = self.spectra.get_objects(fname)
                 spectrum.fit_params = deepcopy(fit_params)
+                fit_status[fname] = spectrum
 
         self.spectra.pbar_index = 0
         show_progressbar = False
@@ -349,8 +352,9 @@ class Model(QObject):
         thread.start()
         self.progressUpdated.emit(self.spectra, nfiles, ncpus)
         thread.join()
-        # self.colorize_from_fit_status(fnames)
-        # self.reassign_current_spectrum(self.current_spectrum.fname)
+
+        fit_status = {fname: spectrum.result_fit for fname, spectrum in fit_status.items()}
+        self.colorizeFromFitStatus.emit(fit_status)
         self.refreshPlot.emit()
 
     def get_fit_models(self, delimiter):

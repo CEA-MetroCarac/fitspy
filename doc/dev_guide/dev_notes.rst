@@ -42,7 +42,7 @@ TODO List
 ---------
 
 TODO Base:
-    - [ ] restore spectrum colorize_from_fit_status
+    - [x] restore spectrum colorize_from_fit_status
     Menubar:
       - [x] Implement CLEAR + SAVE GLOBAL STATE + OPEN GLOBAL STATE (drag n drop & open button should call same function)
       - [ ] About + Manual (could redirect to sphinx doc)
@@ -88,6 +88,7 @@ TODO Others:
     - [ ] add tests/ back
     - [ ] add github workflows back
     - [ ] update paper/
+    - [ ] Is commented code better ? (in files controller > colorize_from_fit_status)
 
 TODO Nice to Have:
     - [ ] Multirow-edit for peaks settings (see https://stackoverflow.com/questions/14586715/how-can-i-achieve-to-update-multiple-rows-in-a-qtableview)

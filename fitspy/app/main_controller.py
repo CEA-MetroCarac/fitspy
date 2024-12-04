@@ -61,6 +61,7 @@ class MainController(QObject):
         self.plot_controller.baselinePointsChanged.connect(self.settings_controller.set_baseline_points)
         self.plot_controller.PeaksChanged.connect(self.settings_controller.update_peaks_table)
         self.plot_controller.progressUpdated.connect(self.update_progress)
+        self.plot_controller.colorizeFromFitStatus.connect(self.files_controller.colorize_from_fit_status)
         self.plot_controller.exportCSV.connect(self.export_to_csv)
 
         self.settings_controller.showToast.connect(self.show_toast)

@@ -16,6 +16,7 @@ class PlotController(QObject):
     baselinePointsChanged = Signal(list)
     PeaksChanged = Signal(object)
     progressUpdated = Signal(object, int, int)
+    colorizeFromFitStatus = Signal(dict)
     exportCSV = Signal(object)
 
     def __init__(self, spectra_plot, map2d_plot, toolbar):
@@ -68,6 +69,7 @@ class PlotController(QObject):
         self.model.refreshPlot.connect(self.update_spectraplot)
         self.model.PeaksChanged.connect(self.PeaksChanged)
         self.model.progressUpdated.connect(self.progressUpdated)
+        self.model.colorizeFromFitStatus.connect(self.colorizeFromFitStatus)
         self.model.askConfirmation.connect(self.askConfirmation)
 
         self.toolbar.fitting_radio.toggled.connect(self.on_click_mode_changed)
@@ -175,19 +177,19 @@ class PlotController(QObject):
         self.model.set_baseline_points(points)
 
     def apply_baseline(self):
+        self.colorizeFromFitStatus.emit({s.fname: None for s in self.model.current_spectrum})
         self.model.preprocess()
         self.update_spectraplot()
 
     def apply_spectral_range(self, min, max, fnames=None):
         if fnames is None:
-            for spectrum in self.model.current_spectrum:
-                self.model.set_spectrum_attr(spectrum.fname, "range_min", min)
-                self.model.set_spectrum_attr(spectrum.fname, "range_max", max)
-        else:
-            for fname in fnames:
-                self.model.set_spectrum_attr(fname, "range_min", min)
-                self.model.set_spectrum_attr(fname, "range_max", max)
+            fnames = [spectrum.fname for spectrum in self.model.current_spectrum]
 
+        for fname in fnames:
+            self.model.set_spectrum_attr(fname, "range_min", min)
+            self.model.set_spectrum_attr(fname, "range_max", max)
+
+        self.colorizeFromFitStatus.emit({fname: None for fname in fnames})
         self.model.preprocess()
         self.update_spectraplot()
 
@@ -198,6 +200,7 @@ class PlotController(QObject):
             self.model.set_spectrum_attr(spectrum.fname, "normalize", state)
             self.model.set_spectrum_attr(spectrum.fname, "normalize_range_min", min)
             self.model.set_spectrum_attr(spectrum.fname, "normalize_range_max", max)
+            self.colorizeFromFitStatus.emit({spectrum.fname: None})
             spectrum.preprocess()
 
         self.update_spectraplot()
