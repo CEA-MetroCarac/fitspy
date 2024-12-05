@@ -167,9 +167,9 @@ class Fitting(QCollapsible):
         self.peak_model = self.create_section(vbox_layout,
                                               "Peak model:",
                                               PEAK_MODELS.keys())
-        self.background_model = self.create_section(vbox_layout,
-                                                    "Background model:",
-                                                    BKG_MODELS.keys())
+        self.bkg_model = self.create_section(vbox_layout,
+                                                "Background model:",
+                                                BKG_MODELS.keys())
 
         self.setContent(content_widget)
         self.expand(animate=False)
@@ -357,3 +357,7 @@ class ModelBuilder(QWidget):
         normalization.range_min.setValue(model.get('normalize_range_min', 0))
         normalization.range_max.setValue(model.get('normalize_range_max', 0))
         normalization.normalize.setChecked(model.get('normalize', False))
+
+        # Fitting
+        bkg_model = next(iter(model.get('bkg_model') or {}), 'None')
+        self.model_settings.fitting.bkg_model.setCurrentText(bkg_model)

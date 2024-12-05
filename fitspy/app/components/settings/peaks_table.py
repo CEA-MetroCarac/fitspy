@@ -64,6 +64,12 @@ class SpinBoxGroupWithExpression(QWidget):
             'max': self.max_spin_box.value(),
             'expr': self.expr_edit.text()
         }
+    
+    def set_values(self, min_value, value, max_value, expr):
+        self.min_spin_box.setValue(min_value)
+        self.value_spin_box.setValue(value)
+        self.max_spin_box.setValue(max_value)
+        self.expr_edit.setText(expr)
 
     def show_expr(self, show):
         self.expr_edit.setVisible(show)

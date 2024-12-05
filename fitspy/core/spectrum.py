@@ -468,7 +468,7 @@ class Spectrum:
                 self.bkg_model.set_param_hint(key, value=val.value,
                                               min=-np.inf, max=np.inf,
                                               vary=True, expr=None)
-        self.bkg_model.name2 = bkg_name
+            self.bkg_model.name2 = bkg_name
 
     def fit(self, fit_method=None, fit_negative=None, fit_outliers=None,
             max_ite=None, coef_noise=None, xtol=None, reinit_guess=True,

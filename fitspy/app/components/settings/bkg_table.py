@@ -107,6 +107,10 @@ class BkgTable(QWidget):
         # Get required columns for the selected bkg model
         required_columns = MODEL_PARAMETERS.get(self.bkg_model, [])
 
+        if not required_columns:
+            self.clear()
+            return
+
         # Remove unnecessary columns
         for column in list(self.table.columns.keys()):
             if column not in required_columns:
@@ -135,10 +139,13 @@ class BkgTable(QWidget):
                     existing_widget = self.table.cellWidget(row, self.table.get_column_index(param))
                     if not isinstance(existing_widget, CenteredCheckBox):
                         widget = CenteredCheckBox(callback=self.emit_bkg_changed)
-                        self.table.setCellWidget(row, self.table.get_column_index(param), widget) 
+                        self.table.setCellWidget(row, self.table.get_column_index(param), widget)
 
     def clear(self):
-        self.table.clear()
+        """del all columns of self.table without deleting rows"""
+        for column in list(self.table.columns.keys()):
+            self.table.remove_column(column)
+        self.bkgChanged.emit({'bkg_model': None})
 
     def add_row(self, show_bounds, show_expr, **params):
         self.show_bounds_state = show_bounds
@@ -179,6 +186,27 @@ class BkgTable(QWidget):
 
         self.table.add_row(**row_widgets)
         self.update_columns_based_on_model()
+
+    def update_row(self, param_hints, row=0):
+        for param, hints in param_hints.items():
+            min_max_col = f"MIN | {param} | MAX"
+            vary_col = f"{param}_vary"
+
+            # Update SpinBoxGroupWithExpression
+            spin_widget = self.table.cellWidget(row, self.table.get_column_index(min_max_col))
+            if isinstance(spin_widget, SpinBoxGroupWithExpression):
+                spin_widget.set_values(
+                    min_value=hints.get('min', -float("inf")),
+                    value=hints.get('value', 0),
+                    max_value=hints.get('max', float("inf")),
+                    expr=hints.get('expr', '')
+                )
+
+            # Update CenteredCheckBox
+            vary_widget = self.table.cellWidget(row, self.table.get_column_index(vary_col))
+            if isinstance(vary_widget, CenteredCheckBox):
+                vary_widget.setChecked(hints.get('vary', False))
+            
 
     def show_bounds(self, show):
         for row in range(self.table.rowCount()):

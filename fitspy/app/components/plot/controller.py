@@ -15,6 +15,7 @@ class PlotController(QObject):
     highlightSpectrum = Signal(str)
     baselinePointsChanged = Signal(list)
     PeaksChanged = Signal(object)
+    BkgChanged = Signal(dict)
     progressUpdated = Signal(object, int, int)
     colorizeFromFitStatus = Signal(dict)
     exportCSV = Signal(object)
@@ -213,6 +214,14 @@ class PlotController(QObject):
             return
         spectrum = self.model.current_spectrum[0]
         spectrum.set_attributes(peaks)
+        self.update_spectraplot()
+
+    def set_bkg_model(self, model):
+        for i, spectrum in enumerate(self.model.current_spectrum):
+            spectrum.set_bkg_model(model)
+            spectrum.result_fit = lambda: None
+            if i == 0 and spectrum.bkg_model:
+                self.BkgChanged.emit(spectrum.bkg_model.param_hints)
         self.update_spectraplot()
 
     def set_bkg(self, bkg):

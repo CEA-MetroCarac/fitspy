@@ -18,6 +18,7 @@ class SettingsController(QObject):
     applySpectralRange = Signal(float, float)
     applyNormalization = Signal(bool, object, object)
     updatePeakModel = Signal(str)
+    setBkgModel = Signal(str)
     setPeaks = Signal(dict)
     setBkg = Signal(dict)
     fitRequested = Signal(object)
@@ -75,7 +76,7 @@ class SettingsController(QObject):
 
         # Fitting settings
         model_settings.fitting.peak_model.currentTextChanged.connect(self.switch_peak_model)
-        model_settings.fitting.background_model.currentTextChanged.connect(self.switch_bkg_model)
+        model_settings.fitting.bkg_model.currentTextChanged.connect(self.switch_bkg_model)
 
         # Save model
         model_settings.save.clicked.connect(self.save_model)
@@ -193,6 +194,10 @@ class SettingsController(QObject):
         self.set_baseline_points(points)
         self.update_peaks_table(fit_model)
 
+        bkg_model_dict = fit_model.get('bkg_model') or {}
+        bkg_model = next(iter(bkg_model_dict), 'None')
+        self.update_bkg_table(bkg_model_dict.get(bkg_model, {}))
+
     def set_baseline_points(self, points=[[],[]]):
         self.model.baseline_points = points
         if points[0]:
@@ -302,7 +307,8 @@ class SettingsController(QObject):
                 self.model_builder.model_settings.container,  # to keep the scroll bar enabled
                 self.model_builder.model_selector,
                 self.model_builder.baseline_table,
-                self.model_builder.peaks_table
+                self.model_builder.peaks_table,
+                self.model_builder.bkg_table,
             ]
 
             for parent in parent_widgets:
@@ -333,6 +339,10 @@ class SettingsController(QObject):
         self.updatePeakModel.emit(model_name)
 
     def switch_bkg_model(self, model_name):
+        self.model_builder.tab_widget.setCurrentIndex(1)
         self.model_builder.bkg_table.bkg_model = model_name
         self.model_builder.bkg_table.update_columns_based_on_model()
-        self.model_builder.tab_widget.setCurrentIndex(1)
+        self.setBkgModel.emit(model_name)
+        
+    def update_bkg_table(self, param_hints):
+        self.model_builder.bkg_table.update_row(param_hints)
