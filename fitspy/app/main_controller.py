@@ -34,6 +34,8 @@ class MainController(QObject):
         self.view.menuBar.actionRestoreDefaults.triggered.connect(self.model.restore_defaults)
         self.view.menuBar.actionLightMode.triggered.connect(lambda: self.set_setting("theme", "light"))
         self.view.menuBar.actionDarkMode.triggered.connect(lambda: self.set_setting("theme", "dark"))
+        self.view.menuBar.actionManual.triggered.connect(lambda: self.show_toast("info", "Manual", "Manual not available yet."))
+        self.view.menuBar.actionAbout.triggered.connect(self.view.about)
         self.view.statusBox.ncpus.currentTextChanged.connect(lambda ncpus: self.set_setting("ncpus", ncpus))
         self.model.themeChanged.connect(self.on_theme_changed)
         self.model.defaultsRestored.connect(self.apply_settings)

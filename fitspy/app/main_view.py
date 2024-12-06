@@ -5,7 +5,7 @@ from PySide6.QtWidgets import (
     QSplitter, QTabWidget, QVBoxLayout, QWidget,
 )
 
-from .components import MenuBar
+from .components import MenuBar, About
 from .components.plot import SpectraPlot, Map2DPlot, Toolbar
 from .components.settings import StatusBox, ModelBuilder, MoreSettings
 from .components.files import MapsList, SpectrumList
@@ -126,3 +126,7 @@ class MainView(QMainWindow):
         # Set initial sizes for the splitter
         initial_sidebar_width = 170
         self.main_splitter.setSizes([self.width() - initial_sidebar_width, initial_sidebar_width])
+
+    def about(self):
+        dialog = About(self)
+        dialog.exec_()
