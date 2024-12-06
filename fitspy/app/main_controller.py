@@ -1,6 +1,6 @@
 import os
-from PySide6.QtCore import QObject
-from PySide6.QtGui import QColor
+from PySide6.QtCore import QObject, QUrl
+from PySide6.QtGui import QColor, QDesktopServices
 from PySide6.QtWidgets import QApplication, QFileDialog, QMessageBox
 from pyqttoast import Toast, ToastPreset
 
@@ -34,7 +34,7 @@ class MainController(QObject):
         self.view.menuBar.actionRestoreDefaults.triggered.connect(self.model.restore_defaults)
         self.view.menuBar.actionLightMode.triggered.connect(lambda: self.set_setting("theme", "light"))
         self.view.menuBar.actionDarkMode.triggered.connect(lambda: self.set_setting("theme", "dark"))
-        self.view.menuBar.actionManual.triggered.connect(lambda: self.show_toast("info", "Manual", "Manual not available yet."))
+        self.view.menuBar.actionManual.triggered.connect(self.open_manual)
         self.view.menuBar.actionAbout.triggered.connect(self.view.about)
         self.view.statusBox.ncpus.currentTextChanged.connect(lambda ncpus: self.set_setting("ncpus", ncpus))
         self.model.themeChanged.connect(self.on_theme_changed)
@@ -284,3 +284,8 @@ class MainController(QObject):
         if fname:
             spectramap.export_to_csv(fname)
             self.show_toast("SUCCESS", "Exported", f"{fname} has been saved.")
+
+    def open_manual(self):
+        url = QUrl("https://cea-metrocarac.github.io/fitspy/doc/index.html")
+        QDesktopServices.openUrl(url)
+        self.show_toast("INFO", "Documentation Opened", "The Fitspy documentation has been opened in your default browser.")
