@@ -46,7 +46,7 @@ TODO Base:
     - [ ] Implement peaks model + bkg model load button
     Menubar:
       - [x] Implement CLEAR + SAVE GLOBAL STATE + OPEN GLOBAL STATE (drag n drop & open button should call same function)
-      - [ ] About + Manual (could redirect to sphinx doc)
+      - [ ] About + Manual + Doc (could redirect to sphinx doc)
     Peaks Table:
       - [x] Add background parameters (in table or elsewhere in GUI)
       - [x] Add missing columns for some Peak Models

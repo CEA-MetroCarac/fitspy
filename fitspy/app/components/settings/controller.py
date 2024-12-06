@@ -346,3 +346,6 @@ class SettingsController(QObject):
         
     def update_bkg_table(self, param_hints):
         self.model_builder.bkg_table.update_row(param_hints)
+
+    def get_baseline_mode(self):
+        return self.model.current_fit_model['baseline']['mode']
