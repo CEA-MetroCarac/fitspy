@@ -41,7 +41,7 @@ DEFAULTS = {
         "outliers_limits": True,
         "noise_level": True,
         "baseline": True,
-        "subtract_baseline": True,
+        "subtract_bkg+baseline": True,
         "background": True,
         "residual": True,
         "peaks": True,

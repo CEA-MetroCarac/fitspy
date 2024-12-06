@@ -95,7 +95,7 @@ TODO Others:
 TODO Nice to Have:
     - [ ] Multirow-edit for peaks settings (see https://stackoverflow.com/questions/14586715/how-can-i-achieve-to-update-multiple-rows-in-a-qtableview)
     - [ ] See multiple spectrum with their baseline subtracted or not (need to redefine what to plot for secondary spectrum instead of just x0+y0)
-    - [ ] New View option 'subtract bkg' (see existing 'subtract baseline')
+    - [x] New View option 'subtract bkg' (see existing 'subtract baseline')
     - [ ] Update save/load mechanisms to include data or not based on 'save spectrum file path only' checkbox state
     - [ ] add a confirmation prompt before load_state to avoid erasing current work
     - [ ] update dynamically the 2D map figure during fitting

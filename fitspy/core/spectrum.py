@@ -663,12 +663,15 @@ class Spectrum:
             show_negative_values=True, show_noise_level=True,
             show_baseline=True, show_background=True,
             show_peak_models=True, show_result=True,
-            subtract_baseline=True, label=None):
+            subtract_baseline=True, subtract_bkg=True, label=None):
         """ Plot the spectrum with the peak models """
         x, y = self.x.copy(), self.y.copy()
 
         if not subtract_baseline and self.baseline.y_eval is not None:
             y += self.baseline.y_eval
+
+        if subtract_bkg and self.bkg_model is not None:
+            y -= self.bkg_model.eval(self.bkg_model.make_params(), x=x)
 
         lines = []
         linewidth = 0.5

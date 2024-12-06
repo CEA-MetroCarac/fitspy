@@ -260,7 +260,7 @@ class Model(QObject):
         
         first_spectrum = True
         for spectrum in self.current_spectrum:
-            x0, y0 = spectrum.x0, spectrum.y0
+            x0, y0 = spectrum.x0.copy(), spectrum.y0.copy()
 
             # Plot outliers in green
             if spectrum.outliers_limit is not None:
@@ -273,13 +273,14 @@ class Model(QObject):
                 baseline = spectrum.baseline
 
                 self.lines = spectrum.plot(ax,
-                            show_outliers=view_options.get("Outliers", False),
-                            show_outliers_limit=view_options.get("Outliers limits", False),
-                            show_negative_values=view_options.get("Negative values", False),
-                            show_noise_level=view_options.get("Noise level", False),
-                            show_baseline=view_options.get("Baseline", False),
-                            show_background=view_options.get("Background", False),
-                            subtract_baseline=view_options.get("Subtract baseline", False),
+                            show_outliers=view_options["Outliers"],
+                            show_outliers_limit=view_options["Outliers limits"],
+                            show_negative_values=view_options["Negative values"],
+                            show_noise_level=view_options["Noise level"],
+                            show_baseline=view_options["Baseline"],
+                            show_background=view_options["Background"],
+                            subtract_baseline=view_options["Subtract bkg+baseline"],
+                            subtract_bkg=view_options["Subtract bkg+baseline"],
                             )
                 self.line_bkg_visible = view_options.get("Background", False) and spectrum.bkg_model
 
@@ -310,6 +311,14 @@ class Model(QObject):
 
                 first_spectrum = False
             else:
+                # Subtract baseline
+                if spectrum.baseline.y_eval is not None and view_options["Subtract bkg+baseline"]:
+                    y0 -= spectrum.baseline.y_eval
+
+                # Subtract background model
+                if spectrum.bkg_model is not None and view_options["Subtract bkg+baseline"]:
+                    y_bkg = spectrum.bkg_model.eval(spectrum.bkg_model.make_params(), x=x0)
+                    y0 -= y_bkg
                 ax.plot(x0, y0, 'k-', lw=0.2, zorder=0)
 
         if view_options.get("Legend", False):
