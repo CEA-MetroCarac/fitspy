@@ -50,7 +50,7 @@ class StatusBox(QWidget):
         self.progressBar = QProgressBar(hbox2)
         self.progressBar.setMinimum(0)
         self.progressBar.setMaximum(100)
-        self.progressBar.setValue(100)
+        self.progressBar.setValue(0)
         self.progressBar.setTextVisible(True)
         self.progressBar.setInvertedAppearance(False)
         self.progressBar.setMaximumSize(QSize(16777215, 20))

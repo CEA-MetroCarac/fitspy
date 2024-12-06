@@ -295,3 +295,37 @@ def eval_noise_amplitude(y):
     mask = np.sign(delta1) * np.sign(delta2) == -1
     ampli_noise = np.median(np.abs(delta1[mask] - delta2[mask]) / 2)
     return ampli_noise
+
+def get_func_args(func):
+    import inspect
+    signature = inspect.signature(func)
+    args = list(signature.parameters.keys())
+    return args
+
+def get_model_params(MODELS):
+    MODEL_PARAMETERS = {"None": []}
+        
+    for model_name, model in MODELS.items():
+        if model is not None:
+            try:
+                instance = model()  # lmfit.models classes
+            except:
+                instance = model  # custom python functions
+
+            params = []
+            if not callable(instance):  # lmfit.models classes
+                for param in instance.param_names:
+                    params.append(f"MIN | {param} | MAX")
+                    params.append(f"{param}_vary")
+            else:  # custom python functions
+                func_args = get_func_args(instance)
+                for arg in func_args:
+                    if arg != 'x':
+                        params.append(f"MIN | {arg} | MAX")
+                        params.append(f"{arg}_vary")
+
+            MODEL_PARAMETERS[model_name] = params
+        else:
+            MODEL_PARAMETERS[model_name] = []
+
+    return MODEL_PARAMETERS

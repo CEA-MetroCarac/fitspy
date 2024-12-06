@@ -1,4 +1,4 @@
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt, Signal
 from PySide6.QtGui import QIcon
 from PySide6.QtCore import QSize
 from PySide6.QtWidgets import QRadioButton, QSlider, QVBoxLayout, \
@@ -6,8 +6,8 @@ from PySide6.QtWidgets import QRadioButton, QSlider, QVBoxLayout, \
     QWidget, QComboBox, QSpacerItem, QSizePolicy, QButtonGroup, \
     QTabWidget
 
+import fitspy
 from superqt import QCollapsible
-from fitspy import PEAK_MODELS, BKG_MODELS
 from fitspy.core import get_icon_path
 from .custom_spinbox import SpinBox, DoubleSpinBox
 from .peaks_table import PeaksTable
@@ -154,6 +154,9 @@ class Normalization(QCollapsible):
         self.expand(animate=False)
 
 class Fitting(QCollapsible):
+    loadPeakModel = Signal()
+    loadBkgModel = Signal()
+
     def __init__(self, parent=None):
         super().__init__("Fitting", parent)
         self.initUI()
@@ -164,22 +167,33 @@ class Fitting(QCollapsible):
         vbox_layout.setContentsMargins(0, 0, 0, 0)
         vbox_layout.setSpacing(2)
 
-        self.peak_model = self.create_section(vbox_layout,
-                                              "Peak model:",
-                                              PEAK_MODELS.keys())
-        self.bkg_model = self.create_section(vbox_layout,
-                                                "Background model:",
-                                                BKG_MODELS.keys())
+        self.peak_model = self.create_section(
+            vbox_layout,
+            "Peak model:",
+            fitspy.PEAK_MODELS.keys(),
+            model_type='peak'
+        )
+        self.bkg_model = self.create_section(
+            vbox_layout,
+            "Background model:",
+            fitspy.BKG_MODELS.keys(),
+            model_type='bkg'
+        )
 
         self.setContent(content_widget)
         self.expand(animate=False)
 
-    def create_section(self, layout, label_text, items=[]):
+    def create_section(self, layout, label_text, items=[], model_type='peak'):
         label = QLabel(label_text)
         spacer = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
         combo_box = QComboBox()
         combo_box.addItems(items)
         load_btn = QPushButton("Load")
+
+        if model_type == 'peak':
+            load_btn.clicked.connect(self.loadPeakModel.emit)
+        elif model_type == 'bkg':
+            load_btn.clicked.connect(self.loadBkgModel.emit)
 
         h_layout = QHBoxLayout()
         h_layout.setSpacing(5)
@@ -193,6 +207,18 @@ class Fitting(QCollapsible):
         layout.addLayout(h_layout)
 
         return combo_box
+    
+    def update_combo_boxes(self):
+        """Refresh the items in peak_model and bkg_model combo boxes."""
+        self.peak_model.blockSignals(True)
+        self.peak_model.clear()
+        self.peak_model.addItems(fitspy.PEAK_MODELS.keys())
+        self.peak_model.blockSignals(False)
+
+        self.bkg_model.blockSignals(True)
+        self.bkg_model.clear()
+        self.bkg_model.addItems(fitspy.BKG_MODELS.keys())
+        self.bkg_model.blockSignals(False)
 
 
 class ModelSettings(QWidget):

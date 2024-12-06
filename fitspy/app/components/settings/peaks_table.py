@@ -1,5 +1,5 @@
 from PySide6.QtWidgets import (
-    QLabel, QGroupBox, QVBoxLayout, QPushButton, QComboBox, QLineEdit,
+    QLabel, QVBoxLayout, QPushButton, QComboBox, QLineEdit,
     QCheckBox, QHeaderView, QWidget, QHBoxLayout
 )
 from PySide6.QtGui import QIcon
@@ -7,20 +7,14 @@ from PySide6.QtCore import Qt, Signal
 
 from matplotlib.colors import rgb2hex
 import matplotlib.cm as cm
-from fitspy import PEAK_MODELS
-from fitspy.core import get_icon_path
+import fitspy
+from fitspy.core import get_icon_path, get_model_params
 
 from .generic_table import GenericTable
 from .custom_spinbox import DoubleSpinBox
 
-MODEL_PARAMETERS = {
-    "gaussian": ["MIN | X0 | MAX", "X0_vary", "MIN | Ampli | MAX", "Ampli_vary", "MIN | FWHM | MAX", "FWHM_vary"],
-    "lorentzian": ["MIN | X0 | MAX", "X0_vary", "MIN | Ampli | MAX", "Ampli_vary", "MIN | FWHM | MAX", "FWHM_vary"],
-    "pseudovoigt": ["MIN | X0 | MAX", "X0_vary", "MIN | Ampli | MAX", "Ampli_vary", "MIN | FWHM | MAX", "FWHM_vary", "MIN | ALPHA | MAX", "Alpha_vary"],
-    "gaussianasym" : ["MIN | X0 | MAX", "X0_vary", "MIN | Ampli | MAX", "Ampli_vary", "MIN | FWHM_L | MAX", "FWHM_L_vary", "MIN | FWHM_R | MAX", "FWHM_R_vary"],
-    "lorentzianasym" : ["MIN | X0 | MAX", "X0_vary", "MIN | Ampli | MAX", "Ampli_vary", "MIN | FWHM_L | MAX", "FWHM_L_vary", "MIN | FWHM_R | MAX", "FWHM_R_vary"]
-}
-
+def model_params():
+    return get_model_params(fitspy.PEAK_MODELS)
 
 class SpinBoxGroupWithExpression(QWidget):
     def __init__(self, min_value=None, value=None, max_value=None, expr=None, parent=None):
@@ -169,7 +163,8 @@ class PeaksTable(QWidget):
             if model_name not in peak_models[row]:
                 peak_models[row][model_name] = {}
 
-            params = MODEL_PARAMETERS[model_name.lower()]
+            params = get_model_params(fitspy.PEAK_MODELS)
+       
             for param in params:
                 if 'MIN |' and '| MAX' in param:
                     param_name = param.split(' | ')[1].lower()
@@ -216,8 +211,8 @@ class PeaksTable(QWidget):
 
         # Getting additional required columns based on used models
         for row in range(self.table.rowCount()):
-            model_name = self.table.cellWidget(row, self.table.get_column_index("Model")).currentText().lower()
-            parameters = MODEL_PARAMETERS.get(model_name, [])
+            model_name = self.table.cellWidget(row, self.table.get_column_index("Model")).currentText()
+            parameters = model_params().get(model_name, [])
             required_columns.extend(parameters)
 
         # Remove unnecessary columns
@@ -237,8 +232,8 @@ class PeaksTable(QWidget):
 
         # Update each row
         for row in range(self.table.rowCount()):
-            model_name = self.table.cellWidget(row, self.table.get_column_index("Model")).currentText().lower()
-            parameters = MODEL_PARAMETERS.get(model_name, [])
+            model_name = self.table.cellWidget(row, self.table.get_column_index("Model")).currentText()
+            parameters = model_params().get(model_name, [])
 
             # Set widgets for required parameters
             for param in parameters:
@@ -294,9 +289,8 @@ class PeaksTable(QWidget):
         "Model": model_combo
         }
 
-        model_name = params["model_name"].lower()
-        parameters = MODEL_PARAMETERS.get(model_name, [])
-
+        model_name = params["model_name"]
+        parameters = model_params().get(model_name, [])
         for param in parameters:
             # Getting min, value, max and expr values
             if "MIN |" in param and "| MAX" in param:

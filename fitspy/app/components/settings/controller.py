@@ -3,8 +3,10 @@ from PySide6.QtCore import QObject, Signal
 from PySide6.QtWidgets import QFileDialog, QWidget
 from .model import Model
 
+import fitspy
 from fitspy import FIT_METHODS
-from fitspy.core.utils import save_to_json, load_from_json
+from fitspy.core.utils import save_to_json, load_from_json, \
+    load_models_from_txt, load_models_from_py
 
 TYPES = "JSON Files (*.json);;All Files (*)"
 
@@ -77,6 +79,8 @@ class SettingsController(QObject):
         # Fitting settings
         model_settings.fitting.peak_model.currentTextChanged.connect(self.switch_peak_model)
         model_settings.fitting.bkg_model.currentTextChanged.connect(self.switch_bkg_model)
+        model_settings.fitting.loadPeakModel.connect(lambda: self.load_user_models(fitspy.PEAK_MODELS))
+        model_settings.fitting.loadBkgModel.connect(lambda: self.load_user_models(fitspy.BKG_MODELS))
 
         # Save model
         model_settings.save.clicked.connect(self.save_model)
@@ -349,3 +353,18 @@ class SettingsController(QObject):
 
     def get_baseline_mode(self):
         return self.model.current_fit_model['baseline']['mode']
+
+    def load_user_models(self, models: dict):
+        fname = QFileDialog.getOpenFileName(None, "Select File", "", "Python and Text Files (*.py *.txt)")[0]
+        if fname:
+            initial_keys = set(models.keys())
+            if fname.endswith('.txt'):
+                load_models_from_txt(fname, models)
+            else:
+                load_models_from_py(fname)
+            new_keys = set(models.keys()) - initial_keys
+            if new_keys:
+                self.showToast.emit("SUCCESS", "Models Loaded", ', '.join(new_keys))
+            else:
+                self.showToast.emit("WARNING", "Something went wrong", "No new models were found in the file")
+        self.model_builder.model_settings.fitting.update_combo_boxes()

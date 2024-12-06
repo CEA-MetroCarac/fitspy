@@ -5,17 +5,14 @@ from PySide6.QtCore import Signal
 
 import matplotlib.cm as cm
 
+import fitspy
+from fitspy.core import get_model_params
+
 from .generic_table import GenericTable
 from .peaks_table import SpinBoxGroupWithExpression, CenteredCheckBox
 
-MODEL_PARAMETERS = {
-    "None": [],
-    "Constant": ["MIN | c | MAX", "c_vary"],
-    "Linear": ["MIN | slope | MAX", "slope_vary", "MIN | intercept | MAX", "intercept_vary"],
-    "Parabolic": ["MIN | a | MAX", "a_vary", "MIN | b | MAX", "b_vary", "MIN | c | MAX", "c_vary"],
-    "Exponential": ["MIN | amplitude | MAX", "amplitude_vary", "MIN | decay | MAX", "decay_vary"],
-    }
-
+def model_params():
+    return get_model_params(fitspy.BKG_MODELS)
 
 class BkgTable(QWidget):
     bkgChanged = Signal(dict)
@@ -23,7 +20,7 @@ class BkgTable(QWidget):
 
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.bkg_model = list(MODEL_PARAMETERS.keys())[0]
+        self.bkg_model = list(model_params().keys())[0]
         self.initUI()
         self.cmap = cm.get_cmap("tab10")
         self.show_bounds_state = False
@@ -65,7 +62,7 @@ class BkgTable(QWidget):
                     }}
 
         for row in range(self.table.rowCount()):
-            params = MODEL_PARAMETERS[self.bkg_model]
+            params = model_params()[self.bkg_model]
             for param in params:
                 if 'MIN |' and '| MAX' in param:
                     param_name = param.split(' | ')[1].lower()
@@ -105,7 +102,7 @@ class BkgTable(QWidget):
 
     def update_columns_based_on_model(self):
         # Get required columns for the selected bkg model
-        required_columns = MODEL_PARAMETERS.get(self.bkg_model, [])
+        required_columns = model_params().get(self.bkg_model, [])
 
         if not required_columns:
             self.clear()
@@ -128,7 +125,7 @@ class BkgTable(QWidget):
 
         # Update each row
         for row in range(self.table.rowCount()):
-            parameters = MODEL_PARAMETERS.get(self.bkg_model, [])
+            parameters = model_params().get(self.bkg_model, [])
             for param in parameters:
                 if "MIN |" in param and "| MAX" in param:
                     existing_widget = self.table.cellWidget(row, self.table.get_column_index(param))
@@ -155,7 +152,7 @@ class BkgTable(QWidget):
         }
 
         model_name = params["model_name"]
-        parameters = MODEL_PARAMETERS.get(model_name, [])
+        parameters = model_params().get(model_name, [])
 
         for param in parameters:
             # Getting min, value, max and expr values

@@ -18,6 +18,7 @@ from .utils import get_1d_profile
 from .utils import closest_index, fileparts, check_or_rename
 from .utils import save_to_json, load_from_json, eval_noise_amplitude
 from .baseline import BaseLine
+import fitspy
 
 
 def create_model(model, model_name, prefix=None):
@@ -143,7 +144,6 @@ class Spectrum:
 
     def set_attributes(self, model_dict):
         """Set attributes from a dictionary (obtained from a .json reloading)"""
-        from fitspy import PEAK_MODELS, BKG_MODELS
         keys = model_dict.keys()
 
         # compatibility with 'old' key names
@@ -176,7 +176,7 @@ class Spectrum:
             self.peak_models = []
             for _, dict_model in model_dict['peak_models'].items():
                 for model_name, param_hints in dict_model.items():
-                    model = PEAK_MODELS[model_name]
+                    model = fitspy.PEAK_MODELS[model_name]
                     index = next(self.peak_index)
                     prefix = f'm{index:02d}_'
                     model = create_model(model, model_name, prefix)
@@ -185,7 +185,7 @@ class Spectrum:
 
         if 'bkg_model' in keys and model_dict['bkg_model']:
             model_name, param_hints = list(model_dict['bkg_model'].items())[0]
-            bkg_model = BKG_MODELS[model_name]
+            bkg_model = fitspy.BKG_MODELS[model_name]
             self.bkg_model = create_model(bkg_model, model_name)
             self.bkg_model.name2 = model_name
             self.bkg_model.param_hints = deepcopy(param_hints)
@@ -339,8 +339,7 @@ class Spectrum:
         peak_model: lmfit.Model
         """
         # pylint:disable=unused-argument, unused-variable
-        from fitspy import PEAK_MODELS, PEAK_PARAMS  # pylint:disable=import-outside-toplevel
-        peak_model = PEAK_MODELS[model_name]
+        peak_model = fitspy.PEAK_MODELS[model_name]
         prefix = f'm{index:02d}_'
         peak_model = create_model(peak_model, model_name, prefix)
 
@@ -353,7 +352,7 @@ class Spectrum:
         for name in peak_model.param_names:
             name = name[4:]  # remove prefix 'mXX_'
             name2 = name.split('_')[0]  # remove '_l' or '_r'
-            if name in PEAK_PARAMS:
+            if name in fitspy.PEAK_PARAMS:
                 value, kwargs = eval(name), eval('kwargs_' + name2)
             else:
                 value, kwargs = 1, kwargs_
@@ -425,15 +424,17 @@ class Spectrum:
     def get_model_name(model):
         """ from model class attribute return the function name associated
             Ex: Model('LorentzianAsym'...) -> 'lorentzian_asym' """
-        from fitspy import PEAK_MODELS  # pylint:disable=import-outside-toplevel
-        if 'prefix' in model.name:
-            name_fun = model.name.split(',')[0][6:]
+        if isinstance(model, ExpressionModel):
+            return model.__name__
         else:
-            name_fun = re.search(r'\((.*?)\)', model.name).group(1)
-        names = list(PEAK_MODELS.keys())
-        names_fun = [x.__name__ for x in PEAK_MODELS.values()]
-        ind = names_fun.index(name_fun)
-        return names[ind]
+            if 'prefix' in model.name:
+                name_fun = model.name.split(',')[0][6:]
+            else:
+                name_fun = re.search(r'\((.*?)\)', model.name).group(1)
+            names = list(fitspy.PEAK_MODELS.keys())
+            names_fun = [x.__name__ for x in fitspy.PEAK_MODELS.values()]
+            ind = names_fun.index(name_fun)
+            return names[ind]
 
     def remove_models(self):
         """ Remove all the models """
@@ -445,12 +446,11 @@ class Spectrum:
 
     def set_bkg_model(self, bkg_name):
         """ Set the 'bkg_model' attribute from 'bkg_name' """
-        from fitspy import BKG_MODELS  # pylint:disable=import-outside-toplevel
-        assert bkg_name in BKG_MODELS.keys(), f"{bkg_name} not in {BKG_MODELS}"
+        assert bkg_name in fitspy.BKG_MODELS.keys(), f"{bkg_name} not in {fitspy.BKG_MODELS}"
         if bkg_name == 'None':
             self.bkg_model = None
         else:
-            bkg_model = BKG_MODELS[bkg_name]
+            bkg_model = fitspy.BKG_MODELS[bkg_name]
             if isinstance(bkg_model, type):
                 self.bkg_model = bkg_model()
                 params = self.bkg_model.guess(self.y, self.x)
