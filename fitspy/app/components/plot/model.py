@@ -268,7 +268,7 @@ class Model(QObject):
                 if len(inds) > 0:
                     ax.plot(x0[inds], y0[inds], 'o', c='lime')
 
-            if first_spectrum:
+            if first_spectrum and not view_options.get("Raw", False):
                 result_fit = spectrum.result_fit
                 baseline = spectrum.baseline
 
@@ -304,6 +304,9 @@ class Model(QObject):
                         xytext = (x0, y + 4 * dy)
                         ax.annotate(label, xy=xy, xytext=xytext, xycoords='data',
                                         ha='center', size=14, arrowprops=dict(fc='k'))
+                        
+                if hasattr(result_fit, "success") and result_fit.success:
+                    self.linewidth = 1
 
                 first_spectrum = False
             else:
@@ -314,8 +317,6 @@ class Model(QObject):
 
         self.tmp = None
         self.linewidth = 0.5
-        if hasattr(result_fit, "success") and result_fit.success:
-            self.linewidth = 1
         
         if view_options.get('Preserve axes', False):
             self.set_view_limits(ax, xlim, ylim)

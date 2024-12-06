@@ -33,6 +33,7 @@ DEFAULTS = {
         'title': 'DEFAULT_TITLE (edit in toolbar)',
     },
     'view_options': {
+        "raw": False,
         "legend": True,
         "fit": True,
         "negative_values": True,
