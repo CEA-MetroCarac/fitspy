@@ -163,9 +163,9 @@ class PeaksTable(QWidget):
             if model_name not in peak_models[row]:
                 peak_models[row][model_name] = {}
 
-            params = get_model_params(fitspy.PEAK_MODELS)
-       
-            for param in params:
+            params = model_params()
+
+            for param in params[model_name]:
                 if 'MIN |' and '| MAX' in param:
                     param_name = param.split(' | ')[1].lower()
                     param_dict = get_widget_value(row, param)
@@ -277,7 +277,7 @@ class PeaksTable(QWidget):
         label_edit = QLineEdit(params["label"])
         label_edit.editingFinished.connect(self.emit_peaks_changed)
 
-        model_names = list(PEAK_MODELS.keys())
+        model_names = list(fitspy.PEAK_MODELS.keys())
         model_combo = QComboBox()
         model_combo.addItems(model_names)
         model_combo.setCurrentText(params["model_name"])
