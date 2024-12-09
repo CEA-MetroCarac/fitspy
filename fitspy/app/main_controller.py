@@ -6,8 +6,6 @@ from pyqttoast import Toast, ToastPreset
 
 from fitspy.core import update_widget_palette, to_snake_case, replace_icon_colors, save_to_json, DELIMITER
 
-from .main_model import MainModel
-from .main_view import MainView
 from .components.plot import PlotController
 from .components.files import FilesController
 from .components.settings import SettingsController
@@ -15,10 +13,10 @@ from .components.settings import SettingsController
 TYPES = "Fitspy Workspace (*.fspy);;Spectrum/Spectramap (*.json *.txt);;JSON Files (*.json);;Text Files (*.txt)"
 
 class MainController(QObject):
-    def __init__(self):
+    def __init__(self, model, view):
         super().__init__()
-        self.view = MainView()
-        self.model = MainModel()
+        self.view = view
+        self.model = model
         self.files_controller = FilesController(self.view.spectrum_list, self.view.maps_list)
         self.plot_controller = PlotController(self.view.spectra_plot, self.view.measurement_sites, self.view.toolbar)
         self.settings_controller = SettingsController(self.view.fit_model_editor, self.view.more_settings)
@@ -288,4 +286,3 @@ class MainController(QObject):
     def open_manual(self):
         url = QUrl("https://cea-metrocarac.github.io/fitspy/doc/index.html")
         QDesktopServices.openUrl(url)
-        self.show_toast("INFO", "Documentation Opened", "The Fitspy documentation has been opened in your default browser.")
