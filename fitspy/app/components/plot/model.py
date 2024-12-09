@@ -32,7 +32,7 @@ class Model(QObject):
         self.lines = []
 
     def set_spectrum_attr(self, fname, attr, value):
-        spectrum = self.spectra.get_objects(fname, parent=self.current_map or self.spectra)[0]
+        spectrum = self.spectra.get_objects(fname, parent=self.parent())[0]
         attrs = attr.split('.')
         for attr in attrs[:-1]:
             spectrum = getattr(spectrum, attr)
@@ -41,6 +41,9 @@ class Model(QObject):
     @property
     def spectra(self):
         return self._spectra
+    
+    def parent(self):
+        return self.current_map or self.spectra
     
     def load_spectrum(self, fnames):
         """ Load the given list of file names as spectra """

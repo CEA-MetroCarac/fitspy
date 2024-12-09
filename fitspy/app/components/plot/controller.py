@@ -111,7 +111,7 @@ class PlotController(QObject):
         self.model.del_map(fname)
 
     def set_current_spectrum(self, fnames):
-        parent = self.model.current_map if self.model.current_map else self.model.spectra
+        parent = self.model.parent()
         self.model.current_spectrum = [self.model.spectra.get_objects(fname, parent)[0] for fname in fnames]
 
     def update_spectraplot(self):
@@ -119,7 +119,9 @@ class PlotController(QObject):
         view_options = self.view_options.get_view_options()
         self.model.update_spectraplot(ax, view_options)
 
-    def get_spectrum(self, fname):
+    def get_spectrum(self, fname=None):
+        if fname is None:
+            return self.model.current_spectrum
         return self.model.spectra.get_objects(fname)[0]
     
     def get_fit_models(self, delimiter):
@@ -196,7 +198,7 @@ class PlotController(QObject):
 
     def apply_normalization(self, state, min, max):
         # for all spectrum
-        parent = self.model.current_map if self.model.current_map else self.model.spectra
+        parent = self.model.parent()
         for spectrum in parent:
             self.model.set_spectrum_attr(spectrum.fname, "normalize", state)
             self.model.set_spectrum_attr(spectrum.fname, "normalize_range_min", min)

@@ -44,6 +44,7 @@ TODO List
 TODO Base:
     - [x] restore spectrum colorize_from_fit_status
     - [x] Implement peaks model + bkg model load button
+    - [x] Implement back save_results 
     Menubar:
       - [x] Implement CLEAR + SAVE GLOBAL STATE + OPEN GLOBAL STATE (drag n drop & open button should call same function)
       - [ ] About + Manual + Doc (could redirect to sphinx doc)
@@ -62,7 +63,6 @@ TODO Base:
 TODO Fixes:
     - [x] Peaks labels can sometimes overflow the plot
     - [ ] Manage callbacks when no files have been loaded (allow saving model, placing points, and baseline without loading spectra)
-    - [ ] Normalization is messing with baseline/peaks_points and maybe more (for e.g. when applying normalization to a spectrum with a baseline, the baseline points are not normalized)
     - [ ] Baseline_points, empty Y if attached ?
     - [x] Icons color dont follow theme
     - [x] Spectrum list is disordered compared to the map. When browsing through the spectra in the list, it should traverse the map from top to bottom and left to right.
@@ -71,7 +71,6 @@ TODO Fixes:
 TODO Opti:
     - [ ] Refactor peaks_table.py + bkg_table.py by creating a new class
     - [ ] MULTIPROC BASELINE via apply_model ?
-    - [ ] Useless calls to apply_model at start ? `settings_controller.py > apply_model(self, fit_model)`_
     - [ ] Optimize plotting (setxdata and setydata instead of replotting the whole figure ?)
 
 TODO Others:

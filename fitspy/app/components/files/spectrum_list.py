@@ -19,7 +19,8 @@ class SpectrumList(QWidget):
         self.sel_all.setIconSize(QSize(20, 20))
         self.rm_btn = QPushButton(icon=QIcon(get_icon_path('remove.png')))
         self.rm_btn.setIconSize(QSize(20, 20))
-        self.save_btn = QPushButton(icon=QIcon(get_icon_path('save.png')))
+        self.save_btn = QPushButton(icon=QIcon(get_icon_path('save.png')),
+                                    toolTip="Save results of selected spectra")
         self.save_btn.setIconSize(QSize(20, 20))
 
         self.list = DragAndDropList()

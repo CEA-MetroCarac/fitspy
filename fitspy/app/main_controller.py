@@ -49,6 +49,7 @@ class MainController(QObject):
         self.files_controller.mapChanged.connect(self.plot_controller.switch_map)
         self.files_controller.addMarker.connect(self.plot_controller.set_marker)
         self.files_controller.loadState.connect(self.load_state)
+        self.files_controller.saveResults.connect(self.save_results)
 
         self.plot_controller.showToast.connect(self.show_toast)
         self.plot_controller.askConfirmation.connect(self.show_confirmation_dialog)
@@ -282,6 +283,19 @@ class MainController(QObject):
         if fname:
             spectramap.export_to_csv(fname)
             self.show_toast("SUCCESS", "Exported", f"{fname} has been saved.")
+
+    def save_results(self, list_widget):
+        selected_items = [item.text() for item in list_widget.selectedItems()]
+        spectra = self.plot_controller.model.parent()
+    
+        if not selected_items:
+            self.show_toast("ERROR", "No Selection", "No spectrum selected.")
+            return
+        
+        directory = QFileDialog.getExistingDirectory(None, "Select Save Directory")
+        if directory:
+            spectra.save_results(directory, selected_items)
+            self.show_toast("SUCCESS", "Saved", f"Results saved to {directory}")
 
     def open_manual(self):
         url = QUrl("https://cea-metrocarac.github.io/fitspy/doc/index.html")

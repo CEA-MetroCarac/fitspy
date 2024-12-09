@@ -10,6 +10,7 @@ class FilesController(QObject):
     delSpectraMap = Signal(str)
     mapChanged = Signal(object)  # Can be a string or None
     spectraChanged = Signal(list)
+    saveResults = Signal(object)
     addMarker = Signal(str)
     loadState = Signal(dict, dict)
 
@@ -39,6 +40,7 @@ class FilesController(QObject):
         self.spectrum_list.list.itemSelectionChanged.connect(lambda: self.update_selection(self.spectrum_list.list, self.spectrum_list.count_label))
         self.spectrum_list.sel_all.clicked.connect(self.spectrum_list.list.selectAll)
         self.spectrum_list.rm_btn.clicked.connect(lambda: self.remove_selected_files(self.spectrum_list.list))
+        self.spectrum_list.save_btn.clicked.connect(lambda: self.saveResults.emit(self.spectrum_list.list))
 
         self.maps_list.list.filesDropped.connect(self.load_files)
         self.maps_list.list.itemSelectionChanged.connect(lambda: self.update_map_selection(self.maps_list.list, self.spectrum_list.list))
@@ -260,7 +262,7 @@ class FilesController(QObject):
 
         if emit_signal:
             list_widget.itemSelectionChanged.emit()
-    
+
     def clear(self):
         map_fnames = list(self.model.spectramaps_fnames.keys())  # Maps
         fnames = self.model.spectrum_fnames  # Independents Spectrum
