@@ -275,7 +275,7 @@ class MainController(QObject):
             fname += "_intensity"
         else:
             label = getattr(spectramap, 'label', None)
-            fname += f"_{var}_{label.get()}" if label else f"_{var}"
+            fname += f"_{var}_{label}" if label else f"_{var}"
 
         fname = QFileDialog.getSaveFileName(None, "Save File", f"{fname}.csv", "CSV Files (*.csv)")[0]
 
