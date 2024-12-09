@@ -60,7 +60,7 @@ TODO Base:
       - [x] Add Label choice and plot update
 
 TODO Fixes:
-    - [ ] Peaks labels can sometimes overflow the plot
+    - [x] Peaks labels can sometimes overflow the plot
     - [ ] Manage callbacks when no files have been loaded (allow saving model, placing points, and baseline without loading spectra)
     - [ ] Normalization is messing with baseline/peaks_points and maybe more (for e.g. when applying normalization to a spectrum with a baseline, the baseline points are not normalized)
     - [ ] Baseline_points, empty Y if attached ?

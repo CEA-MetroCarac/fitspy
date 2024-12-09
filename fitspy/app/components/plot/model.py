@@ -303,8 +303,18 @@ class Model(QObject):
                         y = spectrum.y[closest_index(spectrum.x, x0)]
                         xy = (x0, y + dy)
                         xytext = (x0, y + 4 * dy)
-                        ax.annotate(label, xy=xy, xytext=xytext, xycoords='data',
-                                        ha='center', size=14, arrowprops=dict(fc='k'))
+                        ax.annotate(
+                            label,
+                            xy=xy,
+                            xytext=(0, 20),
+                            xycoords='data',
+                            textcoords='offset points',
+                            ha='center',
+                            size=14,
+                            arrowprops=dict(fc='k', arrowstyle='->'),
+                            verticalalignment='bottom',
+                            annotation_clip=True
+                        )
                         
                 if hasattr(result_fit, "success") and result_fit.success:
                     self.linewidth = 1
