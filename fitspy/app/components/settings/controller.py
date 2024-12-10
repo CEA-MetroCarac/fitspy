@@ -28,6 +28,7 @@ class SettingsController(QObject):
     setBkgModel = Signal(str)
     setPeaks = Signal(dict)
     setBkg = Signal(dict)
+    saveModels = Signal()
     fitRequested = Signal(object)
     showToast = Signal(str, str, str)
 
@@ -107,7 +108,7 @@ class SettingsController(QObject):
         )
 
         # Save model
-        model_settings.save.clicked.connect(self.save_model)
+        model_settings.save.clicked.connect(self.saveModels)
         model_settings.fit.clicked.connect(self.request_fit)
 
         # Peaks + Baseline Table
@@ -240,25 +241,22 @@ class SettingsController(QObject):
     def clear_model(self):
         self.model.current_fit_model = {}
 
-    def save_model(self):
-        fname = QFileDialog.getSaveFileName(None, "Save File", "", TYPES)[0]
-        if fname:
-            save_to_json(fname, self.model.current_fit_model)
-
     def load_model(self):
         fname = QFileDialog.getOpenFileName(None, "Load File", "", TYPES)[0]
         if fname:
-            if fname not in self.model.fit_models:
+            if fname not in self.model.loaded_models:
                 self.model_builder.model_selector.combo_box.addItem(fname)
-                self.model.fit_models.append(fname)
+                self.model.loaded_models.append(fname)
 
             index = self.model_builder.model_selector.combo_box.findText(fname)
             self.model_builder.model_selector.combo_box.setCurrentIndex(index)
 
     def select_model(self, fname):
         model = load_from_json(fname)
-        model.pop("fname", None)
-        self.model.current_fit_model = model
+        first_key = next(iter(model))
+        first_model = model[first_key]
+        first_model.pop("fname", None)
+        self.model.current_fit_model = first_model
 
     def apply_model(self, fit_model):
         """Reflects the changes in the model to the GUI"""
@@ -417,6 +415,7 @@ class SettingsController(QObject):
             )
             combo_box.setItemText(current_index, current_text + " (Preview)")
             model = load_from_json(current_text)
+            model = model[next(iter(model))]
             lock_inputs(True)
 
         else:

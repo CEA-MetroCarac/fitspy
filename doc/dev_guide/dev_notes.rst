@@ -44,7 +44,8 @@ TODO List
 TODO Base:
     - [x] restore spectrum colorize_from_fit_status
     - [x] Implement peaks model + bkg model load button
-    - [x] Implement back save_results 
+    - [x] Implement back save_results
+    - [ ] Implement back model reloading
     Menubar:
       - [x] Implement CLEAR + SAVE GLOBAL STATE + OPEN GLOBAL STATE (drag n drop & open button should call same function)
       - [ ] About + Manual + Doc (could redirect to sphinx doc)

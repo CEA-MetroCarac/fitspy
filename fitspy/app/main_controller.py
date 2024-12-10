@@ -157,6 +157,7 @@ class MainController(QObject):
             self.plot_controller.set_peaks
         )
         self.settings_controller.setBkg.connect(self.plot_controller.set_bkg)
+        self.settings_controller.saveModels.connect(self.save_models)
         self.settings_controller.fitRequested.connect(self.fit)
 
         app = QApplication.instance()
@@ -464,3 +465,10 @@ class MainController(QObject):
             self.view.measurement_sites.update_plot(
                 self.plot_controller.model.current_map
             )
+
+    def save_models(self):
+        fname = QFileDialog.getSaveFileName(
+            None, "Save File", "", "JSON Files (*.json);;All Files (*)"
+        )[0]
+        if fname:
+            save_to_json(fname, self.plot_controller.get_fit_models(DELIMITER))

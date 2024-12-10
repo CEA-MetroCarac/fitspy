@@ -250,10 +250,10 @@ class Spectra(list):
         if show_progressbar:
             print()
 
-    def set_attributes(self, models, delimiter="", map_name=""):
+    def set_attributes(self, models, delimiter="", map_name="None"):
         for spectrum in self:
             try:
-                spectrum.set_attributes(models[f"{map_name}{delimiter}{spectrum.fname}"])
+                spectrum.set_attributes(models[f"{map_name}{DELIMITER}{spectrum.fname}"])
             except KeyError:
                 pass
         if hasattr(self, "spectra_maps"):

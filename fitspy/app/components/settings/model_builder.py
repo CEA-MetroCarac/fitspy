@@ -270,9 +270,9 @@ class ModelSettings(QWidget):
         HLayout.setContentsMargins(0, 0, 0, 0)
 
         self.save = QPushButton(
-            text="Save Model",
+            text="Save Model(s)",
             icon=QIcon(get_icon_path("save.png")),
-            toolTip="Save the fit model as a JSON file",
+            toolTip="Save selected fit models in a JSON file",
         )
         self.save.setIconSize(QSize(20, 20))
 
