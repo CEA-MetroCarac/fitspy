@@ -5,17 +5,18 @@ build-backend = 'setuptools.build_meta'
 [project]
 name = "fitspy"
 dynamic = ["version"]
-authors = [{ name = "Patrick Quéméré", email = "patrick.quemere@cea.fr" }]
+authors = [
+    { name = "Patrick Quéméré", email = "patrick.quemere@cea.fr" },
+    { name = "Killian Pavy", email = "killian.pavy@cea.fr" }
+]
 description = "Fitspy: a generic tool to fit spectra in python"
 readme = "README.md"
-requires-python = ">=3.8"
+requires-python = ">=3.10"
 keywords = ["Fitspy", "fit", "spectra", "spectrum", "map", "1D", "2D",
     "decomposition", "Gaussian", "Lorentzian", "Pseudovoigt", "GUI"]
 license = { text = "GPL v3" }
 classifiers = [
     'Programming Language :: Python :: 3',
-    'Programming Language :: Python :: 3.8',
-    'Programming Language :: Python :: 3.9',
     'Programming Language :: Python :: 3.10',
     'Programming Language :: Python :: 3.11',
     'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
@@ -63,6 +64,6 @@ minversion = "6.0"
 testpaths = ["tests"]
 
 [project.urls]
-Homepage = "https://github.dev/CEA-MetroCarac/fitspy"
+Homepage = "https://github.com/CEA-MetroCarac/fitspy"
 Documentation = "https://cea-metrocarac.github.io/fitspy/doc/index.html"
 

@@ -9,6 +9,7 @@ from PySide6.QtWidgets import (
     QTabWidget,
     QVBoxLayout,
     QWidget,
+    QMessageBox,
 )
 
 from .components import MenuBar, About
@@ -135,6 +136,20 @@ class MainView(QMainWindow):
         self.main_splitter.setSizes(
             [self.width() - initial_sidebar_width, initial_sidebar_width]
         )
+
+    def closeEvent(self, event):
+        reply = QMessageBox.question(
+            self,
+            'Exit Confirmation',
+            'Are you sure you want to exit?',
+            QMessageBox.Yes | QMessageBox.No,
+            QMessageBox.No
+        )
+
+        if reply == QMessageBox.Yes:
+            event.accept()
+        else:
+            event.ignore()
 
     def about(self):
         dialog = About(self)
