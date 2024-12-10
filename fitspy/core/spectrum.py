@@ -116,6 +116,7 @@ class Spectrum:
         self.y0 = None
         self.x = None
         self.y = None
+        self.y_bkg = None
         self.outliers_limit = None
         self.baseline = BaseLine()
         self.normalize = False
@@ -710,7 +711,7 @@ class Spectrum:
         if self.bkg_model is not None:
             y_bkg = self.bkg_model.eval(self.bkg_model.make_params(), x=x)
 
-        if show_background and self.bkg_model is not None:
+        if show_background and self.bkg_model is not None and not subtract_bkg:
             line, = ax.plot(x, y_bkg, 'k--', lw=linewidth, label=f'{label}_Background' if label else "Background")
             lines.append(line)
 
@@ -746,6 +747,9 @@ class Spectrum:
 
         if show_result and hasattr(self.result_fit, 'success'):
             y_fit = y_bkg + y_peaks
+            if subtract_bkg:
+                y_fit -= y_bkg
+                self.y_bkg = y_bkg
             ax.plot(x, y_fit, 'b', lw=linewidth, label=f'{label}_Fitted profile' if label else "Fitted profile")
 
         return lines

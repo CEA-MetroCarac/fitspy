@@ -300,6 +300,7 @@ class Model(QObject):
                     show_background=view_options["Background"],
                     subtract_baseline=view_options["Subtract bkg+baseline"],
                     subtract_bkg=view_options["Subtract bkg+baseline"],
+                    show_result=view_options["Fit"],
                 )
                 self.line_bkg_visible = (
                     view_options.get("Background", False) and spectrum.bkg_model
@@ -316,14 +317,31 @@ class Model(QObject):
                 if view_options.get("Peak labels", True):
                     from fitspy.core import closest_index
 
-                    dy = 0.02 * spectrum.y.max()
+                    LABEL_OFFSET_RATIO = (
+                        0.005  # Ratio to offset label above the peak
+                    )
+                    YLIM_BUFFER_RATIO = 0.05  # Ratio to extend y-axis limit
+
+                    dy = LABEL_OFFSET_RATIO * spectrum.y.max()
+                    annotation_y = []
                     for i, label in enumerate(spectrum.peak_labels):
-                        if label == "":
+                        if not label:
                             continue
                         model = spectrum.peak_models[i]
                         x0 = model.param_hints["x0"]["value"]
                         y = spectrum.y[closest_index(spectrum.x, x0)]
+
+                        if (
+                            view_options.get("Subtract bkg+baseline")
+                            and spectrum.y_bkg is not None
+                        ):
+                            y -= spectrum.y_bkg[closest_index(spectrum.x, x0)]
+
                         xy = (x0, y + dy)
+                        annotation_y.append(
+                            y + dy + LABEL_OFFSET_RATIO * spectrum.y.max()
+                        )
+
                         ax.annotate(
                             label,
                             xy=xy,
@@ -336,6 +354,16 @@ class Model(QObject):
                             verticalalignment="bottom",
                             annotation_clip=True,
                         )
+
+                    # Adjust y-axis to contain peak labels
+                    if annotation_y:
+                        max_annotation_y = max(annotation_y)
+                        current_ylim = ax.get_ylim()
+                        if max_annotation_y > current_ylim[1]:
+                            ax.set_ylim(
+                                top=max_annotation_y
+                                + YLIM_BUFFER_RATIO * spectrum.y.max()
+                            )
 
                 if hasattr(result_fit, "success") and result_fit.success:
                     self.linewidth = 1
