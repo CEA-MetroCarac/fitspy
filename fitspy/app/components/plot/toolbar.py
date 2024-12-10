@@ -23,7 +23,7 @@ class ViewOptions(QToolButton):
     def __init__(self, checkboxes, parent=None):
         super(ViewOptions, self).__init__(parent)
         self.setText("View Options")
-        self.setPopupMode(QToolButton.MenuButtonPopup)
+        self.setPopupMode(QToolButton.InstantPopup)
         self.checkboxes_definitions = checkboxes
         self.initUI()
 

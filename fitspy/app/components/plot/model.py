@@ -324,7 +324,6 @@ class Model(QObject):
                         x0 = model.param_hints["x0"]["value"]
                         y = spectrum.y[closest_index(spectrum.x, x0)]
                         xy = (x0, y + dy)
-                        xytext = (x0, y + 4 * dy)
                         ax.annotate(
                             label,
                             xy=xy,
