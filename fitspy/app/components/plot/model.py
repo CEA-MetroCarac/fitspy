@@ -279,6 +279,7 @@ class Model(QObject):
                             show_outliers=view_options["Outliers"],
                             show_outliers_limit=view_options["Outliers limits"],
                             show_negative_values=view_options["Negative values"],
+                            show_peak_models=view_options["Peaks"],
                             show_noise_level=view_options["Noise level"],
                             show_baseline=view_options["Baseline"],
                             show_background=view_options["Background"],

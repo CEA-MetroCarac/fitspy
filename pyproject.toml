@@ -33,7 +33,7 @@ dependencies = [
     "lmfit",
     "parse",
     "dill",
-    "superqt",
+    "superqt[cmap]",
     "pyqt-toast-notification",
     "rosettasciio",
     "pywin32; platform_system == 'Windows'",

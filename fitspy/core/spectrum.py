@@ -716,6 +716,8 @@ class Spectrum:
 
         ax.set_prop_cycle(None)
         y_peaks = np.zeros_like(x)
+
+        num_peaks = len(self.peak_models)
         for i, peak_model in enumerate(self.peak_models):
             # remove temporarily 'expr' that can be related to another model
             param_hints_orig = deepcopy(peak_model.param_hints)
@@ -729,7 +731,17 @@ class Spectrum:
             y_peaks += y_peak
 
             if show_peak_models:
-                line, = ax.plot(x, y_peak, lw=linewidth, label=f'{label}_Peak_{i}' if label else None)
+                # Assign color from CMAP based on peak index
+                if num_peaks > 0:
+                    cmap = fitspy.DEFAULTS['peaks_cmap']
+                    num_colors = cmap.N
+                    normalized_index = i % num_colors
+                    color = cmap(normalized_index)
+                else:
+                    color = 'black'
+
+                line, = ax.plot(x, y_peak, lw=linewidth, color=color,
+                            label=f'{label}_Peak_{i}' if label else None)
                 lines.append(line)
 
         if show_result and hasattr(self.result_fit, 'success'):

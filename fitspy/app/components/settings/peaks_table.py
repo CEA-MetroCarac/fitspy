@@ -6,7 +6,6 @@ from PySide6.QtGui import QIcon
 from PySide6.QtCore import Qt, Signal
 
 from matplotlib.colors import rgb2hex
-import matplotlib.cm as cm
 import fitspy
 from fitspy.core import get_icon_path, get_model_params
 
@@ -15,6 +14,9 @@ from .custom_spinbox import DoubleSpinBox
 
 def model_params():
     return get_model_params(fitspy.PEAK_MODELS)
+
+def cmap():
+    return fitspy.DEFAULTS['peaks_cmap']
 
 class SpinBoxGroupWithExpression(QWidget):
     def __init__(self, min_value=None, value=None, max_value=None, expr=None, parent=None):
@@ -103,7 +105,6 @@ class PeaksTable(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.initUI()
-        self.cmap = cm.get_cmap("tab10")
         self.show_bounds_state = None
         self.show_expr_state = None
 
@@ -270,7 +271,7 @@ class PeaksTable(QWidget):
             icon=QIcon(get_icon_path('close.png')),
             toolTip="Delete peak"
         )
-        color = rgb2hex(self.cmap(self.row_count % self.cmap.N))
+        color = rgb2hex(cmap()(self.row_count % cmap().N))
         prefix_btn.setStyleSheet(f"color: {color};")
         prefix_btn.clicked.connect(lambda: self.table.remove_widget_row(prefix_btn))
 
@@ -324,7 +325,7 @@ class PeaksTable(QWidget):
     def update_prefix_colors(self):
         for row in range(self.table.rowCount()):
             prefix_btn = self.table.cellWidget(row, self.table.get_column_index("Prefix"))
-            color = rgb2hex(self.cmap(row % self.cmap.N))
+            color = rgb2hex(cmap()(row % cmap().N))
             prefix_btn.setStyleSheet(f"color: {color};")
 
     def show_bounds(self, show):

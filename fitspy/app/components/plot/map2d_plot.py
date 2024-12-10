@@ -4,6 +4,8 @@ from matplotlib.figure import Figure
 from matplotlib.backends.backend_qtagg import FigureCanvas
 from superqt import QLabeledDoubleRangeSlider as QRangeSlider
 
+import fitspy
+
 import numpy as np
 
 class CommonTab(QWidget):
@@ -151,7 +153,7 @@ class Map2DPlot(QMainWindow):
         self.remove_colorbar()
 
     def plot_spectramap(self, spectramap):
-        spectramap.plot_map(self.ax, range_slider=self.tab_widget.intensity_tab.range_slider)
+        spectramap.plot_map(self.ax, range_slider=self.tab_widget.intensity_tab.range_slider, cmap=fitspy.DEFAULTS['map_cmap'])
 
     def update_plot(self, spectramap):
         xrange = self.tab_widget.intensity_tab.range_slider.value()
@@ -169,10 +171,10 @@ class Map2DPlot(QMainWindow):
             current_tab.vrange_slider.blockSignals(False)
 
         vmin, vmax = current_tab.vrange_slider.value()
-        spectramap.plot_map_update(vmin=vmin, vmax=vmax, xrange=xrange, var=var, label=label)
+        spectramap.plot_map_update(vmin=vmin, vmax=vmax, xrange=xrange, var=var, label=label, cmap=fitspy.DEFAULTS['map_cmap'])
 
     def update_plot_map(self, spectramap, xrange, var, label, current_tab):
-        spectramap.plot_map_update(xrange=xrange, var=var, label=label)
+        spectramap.plot_map_update(xrange=xrange, var=var, label=label, cmap=fitspy.DEFAULTS['map_cmap'])
         vmin, vmax = current_tab.vrange_slider.minimum(), current_tab.vrange_slider.maximum()
         rvmin, rvmax = np.nanmin(spectramap.arr), np.nanmax(spectramap.arr)
 

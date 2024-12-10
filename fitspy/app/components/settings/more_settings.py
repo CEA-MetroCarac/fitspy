@@ -14,6 +14,7 @@ from PySide6.QtWidgets import (
 )
 
 from fitspy import FIT_METHODS, DEFAULTS
+from superqt.cmap import CmapCatalogComboBox
 from .custom_spinbox import SpinBox, DoubleSpinBox
 
 class SolverSettings(QGroupBox):
@@ -110,6 +111,25 @@ class OtherSettings(QGroupBox):
         hbox.addWidget(self.outliers_removal)
 
         vbox.addLayout(hbox)
+
+        # Peaks Colormap Selection
+        hbox_peaks_cmap = QHBoxLayout()
+        self.peaks_cmap_label = QLabel("Peaks Colormap:")
+        hbox_peaks_cmap.addWidget(self.peaks_cmap_label)
+        # https://pyapp-kit.github.io/superqt/widgets/colormap_catalog/
+        # https://cmap-docs.readthedocs.io/en/stable/catalog/#colormaps-by-category
+        self.peaks_cmap = CmapCatalogComboBox(categories='qualitative')
+        hbox_peaks_cmap.addWidget(self.peaks_cmap)
+        vbox.addLayout(hbox_peaks_cmap)
+
+        # 2D Map Colormap Selection
+        hbox_map_cmap = QHBoxLayout()
+        self.map_cmap_label = QLabel("2D Map Colormap:")
+        hbox_map_cmap.addWidget(self.map_cmap_label)
+        self.map_cmap = CmapCatalogComboBox()
+        hbox_map_cmap.addWidget(self.map_cmap)
+        vbox.addLayout(hbox_map_cmap)
+
         self.setLayout(vbox)
 
 class MoreSettings(QWidget):

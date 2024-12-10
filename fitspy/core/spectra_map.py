@@ -69,7 +69,6 @@ class SpectraMap(Spectra):
 
     def create_map(self, fname):
         """ Create map """
-
         arr = get_2d_map(fname)
 
         x_map = x = list(np.sort(np.unique(arr[1:, 1])))
@@ -130,7 +129,7 @@ class SpectraMap(Spectra):
         i = self.xy_map[1].index(y)
         return i, j
 
-    def plot_map(self, ax, range_slider=None):
+    def plot_map(self, ax, range_slider=None, cmap='viridis'):
         """ Plot the integrated spectra map intensities on 'ax' """
         ax.clear()
         self.ax = ax
@@ -141,7 +140,7 @@ class SpectraMap(Spectra):
 
         # Y axis is inverted
         extent = [self.extent[0], self.extent[1], self.extent[3], self.extent[2]]
-        self.img = self.ax.imshow(self.arr, extent=extent, origin='lower')
+        self.img = self.ax.imshow(self.arr, extent=extent, origin='lower', cmap=cmap)
 
         if range_slider is not None:
             _min, _max = self[0].x0.min(), self[0].x0.max()
@@ -160,9 +159,11 @@ class SpectraMap(Spectra):
         fig.canvas.draw_idle()
 
     def plot_map_update(self, xrange=None, var='Intensity', label='',
-                        vmin=None, vmax=None):
-        """ Update 'plot_map' with intensity or models parameter passed through
-            'var' and 'label'"""
+                   vmin=None, vmax=None, cmap=None):
+        """ 
+        Update 'plot_map' with intensity or models parameter passed through
+        'var' and 'label', and apply a custom colormap if provided.
+        """
         if xrange is not None:
             self.xrange = xrange
 
@@ -172,7 +173,7 @@ class SpectraMap(Spectra):
             arr = np.sum(self.intensity[:, imin:imax + 1], axis=1)
             self.arr = arr.reshape(self.shape_map)
         else:  # models parameter displaying
-            self.arr = np.nan * np.zeros((self.shape_map[0], self.shape_map[1]))
+            self.arr = np.full((self.shape_map[0], self.shape_map[1]), np.nan)
             for spectrum in self:
                 for j, lab in enumerate(spectrum.peak_labels):
                     if lab == label:
@@ -183,11 +184,16 @@ class SpectraMap(Spectra):
 
         self.img.set_data(self.arr)
         self.img.autoscale()
+
+        if cmap is not None:
+            self.img.set_cmap(cmap)
+
         if vmin is not None:
             self.img.norm.vmin = vmin
         if vmax is not None:
             self.img.norm.vmax = vmax
-        # # self.cbar.update_normal(self.img)
+
+        # self.cbar.update_normal(self.img)
         self.ax.get_figure().canvas.draw_idle()
 
     def remove_markers(self, canvas=None):

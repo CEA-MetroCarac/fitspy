@@ -4,6 +4,7 @@ from PySide6.QtGui import QColor, QDesktopServices
 from PySide6.QtWidgets import QApplication, QFileDialog, QMessageBox
 from pyqttoast import Toast, ToastPreset
 
+import fitspy
 from fitspy.core import update_widget_palette, to_snake_case, replace_icon_colors, save_to_json, DELIMITER
 
 from .components.plot import PlotController
@@ -37,6 +38,8 @@ class MainController(QObject):
         self.view.statusBox.ncpus.currentTextChanged.connect(lambda ncpus: self.set_setting("ncpus", ncpus))
         self.model.themeChanged.connect(self.on_theme_changed)
         self.model.defaultsRestored.connect(self.apply_settings)
+        self.model.peaksCmapChanged.connect(self.update_peaks_cmap)
+        self.model.mapCmapChanged.connect(self.update_map_cmap)
 
         self.files_controller.showToast.connect(self.show_toast)
         self.files_controller.askConfirmation.connect(self.show_confirmation_dialog)
@@ -94,6 +97,8 @@ class MainController(QObject):
         self.view.more_settings.solver_settings.coef_noise.setValue(self.model.fit_params_coef_noise)
         self.view.more_settings.solver_settings.xtol.setValue(self.model.fit_params_xtol)
         self.view.more_settings.other_settings.outliers_coef.setValue(self.model.outliers_coef)
+        self.view.more_settings.other_settings.peaks_cmap.setCurrentText(self.model.peaks_cmap)
+        self.view.more_settings.other_settings.map_cmap.setCurrentText(self.model.map_cmap)
 
         if self.model.click_mode == "baseline":
             self.view.toolbar.baseline_radio.setChecked(True)
@@ -132,7 +137,7 @@ class MainController(QObject):
         if fname:
             # Getting the models of all spectrum objects
             fit_models = self.plot_controller.get_fit_models(DELIMITER)
-            
+
             data = {
                 'files': {'maps_list': maps_list,
                           'spectrum_list': spectrum_list},
@@ -287,11 +292,11 @@ class MainController(QObject):
     def save_results(self, list_widget):
         selected_items = [item.text() for item in list_widget.selectedItems()]
         spectra = self.plot_controller.model.parent()
-    
+
         if not selected_items:
             self.show_toast("ERROR", "No Selection", "No spectrum selected.")
             return
-        
+
         directory = QFileDialog.getExistingDirectory(None, "Select Save Directory")
         if directory:
             spectra.save_results(directory, selected_items)
@@ -300,3 +305,19 @@ class MainController(QObject):
     def open_manual(self):
         url = QUrl("https://cea-metrocarac.github.io/fitspy/doc/index.html")
         QDesktopServices.openUrl(url)
+
+    def update_peaks_cmap(self):
+        fitspy.DEFAULTS["peaks_cmap"] = (
+            self.view.more_settings.other_settings.peaks_cmap.currentColormap().to_mpl()
+        )
+        self.settings_controller.update_peaks_table(
+            self.plot_controller.get_spectrum()[0], block_signals=False
+        )
+
+    def update_map_cmap(self):
+        fitspy.DEFAULTS["map_cmap"] = (
+            self.view.more_settings.other_settings.map_cmap.currentColormap().to_mpl()
+        )
+        self.view.measurement_sites.update_plot(
+            self.plot_controller.model.current_map
+        )

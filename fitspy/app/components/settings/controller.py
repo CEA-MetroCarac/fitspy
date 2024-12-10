@@ -130,6 +130,10 @@ class SettingsController(QObject):
         self.other_settings.outliers_removal.clicked.connect(
             self.removeOutliers
         )
+        self.other_settings.peaks_cmap.currentColormapChanged.connect(
+            lambda cmap: self.settingChanged.emit("peaks_cmap", cmap.name.split(":")[1]))
+        self.other_settings.map_cmap.currentColormapChanged.connect(
+            lambda cmap: self.settingChanged.emit("map_cmap", cmap.name.split(":")[1]))
 
     def update_and_emit(self, key, value):
         self.update_model_dict_with_key(key, value)
@@ -241,12 +245,13 @@ class SettingsController(QObject):
         self.update_model_dict({'normalize': checked, 'normalize_range_min': range_min, 'normalize_range_max': range_max})
         self.applyNormalization.emit(checked, range_min, range_max)
 
-    def update_peaks_table(self, spectrum):
+    def update_peaks_table(self, spectrum, block_signals=True):
         self.model_builder.peaks_table.clear()
         if not spectrum:
             return
 
-        self.model.blockSignals(True)
+        if block_signals:
+            self.model.blockSignals(True)
 
         def extract_params(param_dict):
             return {
@@ -294,7 +299,8 @@ class SettingsController(QObject):
                 add_row_from_params(model._prefix, label, model.name2, model.param_hints)
             self.set_model(spectrum)
 
-        self.model.blockSignals(False)
+        if block_signals:
+            self.model.blockSignals(False)
 
     def request_fit(self):
         model_dict = self.model.current_fit_model

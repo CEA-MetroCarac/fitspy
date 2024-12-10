@@ -29,6 +29,8 @@ DEFAULTS = {
     'ncpus' : 'Auto',
     'outliers_coef': 1.5,
     'click_mode': 'baseline',
+    'peaks_cmap': 'Set1',
+    'map_cmap': 'viridis',
     'figure_options': {
         'title': 'DEFAULT_TITLE (edit in toolbar)',
     },

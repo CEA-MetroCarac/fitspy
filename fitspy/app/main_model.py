@@ -4,6 +4,8 @@ from fitspy import DEFAULTS
 
 class MainModel(QObject):
     themeChanged = Signal()
+    peaksCmapChanged = Signal()
+    mapCmapChanged = Signal()
     defaultsRestored = Signal()
 
     def __init__(self):
@@ -15,7 +17,9 @@ class MainModel(QObject):
     def _initialize_settings(self):
         """Initialize settings from DEFAULTS and QSettings."""
         signal_map = {
-            "theme": self.themeChanged
+            "theme": self.themeChanged,
+            "peaks_cmap": self.peaksCmapChanged,
+            "map_cmap": self.mapCmapChanged,
         }
 
         def create_setting(default, type, signal=None):

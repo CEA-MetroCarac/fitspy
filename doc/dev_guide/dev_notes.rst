@@ -93,8 +93,7 @@ TODO Others:
 
 TODO Nice to Have:
     - [ ] Multirow-edit for peaks settings (see https://stackoverflow.com/questions/14586715/how-can-i-achieve-to-update-multiple-rows-in-a-qtableview)
-    - [ ] See multiple spectrum with their baseline subtracted or not (need to redefine what to plot for secondary spectrum instead of just x0+y0)
-    - [x] New View option 'subtract bkg' (see existing 'subtract baseline')
+    - [ ] See multiple spectrum with their baseline subtracted or not (need to redefine what to plot for secondary spectrum instead of just x0+y0)   
     - [ ] Update save/load mechanisms to include data or not based on 'save spectrum file path only' checkbox state
     - [ ] add a confirmation prompt before load_state to avoid erasing current work
     - [ ] update dynamically the 2D map figure during fitting
@@ -102,6 +101,8 @@ TODO Nice to Have:
     - [ ] Plot Dark/Light theme `https://stackoverflow.com/questions/77748488/how-to-dynamically-change-the-sheet-type-theme-during-runtime`_
     - [ ] Idea : scroll on plot to edit nearest peak bounds
     - [ ] Add a button to copy 2D Map in clipboard ? (add mpl toolbar ?)
+    - [x] New View option 'subtract bkg' (see existing 'subtract baseline')
+    - [x] Colormap settings
     - [x] Add shortcuts for menu actions
     - [x] Warn user to disable pan/zoom if 3 clicks are detected in a short time (indicating user might want to place a peak/baseline point)
 

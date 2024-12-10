@@ -188,7 +188,6 @@ def load_models_from_txt(fname, MODELS):
                         model = ExpressionModel(expr, independent_vars=['x'])
                         model.__name__ = name
                         MODELS.update({name: model})
-                        print(f"{name} ADDED")
                     except:
                         print(f"{name} INCORRECT EXPRESSION")
 

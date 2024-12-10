@@ -3,8 +3,6 @@ from PySide6.QtWidgets import (
 )
 from PySide6.QtCore import Signal
 
-import matplotlib.cm as cm
-
 import fitspy
 from fitspy.core import get_model_params
 
@@ -22,7 +20,7 @@ class BkgTable(QWidget):
         super().__init__(parent)
         self.bkg_model = list(model_params().keys())[0]
         self.initUI()
-        self.cmap = cm.get_cmap("tab10")
+        self.cmap = fitspy.DEFAULTS['peaks_cmap']
         self.show_bounds_state = False
         self.show_expr_state = False
 
