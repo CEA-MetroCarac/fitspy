@@ -1,6 +1,7 @@
 from PySide6.QtCore import QObject, Signal
 from fitspy.core import get_dim, load_from_json
 
+
 class Model(QObject):
     spectrumListChanged = Signal(object)
     mapsListChanged = Signal()
@@ -22,7 +23,7 @@ class Model(QObject):
     @property
     def current_map(self):
         return self._current_map
-    
+
     def set_current_map(self, map):
         self._current_map = map
 
@@ -33,7 +34,7 @@ class Model(QObject):
     @property
     def spectrum_fnames(self):
         return self._spectrum_fnames
-    
+
     def add_spectrum(self, fname):
         """Add a spectrum to the model and emit signal."""
         self._spectrum_fnames.append(fname)
@@ -46,7 +47,7 @@ class Model(QObject):
         If you want to remove a spectrum, use remove_files() instead.
 
         Parameters:
-        items (dict): A dictionary where keys can be None or a spectramap fname, 
+        items (dict): A dictionary where keys can be None or a spectramap fname,
                     and values are always a list of fname.
         """
         if not isinstance(items, dict):
@@ -57,28 +58,37 @@ class Model(QObject):
 
         if spectramap is not None:
             self._spectramaps_fnames[spectramap] = [
-                fname for fname in self._spectramaps_fnames[spectramap] if fname not in fnames
+                fname
+                for fname in self._spectramaps_fnames[spectramap]
+                if fname not in fnames
             ]
         else:
-            self._spectrum_fnames = [fname for fname in self._spectrum_fnames if fname not in fnames]
+            self._spectrum_fnames = [
+                fname for fname in self._spectrum_fnames if fname not in fnames
+            ]
 
         # Emit the signal once for the modified spectramap
         self.spectrumListChanged.emit(spectramap)
 
     def load_saved_work(self, files):
         """Load saved work if a .fspy file is present."""
+
         def handle_loading(data):
             self.clear.emit()
-            self.load_files(data['files']['spectrum_list'] + data['files']['maps_list'])
-            self.loadState.emit(data['selected'], data['models'])
+            self.load_files(
+                data["files"]["spectrum_list"] + data["files"]["maps_list"]
+            )
+            self.loadState.emit(data["selected"], data["models"])
             self.showToast.emit("SUCCESS", "Work loaded.", "")
 
         if isinstance(files, str):
             files = [files]
         elif not isinstance(files, list):
-            raise TypeError("files must be a list of file paths or a single file path as a string")
+            raise TypeError(
+                "files must be a list of file paths or a single file path as a string"
+            )
 
-        fitspy_files = [f for f in files if f.endswith('.fspy')]
+        fitspy_files = [f for f in files if f.endswith(".fspy")]
 
         if len(fitspy_files) == 1:
             fitspy_file = fitspy_files[0]
@@ -88,23 +98,36 @@ class Model(QObject):
             if not self.spectramaps_fnames and not self.spectrum_fnames:
                 handle_loading(data)
             else:
-                self.askConfirmation.emit("Loading .fspy work will replace current work. Continue ?", lambda: handle_loading(data), (), {})
+                self.askConfirmation.emit(
+                    "Loading .fspy work will replace current work. Continue ?",
+                    lambda: handle_loading(data),
+                    (),
+                    {},
+                )
 
         if len(fitspy_files) > 1:
-            self.showToast.emit("WARNING", "Only one work can be loaded at a time.", "Please select only one .fspy file or .json/.txt files.")
+            self.showToast.emit(
+                "WARNING",
+                "Only one work can be loaded at a time.",
+                "Please select only one .fspy file or .json/.txt files.",
+            )
             files = [f for f in files if f not in fitspy_files]
 
         return files
 
     def load_spectrum_files(self, files):
         """Load spectrum files and emit signal if new files are added."""
-        new_files = [file for file in files if file not in self._spectrum_fnames]
+        new_files = [
+            file for file in files if file not in self._spectrum_fnames
+        ]
         if new_files:
             self.loadSpectrum.emit(files)
 
     def load_spectramap_files(self, files):
         """Load spectramap files and emit signal for each new file."""
-        new_files = [file for file in files if file not in self._spectramaps_fnames]
+        new_files = [
+            file for file in files if file not in self._spectramaps_fnames
+        ]
         for file in new_files:
             self.loadSpectraMap.emit(file)
 
@@ -135,14 +158,14 @@ class Model(QObject):
 
     def remove_files(self, files):
         """Remove files from the model and emit signals if files are removed.
-        
+
         Args:
             files (list or dict): A list of files or a dictionary where keys can be None or a spectramap fname,
                                 and values are always a list of fname.
-                                
-                                When passed as a list, it should only be used by the app itself because 
-                                when a user deletes spectrum from the list, we know these spectrum are 
-                                from the current map due to how the app is built. Otherwise, a dictionary 
+
+                                When passed as a list, it should only be used by the app itself because
+                                when a user deletes spectrum from the list, we know these spectrum are
+                                from the current map due to how the app is built. Otherwise, a dictionary
                                 is necessary to identify each spectrum (whether it is from a map or not).
         """
         if not files:

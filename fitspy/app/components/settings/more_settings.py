@@ -17,6 +17,7 @@ from fitspy import FIT_METHODS, DEFAULTS
 from superqt.cmap import CmapCatalogComboBox
 from .custom_spinbox import SpinBox, DoubleSpinBox
 
+
 class SolverSettings(QGroupBox):
     def __init__(self):
         super().__init__()
@@ -80,9 +81,12 @@ class SolverSettings(QGroupBox):
         hbox3.addItem(spacer)
         vbox.addLayout(hbox3)
 
-        vbox.addItem(QSpacerItem(0, 20, QSizePolicy.Minimum, QSizePolicy.Expanding))
+        vbox.addItem(
+            QSpacerItem(0, 20, QSizePolicy.Minimum, QSizePolicy.Expanding)
+        )
 
         self.setLayout(vbox)
+
 
 class OtherSettings(QGroupBox):
     def __init__(self):
@@ -107,7 +111,9 @@ class OtherSettings(QGroupBox):
         hbox.addWidget(self.outliers_coef)
 
         self.outliers_removal = QPushButton("Outliers removal")
-        self.outliers_removal.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        self.outliers_removal.setSizePolicy(
+            QSizePolicy.Fixed, QSizePolicy.Fixed
+        )
         hbox.addWidget(self.outliers_removal)
 
         vbox.addLayout(hbox)
@@ -118,7 +124,7 @@ class OtherSettings(QGroupBox):
         hbox_peaks_cmap.addWidget(self.peaks_cmap_label)
         # https://pyapp-kit.github.io/superqt/widgets/colormap_catalog/
         # https://cmap-docs.readthedocs.io/en/stable/catalog/#colormaps-by-category
-        self.peaks_cmap = CmapCatalogComboBox(categories='qualitative')
+        self.peaks_cmap = CmapCatalogComboBox(categories="qualitative")
         hbox_peaks_cmap.addWidget(self.peaks_cmap)
         vbox.addLayout(hbox_peaks_cmap)
 
@@ -131,6 +137,7 @@ class OtherSettings(QGroupBox):
         vbox.addLayout(hbox_map_cmap)
 
         self.setLayout(vbox)
+
 
 class MoreSettings(QWidget):
     def __init__(self):

@@ -1,6 +1,7 @@
 from PySide6.QtWidgets import QDoubleSpinBox, QSpinBox
 from PySide6.QtGui import QAction
 
+
 class DoubleSpinBox(QDoubleSpinBox):
     def __init__(self, parent=None, empty_value=None):
         super().__init__(parent)
@@ -17,10 +18,10 @@ class DoubleSpinBox(QDoubleSpinBox):
                 self.setValue(self.empty_value)
 
     def value(self):
-        if self.text() == '':
+        if self.text() == "":
             return None
         return super().value()
-    
+
     def setValue(self, value):
         if value is None:
             self.clear()
@@ -29,22 +30,23 @@ class DoubleSpinBox(QDoubleSpinBox):
 
     def contextMenuEvent(self, event):
         menu = self.lineEdit().createStandardContextMenu()
-        
+
         set_to_inf_action = QAction("Set to Max", self)
         set_to_inf_action.triggered.connect(self.set_to_max)
         menu.addAction(set_to_inf_action)
-        
+
         set_to_default_action = QAction("Set to Default", self)
         set_to_default_action.triggered.connect(self.set_to_default)
         menu.addAction(set_to_default_action)
-        
+
         menu.exec(event.globalPos())
 
     def set_to_max(self):
-        self.setValue(float('inf'))
-    
+        self.setValue(float("inf"))
+
     def set_to_default(self):
         self.setValue(self.empty_value)
+
 
 class SpinBox(QSpinBox):
     def __init__(self, parent=None, empty_value=None):
@@ -61,10 +63,10 @@ class SpinBox(QSpinBox):
                 self.setValue(self.empty_value)
 
     def value(self):
-        if self.text() == '':
+        if self.text() == "":
             return None
         return super().value()
-    
+
     def setValue(self, value):
         if value is None:
             self.clear()
@@ -73,11 +75,11 @@ class SpinBox(QSpinBox):
 
     def contextMenuEvent(self, event):
         menu = self.lineEdit().createStandardContextMenu()
-        
+
         set_to_default_action = QAction("Set to Default", self)
         set_to_default_action.triggered.connect(self.set_to_default)
         menu.addAction(set_to_default_action)
-        
+
         menu.exec(event.globalPos())
 
     def set_to_default(self):

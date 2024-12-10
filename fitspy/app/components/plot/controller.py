@@ -33,7 +33,7 @@ class PlotController(QObject):
     def init_click_timer(self):
         def reset_click_counter():
             self.consecutive_clicks = 0
-            
+
         self.consecutive_clicks = 0
         self.click_threshold = 3
         self.click_interval = 1000
@@ -41,24 +41,42 @@ class PlotController(QObject):
         self.click_timer.setInterval(self.click_interval)
         self.click_timer.setSingleShot(True)
         self.click_timer.timeout.connect(reset_click_counter)
-    
+
     def setup_connections(self):
         self.toolbar.copy_btn.clicked.connect(self.spectra_plot.copy_figure)
         self.spectra_plot.showToast.connect(self.showToast)
 
-        self.map2d_plot.canvas.mpl_connect('button_press_event', self.map2d_plot.on_click)
-        self.map2d_plot.dock_widget.topLevelChanged.connect(self.map2d_plot.onDockWidgetTopLevelChanged)
-        self.map2d_plot.tab_widget.currentChanged.connect(lambda: self.map2d_plot.onTabWidgetCurrentChanged(self.model.current_map))
-        self.map2d_plot.tab_widget.intensity_tab.range_slider.valueChanged.connect(lambda: self.map2d_plot.onTabWidgetCurrentChanged(self.model.current_map))
+        self.map2d_plot.canvas.mpl_connect(
+            "button_press_event", self.map2d_plot.on_click
+        )
+        self.map2d_plot.dock_widget.topLevelChanged.connect(
+            self.map2d_plot.onDockWidgetTopLevelChanged
+        )
+        self.map2d_plot.tab_widget.currentChanged.connect(
+            lambda: self.map2d_plot.onTabWidgetCurrentChanged(
+                self.model.current_map
+            )
+        )
+        self.map2d_plot.tab_widget.intensity_tab.range_slider.valueChanged.connect(
+            lambda: self.map2d_plot.onTabWidgetCurrentChanged(
+                self.model.current_map
+            )
+        )
         self.map2d_plot.addMarker.connect(self.set_marker)
 
         for i in range(self.map2d_plot.tab_widget.count()):
             tab = self.map2d_plot.tab_widget.widget(i)
-            tab.vrange_slider.valueChanged.connect(lambda: self.map2d_plot.update_plot(self.model.current_map))
-            tab.export_btn.clicked.connect(lambda: self.exportCSV.emit(self.model.current_map))
-            if hasattr(tab, 'combo'):
+            tab.vrange_slider.valueChanged.connect(
+                lambda: self.map2d_plot.update_plot(self.model.current_map)
+            )
+            tab.export_btn.clicked.connect(
+                lambda: self.exportCSV.emit(self.model.current_map)
+            )
+            if hasattr(tab, "combo"):
                 # FIXME FIX MAP2DPLOT MVC
-                tab.combo.currentIndexChanged.connect(lambda: self.map2d_plot.update_plot(self.model.current_map))
+                tab.combo.currentIndexChanged.connect(
+                    lambda: self.map2d_plot.update_plot(self.model.current_map)
+                )
 
         self.model.showToast.connect(self.showToast)
         self.model.spectrumLoaded.connect(self.spectrumLoaded)
@@ -74,11 +92,17 @@ class PlotController(QObject):
         self.model.askConfirmation.connect(self.askConfirmation)
 
         self.toolbar.fitting_radio.toggled.connect(self.on_click_mode_changed)
-        self.spectra_plot.canvas.mpl_connect('motion_notify_event', self.on_motion)
-        self.spectra_plot.canvas.mpl_connect('button_press_event', self.on_spectra_plot_click)
+        self.spectra_plot.canvas.mpl_connect(
+            "motion_notify_event", self.on_motion
+        )
+        self.spectra_plot.canvas.mpl_connect(
+            "button_press_event", self.on_spectra_plot_click
+        )
 
         for label, checkbox in self.view_options.checkboxes.items():
-            checkbox.stateChanged.connect(lambda state, cb=checkbox: self.view_option_changed(cb))
+            checkbox.stateChanged.connect(
+                lambda state, cb=checkbox: self.view_option_changed(cb)
+            )
 
     def on_motion(self, event):
         ax = self.spectra_plot.ax
@@ -86,7 +110,9 @@ class PlotController(QObject):
 
     def set_marker(self, spectrum_or_fname_or_coords):
         if self.model.current_map:
-            fname = self.model.current_map.set_marker(spectrum_or_fname_or_coords)
+            fname = self.model.current_map.set_marker(
+                spectrum_or_fname_or_coords
+            )
             self.highlightSpectrum.emit(fname)
 
     def view_option_changed(self, checkbox):
@@ -112,7 +138,9 @@ class PlotController(QObject):
 
     def set_current_spectrum(self, fnames):
         parent = self.model.parent()
-        self.model.current_spectrum = [self.model.spectra.get_objects(fname, parent)[0] for fname in fnames]
+        self.model.current_spectrum = [
+            self.model.spectra.get_objects(fname, parent)[0] for fname in fnames
+        ]
 
     def update_spectraplot(self):
         ax = self.spectra_plot.ax
@@ -123,7 +151,7 @@ class PlotController(QObject):
         if fname is None:
             return self.model.current_spectrum
         return self.model.spectra.get_objects(fname)[0]
-    
+
     def get_fit_models(self, delimiter):
         return self.model.get_fit_models(delimiter)
 
@@ -141,27 +169,41 @@ class PlotController(QObject):
     def on_spectra_plot_click(self, event):
         """Callback for click events on the spectra plot."""
         # Do not add baseline or peak points when pan or zoom are selected
-        if self.toolbar.mpl_toolbar.is_pan_active() or self.toolbar.mpl_toolbar.is_zoom_active():
+        if (
+            self.toolbar.mpl_toolbar.is_pan_active()
+            or self.toolbar.mpl_toolbar.is_zoom_active()
+        ):
             self.consecutive_clicks += 1
             self.click_timer.start()
             if self.consecutive_clicks > self.click_threshold:
-                self.showToast.emit("INFO", "Pan/Zoom Mode", "If you want to add baseline or peak points, disable pan/zoom mode.")
+                self.showToast.emit(
+                    "INFO",
+                    "Pan/Zoom Mode",
+                    "If you want to add baseline or peak points, disable pan/zoom mode.",
+                )
             return
         else:
             self.consecutive_clicks = 0
-        
+
         # if event.button not in [1, 3]:
         #     return  # Ignore middle mouse button
-        action = 'add' if event.button == 1 else 'del'
-        point_type = 'baseline' if self.toolbar.baseline_radio.isChecked() else 'peak'
+        action = "add" if event.button == 1 else "del"
+        point_type = (
+            "baseline" if self.toolbar.baseline_radio.isChecked() else "peak"
+        )
 
-        if action == 'add':
-            if point_type == 'baseline':
+        if action == "add":
+            if point_type == "baseline":
                 self.model.add_baseline_point(event.xdata, event.ydata)
             else:
-                self.model.add_peak_point(self.spectra_plot.ax, self.model.peak_model, event.xdata, event.ydata)
-        elif action == 'del':
-            if point_type == 'baseline':
+                self.model.add_peak_point(
+                    self.spectra_plot.ax,
+                    self.model.peak_model,
+                    event.xdata,
+                    event.ydata,
+                )
+        elif action == "del":
+            if point_type == "baseline":
                 self.model.del_baseline_point(event.xdata)
             else:
                 self.model.del_peak_point(event.xdata)
@@ -180,13 +222,17 @@ class PlotController(QObject):
         self.model.set_baseline_points(points)
 
     def apply_baseline(self):
-        self.colorizeFromFitStatus.emit({s.fname: None for s in self.model.current_spectrum})
+        self.colorizeFromFitStatus.emit(
+            {s.fname: None for s in self.model.current_spectrum}
+        )
         self.model.preprocess()
         self.update_spectraplot()
 
     def apply_spectral_range(self, min, max, fnames=None):
         if fnames is None:
-            fnames = [spectrum.fname for spectrum in self.model.current_spectrum]
+            fnames = [
+                spectrum.fname for spectrum in self.model.current_spectrum
+            ]
 
         for fname in fnames:
             self.model.set_spectrum_attr(fname, "range_min", min)
@@ -201,8 +247,12 @@ class PlotController(QObject):
         parent = self.model.parent()
         for spectrum in parent:
             self.model.set_spectrum_attr(spectrum.fname, "normalize", state)
-            self.model.set_spectrum_attr(spectrum.fname, "normalize_range_min", min)
-            self.model.set_spectrum_attr(spectrum.fname, "normalize_range_max", max)
+            self.model.set_spectrum_attr(
+                spectrum.fname, "normalize_range_min", min
+            )
+            self.model.set_spectrum_attr(
+                spectrum.fname, "normalize_range_max", max
+            )
             self.colorizeFromFitStatus.emit({spectrum.fname: None})
             spectrum.preprocess()
 
@@ -231,13 +281,18 @@ class PlotController(QObject):
             return
         for spectrum in self.model.current_spectrum:
             spectrum.set_attributes(bkg)
-            
+
         self.update_spectraplot()
 
     def set_spectra_attributes(self, models):
         self.model.spectra.set_attributes(models)
 
     def fit(self, model_dict, ncpus):
-        fit_params = model_dict.get('fit_params', {})
+        fit_params = model_dict.get("fit_params", {})
         fnames = [spectrum.fname for spectrum in self.model.current_spectrum]
-        self.model.apply_model(model_dict=model_dict, fnames=fnames, fit_params=fit_params, ncpus=ncpus)
+        self.model.apply_model(
+            model_dict=model_dict,
+            fnames=fnames,
+            fit_params=fit_params,
+            ncpus=ncpus,
+        )

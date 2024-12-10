@@ -4,6 +4,7 @@ from PySide6.QtCore import QSize
 
 from fitspy.core import get_icon_path
 
+
 class MenuBar(QToolBar):
     def __init__(self):
         super().__init__()
@@ -47,7 +48,6 @@ class MenuBar(QToolBar):
             icon=QIcon(get_icon_path("clear.png")),
             toolTip="Clear the environment (Ctrl+Shift+C)",
             shortcut="Ctrl+Shift+C",
-            
         )
         self.actionRestoreDefaults = QAction(
             self,
@@ -62,19 +62,26 @@ class MenuBar(QToolBar):
         self.setFloatable(False)
 
         actions = [
-            self.actionOpen, self.actionSave, self.actionClearEnv, self.actionRestoreDefaults,
+            self.actionOpen,
+            self.actionSave,
+            self.actionClearEnv,
+            self.actionRestoreDefaults,
             None,  # Separator
             QWidget(self),  # Spacer
-            self.actionDarkMode, self.actionLightMode,
+            self.actionDarkMode,
+            self.actionLightMode,
             None,  # Separator
-            self.actionManual, self.actionAbout,
+            self.actionManual,
+            self.actionAbout,
         ]
 
         for action in actions:
             if action is None:
                 self.addSeparator()
             elif isinstance(action, QWidget):
-                action.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+                action.setSizePolicy(
+                    QSizePolicy.Expanding, QSizePolicy.Expanding
+                )
                 self.addWidget(action)
             else:
                 self.addAction(action)

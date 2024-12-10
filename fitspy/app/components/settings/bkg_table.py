@@ -1,6 +1,4 @@
-from PySide6.QtWidgets import (
-    QLabel, QVBoxLayout, QHeaderView, QWidget
-)
+from PySide6.QtWidgets import QLabel, QVBoxLayout, QHeaderView, QWidget
 from PySide6.QtCore import Signal
 
 import fitspy
@@ -9,8 +7,10 @@ from fitspy.core import get_model_params
 from .generic_table import GenericTable
 from .peaks_table import SpinBoxGroupWithExpression, CenteredCheckBox
 
+
 def model_params():
     return get_model_params(fitspy.BKG_MODELS)
+
 
 class BkgTable(QWidget):
     bkgChanged = Signal(dict)
@@ -20,7 +20,7 @@ class BkgTable(QWidget):
         super().__init__(parent)
         self.bkg_model = list(model_params().keys())[0]
         self.initUI()
-        self.cmap = fitspy.DEFAULTS['peaks_cmap']
+        self.cmap = fitspy.DEFAULTS["peaks_cmap"]
         self.show_bounds_state = False
         self.show_expr_state = False
 
@@ -37,58 +37,68 @@ class BkgTable(QWidget):
     @property
     def row_count(self):
         return self.table.row_count
-    
+
     def get_bkg_model(self):
         def get_widget_value(row, column_name):
             # case insensitive search
-            column_names = [col_name.lower() for col_name in self.table.columns]   
-            widget = self.table.cellWidget(row, column_names.index(column_name.lower()))
+            column_names = [col_name.lower() for col_name in self.table.columns]
+            widget = self.table.cellWidget(
+                row, column_names.index(column_name.lower())
+            )
 
             if isinstance(widget, SpinBoxGroupWithExpression):
                 return widget.get_values()
             elif isinstance(widget, CenteredCheckBox):
                 return widget.isChecked()
-            elif hasattr(widget, 'value'):
+            elif hasattr(widget, "value"):
                 return widget.value()
-            elif hasattr(widget, 'currentText'):
+            elif hasattr(widget, "currentText"):
                 return widget.currentText()
             else:
                 return widget.text()
 
-        bkg_model = {'bkg_model': {
-                    self.bkg_model: {}
-                    }}
+        bkg_model = {"bkg_model": {self.bkg_model: {}}}
 
         for row in range(self.table.rowCount()):
             params = model_params()[self.bkg_model]
             for param in params:
-                if 'MIN |' and '| MAX' in param:
-                    param_name = param.split(' | ')[1].lower()
+                if "MIN |" and "| MAX" in param:
+                    param_name = param.split(" | ")[1].lower()
                     param_dict = get_widget_value(row, param)
-                    bkg_model['bkg_model'][self.bkg_model][param_name] = {
-                        'min': param_dict['min'],
-                        'max': param_dict['max'],
-                        'value': param_dict['value'],
-                        'vary': get_widget_value(row, f"{param_name}_vary"),
-                        'expr': param_dict['expr']
+                    bkg_model["bkg_model"][self.bkg_model][param_name] = {
+                        "min": param_dict["min"],
+                        "max": param_dict["max"],
+                        "value": param_dict["value"],
+                        "vary": get_widget_value(row, f"{param_name}_vary"),
+                        "expr": param_dict["expr"],
                     }
         return bkg_model
-    
+
     def emit_bkg_changed(self):
         bkg_model = self.get_bkg_model()
 
         # if there is a peak with incorrect bounds, show a warning and return
-        for param in bkg_model['bkg_model'][self.bkg_model].values():
-            if param['min'] > param['max']:
-                self.showToast.emit("WARNING", "Invalid bounds", "Minimum value must be less than maximum value.")
+        for param in bkg_model["bkg_model"][self.bkg_model].values():
+            if param["min"] > param["max"]:
+                self.showToast.emit(
+                    "WARNING",
+                    "Invalid bounds",
+                    "Minimum value must be less than maximum value.",
+                )
                 return
-            if not (param['min'] <= param['value'] <= param['max']):
-                self.showToast.emit("WARNING", "Value out of bounds", f"Value {param['value']} must be between {param['min']} and {param['max']}.")
+            if not (param["min"] <= param["value"] <= param["max"]):
+                self.showToast.emit(
+                    "WARNING",
+                    "Value out of bounds",
+                    f"Value {param['value']} must be between {param['min']} and {param['max']}.",
+                )
                 return
-            
+
         self.bkgChanged.emit(bkg_model)
-    
-    def create_spin_box_group_with_expr(self, min_value=-float("inf"), value=0, max_value=float("inf"), expr=''):
+
+    def create_spin_box_group_with_expr(
+        self, min_value=-float("inf"), value=0, max_value=float("inf"), expr=""
+    ):
         widget = SpinBoxGroupWithExpression(min_value, value, max_value, expr)
         widget.min_spin_box.editingFinished.connect(self.emit_bkg_changed)
         widget.value_spin_box.editingFinished.connect(self.emit_bkg_changed)
@@ -126,28 +136,39 @@ class BkgTable(QWidget):
             parameters = model_params().get(self.bkg_model, [])
             for param in parameters:
                 if "MIN |" in param and "| MAX" in param:
-                    existing_widget = self.table.cellWidget(row, self.table.get_column_index(param))
-                    if not isinstance(existing_widget, SpinBoxGroupWithExpression):
+                    existing_widget = self.table.cellWidget(
+                        row, self.table.get_column_index(param)
+                    )
+                    if not isinstance(
+                        existing_widget, SpinBoxGroupWithExpression
+                    ):
                         widget = self.create_spin_box_group_with_expr()
-                        self.table.setCellWidget(row, self.table.get_column_index(param), widget)
+                        self.table.setCellWidget(
+                            row, self.table.get_column_index(param), widget
+                        )
                 elif param.endswith("_vary"):
-                    existing_widget = self.table.cellWidget(row, self.table.get_column_index(param))
+                    existing_widget = self.table.cellWidget(
+                        row, self.table.get_column_index(param)
+                    )
                     if not isinstance(existing_widget, CenteredCheckBox):
-                        widget = CenteredCheckBox(callback=self.emit_bkg_changed)
-                        self.table.setCellWidget(row, self.table.get_column_index(param), widget)
+                        widget = CenteredCheckBox(
+                            callback=self.emit_bkg_changed
+                        )
+                        self.table.setCellWidget(
+                            row, self.table.get_column_index(param), widget
+                        )
 
     def clear(self):
         """del all columns of self.table without deleting rows"""
         for column in list(self.table.columns.keys()):
             self.table.remove_column(column)
-        self.bkgChanged.emit({'bkg_model': None})
+        self.bkgChanged.emit({"bkg_model": None})
 
     def add_row(self, show_bounds, show_expr, **params):
         self.show_bounds_state = show_bounds
         self.show_expr_state = show_expr
 
-        row_widgets = {
-        }
+        row_widgets = {}
 
         model_name = params["model_name"]
         parameters = model_params().get(model_name, [])
@@ -155,18 +176,22 @@ class BkgTable(QWidget):
         for param in parameters:
             # Getting min, value, max and expr values
             if "MIN |" in param and "| MAX" in param:
-                param_key = param.split('|')[1].strip().lower()
+                param_key = param.split("|")[1].strip().lower()
                 min_value = params.get(f"{param_key}_min")
                 value = params.get(f"{param_key}")
                 max_value = params.get(f"{param_key}_max")
                 expr = params.get(f"{param_key}_expr")
-                widget = self.create_spin_box_group_with_expr(min_value, value, max_value, expr)
+                widget = self.create_spin_box_group_with_expr(
+                    min_value, value, max_value, expr
+                )
                 widget.show_bounds(show_bounds)
                 widget.show_expr(show_expr)
                 row_widgets[param] = widget
             elif param.endswith("_vary"):
                 checked = params.get(param, False)
-                widget = CenteredCheckBox(checked, callback=self.emit_bkg_changed)
+                widget = CenteredCheckBox(
+                    checked, callback=self.emit_bkg_changed
+                )
                 row_widgets[param] = widget
 
         # Ensure all columns are added to the table
@@ -188,26 +213,31 @@ class BkgTable(QWidget):
             vary_col = f"{param}_vary"
 
             # Update SpinBoxGroupWithExpression
-            spin_widget = self.table.cellWidget(row, self.table.get_column_index(min_max_col))
+            spin_widget = self.table.cellWidget(
+                row, self.table.get_column_index(min_max_col)
+            )
             if isinstance(spin_widget, SpinBoxGroupWithExpression):
                 spin_widget.set_values(
-                    min_value=hints.get('min', -float("inf")),
-                    value=hints.get('value', 0),
-                    max_value=hints.get('max', float("inf")),
-                    expr=hints.get('expr', '')
+                    min_value=hints.get("min", -float("inf")),
+                    value=hints.get("value", 0),
+                    max_value=hints.get("max", float("inf")),
+                    expr=hints.get("expr", ""),
                 )
 
             # Update CenteredCheckBox
-            vary_widget = self.table.cellWidget(row, self.table.get_column_index(vary_col))
+            vary_widget = self.table.cellWidget(
+                row, self.table.get_column_index(vary_col)
+            )
             if isinstance(vary_widget, CenteredCheckBox):
-                vary_widget.setChecked(hints.get('vary', False))
-            
+                vary_widget.setChecked(hints.get("vary", False))
 
     def show_bounds(self, show):
         for row in range(self.table.rowCount()):
             for column_name in self.table.columns:
                 if "MIN |" in column_name and "| MAX" in column_name:
-                    widget = self.table.cellWidget(row, self.table.get_column_index(column_name))
+                    widget = self.table.cellWidget(
+                        row, self.table.get_column_index(column_name)
+                    )
                     if isinstance(widget, SpinBoxGroupWithExpression):
                         widget.show_bounds(show)
         self.show_bounds_state = show
@@ -220,7 +250,9 @@ class BkgTable(QWidget):
         for row in range(self.table.rowCount()):
             for column_name in self.table.columns:
                 if "MIN |" in column_name and "| MAX" in column_name:
-                    widget = self.table.cellWidget(row, self.table.get_column_index(column_name))
+                    widget = self.table.cellWidget(
+                        row, self.table.get_column_index(column_name)
+                    )
                     if isinstance(widget, SpinBoxGroupWithExpression):
                         widget.show_expr(show)
             self.table.resizeRowsToContents()

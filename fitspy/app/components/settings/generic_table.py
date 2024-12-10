@@ -1,5 +1,11 @@
-from PySide6.QtWidgets import QTableWidget, QSizePolicy, QAbstractItemView, QHeaderView
+from PySide6.QtWidgets import (
+    QTableWidget,
+    QSizePolicy,
+    QAbstractItemView,
+    QHeaderView,
+)
 from PySide6.QtCore import Qt, Signal
+
 
 class GenericTable(QTableWidget):
     rowsDeleted = Signal(list)
@@ -28,7 +34,7 @@ class GenericTable(QTableWidget):
         self.insertRow(self.row_count)
         for col, header in enumerate(self.columns.keys()):
             widget = kwargs.get(header)
-            self.setCellWidget(self.row_count, col, widget)  
+            self.setCellWidget(self.row_count, col, widget)
         self.row_count += 1
         self.resizeRowsToContents()
 
@@ -63,7 +69,9 @@ class GenericTable(QTableWidget):
             super().keyPressEvent(event)
 
     def delete_selected_rows(self):
-        selected_rows = sorted(set(index.row() for index in self.selectedIndexes()), reverse=True)
+        selected_rows = sorted(
+            set(index.row() for index in self.selectedIndexes()), reverse=True
+        )
         deleted_rows_data = []
         for row in selected_rows:
             row_data = {

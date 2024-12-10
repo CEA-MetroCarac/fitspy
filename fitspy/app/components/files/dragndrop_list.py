@@ -1,11 +1,21 @@
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import QListWidget, QAbstractItemView
-from PySide6.QtGui import QDragEnterEvent, QDropEvent, QDragLeaveEvent, QPainter, QPalette, QColor
+from PySide6.QtGui import (
+    QDragEnterEvent,
+    QDropEvent,
+    QDragLeaveEvent,
+    QPainter,
+    QPalette,
+    QColor,
+)
+
 
 class DragAndDropList(QListWidget):
     filesDropped = Signal(list)
 
-    def __init__(self, parent=None, selection_mode=QListWidget.ExtendedSelection):
+    def __init__(
+        self, parent=None, selection_mode=QListWidget.ExtendedSelection
+    ):
         super().__init__(parent)
         self.setAcceptDrops(True)
         self.setSelectionMode(selection_mode)
@@ -52,7 +62,9 @@ class DragAndDropList(QListWidget):
                 painter.setPen(self.palette().color(QPalette.Highlight))
                 text = "Release to load file(s)"
             else:
-                painter.setPen(self.palette().color(QPalette.Disabled, QPalette.Text))
+                painter.setPen(
+                    self.palette().color(QPalette.Disabled, QPalette.Text)
+                )
                 text = "Drag and Drop File(s) Here"
 
             rect = self.rect()

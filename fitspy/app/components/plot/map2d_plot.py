@@ -1,5 +1,15 @@
 from PySide6.QtCore import Qt, Signal
-from PySide6.QtWidgets import QMainWindow, QComboBox, QWidget, QVBoxLayout, QLabel, QHBoxLayout, QPushButton, QTabWidget, QDockWidget
+from PySide6.QtWidgets import (
+    QMainWindow,
+    QComboBox,
+    QWidget,
+    QVBoxLayout,
+    QLabel,
+    QHBoxLayout,
+    QPushButton,
+    QTabWidget,
+    QDockWidget,
+)
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_qtagg import FigureCanvas
 from superqt import QLabeledDoubleRangeSlider as QRangeSlider
@@ -7,6 +17,7 @@ from superqt import QLabeledDoubleRangeSlider as QRangeSlider
 import fitspy
 
 import numpy as np
+
 
 class CommonTab(QWidget):
     def __init__(self, parent=None):
@@ -20,7 +31,7 @@ class CommonTab(QWidget):
         h_layout1 = QHBoxLayout()
 
         self.vrange_slider = QRangeSlider()
-        self.vrange_slider.setRange(0,0)
+        self.vrange_slider.setRange(0, 0)
         self.vrange_slider.setDecimals(2)
         self.vrange_slider.setOrientation(Qt.Horizontal)
 
@@ -32,6 +43,7 @@ class CommonTab(QWidget):
         h_layout1.addWidget(self.export_btn)
 
         self.layout.addLayout(h_layout1)
+
 
 class CommonTabWithCombo(CommonTab):
     def __init__(self, parent=None):
@@ -59,11 +71,12 @@ class IntensityTab(CommonTab):
         h_layout2.setSpacing(10)
         self.range_label = QLabel("X-Range")
         self.range_slider = QRangeSlider()
-        self.range_slider.barColor = '#3c94ed'
+        self.range_slider.barColor = "#3c94ed"
         h_layout2.addWidget(self.range_label)
         h_layout2.addWidget(self.range_slider)
 
         self.layout.addLayout(h_layout2)
+
 
 class Settings(QTabWidget):
     def __init__(self, parent=None):
@@ -88,6 +101,7 @@ class Settings(QTabWidget):
         self.setMaximumHeight(120)
         self.setVisible(False)
 
+
 class Map2DPlot(QMainWindow):
     addMarker = Signal(tuple)
 
@@ -97,8 +111,12 @@ class Map2DPlot(QMainWindow):
         self.colorbar = None
 
     def initUI(self):
-        self.dock_widget = QDockWidget("Measurement sites (Drag to undock)", self)
-        self.dock_widget.setFeatures(QDockWidget.DockWidgetFloatable | QDockWidget.DockWidgetMovable)
+        self.dock_widget = QDockWidget(
+            "Measurement sites (Drag to undock)", self
+        )
+        self.dock_widget.setFeatures(
+            QDockWidget.DockWidgetFloatable | QDockWidget.DockWidgetMovable
+        )
 
         self.dock_container = QWidget()
         self.dock_layout = QVBoxLayout(self.dock_container)
@@ -110,7 +128,7 @@ class Map2DPlot(QMainWindow):
         self.dock_layout.addWidget(self.tab_widget)
 
         # Spectra 2D Map
-        self.figure = Figure(layout='compressed')
+        self.figure = Figure(layout="compressed")
         self.ax = self.figure.add_subplot(111)
         self.canvas = FigureCanvas(self.figure)
         self.dock_layout.addWidget(self.canvas)
@@ -153,32 +171,53 @@ class Map2DPlot(QMainWindow):
         self.remove_colorbar()
 
     def plot_spectramap(self, spectramap):
-        spectramap.plot_map(self.ax, range_slider=self.tab_widget.intensity_tab.range_slider, cmap=fitspy.DEFAULTS['map_cmap'])
+        spectramap.plot_map(
+            self.ax,
+            range_slider=self.tab_widget.intensity_tab.range_slider,
+            cmap=fitspy.DEFAULTS["map_cmap"],
+        )
 
     def update_plot(self, spectramap):
         xrange = self.tab_widget.intensity_tab.range_slider.value()
         var = self.tab_widget.tabText(self.tab_widget.currentIndex())
         current_tab = self.tab_widget.currentWidget()
 
-        if hasattr(current_tab, 'combo'):
+        if hasattr(current_tab, "combo"):
             label = current_tab.combo.currentText()
         else:
-            label = ''
+            label = ""
 
-        if hasattr(current_tab, 'vrange_slider'):
+        if hasattr(current_tab, "vrange_slider"):
             current_tab.vrange_slider.blockSignals(True)
             self.update_plot_map(spectramap, xrange, var, label, current_tab)
             current_tab.vrange_slider.blockSignals(False)
 
         vmin, vmax = current_tab.vrange_slider.value()
-        spectramap.plot_map_update(vmin=vmin, vmax=vmax, xrange=xrange, var=var, label=label, cmap=fitspy.DEFAULTS['map_cmap'])
+        spectramap.plot_map_update(
+            vmin=vmin,
+            vmax=vmax,
+            xrange=xrange,
+            var=var,
+            label=label,
+            cmap=fitspy.DEFAULTS["map_cmap"],
+        )
 
     def update_plot_map(self, spectramap, xrange, var, label, current_tab):
-        spectramap.plot_map_update(xrange=xrange, var=var, label=label, cmap=fitspy.DEFAULTS['map_cmap'])
-        vmin, vmax = current_tab.vrange_slider.minimum(), current_tab.vrange_slider.maximum()
+        spectramap.plot_map_update(
+            xrange=xrange,
+            var=var,
+            label=label,
+            cmap=fitspy.DEFAULTS["map_cmap"],
+        )
+        vmin, vmax = (
+            current_tab.vrange_slider.minimum(),
+            current_tab.vrange_slider.maximum(),
+        )
         rvmin, rvmax = np.nanmin(spectramap.arr), np.nanmax(spectramap.arr)
 
-        if (vmin, vmax) != (rvmin, rvmax) and not np.all(np.isnan(spectramap.arr)):
+        if (vmin, vmax) != (rvmin, rvmax) and not np.all(
+            np.isnan(spectramap.arr)
+        ):
             current_tab.vrange_slider.setRange(rvmin, rvmax)
             current_tab.vrange_slider.setValue((rvmin, rvmax))
 
@@ -202,7 +241,17 @@ class Map2DPlot(QMainWindow):
 
     # Utility Functions
     def collect_unique_labels(self, spectramap):
-        return sorted(list(set([label for spectrum in spectramap for label in spectrum.peak_labels])))
+        return sorted(
+            list(
+                set(
+                    [
+                        label
+                        for spectrum in spectramap
+                        for label in spectrum.peak_labels
+                    ]
+                )
+            )
+        )
 
     def update_labels(self, spectramap):
         labels = self.collect_unique_labels(spectramap)
@@ -212,7 +261,7 @@ class Map2DPlot(QMainWindow):
 
     def update_combo_box(self, labels):
         current_tab = self.tab_widget.currentWidget()
-        if hasattr(current_tab, 'combo'):
+        if hasattr(current_tab, "combo"):
             current_tab.combo.clear()
             current_tab.combo.addItems(labels)
 
@@ -220,7 +269,7 @@ class Map2DPlot(QMainWindow):
         if current_tab is None:
             current_tab = self.tab_widget.currentWidget()
 
-        if hasattr(current_tab, 'vrange_slider'):
+        if hasattr(current_tab, "vrange_slider"):
             current_tab.vrange_slider.blockSignals(True)
             self.set_slider_range_and_value(current_tab, spectramap)
             current_tab.vrange_slider.blockSignals(False)

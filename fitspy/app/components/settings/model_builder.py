@@ -1,10 +1,22 @@
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtGui import QIcon
 from PySide6.QtCore import QSize
-from PySide6.QtWidgets import QRadioButton, QSlider, QVBoxLayout, \
-    QHBoxLayout, QScrollArea, QPushButton, QCheckBox, QLabel, \
-    QWidget, QComboBox, QSpacerItem, QSizePolicy, QButtonGroup, \
-    QTabWidget
+from PySide6.QtWidgets import (
+    QRadioButton,
+    QSlider,
+    QVBoxLayout,
+    QHBoxLayout,
+    QScrollArea,
+    QPushButton,
+    QCheckBox,
+    QLabel,
+    QWidget,
+    QComboBox,
+    QSpacerItem,
+    QSizePolicy,
+    QButtonGroup,
+    QTabWidget,
+)
 
 import fitspy
 from superqt import QCollapsible
@@ -122,6 +134,7 @@ class Baseline(QCollapsible):
         self.setContent(content_widget)
         self.expand(animate=False)
 
+
 class Normalization(QCollapsible):
     def __init__(self, parent=None):
         super().__init__("Normalization", parent)
@@ -153,6 +166,7 @@ class Normalization(QCollapsible):
         self.setContent(content_widget)
         self.expand(animate=False)
 
+
 class Fitting(QCollapsible):
     loadPeakModel = Signal()
     loadBkgModel = Signal()
@@ -171,28 +185,28 @@ class Fitting(QCollapsible):
             vbox_layout,
             "Peak model:",
             fitspy.PEAK_MODELS.keys(),
-            model_type='peak'
+            model_type="peak",
         )
         self.bkg_model = self.create_section(
             vbox_layout,
             "Background model:",
             fitspy.BKG_MODELS.keys(),
-            model_type='bkg'
+            model_type="bkg",
         )
 
         self.setContent(content_widget)
         self.expand(animate=False)
 
-    def create_section(self, layout, label_text, items=[], model_type='peak'):
+    def create_section(self, layout, label_text, items=[], model_type="peak"):
         label = QLabel(label_text)
         spacer = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
         combo_box = QComboBox()
         combo_box.addItems(items)
         load_btn = QPushButton("Load")
 
-        if model_type == 'peak':
+        if model_type == "peak":
             load_btn.clicked.connect(self.loadPeakModel.emit)
-        elif model_type == 'bkg':
+        elif model_type == "bkg":
             load_btn.clicked.connect(self.loadBkgModel.emit)
 
         h_layout = QHBoxLayout()
@@ -207,7 +221,7 @@ class Fitting(QCollapsible):
         layout.addLayout(h_layout)
 
         return combo_box
-    
+
     def update_combo_boxes(self):
         """Refresh the items in peak_model and bkg_model combo boxes."""
         self.peak_model.blockSignals(True)
@@ -361,29 +375,37 @@ class ModelBuilder(QWidget):
 
     def update_model(self, model):
         # Spectral range
-        self.model_settings.spectral_range.range_min.setValue(model.get('range_min', 0))
-        self.model_settings.spectral_range.range_max.setValue(model.get('range_max', 0))
+        self.model_settings.spectral_range.range_min.setValue(
+            model.get("range_min", 0)
+        )
+        self.model_settings.spectral_range.range_max.setValue(
+            model.get("range_max", 0)
+        )
 
         # Baseline
         baseline = self.model_settings.baseline
-        baseline_model = model.get('baseline', {})
+        baseline_model = model.get("baseline", {})
         baseline.button_group.setExclusive(False)
-        baseline.semi_auto.setChecked(baseline_model.get('mode', None) == "Semi-Auto")
-        baseline.linear.setChecked(baseline_model.get('mode', None) == "Linear")
-        baseline.polynomial.setChecked(baseline_model.get('mode', None) == "Polynomial")
+        baseline.semi_auto.setChecked(
+            baseline_model.get("mode", None) == "Semi-Auto"
+        )
+        baseline.linear.setChecked(baseline_model.get("mode", None) == "Linear")
+        baseline.polynomial.setChecked(
+            baseline_model.get("mode", None) == "Polynomial"
+        )
         baseline.button_group.setExclusive(True)
 
-        baseline.attached.setChecked(baseline_model.get('attached', False))
-        baseline.order.setValue(baseline_model.get('order_max', 0))
-        baseline.sigma.setValue(baseline_model.get('sigma', 0))
-        baseline.slider.setValue(baseline_model.get('coef', 0))
+        baseline.attached.setChecked(baseline_model.get("attached", False))
+        baseline.order.setValue(baseline_model.get("order_max", 0))
+        baseline.sigma.setValue(baseline_model.get("sigma", 0))
+        baseline.slider.setValue(baseline_model.get("coef", 0))
 
         # Normalization
         normalization = self.model_settings.normalization
-        normalization.range_min.setValue(model.get('normalize_range_min', 0))
-        normalization.range_max.setValue(model.get('normalize_range_max', 0))
-        normalization.normalize.setChecked(model.get('normalize', False))
+        normalization.range_min.setValue(model.get("normalize_range_min", 0))
+        normalization.range_max.setValue(model.get("normalize_range_max", 0))
+        normalization.normalize.setChecked(model.get("normalize", False))
 
         # Fitting
-        bkg_model = next(iter(model.get('bkg_model') or {}), 'None')
+        bkg_model = next(iter(model.get("bkg_model") or {}), "None")
         self.model_settings.fitting.bkg_model.setCurrentText(bkg_model)

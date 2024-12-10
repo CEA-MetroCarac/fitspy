@@ -16,7 +16,7 @@ class SpectraPlot(QWidget):
         layout = QHBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
 
-        self.figure = Figure(layout='compressed')
+        self.figure = Figure(layout="compressed")
         self.ax = self.figure.add_subplot(111)
         self.canvas = FigureCanvas(self.figure)
 
@@ -25,16 +25,19 @@ class SpectraPlot(QWidget):
         self.setLayout(layout)
 
     def copy_figure(self):
-        """ Copy the figure to the clipboard using Pyside6 QCliboard """
+        """Copy the figure to the clipboard using Pyside6 QCliboard"""
         clipboard = QClipboard()
 
         # Get the figure as a QPixmap
         buffer = self.canvas.buffer_rgba()
         width, height = self.canvas.get_width_height()
-        pixmap = QPixmap.fromImage(QImage(buffer, width, height, QImage.Format_ARGB32))
+        pixmap = QPixmap.fromImage(
+            QImage(buffer, width, height, QImage.Format_ARGB32)
+        )
 
         clipboard.setPixmap(pixmap)
         self.showToast.emit("success", "Figure copied to clipboard", "")
+
 
 if __name__ == "__main__":
     import sys

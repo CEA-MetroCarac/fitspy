@@ -1,8 +1,14 @@
 from pathlib import Path
 from PySide6.QtCore import QSize, Qt
 from PySide6.QtWidgets import (
-    QMainWindow, QFrame, QGridLayout, QHBoxLayout,
-    QSplitter, QTabWidget, QVBoxLayout, QWidget,
+    QMainWindow,
+    QFrame,
+    QGridLayout,
+    QHBoxLayout,
+    QSplitter,
+    QTabWidget,
+    QVBoxLayout,
+    QWidget,
 )
 
 from .components import MenuBar, About
@@ -11,7 +17,8 @@ from .components.settings import StatusBox, ModelBuilder, MoreSettings
 from .components.files import MapsList, SpectrumList
 
 project_root = Path(__file__).resolve().parent.parent
-icons = project_root / 'resources' / 'iconpack'
+icons = project_root / "resources" / "iconpack"
+
 
 class MainView(QMainWindow):
     def __init__(self):
@@ -125,7 +132,9 @@ class MainView(QMainWindow):
 
         # Set initial sizes for the splitter
         initial_sidebar_width = 170
-        self.main_splitter.setSizes([self.width() - initial_sidebar_width, initial_sidebar_width])
+        self.main_splitter.setSizes(
+            [self.width() - initial_sidebar_width, initial_sidebar_width]
+        )
 
     def about(self):
         dialog = About(self)

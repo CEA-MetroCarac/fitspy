@@ -1,5 +1,6 @@
 from PySide6.QtWidgets import QDialog, QLabel, QVBoxLayout
 
+
 class About(QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -15,7 +16,9 @@ class About(QDialog):
         font.setBold(True)
         wip_label.setFont(font)
 
-        text_label = QLabel("Fitspy is a Python application for processing and analyzing spectral data.")
+        text_label = QLabel(
+            "Fitspy is a Python application for processing and analyzing spectral data."
+        )
         text_label.setWordWrap(True)
 
         layout.addWidget(wip_label)

@@ -5,8 +5,12 @@ from .model import Model
 
 import fitspy
 from fitspy import FIT_METHODS
-from fitspy.core.utils import save_to_json, load_from_json, \
-    load_models_from_txt, load_models_from_py
+from fitspy.core.utils import (
+    save_to_json,
+    load_from_json,
+    load_models_from_txt,
+    load_models_from_py,
+)
 
 TYPES = "JSON Files (*.json);;All Files (*)"
 
@@ -47,14 +51,20 @@ class SettingsController(QObject):
         # Baseline settings
         baseline = self.model_builder.model_settings.baseline
         baseline_modes = {
-        baseline.semi_auto: "Semi-Auto",
-        baseline.linear: "Linear",
-        baseline.polynomial: "Polynomial"
+            baseline.semi_auto: "Semi-Auto",
+            baseline.linear: "Linear",
+            baseline.polynomial: "Polynomial",
         }
 
         for button, mode in baseline_modes.items():
-            button.toggled.connect(lambda checked, mode=mode: self.update_and_emit("baseline.mode", mode) if checked else None)
-    
+            button.toggled.connect(
+                lambda checked, mode=mode: (
+                    self.update_and_emit("baseline.mode", mode)
+                    if checked
+                    else None
+                )
+            )
+
         baseline.slider.valueChanged.connect(
             lambda value: self.update_and_emit("baseline.coef", value)
         )
@@ -73,55 +83,95 @@ class SettingsController(QObject):
         # Normalization settings
         normalization = model_settings.normalization
         normalization.normalize.toggled.connect(self.apply_normalization)
-        normalization.range_min.editingFinished.connect(self.apply_normalization)
-        normalization.range_max.editingFinished.connect(self.apply_normalization)
+        normalization.range_min.editingFinished.connect(
+            self.apply_normalization
+        )
+        normalization.range_max.editingFinished.connect(
+            self.apply_normalization
+        )
 
         # Fitting settings
-        model_settings.fitting.peak_model.currentTextChanged.connect(self.switch_peak_model)
-        model_settings.fitting.bkg_model.currentTextChanged.connect(self.switch_bkg_model)
-        model_settings.fitting.loadPeakModel.connect(lambda: self.load_user_models(fitspy.PEAK_MODELS))
-        model_settings.fitting.loadBkgModel.connect(lambda: self.load_user_models(fitspy.BKG_MODELS))
+        model_settings.fitting.peak_model.currentTextChanged.connect(
+            self.switch_peak_model
+        )
+        model_settings.fitting.bkg_model.currentTextChanged.connect(
+            self.switch_bkg_model
+        )
+        model_settings.fitting.loadPeakModel.connect(
+            lambda: self.load_user_models(fitspy.PEAK_MODELS)
+        )
+        model_settings.fitting.loadBkgModel.connect(
+            lambda: self.load_user_models(fitspy.BKG_MODELS)
+        )
 
         # Save model
         model_settings.save.clicked.connect(self.save_model)
         model_settings.fit.clicked.connect(self.request_fit)
 
         # Peaks + Baseline Table
-        self.model_builder.baseline_table.baselinePointsChanged.connect(self.set_baseline_points)
-        self.model_builder.bounds_chbox.stateChanged.connect(self.model_builder.peaks_table.show_bounds)
-        self.model_builder.expr_chbox.stateChanged.connect(self.model_builder.peaks_table.show_expr)
-        self.model_builder.bounds_chbox.stateChanged.connect(self.model_builder.bkg_table.show_bounds)
-        self.model_builder.expr_chbox.stateChanged.connect(self.model_builder.bkg_table.show_expr)
-        self.model_builder.peaks_table.peaksChanged.connect(self.update_model_dict)
+        self.model_builder.baseline_table.baselinePointsChanged.connect(
+            self.set_baseline_points
+        )
+        self.model_builder.bounds_chbox.stateChanged.connect(
+            self.model_builder.peaks_table.show_bounds
+        )
+        self.model_builder.expr_chbox.stateChanged.connect(
+            self.model_builder.peaks_table.show_expr
+        )
+        self.model_builder.bounds_chbox.stateChanged.connect(
+            self.model_builder.bkg_table.show_bounds
+        )
+        self.model_builder.expr_chbox.stateChanged.connect(
+            self.model_builder.bkg_table.show_expr
+        )
+        self.model_builder.peaks_table.peaksChanged.connect(
+            self.update_model_dict
+        )
         self.model_builder.peaks_table.showToast.connect(self.showToast)
         self.model_builder.bkg_table.bkgChanged.connect(self.update_model_dict)
         self.model_builder.bkg_table.showToast.connect(self.showToast)
         self.model.baselinePointsChanged.connect(self.baselinePointsChanged)
-        self.model.baselinePointsChanged.connect(self.model_builder.baseline_table.set_points)
+        self.model.baselinePointsChanged.connect(
+            self.model_builder.baseline_table.set_points
+        )
 
         # Model selector
         model_selector.load_btn.clicked.connect(self.load_model)
-        model_selector.apply.clicked.connect(lambda: self.select_model(model_selector.combo_box.currentText()))
+        model_selector.apply.clicked.connect(
+            lambda: self.select_model(model_selector.combo_box.currentText())
+        )
         model_selector.preview.toggled.connect(self.preview_model)
 
         # Other settings
         self.solver_settings.fit_negative.toggled.connect(
-            lambda checked: self.update_model_dict_with_key("fit_params.fit_negative", checked)
+            lambda checked: self.update_model_dict_with_key(
+                "fit_params.fit_negative", checked
+            )
         )
         self.solver_settings.fit_outliers.toggled.connect(
-            lambda checked: self.update_model_dict_with_key("fit_params.fit_outliers", checked)
+            lambda checked: self.update_model_dict_with_key(
+                "fit_params.fit_outliers", checked
+            )
         )
         self.solver_settings.method.currentTextChanged.connect(
-            lambda text: self.update_model_dict_with_key("fit_params.method", FIT_METHODS[text])
+            lambda text: self.update_model_dict_with_key(
+                "fit_params.method", FIT_METHODS[text]
+            )
         )
         self.solver_settings.max_ite.valueChanged.connect(
-            lambda value: self.update_model_dict_with_key("fit_params.max_ite", value)
+            lambda value: self.update_model_dict_with_key(
+                "fit_params.max_ite", value
+            )
         )
         self.solver_settings.coef_noise.valueChanged.connect(
-            lambda value: self.update_model_dict_with_key("fit_params.coef_noise", value)
+            lambda value: self.update_model_dict_with_key(
+                "fit_params.coef_noise", value
+            )
         )
         self.solver_settings.xtol.valueChanged.connect(
-            lambda value: self.update_model_dict_with_key("fit_params.xtol", value)
+            lambda value: self.update_model_dict_with_key(
+                "fit_params.xtol", value
+            )
         )
 
         self.other_settings.outliers_coef.valueChanged.connect(
@@ -131,9 +181,15 @@ class SettingsController(QObject):
             self.removeOutliers
         )
         self.other_settings.peaks_cmap.currentColormapChanged.connect(
-            lambda cmap: self.settingChanged.emit("peaks_cmap", cmap.name.split(":")[1]))
+            lambda cmap: self.settingChanged.emit(
+                "peaks_cmap", cmap.name.split(":")[1]
+            )
+        )
         self.other_settings.map_cmap.currentColormapChanged.connect(
-            lambda cmap: self.settingChanged.emit("map_cmap", cmap.name.split(":")[1]))
+            lambda cmap: self.settingChanged.emit(
+                "map_cmap", cmap.name.split(":")[1]
+            )
+        )
 
     def update_and_emit(self, key, value):
         self.update_model_dict_with_key(key, value)
@@ -141,24 +197,24 @@ class SettingsController(QObject):
 
     def update_model_dict_with_key(self, key, value):
         self.model.blockSignals(True)
-        keys = key.split('.')
+        keys = key.split(".")
         current_dict = self.model.current_fit_model
         for k in keys[:-1]:
             if k not in current_dict:
                 current_dict[k] = {}
             current_dict = current_dict[k]
         current_dict[keys[-1]] = value
-        if key.startswith('fit_params'):
-            self.settingChanged.emit(key.replace('.', '_'), value)
+        if key.startswith("fit_params"):
+            self.settingChanged.emit(key.replace(".", "_"), value)
         self.model.blockSignals(False)
-    
+
     def set_model(self, spectrum):
-        """ Set the current model to the spectrum model"""
+        """Set the current model to the spectrum model"""
         if isinstance(spectrum, dict):
             model = spectrum
         else:
             model = spectrum.save()
-            model['baseline'].pop('y_eval')
+            model["baseline"].pop("y_eval")
 
         self.model.current_fit_model = model
 
@@ -167,9 +223,9 @@ class SettingsController(QObject):
         for key, value in model_dict.items():
             self.model.current_fit_model[key] = value
 
-        if 'peak_models' in model_dict or 'peak_label' in model_dict:
+        if "peak_models" in model_dict or "peak_label" in model_dict:
             self.setPeaks.emit(model_dict)
-        if 'bkg_model' in model_dict:
+        if "bkg_model" in model_dict:
             self.setBkg.emit(model_dict)
 
     def clear_model(self):
@@ -192,25 +248,25 @@ class SettingsController(QObject):
 
     def select_model(self, fname):
         model = load_from_json(fname)
-        model.pop('fname', None)	
+        model.pop("fname", None)
         self.model.current_fit_model = model
 
     def apply_model(self, fit_model):
-        """ Reflects the changes in the model to the GUI """
+        """Reflects the changes in the model to the GUI"""
         self.model_builder.update_model(fit_model)
-        points = fit_model.get('baseline', {}).get('points', [[],[]])
+        points = fit_model.get("baseline", {}).get("points", [[], []])
         self.set_baseline_points(points)
         self.update_peaks_table(fit_model)
 
-        bkg_model_dict = fit_model.get('bkg_model') or {}
-        bkg_model = next(iter(bkg_model_dict), 'None')
+        bkg_model_dict = fit_model.get("bkg_model") or {}
+        bkg_model = next(iter(bkg_model_dict), "None")
         self.update_bkg_table(bkg_model_dict.get(bkg_model, {}))
 
-    def set_baseline_points(self, points=[[],[]]):
+    def set_baseline_points(self, points=[[], []]):
         self.model.baseline_points = points
         if points[0]:
             # Uncesseray to block signals, signals are not triggered when setting specific keys
-            self.model.current_fit_model['baseline']['points'] = points
+            self.model.current_fit_model["baseline"]["points"] = points
 
     def apply_spectral_range(self):
         spectral_range = self.model_builder.model_settings.spectral_range
@@ -220,18 +276,21 @@ class SettingsController(QObject):
         # if both are not None and range_min is >= range_max then show an error message
         if range_min is not None and range_max is not None:
             if range_min >= range_max:
-                self.showToast.emit("error", "Invalid spectral range", "Minimum value must be less than maximum value")
+                self.showToast.emit(
+                    "error",
+                    "Invalid spectral range",
+                    "Minimum value must be less than maximum value",
+                )
                 return
-        self.update_model_dict({
-            "range_min": range_min,
-            "range_max": range_max
-        })
+        self.update_model_dict({"range_min": range_min, "range_max": range_max})
 
         self.applySpectralRange.emit(range_min, range_max)
 
     def apply_normalization(self, checked=None):
         if checked is None:
-            checked = self.model_builder.model_settings.normalization.normalize.isChecked()
+            checked = (
+                self.model_builder.model_settings.normalization.normalize.isChecked()
+            )
 
         normalization = self.model_builder.model_settings.normalization
         range_min = normalization.range_min.value()
@@ -239,10 +298,20 @@ class SettingsController(QObject):
 
         if range_min is not None and range_max is not None and checked:
             if range_min >= range_max:
-                self.showToast.emit("error", "Invalid normalization range", "Minimum value must be less than maximum value")
+                self.showToast.emit(
+                    "error",
+                    "Invalid normalization range",
+                    "Minimum value must be less than maximum value",
+                )
                 return
 
-        self.update_model_dict({'normalize': checked, 'normalize_range_min': range_min, 'normalize_range_max': range_max})
+        self.update_model_dict(
+            {
+                "normalize": checked,
+                "normalize_range_min": range_min,
+                "normalize_range_max": range_max,
+            }
+        )
         self.applyNormalization.emit(checked, range_min, range_max)
 
     def update_peaks_table(self, spectrum, block_signals=True):
@@ -255,18 +324,18 @@ class SettingsController(QObject):
 
         def extract_params(param_dict):
             return {
-            "min": param_dict.get("min"),
-            "value": param_dict.get("value"),
-            "max": param_dict.get("max"),
-            "vary": param_dict.get("vary"),
-            # "expr": param_dict.get("expr"),
-        }
+                "min": param_dict.get("min"),
+                "value": param_dict.get("value"),
+                "max": param_dict.get("max"),
+                "vary": param_dict.get("vary"),
+                # "expr": param_dict.get("expr"),
+            }
 
         def add_row_from_params(prefix, label, model_name, params):
             row_params = {
-            "prefix": prefix,
-            "label": label,
-            "model_name": model_name,
+                "prefix": prefix,
+                "label": label,
+                "model_name": model_name,
             }
 
             for param_name, param_data in params.items():
@@ -280,23 +349,27 @@ class SettingsController(QObject):
 
             show_bounds = self.model_builder.bounds_chbox.isChecked()
             show_expr = self.model_builder.expr_chbox.isChecked()
-            self.model_builder.peaks_table.add_row(show_bounds, show_expr, **row_params)
+            self.model_builder.peaks_table.add_row(
+                show_bounds, show_expr, **row_params
+            )
 
         if isinstance(spectrum, dict):
             fit_model = spectrum
-            peak_models = fit_model.get('peak_models', {})
-            peak_labels = fit_model.get('peak_labels', [])
+            peak_models = fit_model.get("peak_models", {})
+            peak_labels = fit_model.get("peak_labels", [])
 
             for key, model_dict in peak_models.items():
                 label = peak_labels[key]
-                prefix = f'm{key+1:02d}_'
+                prefix = f"m{key+1:02d}_"
                 for model_name, params in model_dict.items():
                     add_row_from_params(prefix, label, model_name, params)
 
             self.update_model_dict(fit_model)
         else:
             for label, model in zip(spectrum.peak_labels, spectrum.peak_models):
-                add_row_from_params(model._prefix, label, model.name2, model.param_hints)
+                add_row_from_params(
+                    model._prefix, label, model.name2, model.param_hints
+                )
             self.set_model(spectrum)
 
         if block_signals:
@@ -327,10 +400,12 @@ class SettingsController(QObject):
 
             # Keep the preview checkbox enabled
             self.model_builder.model_selector.preview.setDisabled(False)
-        
+
         if checked:
             # Backup the current fit model
-            self.model.backup_fit_model = copy.deepcopy(self.model.current_fit_model)
+            self.model.backup_fit_model = copy.deepcopy(
+                self.model.current_fit_model
+            )
             combo_box.setItemText(current_index, current_text + " (Preview)")
             model = load_from_json(current_text)
             lock_inputs(True)
@@ -353,24 +428,32 @@ class SettingsController(QObject):
         self.model_builder.bkg_table.bkg_model = model_name
         self.model_builder.bkg_table.update_columns_based_on_model()
         self.setBkgModel.emit(model_name)
-        
+
     def update_bkg_table(self, param_hints):
         self.model_builder.bkg_table.update_row(param_hints)
 
     def get_baseline_mode(self):
-        return self.model.current_fit_model['baseline']['mode']
+        return self.model.current_fit_model["baseline"]["mode"]
 
     def load_user_models(self, models: dict):
-        fname = QFileDialog.getOpenFileName(None, "Select File", "", "Python and Text Files (*.py *.txt)")[0]
+        fname = QFileDialog.getOpenFileName(
+            None, "Select File", "", "Python and Text Files (*.py *.txt)"
+        )[0]
         if fname:
             initial_keys = set(models.keys())
-            if fname.endswith('.txt'):
+            if fname.endswith(".txt"):
                 load_models_from_txt(fname, models)
             else:
                 load_models_from_py(fname)
             new_keys = set(models.keys()) - initial_keys
             if new_keys:
-                self.showToast.emit("SUCCESS", "Models Loaded", ', '.join(new_keys))
+                self.showToast.emit(
+                    "SUCCESS", "Models Loaded", ", ".join(new_keys)
+                )
             else:
-                self.showToast.emit("WARNING", "Something went wrong", "No new models were found in the file")
+                self.showToast.emit(
+                    "WARNING",
+                    "Something went wrong",
+                    "No new models were found in the file",
+                )
         self.model_builder.model_settings.fitting.update_combo_boxes()
