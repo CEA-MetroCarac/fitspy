@@ -451,14 +451,16 @@ class MainController(QObject):
         fitspy.DEFAULTS["peaks_cmap"] = (
             self.view.more_settings.other_settings.peaks_cmap.currentColormap().to_mpl()
         )
-        self.settings_controller.update_peaks_table(
-            self.plot_controller.get_spectrum()[0], block_signals=False
-        )
+        if self.plot_controller.get_spectrum():
+            self.settings_controller.update_peaks_table(
+                self.plot_controller.get_spectrum()[0], block_signals=False
+            )
 
     def update_map_cmap(self):
         fitspy.DEFAULTS["map_cmap"] = (
             self.view.more_settings.other_settings.map_cmap.currentColormap().to_mpl()
         )
-        self.view.measurement_sites.update_plot(
-            self.plot_controller.model.current_map
-        )
+        if self.plot_controller.model.current_map:
+            self.view.measurement_sites.update_plot(
+                self.plot_controller.model.current_map
+            )
