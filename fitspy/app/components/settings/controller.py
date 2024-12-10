@@ -1,4 +1,5 @@
 import copy
+from pathlib import Path
 from PySide6.QtCore import QObject, Signal
 from PySide6.QtWidgets import QFileDialog, QWidget
 from .model import Model
@@ -38,6 +39,7 @@ class SettingsController(QObject):
         self.solver_settings = more_settings.solver_settings
         self.other_settings = more_settings.other_settings
         self.setup_connections()
+        self.load_default_models()
 
     def setup_connections(self):
         model_settings = self.model_builder.model_settings
@@ -190,6 +192,13 @@ class SettingsController(QObject):
                 "map_cmap", cmap.name.split(":")[1]
             )
         )
+
+    def load_default_models(self):
+        HOME = Path.home()
+        self.load_user_models(fitspy.PEAK_MODELS, fname=HOME / "Fitspy" / "peak_models.txt")
+        self.load_user_models(fitspy.PEAK_MODELS, fname=HOME / "Fitspy" / "peak_models.py")
+        self.load_user_models(fitspy.BKG_MODELS, fname=HOME / "Fitspy" / "bkg_models.txt")
+        self.load_user_models(fitspy.BKG_MODELS, fname=HOME / "Fitspy" / "bkg_models.py")
 
     def update_and_emit(self, key, value):
         self.update_model_dict_with_key(key, value)
@@ -435,16 +444,19 @@ class SettingsController(QObject):
     def get_baseline_mode(self):
         return self.model.current_fit_model["baseline"]["mode"]
 
-    def load_user_models(self, models: dict):
-        fname = QFileDialog.getOpenFileName(
-            None, "Select File", "", "Python and Text Files (*.py *.txt)"
-        )[0]
-        if fname:
+    def load_user_models(self, models: dict, fname: Path = None):
+        if fname is None:
+            fname_str = QFileDialog.getOpenFileName(
+                None, "Select File", "", "Python and Text Files (*.py *.txt)"
+            )[0]
+            fname = Path(fname_str) if fname_str else None
+
+        if fname and fname.exists():
             initial_keys = set(models.keys())
-            if fname.endswith(".txt"):
-                load_models_from_txt(fname, models)
+            if fname.suffix == ".txt":
+                load_models_from_txt(str(fname), models)
             else:
-                load_models_from_py(fname)
+                load_models_from_py(str(fname))
             new_keys = set(models.keys()) - initial_keys
             if new_keys:
                 self.showToast.emit(
