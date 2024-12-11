@@ -102,10 +102,10 @@ class SettingsController(QObject):
             self.switch_bkg_model
         )
         model_settings.fitting.loadPeakModel.connect(
-            lambda: self.load_user_models(fitspy.PEAK_MODELS)
+            lambda fname: self.load_user_models(fitspy.PEAK_MODELS, fname)
         )
         model_settings.fitting.loadBkgModel.connect(
-            lambda: self.load_user_models(fitspy.BKG_MODELS)
+            lambda fname: self.load_user_models(fitspy.BKG_MODELS, fname)
         )
 
         # Save model
@@ -140,6 +140,9 @@ class SettingsController(QObject):
         )
 
         # Model selector
+        model_selector.combo_box.itemAdded.connect(
+            lambda fname: self.load_model(fname)
+        )
         model_selector.add.clicked.connect(self.load_model)
         model_selector.apply.clicked.connect(
             lambda: self.select_model(model_selector.combo_box.currentText())
@@ -243,8 +246,10 @@ class SettingsController(QObject):
     def clear_model(self):
         self.model.current_fit_model = {}
 
-    def load_model(self):
-        fname = QFileDialog.getOpenFileName(None, "Load File", "", TYPES)[0]
+    def load_model(self, fname=None):
+        if fname is None:
+            fname = QFileDialog.getOpenFileName(None, "Load File", "", TYPES)[0]
+
         if fname:
             if fname not in self.model.loaded_models:
                 self.model_builder.model_selector.combo_box.addItem(fname)
@@ -445,12 +450,15 @@ class SettingsController(QObject):
     def get_baseline_mode(self):
         return self.model.current_fit_model["baseline"]["mode"]
 
-    def load_user_models(self, models: dict, fname: Path = None):
+    def load_user_models(self, models: dict, fname=None):
         if fname is None:
             fname_str = QFileDialog.getOpenFileName(
                 None, "Select File", "", "Python and Text Files (*.py *.txt)"
             )[0]
             fname = Path(fname_str) if fname_str else None
+
+        if isinstance(fname, str):
+            fname = Path(fname)
 
         if fname and fname.exists():
             initial_keys = set(models.keys())

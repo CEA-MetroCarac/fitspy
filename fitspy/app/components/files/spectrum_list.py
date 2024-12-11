@@ -9,7 +9,7 @@ from PySide6.QtWidgets import (
 )
 
 from fitspy.core import get_icon_path
-from .dragndrop_list import DragAndDropList
+from .dragndrop_list import DragNDropList
 
 
 class SpectrumList(QWidget):
@@ -31,7 +31,7 @@ class SpectrumList(QWidget):
         )
         self.save_btn.setIconSize(QSize(20, 20))
 
-        self.list = DragAndDropList()
+        self.list = DragNDropList()
 
         main_layout = QVBoxLayout()
         main_layout.setContentsMargins(0, 0, 0, 0)

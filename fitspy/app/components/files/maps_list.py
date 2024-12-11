@@ -10,7 +10,7 @@ from PySide6.QtWidgets import (
 )
 
 from fitspy.core import get_icon_path
-from .dragndrop_list import DragAndDropList
+from .dragndrop_list import DragNDropList
 
 
 class MapsList(QWidget):
@@ -30,7 +30,7 @@ class MapsList(QWidget):
         self.rm_btn = QPushButton(icon=QIcon(get_icon_path("remove.png")))
         self.rm_btn.setIconSize(QSize(20, 20))
 
-        self.list = DragAndDropList(selection_mode=QListWidget.SingleSelection)
+        self.list = DragNDropList(selection_mode=QListWidget.SingleSelection)
 
         main_layout = QVBoxLayout()
         main_layout.setContentsMargins(0, 0, 0, 0)

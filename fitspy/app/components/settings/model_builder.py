@@ -22,6 +22,7 @@ import fitspy
 from superqt import QCollapsible
 from fitspy.core import get_icon_path
 from .custom_spinbox import SpinBox, DoubleSpinBox
+from .dragndrop_combo import DragNDropCombo
 from .peaks_table import PeaksTable
 from .bkg_table import BkgTable
 from .baseline_table import BaselineTable
@@ -168,8 +169,8 @@ class Normalization(QCollapsible):
 
 
 class Fitting(QCollapsible):
-    loadPeakModel = Signal()
-    loadBkgModel = Signal()
+    loadPeakModel = Signal(object)
+    loadBkgModel = Signal(object)
 
     def __init__(self, parent=None):
         super().__init__("Fitting", parent)
@@ -200,7 +201,7 @@ class Fitting(QCollapsible):
     def create_section(self, layout, label_text, items=[], model_type="peak"):
         label = QLabel(label_text)
         spacer = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
-        combo_box = QComboBox()
+        combo_box = DragNDropCombo()
         combo_box.addItems(items)
         add = QPushButton(
             "Add Model", icon=QIcon(get_icon_path("add.png")),
@@ -208,9 +209,11 @@ class Fitting(QCollapsible):
         )
 
         if model_type == "peak":
-            add.clicked.connect(self.loadPeakModel.emit)
+            add.clicked.connect(lambda: self.loadPeakModel.emit(None))
+            combo_box.itemAdded.connect(lambda fname: self.loadPeakModel.emit(fname))
         elif model_type == "bkg":
-            add.clicked.connect(self.loadBkgModel.emit)
+            add.clicked.connect(lambda: self.loadBkgModel.emit(None))
+            combo_box.itemAdded.connect(lambda fname: self.loadBkgModel.emit(fname))
 
         h_layout = QHBoxLayout()
         h_layout.setSpacing(5)
@@ -304,8 +307,7 @@ class ModelSelector(QWidget):
         h_layout.setSpacing(2)
         h_layout.setContentsMargins(1, 1, 1, 1)
 
-        self.combo_box = QComboBox()
-        self.combo_box.setPlaceholderText("Select a model for fitting")
+        self.combo_box = DragNDropCombo()
 
         self.preview = QCheckBox(
             "Preview", toolTip="Preview the selected model without applying it"

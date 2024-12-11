@@ -1,26 +1,20 @@
+from PySide6.QtWidgets import QComboBox
 from PySide6.QtCore import Qt, Signal
-from PySide6.QtWidgets import QListWidget, QAbstractItemView
 from PySide6.QtGui import (
     QDragEnterEvent,
-    QDropEvent,
     QDragLeaveEvent,
+    QDropEvent,
     QPainter,
     QPalette,
-    QColor,
 )
 
 
-class DragNDropList(QListWidget):
-    filesDropped = Signal(list)
+class DragNDropCombo(QComboBox):
+    itemAdded = Signal(str)
 
-    def __init__(
-        self, parent=None, selection_mode=QListWidget.ExtendedSelection
-    ):
+    def __init__(self, parent=None):
         super().__init__(parent)
         self.setAcceptDrops(True)
-        self.setSelectionMode(selection_mode)
-        self.setSelectionBehavior(QAbstractItemView.SelectItems)
-        self.setSelectionRectVisible(True)
         self.drag_active = False
 
     def dragEnterEvent(self, event: QDragEnterEvent):
@@ -33,29 +27,27 @@ class DragNDropList(QListWidget):
         if event.mimeData().hasUrls():
             event.acceptProposedAction()
             self.drag_active = True
-            self.viewport().update()
+            self.update()
         else:
             super().dragMoveEvent(event)
 
     def dragLeaveEvent(self, event: QDragLeaveEvent):
         self.drag_active = False
-        self.viewport().update()
+        self.update()
         super().dragLeaveEvent(event)
 
     def dropEvent(self, event: QDropEvent):
-        if event.mimeData().hasUrls():
-            file_paths = [url.toLocalFile() for url in event.mimeData().urls()]
-            self.filesDropped.emit(file_paths)
-            event.acceptProposedAction()
-        else:
-            super().dropEvent(event)
+        for url in event.mimeData().urls():
+            fname = url.toLocalFile()
+            if fname not in [self.itemText(i) for i in range(self.count())]:
+                self.itemAdded.emit(fname)
+        event.acceptProposedAction()
         self.drag_active = False
-        self.viewport().update()
 
     def paintEvent(self, event):
         super().paintEvent(event)
         if self.count() == 0:
-            painter = QPainter(self.viewport())
+            painter = QPainter(self)
             painter.save()
 
             if self.drag_active:
@@ -65,21 +57,9 @@ class DragNDropList(QListWidget):
                 painter.setPen(
                     self.palette().color(QPalette.Disabled, QPalette.Text)
                 )
-                text = "Drag and Drop File(s) Here"
+                text = "Fitting Models: Drag and Drop File(s) Here"
 
             rect = self.rect()
             painter.drawText(rect, Qt.AlignCenter, text)
 
             painter.restore()
-
-    def colorize_items(self, fnames=None, color=None):
-        if fnames is None:
-            fnames = [self.item(i).text() for i in range(self.count())]
-
-        for i in range(self.count()):
-            item = self.item(i)
-            if item.text() in fnames:
-                if color is None:
-                    item.setBackground(self.palette().base())
-                else:
-                    item.setBackground(QColor(color))
