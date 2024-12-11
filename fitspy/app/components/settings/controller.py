@@ -30,6 +30,7 @@ class SettingsController(QObject):
     setBkg = Signal(dict)
     saveModels = Signal()
     fitRequested = Signal(object)
+    replayModels = Signal(object)  # dict doesnt work with json serialization
     showToast = Signal(str, str, str)
 
     def __init__(self, model_builder, more_settings):
@@ -139,10 +140,11 @@ class SettingsController(QObject):
         )
 
         # Model selector
-        model_selector.load_btn.clicked.connect(self.load_model)
+        model_selector.add.clicked.connect(self.load_model)
         model_selector.apply.clicked.connect(
             lambda: self.select_model(model_selector.combo_box.currentText())
         )
+        model_selector.replay.clicked.connect(self.replay_models)
         model_selector.preview.toggled.connect(self.preview_model)
 
         # Other settings
@@ -252,9 +254,9 @@ class SettingsController(QObject):
             self.model_builder.model_selector.combo_box.setCurrentIndex(index)
 
     def select_model(self, fname):
-        model = load_from_json(fname)
-        first_key = next(iter(model))
-        first_model = model[first_key]
+        models = load_from_json(fname)
+        first_key = next(iter(models))
+        first_model = models[first_key]
         first_model.pop("fname", None)
         self.model.current_fit_model = first_model
 
@@ -468,3 +470,8 @@ class SettingsController(QObject):
                     "No new models were found in the file",
                 )
         self.model_builder.model_settings.fitting.update_combo_boxes()
+
+    def replay_models(self):
+        fname = self.model_builder.model_selector.combo_box.currentText()
+        models = load_from_json(fname)
+        self.replayModels.emit(models)

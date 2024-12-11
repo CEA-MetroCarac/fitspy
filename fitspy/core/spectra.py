@@ -251,14 +251,36 @@ class Spectra(list):
             print()
 
     def set_attributes(self, models, delimiter="", map_name="None"):
+        # Determine if models have integer keys
+        keys_are_int = all(isinstance(key, int) for key in models.keys())
+
+        if keys_are_int:
+            # Handle old JSON structure where keys are integers
+            fname_to_model = {
+                os.path.normpath(model.get("fname")): model
+                for model in models.values()
+                if model.get("fname")
+            }
+        else:
+            fname_to_model = models
+
+        # For each spectrum, find and apply the corresponding model
         for spectrum in self:
-            try:
-                spectrum.set_attributes(models[f"{map_name}{DELIMITER}{spectrum.fname}"])
-            except KeyError:
-                pass
+            normalized_fname = os.path.normpath(spectrum.fname)
+            if keys_are_int:
+                key = normalized_fname
+            else:
+                key = f"{map_name}{DELIMITER}{normalized_fname}"
+
+            model = fname_to_model.get(key)
+            if model:
+                spectrum.set_attributes(model)
+
+        # recursively set attributes for spectra maps
         if hasattr(self, "spectra_maps"):
             for spectramap in self.spectra_maps:
-                spectramap.set_attributes(models, DELIMITER, spectramap.fname)
+                normalized_fname = os.path.normpath(spectramap.fname)
+                spectramap.set_attributes(fname_to_model, DELIMITER, normalized_fname)
 
     def save(self, fname_json=None, fnames=None):
         """

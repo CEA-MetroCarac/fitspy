@@ -141,7 +141,7 @@ class MainView(QMainWindow):
         reply = QMessageBox.question(
             self,
             'Exit Confirmation',
-            'Are you sure you want to exit?',
+            'Are you sure you want to exit ?',
             QMessageBox.Yes | QMessageBox.No,
             QMessageBox.No
         )

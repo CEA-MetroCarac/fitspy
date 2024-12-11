@@ -1,3 +1,4 @@
+import os
 from PySide6.QtCore import QObject, Signal
 from .model import Model
 
@@ -224,8 +225,12 @@ class FilesController(QObject):
         for map_fname in map_fnames:
             spectrum_fnames = self.get_spectrum_fnames(map_fname)
             for spectrum_fname in spectrum_fnames:
+                normalized_map_fname = (
+                    os.path.normpath(map_fname) if map_fname else "None"
+                )
+                normalized_spectrum_fname = os.path.normpath(spectrum_fname)
                 all_spectrum_ids.append(
-                    f"{map_fname}{delimiter}{spectrum_fname}"
+                    f"{normalized_map_fname}{delimiter}{normalized_spectrum_fname}"
                 )
         return all_spectrum_ids
 

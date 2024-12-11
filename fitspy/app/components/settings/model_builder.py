@@ -202,12 +202,15 @@ class Fitting(QCollapsible):
         spacer = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
         combo_box = QComboBox()
         combo_box.addItems(items)
-        load_btn = QPushButton("Load")
+        add = QPushButton(
+            "Add Model", icon=QIcon(get_icon_path("add.png")),
+            toolTip="Load .txt/.py file and add it to the list of models",
+        )
 
         if model_type == "peak":
-            load_btn.clicked.connect(self.loadPeakModel.emit)
+            add.clicked.connect(self.loadPeakModel.emit)
         elif model_type == "bkg":
-            load_btn.clicked.connect(self.loadBkgModel.emit)
+            add.clicked.connect(self.loadBkgModel.emit)
 
         h_layout = QHBoxLayout()
         h_layout.setSpacing(5)
@@ -216,7 +219,7 @@ class Fitting(QCollapsible):
         h_layout.addWidget(label)
         h_layout.addItem(spacer)
         h_layout.addWidget(combo_box)
-        h_layout.addWidget(load_btn)
+        h_layout.addWidget(add)
 
         layout.addLayout(h_layout)
 
@@ -298,27 +301,48 @@ class ModelSelector(QWidget):
 
     def initUI(self):
         h_layout = QHBoxLayout(self)
-        h_layout.setSpacing(5)
-        h_layout.setContentsMargins(2, 2, 2, 2)
-
-        label = QLabel("Select a model:")
+        h_layout.setSpacing(2)
+        h_layout.setContentsMargins(1, 1, 1, 1)
 
         self.combo_box = QComboBox()
         self.combo_box.setPlaceholderText("Select a model for fitting")
 
-        self.preview = QCheckBox("Preview")
+        self.preview = QCheckBox(
+            "Preview", toolTip="Preview the selected model without applying it"
+        )
 
-        self.apply = QPushButton("Apply Model")
+        self.replay = QPushButton(
+            "Replay", icon=QIcon(get_icon_path("replay.png")),
+            toolTip="Reload all models to their specified filename",
+        )
+        self.replay.setStyleSheet("""
+            QPushButton {
+                padding: 4px 2px;
+            }
+        """)
 
-        self.load_btn = QPushButton("Load Model")
+        self.apply = QPushButton(
+            "Apply Model",
+            toolTip="Apply the first model of file to selection",
+            icon=QIcon(get_icon_path("apply.png")),
+        )
 
-        h_layout.addWidget(label)
+        self.add = QPushButton(
+            "Add Model", icon=QIcon(get_icon_path("add.png")),
+            toolTip="Load .json file and add it to the list of models",
+        )
+
         h_layout.addWidget(self.combo_box)
         h_layout.addWidget(self.preview)
+        h_layout.addWidget(self.replay)
         h_layout.addWidget(self.apply)
-        h_layout.addWidget(self.load_btn)
+        h_layout.addWidget(self.add)
 
-        h_layout.setStretch(1, 1)
+        h_layout.setStretch(0, 1)
+        h_layout.setStretch(1, 0)
+        h_layout.setStretch(2, 0)
+        h_layout.setStretch(3, 0)
+        h_layout.setStretch(4, 0)
 
         self.setLayout(h_layout)
 

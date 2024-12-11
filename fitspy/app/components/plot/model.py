@@ -1,3 +1,4 @@
+import os
 from copy import deepcopy
 from threading import Thread
 from collections import defaultdict
@@ -48,6 +49,7 @@ class Model(QObject):
     def load_spectrum(self, fnames):
         """Load the given list of file names as spectra"""
         for fname in fnames:
+            fname = os.path.normpath(fname)
             spectrum = Spectrum()
             spectrum.load_profile(fname)
             self.spectra.append(spectrum)
@@ -84,15 +86,16 @@ class Model(QObject):
 
         self.spectrumDeleted.emit(deleted_spectra)
 
-    def load_map(self, file):
-        """Create a Spectra object from a file and add it to the spectra list"""
+    def load_map(self, fname):
+        """Create a Spectra object from a fname and add it to the spectra list"""
         from fitspy.core import SpectraMap
+        fname = os.path.normpath(fname)
 
-        spectra_map = SpectraMap.load_map(file)
+        spectra_map = SpectraMap.load_map(fname)
         self.spectra.spectra_maps.append(spectra_map)
 
         fnames = [spectrum.fname for spectrum in spectra_map]
-        self.decodedSpectraMap.emit(file, fnames)
+        self.decodedSpectraMap.emit(fname, fnames)
 
     def del_map(self, fname):
         """Remove the spectramap with the given file name"""
