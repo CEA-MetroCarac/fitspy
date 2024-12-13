@@ -165,6 +165,17 @@ class FilesController(QObject):
     def remove_selected_files(self, list_widget):
         """Remove the currently selected files from the model."""
         selected_items = [item.text() for item in list_widget.selectedItems()]
+        # if user is about to delete all files and a map is selected
+        # just delete the map instead of deleting all files
+        if (
+            len(selected_items) == list_widget.count()
+            and list_widget == self.spectrum_list.list
+        ):
+            selected_map = self.maps_list.list.selectedItems()
+            if selected_map:
+                self.del_map(selected_map[0].text())
+                return
+
         self.remove_files(selected_items)
 
     def update_spectramap(self, map_fname, fnames):
