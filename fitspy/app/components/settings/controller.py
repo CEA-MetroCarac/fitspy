@@ -7,7 +7,6 @@ from .model import Model
 import fitspy
 from fitspy import FIT_METHODS
 from fitspy.core.utils import (
-    save_to_json,
     load_from_json,
     load_models_from_txt,
     load_models_from_py,
@@ -247,7 +246,7 @@ class SettingsController(QObject):
         self.model.current_fit_model = {}
 
     def load_model(self, fname=None):
-        if fname is None:
+        if not fname:
             fname = QFileDialog.getOpenFileName(None, "Load File", "", TYPES)[0]
 
         if fname:

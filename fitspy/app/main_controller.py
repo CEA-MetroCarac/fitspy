@@ -209,7 +209,7 @@ class MainController(QObject):
             checkbox,
         ) in self.view.toolbar.view_options.checkboxes.items():
             setting = f"view_options_{to_snake_case(label)}"
-            state = self.model.settings.value(setting, True, type=bool)
+            state = getattr(self.model, setting)
             checkbox.setChecked(state)
 
     def load_state(self, selected, models):
