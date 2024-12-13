@@ -28,9 +28,9 @@ Visual Studio Code Setup to Preview .rst Files
 
 2. **Install Dependencies**:
    - Open the terminal in Visual Studio Code (`Ctrl+` ` `).
-   - Run the following commands to install Sphinx and other useful tools::
+   - Run the following commands to install Dev environment dependencies::
 
-     pip install sphinx doc8 rstcheck sphinx-rtd-theme sphinx-copybutton
+     pip install -e .[dev]
 
 Pull Requests
 -------------
@@ -42,13 +42,14 @@ TODO List
 ---------
 
 TODO Base:
+    - [ ] Update documentation
     - [x] restore spectrum colorize_from_fit_status
     - [x] Implement peaks model + bkg model load button
     - [x] Implement back save_results
-    - [ ] Implement back model reloading
+    - [x] Implement back model reloading
     Menubar:
       - [x] Implement CLEAR + SAVE GLOBAL STATE + OPEN GLOBAL STATE (drag n drop & open button should call same function)
-      - [ ] About + Manual + Doc (could redirect to sphinx doc)
+      - [x] About + Manual + Doc (could redirect to sphinx doc)
     Peaks Table:
       - [x] Add background parameters (in table or elsewhere in GUI)
       - [x] Add missing columns for some Peak Models
@@ -79,11 +80,7 @@ TODO Others:
     - [ ] Inconsitencies in args names fnames vs files
     - [ ] Explicit types in functions might be useful for maintainers(e.g. `def func(arg: type) -> type:`)
     - [ ] Change peak table colum _vary to _fixed
-    - [ ] Save selected spectrum per spectramap to reselect it after spectramap change ?
-    - [ ] Store model folder for next sessions in QSettings ?
     - [ ] Why using np.float64 for baseline points ??
-    - [ ] Make sure every ERROR/WARNING/INFO/SUCCESS is handled with showToast
-    - [ ] restore & update examples/
     - [ ] update README.md
     - [ ] update CITATION.cff
     - [ ] update doc/
@@ -91,25 +88,24 @@ TODO Others:
     - [ ] add github workflows back
     - [ ] update paper/
     - [ ] Is commented code better ? (in files controller > colorize_from_fit_status)
+    - [x] restore & update examples/ + tests/
 
 TODO Nice to Have:
-    - [ ] Multirow-edit for peaks settings (see https://stackoverflow.com/questions/14586715/how-can-i-achieve-to-update-multiple-rows-in-a-qtableview)
-    - [ ] See multiple spectrum with their baseline subtracted or not (need to redefine what to plot for secondary spectrum instead of just x0+y0)   
-    - [ ] Update save/load mechanisms to include data or not based on 'save spectrum file path only' checkbox state
-    - [ ] add a confirmation prompt before load_state to avoid erasing current work
-    - [ ] update dynamically the 2D map figure during fitting
     - [ ] Fitspy Icon for taskbar
+    - [ ] Multirow-edit for peaks settings (see https://stackoverflow.com/questions/14586715/how-can-i-achieve-to-update-multiple-rows-in-a-qtableview)
+    - [ ] Update save/load mechanisms to include data or not based on 'save spectrum file path only' checkbox state
+    - [ ] update dynamically the 2D map figure during fitting
     - [ ] Plot Dark/Light theme `https://stackoverflow.com/questions/77748488/how-to-dynamically-change-the-sheet-type-theme-during-runtime`_
     - [ ] Idea : scroll on plot to edit nearest peak bounds
     - [ ] Add a button to copy 2D Map in clipboard ? (add mpl toolbar ?)
+    - [x] See multiple spectrum with their baseline subtracted or not (need to redefine what to plot for secondary spectrum instead of just x0+y0)   
+    - [x] add a confirmation prompt before load_state to avoid erasing current work
     - [x] New View option 'subtract bkg' (see existing 'subtract baseline')
     - [x] Colormap settings
     - [x] Add shortcuts for menu actions
     - [x] Warn user to disable pan/zoom if 3 clicks are detected in a short time (indicating user might want to place a peak/baseline point)
 
 TODO Production:
-    - [ ] Get rid of MANIFEST.in, use pyproject.toml instead
-    - [ ] Update documentation
     - [ ] Update Github Actions tests + Auto Pypi Pre-release/Pre-release, see `https://github.com/CEA-MetroCarac/pyvsnr/tree/main/.github/workflows`_
     - [ ] Update Zenodo
 

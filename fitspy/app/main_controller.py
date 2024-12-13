@@ -235,8 +235,9 @@ class MainController(QObject):
             self.view.spectrum_list.list, selected["spectra"]
         )
 
-    def open(self):
-        fnames = QFileDialog.getOpenFileNames(None, "Load File", "", TYPES)[0]
+    def open(self, fnames: list[str] = None):
+        if not fnames:
+            fnames = QFileDialog.getOpenFileNames(None, "Load File", "", TYPES)[0]
         self.files_controller.load_files(fnames)
 
     def save(self):
@@ -430,18 +431,16 @@ class MainController(QObject):
             spectramap.export_to_csv(fname)
             self.show_toast("SUCCESS", "Exported", f"{fname} has been saved.")
 
-    def save_results(self, list_widget):
-        selected_items = [item.text() for item in list_widget.selectedItems()]
-        spectra = self.plot_controller.model.parent()
-
+    def save_results(self, dirname_res=None, fnames=None):
+        list_widget = self.view.spectrum_list.list
+        selected_items = fnames or [item.text() for item in list_widget.selectedItems()]
         if not selected_items:
             self.show_toast("ERROR", "No Selection", "No spectrum selected.")
             return
 
-        directory = QFileDialog.getExistingDirectory(
-            None, "Select Save Directory"
-        )
+        directory = dirname_res or QFileDialog.getExistingDirectory(None, "Select Save Directory")
         if directory:
+            spectra = self.plot_controller.model.parent()
             spectra.save_results(directory, selected_items)
             self.show_toast("SUCCESS", "Saved", f"Results saved to {directory}")
 

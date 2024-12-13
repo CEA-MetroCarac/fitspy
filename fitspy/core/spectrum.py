@@ -668,8 +668,11 @@ class Spectrum:
         """ Plot the spectrum with the peak models """
         x, y = self.x.copy(), self.y.copy()
 
-        if not subtract_baseline and self.baseline.y_eval is not None:
-            y += self.baseline.y_eval
+        if self.baseline.y_eval is not None:
+            if subtract_baseline and not self.baseline.is_subtracted:
+                y -= self.baseline.y_eval
+            elif not subtract_baseline and self.baseline.is_subtracted:
+                y += self.baseline.y_eval
 
         if subtract_bkg and self.bkg_model is not None:
             y -= self.bkg_model.eval(self.bkg_model.make_params(), x=x)

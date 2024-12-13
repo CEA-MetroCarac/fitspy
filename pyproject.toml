@@ -56,8 +56,6 @@ version = { attr = "fitspy.VERSION" }
 where = ["."]
 include = ["fitspy*"]
 namespaces = false
-# [tool.setuptools.packages.find]
-# where = ["fitspy"]
 
 [tool.pytest.ini_options]
 minversion = "6.0"
@@ -67,3 +65,5 @@ testpaths = ["tests"]
 Homepage = "https://github.com/CEA-MetroCarac/fitspy"
 Documentation = "https://cea-metrocarac.github.io/fitspy/doc/index.html"
 
+[project.optional-dependencies]
+dev = ["pytest", "watchdog", "esbonio", "sphinx", "doc8", "rstcheck", "sphinx-rtd-theme", "sphinx-copybutton"]

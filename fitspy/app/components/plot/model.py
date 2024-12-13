@@ -292,6 +292,14 @@ class Model(QObject):
                 result_fit = spectrum.result_fit
                 baseline = spectrum.baseline
 
+                # baseline plotting
+                if not baseline.is_subtracted:
+                    x, y = spectrum.x, None
+                    if baseline.attached or baseline.mode == "Semi-Auto":
+                        y = spectrum.y
+                    baseline.plot(ax, x, y, attached=baseline.attached)
+
+                # Main spectrum plotting
                 self.lines = spectrum.plot(
                     ax,
                     show_outliers=view_options["Outliers"],
@@ -308,13 +316,6 @@ class Model(QObject):
                 self.line_bkg_visible = (
                     view_options.get("Background", False) and spectrum.bkg_model
                 )
-
-                # baseline plotting
-                if not baseline.is_subtracted:
-                    x, y = spectrum.x, None
-                    if baseline.attached or baseline.mode == "Semi-Auto":
-                        y = spectrum.y
-                    baseline.plot(ax, x, y, attached=baseline.attached)
 
                 # Peak labels
                 if view_options.get("Peak labels", True):
