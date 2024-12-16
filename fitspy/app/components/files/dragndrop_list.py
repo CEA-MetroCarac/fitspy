@@ -83,3 +83,12 @@ class DragNDropList(QListWidget):
                     item.setBackground(self.palette().base())
                 else:
                     item.setBackground(QColor(color))
+
+    def keyPressEvent(self, event):
+        if event.key() == Qt.Key_Delete:
+            self.remove_selected_files()
+
+    def remove_selected_files(self):
+        selected_items = self.selectedItems()
+        for item in selected_items:
+            self.takeItem(self.row(item))
