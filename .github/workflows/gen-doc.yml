@@ -24,7 +24,7 @@ jobs:
       - name: install doc_reqs
         run: pip install -r doc_requirements.txt
       - name: 'run doc-build'
-        run: sphinx-build -j auto -b html "doc/source" "doc/build/html"
+        run: sphinx-build -j auto -b html "doc" "doc/build/html"
       - uses: actions/upload-pages-artifact@v3.0.1
         with:
           path: 'doc/build/html/'
