@@ -13,6 +13,8 @@ from fitspy.core import (
     DELIMITER,
 )
 
+from .main_model import MainModel
+from .main_view import MainView
 from .components.plot import PlotController
 from .components.files import FilesController
 from .components.settings import SettingsController
@@ -21,10 +23,10 @@ TYPES = "Fitspy Workspace (*.fspy);;Spectrum/Spectramap (*.json *.txt);;JSON Fil
 
 
 class MainController(QObject):
-    def __init__(self, model, view):
+    def __init__(self, model=None, view=None):
         super().__init__()
-        self.view = view
-        self.model = model
+        self.view = view or MainView()
+        self.model = model or MainModel()
         self.files_controller = FilesController(
             self.view.spectrum_list, self.view.maps_list
         )
@@ -91,7 +93,9 @@ class MainController(QObject):
         )
         self.files_controller.addMarker.connect(self.plot_controller.set_marker)
         self.files_controller.loadState.connect(self.load_state)
-        self.files_controller.saveResults.connect(self.save_results)
+        self.files_controller.saveResults.connect(
+            lambda fnames: self.save_results(fnames=fnames)
+        )
 
         self.plot_controller.showToast.connect(self.show_toast)
         self.plot_controller.askConfirmation.connect(
@@ -433,7 +437,7 @@ class MainController(QObject):
 
     def save_results(self, dirname_res=None, fnames=None):
         list_widget = self.view.spectrum_list.list
-        selected_items = fnames or [item.text() for item in list_widget.selectedItems()]
+        selected_items = fnames or list_widget.get_all_fnames()
         if not selected_items:
             self.show_toast("ERROR", "No Selection", "No spectrum selected.")
             return

@@ -23,6 +23,12 @@ class DragNDropList(QListWidget):
         self.setSelectionRectVisible(True)
         self.drag_active = False
 
+    def get_all_fnames(self):
+        return [self.item(i).text() for i in range(self.count())]
+    
+    def get_selected_fnames(self):
+        return [item.text() for item in self.selectedItems()]
+
     def dragEnterEvent(self, event: QDragEnterEvent):
         if event.mimeData().hasUrls():
             event.acceptProposedAction()
@@ -74,7 +80,7 @@ class DragNDropList(QListWidget):
 
     def colorize_items(self, fnames=None, color=None):
         if fnames is None:
-            fnames = [self.item(i).text() for i in range(self.count())]
+            fnames = self.get_all_fnames()
 
         for i in range(self.count()):
             item = self.item(i)

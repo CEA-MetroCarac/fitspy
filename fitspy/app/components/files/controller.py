@@ -12,7 +12,7 @@ class FilesController(QObject):
     delSpectraMap = Signal(str)
     mapChanged = Signal(object)  # Can be a string or None
     spectraChanged = Signal(list)
-    saveResults = Signal()
+    saveResults = Signal(list)
     addMarker = Signal(str)
     loadState = Signal(dict, dict)
 
@@ -55,7 +55,9 @@ class FilesController(QObject):
             lambda: self.remove_selected_files(self.spectrum_list.list)
         )
         self.spectrum_list.remove_selected_files = self.remove_selected_files
-        self.spectrum_list.save_btn.clicked.connect(self.saveResults)
+        self.spectrum_list.save_btn.clicked.connect(
+            lambda: self.saveResults.emit(self.get_selected_fnames())
+        )
 
         self.maps_list.list.filesDropped.connect(self.load_files)
         self.maps_list.list.itemSelectionChanged.connect(
@@ -101,9 +103,7 @@ class FilesController(QObject):
 
     def update_list_widget(self, list_widget, files):
         """Refresh the list widget with the files and update the label."""
-        current_items = [
-            list_widget.item(i).text() for i in range(list_widget.count())
-        ]
+        current_items = list_widget.get_all_fnames()
         new_items = files  # Keep new_items as a list to preserve order
 
         # Convert lists to sets for set operations
@@ -158,7 +158,7 @@ class FilesController(QObject):
 
     def update_selection(self, list_widget, label_widget, emit_marker=True):
         """Update Plot and count label when the selection changes."""
-        fnames = [item.text() for item in list_widget.selectedItems()]
+        fnames = list_widget.get_selected_fnames()
         self.update_count(list_widget, label_widget)
         self.spectraChanged.emit(fnames)
 
@@ -170,7 +170,7 @@ class FilesController(QObject):
 
     def remove_selected_files(self, list_widget):
         """Remove the currently selected files from the model."""
-        selected_items = [item.text() for item in list_widget.selectedItems()]
+        selected_items = list_widget.get_selected_fnames()
         # if user is about to delete all files and a map is selected
         # just delete the map instead of deleting all files
         if (
@@ -215,14 +215,14 @@ class FilesController(QObject):
             self.update_count(list_widget, self.spectrum_list.count_label)
             if fnames and self.model.current_map:
                 self.addMarker.emit(fnames[0])
-                
+
         self.spectrum_list.list.setFocus()
         if first_selected_item:
             list_widget.scrollToItem(first_selected_item)
 
     def get_selected_fnames(self):
         """Return the selected filenames in the spectrum list."""
-        return [item.text() for item in self.spectrum_list.list.selectedItems()]
+        return self.spectrum_list.list.get_selected_fnames()
 
     def get_selected_map_fname(self):
         """Return the selected map filename."""
