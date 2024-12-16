@@ -39,7 +39,7 @@ def gui_apply_model_to_all(dirname_res=None):
 
     # save and destroy for pytest
     if dirname_res is not None:
-        appli.save_results(dirname_res=dirname_res, fnames=fnames)
+        appli.save_results(dirname_res=dirname_res)
         return
 
     appli.view.show()
