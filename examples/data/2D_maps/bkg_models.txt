@@ -1,0 +1,1 @@
+Linear_user = slope * x + intercept
