@@ -677,12 +677,11 @@ class Spectrum:
         if subtract_bkg and self.bkg_model is not None:
             y -= self.bkg_model.eval(self.bkg_model.make_params(), x=x)
 
-        lines = []
         linewidth = 0.5
         if hasattr(self.result_fit, 'success') and self.result_fit.success:
             linewidth = 1
 
-        ax.plot(x, y, 'ko-', lw=0.5, ms=1, label=label)
+        lines = [ax.plot(x, y, 'ko-', lw=0.5, ms=1, label=label)[0]]
 
         if show_outliers:
             x_outliers, y_outliers = self.calculate_outliers()

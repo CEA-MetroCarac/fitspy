@@ -122,6 +122,7 @@ class Toolbar(QWidget):
         self.mpl_toolbar = CustomNavigationToolbar(self.canvas)
         self.baseline_radio = QRadioButton("Baseline")
         self.fitting_radio = QRadioButton("Fitting")
+        self.highlight_radio = QRadioButton("Highlight")
         self.copy_btn = QPushButton(
             icon=QIcon(get_icon_path("clipboard-copy.png")),
             toolTip="Copy Figure to Clipboard",
@@ -135,12 +136,22 @@ class Toolbar(QWidget):
         hbox.addItem(spacer1)
         hbox.addWidget(self.baseline_radio)
         hbox.addWidget(self.fitting_radio)
+        hbox.addWidget(self.highlight_radio)
         hbox.addItem(spacer2)
         if self.view_options:
             hbox.addWidget(self.view_options)
         hbox.addWidget(self.copy_btn)
 
         self.setLayout(hbox)
+
+    def get_selected_radio(self):
+        if self.baseline_radio.isChecked():
+            return "baseline"
+        elif self.fitting_radio.isChecked():
+            return "fitting"
+        elif self.highlight_radio.isChecked():
+            return "highlight"
+        return None
 
     def update_toolbar_icons(self):
         self.mpl_toolbar.update_icons()

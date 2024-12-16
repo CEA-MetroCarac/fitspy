@@ -148,12 +148,16 @@ class FilesController(QObject):
         self.update_list_widget(spectrum_list, selected_files)
         spectrum_list.itemSelectionChanged.emit()
 
-    def update_selection(self, list_widget, label_widget, emit_marker=True):
-        """Update Plot and count label when the selection changes."""
-        fnames = [item.text() for item in list_widget.selectedItems()]
+    def update_count(self, list_widget, label_widget):
+        """Update the count label based on the current selection."""
         total_count = list_widget.count()
         selected_count = len(list_widget.selectedItems())
         label_widget.setText(f"{selected_count}/{total_count}")
+
+    def update_selection(self, list_widget, label_widget, emit_marker=True):
+        """Update Plot and count label when the selection changes."""
+        fnames = [item.text() for item in list_widget.selectedItems()]
+        self.update_count(list_widget, label_widget)
         self.spectraChanged.emit(fnames)
 
         if emit_marker and fnames and self.model.current_map:
@@ -182,23 +186,36 @@ class FilesController(QObject):
         """Update the lists widgets with the spectra related to the 2D-map."""
         self.model.update_spectramap(map_fname, fnames)
 
-    def highlight_spectrum(self, fname):
-        """Select the given spectrum in the list widget."""
+    def highlight_spectrum(self, fnames, plot_highlighted):
+        """Select the given spectrum(s) in the list widget."""
         list_widget = self.spectrum_list.list
 
+        if isinstance(fnames, str):
+            fnames = [fnames]
+        list_widget.blockSignals(True)
+        list_widget.clearSelection()
+        first_selected_item = None
         for i in range(list_widget.count()):
             item = list_widget.item(i)
-            if item.text() == fname:
-                list_widget.blockSignals(True)
-                # list_widget.clearSelection()
-                list_widget.setCurrentItem(item)
-                list_widget.blockSignals(False)
-                self.update_selection(
-                    list_widget,
-                    self.spectrum_list.count_label,
-                    emit_marker=False,
-                )
-                break
+            if item.text() in fnames:
+                item.setSelected(True)
+                if first_selected_item is None:
+                    first_selected_item = item
+        list_widget.blockSignals(False)
+
+        if plot_highlighted:
+            self.update_selection(
+                list_widget,
+                self.spectrum_list.count_label,
+                emit_marker=False,
+            )
+        else:
+            self.update_count(list_widget, self.spectrum_list.count_label)
+            if fnames and self.model.current_map:
+                self.addMarker.emit(fnames[0])
+
+        if first_selected_item:
+            list_widget.scrollToItem(first_selected_item)
 
     def get_selected_fnames(self):
         """Return the selected filenames in the spectrum list."""

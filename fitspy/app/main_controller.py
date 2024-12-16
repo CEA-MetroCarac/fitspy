@@ -199,10 +199,10 @@ class MainController(QObject):
             self.model.map_cmap
         )
 
-        if self.model.click_mode == "baseline":
-            self.view.toolbar.baseline_radio.setChecked(True)
-        elif self.model.click_mode == "fitting":
-            self.view.toolbar.fitting_radio.setChecked(True)
+        radio_button = getattr(
+            self.view.toolbar, f"{self.model.click_mode}_radio"
+        )
+        radio_button.setChecked(True)
 
         for (
             label,
@@ -361,7 +361,7 @@ class MainController(QObject):
             print("Operation aborted by the user.")
             return False
 
-    def show_toast(self, preset, title, text):
+    def show_toast(self, preset, title, text, duration=3000):
         preset_mapping = {
             "success": (ToastPreset.SUCCESS, ToastPreset.SUCCESS_DARK),
             "warning": (ToastPreset.WARNING, ToastPreset.WARNING_DARK),
@@ -373,7 +373,7 @@ class MainController(QObject):
         is_dark_theme = current_theme == "dark"
 
         toast = Toast(self.view)
-        toast.setDuration(3000)
+        toast.setDuration(duration)
         toast.setTitle(title)
         toast.setText(text)
 

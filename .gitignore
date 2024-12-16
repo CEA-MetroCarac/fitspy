@@ -163,3 +163,6 @@ Thumbs.db
 
 *.fspy
 .pylintrc
+results
+examples
+tests

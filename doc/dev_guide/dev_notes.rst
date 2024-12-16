@@ -43,6 +43,7 @@ TODO List
 
 TODO Base:
     - [ ] Update documentation
+    - [x] Add a "Highlight spectra" click mode
     - [x] restore spectrum colorize_from_fit_status
     - [x] Implement peaks model + bkg model load button
     - [x] Implement back save_results

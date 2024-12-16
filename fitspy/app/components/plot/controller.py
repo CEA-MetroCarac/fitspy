@@ -12,7 +12,7 @@ class PlotController(QObject):
     spectrumDeleted = Signal(object)
     spectraMapDeleted = Signal(str)
     settingChanged = Signal(str, object)
-    highlightSpectrum = Signal(str)
+    highlightSpectrum = Signal(list, bool)
     baselinePointsChanged = Signal(list)
     PeaksChanged = Signal(object)
     BkgChanged = Signal(dict)
@@ -27,6 +27,7 @@ class PlotController(QObject):
         self.map2d_plot = map2d_plot
         self.toolbar = toolbar
         self.view_options = toolbar.view_options
+        self.too_many_objects_shown = False
         self.init_click_timer()
         self.setup_connections()
 
@@ -91,7 +92,9 @@ class PlotController(QObject):
         self.model.colorizeFromFitStatus.connect(self.colorizeFromFitStatus)
         self.model.askConfirmation.connect(self.askConfirmation)
 
+        self.toolbar.baseline_radio.toggled.connect(self.on_click_mode_changed)
         self.toolbar.fitting_radio.toggled.connect(self.on_click_mode_changed)
+        self.toolbar.highlight_radio.toggled.connect(self.on_click_mode_changed)
         self.spectra_plot.canvas.mpl_connect(
             "motion_notify_event", self.on_motion
         )
@@ -106,6 +109,16 @@ class PlotController(QObject):
 
     def on_motion(self, event):
         ax = self.spectra_plot.ax
+        if len(ax.get_lines()) > 100:
+            if not self.too_many_objects_shown:
+                self.showToast.emit(
+                    "INFO",
+                    "Too many objects",
+                    "Annotations during motion have been disabled to prevent lagging.",
+                )
+                self.too_many_objects_shown = True
+            return
+        self.too_many_objects_shown = False
         self.model.on_motion(ax, event)
 
     def set_marker(self, spectrum_or_fname_or_coords):
@@ -113,7 +126,8 @@ class PlotController(QObject):
             fname = self.model.current_map.set_marker(
                 spectrum_or_fname_or_coords
             )
-            self.highlightSpectrum.emit(fname)
+            if fname:
+                self.highlightSpectrum.emit([fname], True)
 
     def view_option_changed(self, checkbox):
         label = f"view_options_{to_snake_case(checkbox.text())}"
@@ -161,10 +175,10 @@ class PlotController(QObject):
 
     def on_click_mode_changed(self):
         """Callback for radio button state changes."""
-        if self.toolbar.baseline_radio.isChecked():
-            self.settingChanged.emit("click_mode", "baseline")
-        elif self.toolbar.fitting_radio.isChecked():
-            self.settingChanged.emit("click_mode", "fitting")
+        selected_mode = self.toolbar.get_selected_radio()
+        if selected_mode and selected_mode != self.model.current_mode:
+            self.model.current_mode = selected_mode
+            self.settingChanged.emit("click_mode", selected_mode)
 
     def on_spectra_plot_click(self, event):
         """Callback for click events on the spectra plot."""
@@ -185,12 +199,15 @@ class PlotController(QObject):
         else:
             self.consecutive_clicks = 0
 
+        point_type = self.toolbar.get_selected_radio()
+        if point_type == "highlight":
+            fnames = self.model.highlight_spectrum(self.spectra_plot.ax, event)
+            self.highlightSpectrum.emit(fnames, False)
+            return
+
         # if event.button not in [1, 3]:
         #     return  # Ignore middle mouse button
         action = "add" if event.button == 1 else "del"
-        point_type = (
-            "baseline" if self.toolbar.baseline_radio.isChecked() else "peak"
-        )
 
         if action == "add":
             if point_type == "baseline":

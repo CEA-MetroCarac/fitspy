@@ -4,6 +4,7 @@ from threading import Thread
 from collections import defaultdict
 import numpy as np
 
+import fitspy
 from PySide6.QtCore import QObject, Signal
 from fitspy.core import Spectra, Spectrum
 
@@ -27,10 +28,12 @@ class Model(QObject):
         self._spectra = Spectra()
         self.current_map = None
         self.current_spectrum = []
+        self.current_mode = None  # plot click mode
         self.peak_model = None
         self.tmp = None
         self.linewidth = 0.5
         self.lines = []
+        self.nearest_lines = []
 
     def set_spectrum_attr(self, fname, attr, value):
         spectrum = self.spectra.get_objects(fname, parent=self.parent())[0]
@@ -202,6 +205,32 @@ class Model(QObject):
         self.PeaksChanged.emit(first_spectrum)
         self.refreshPlot.emit()
 
+    def highlight_spectrum(self, ax, event):
+        """Highlight all spectrum under the cursor"""
+
+        if self.lines and event.inaxes == ax:
+            # reassign standard properties to the previous nearest lines
+            for line in self.nearest_lines:
+                line.set(linewidth=0.2, color='k', zorder=0)
+
+            title = None
+            self.nearest_lines, labels = [], []
+            for i, line in enumerate(self.lines):
+                if line.contains(event)[0]:
+                    if len(self.nearest_lines) < 10:
+                        CMAP = fitspy.DEFAULTS["peaks_cmap"]
+                        color = CMAP(i % CMAP.N)
+                        line.set(linewidth=1, color=color, zorder=1)
+                        self.nearest_lines.append(line)
+                        labels.append(self.current_spectrum[i].fname)
+                    else:
+                        title = "The nearest lines exceed 10.\n"
+                        title += "  Show the first 10 ones"
+
+        ax.legend(self.nearest_lines, labels, title=title, loc=1)
+        ax.get_figure().canvas.draw_idle()
+        return labels
+
     def on_motion(self, ax, event):
         def annotate_params(i, color="k"):
             """Annotate figure with fit parameters"""
@@ -229,9 +258,16 @@ class Model(QObject):
             self.tmp = ax.annotate(
                 text, xy=xy, xycoords="data", bbox=bbox, verticalalignment="top"
             )
-
-        if len(self.lines) > 0 and event.inaxes == ax:
-            for i, line in enumerate(self.lines):
+        if len(self.lines) > len(self.current_spectrum) and event.inaxes == ax:
+            # self.lines is like so: [spectrum1, ...(peaks...), spectrumN]
+            # this func need to only highlight [...(peaks...)] (without first and secondaries spectra)
+            num_secondary = len(self.current_spectrum) - 1
+            highlight_lines = (
+                self.lines[1:]
+                if num_secondary == 0
+                else self.lines[1:-num_secondary]
+            )
+            for i, line in enumerate(highlight_lines):
                 if line.contains(event)[0]:
                     line.set_linewidth(3)
                     if self.tmp is not None:
@@ -390,7 +426,7 @@ class Model(QObject):
                         spectrum.bkg_model.make_params(), x=x0
                     )
                     y0 -= y_bkg
-                ax.plot(x0, y0, "k-", lw=0.2, zorder=0)
+                self.lines += ax.plot(x0, y0, "k-", lw=0.2, zorder=0)
 
         if view_options.get("Legend", False):
             ax.legend()
