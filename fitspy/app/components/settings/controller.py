@@ -21,7 +21,7 @@ class SettingsController(QObject):
     setSpectrumAttr = Signal(str, object)
     baselinePointsChanged = Signal(list)
     applyBaseline = Signal()
-    applySpectralRange = Signal(float, float)
+    applySpectralRange = Signal(object, object)
     applyNormalization = Signal(bool, object, object)
     updatePeakModel = Signal(str)
     setBkgModel = Signal(str)
@@ -296,7 +296,6 @@ class SettingsController(QObject):
                 )
                 return
         self.update_model_dict({"range_min": range_min, "range_max": range_max})
-
         self.applySpectralRange.emit(range_min, range_max)
 
     def apply_normalization(self, checked=None):
