@@ -1,5 +1,5 @@
 from PySide6.QtCore import QSize, Qt
-from PySide6.QtGui import QIcon, QPixmap, QColor
+from PySide6.QtGui import QIcon, QPixmap, QColor, QKeySequence, QShortcut
 from PySide6.QtWidgets import (
     QToolButton,
     QMenu,
@@ -116,6 +116,7 @@ class Toolbar(QWidget):
             else view_options(checkboxes=checkboxes)
         )
         self.initUI()
+        self.setup_shortcuts()
 
     def initUI(self):
         hbox = QHBoxLayout()
@@ -143,6 +144,10 @@ class Toolbar(QWidget):
         hbox.addWidget(self.copy_btn)
 
         self.setLayout(hbox)
+
+    def setup_shortcuts(self):
+        copy_shortcut = QShortcut(QKeySequence("Ctrl+C"), self)
+        copy_shortcut.activated.connect(self.copy_btn.click)
 
     def get_selected_radio(self):
         if self.baseline_radio.isChecked():
