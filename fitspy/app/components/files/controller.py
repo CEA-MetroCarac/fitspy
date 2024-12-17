@@ -54,7 +54,7 @@ class FilesController(QObject):
         self.spectrum_list.rm_btn.clicked.connect(
             lambda: self.remove_selected_files(self.spectrum_list.list)
         )
-        self.spectrum_list.remove_selected_files = self.remove_selected_files
+        self.spectrum_list.list.remove_selected_files = self.remove_selected_files
         self.spectrum_list.save_btn.clicked.connect(
             lambda: self.saveResults.emit(self.get_selected_fnames())
         )
@@ -71,7 +71,7 @@ class FilesController(QObject):
         self.maps_list.rm_btn.clicked.connect(
             lambda: self.remove_selected_files(self.maps_list.list)
         )
-        self.maps_list.remove_selected_files = self.remove_selected_files
+        self.maps_list.list.remove_selected_files = self.remove_selected_files
 
     def load_files(self, files: list[str]):
         self.model.load_files(files)

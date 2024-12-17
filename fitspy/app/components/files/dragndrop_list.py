@@ -92,11 +92,6 @@ class DragNDropList(QListWidget):
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Delete:
-            self.remove_selected_files()
+            self.remove_selected_files(self)  # defined after instantiation
         else:
             super().keyPressEvent(event)
-
-    def remove_selected_files(self):
-        selected_items = self.selectedItems()
-        for item in selected_items:
-            self.takeItem(self.row(item))
