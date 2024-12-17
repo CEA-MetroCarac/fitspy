@@ -7,6 +7,7 @@ import csv
 import itertools
 from copy import deepcopy
 import numpy as np
+import matplotlib.cm as cm
 from scipy.interpolate import interp1d
 from scipy.ndimage import uniform_filter1d
 from lmfit import Model, fit_report
@@ -721,6 +722,12 @@ class Spectrum:
         y_peaks = np.zeros_like(x)
 
         num_peaks = len(self.peak_models)
+        cmap = fitspy.DEFAULTS['peaks_cmap'] if num_peaks > 0 else None
+        if isinstance(cmap, str):
+            cmap = cm.get_cmap(cmap)
+
+        num_colors = cmap.N if cmap else None
+
         for i, peak_model in enumerate(self.peak_models):
             # remove temporarily 'expr' that can be related to another model
             param_hints_orig = deepcopy(peak_model.param_hints)
@@ -735,16 +742,14 @@ class Spectrum:
 
             if show_peak_models:
                 # Assign color from CMAP based on peak index
-                if num_peaks > 0:
-                    cmap = fitspy.DEFAULTS['peaks_cmap']
-                    num_colors = cmap.N
+                if cmap:
                     normalized_index = i % num_colors
                     color = cmap(normalized_index)
                 else:
                     color = 'black'
 
                 line, = ax.plot(x, y_peak, lw=linewidth, color=color,
-                            label=f'{label}_Peak_{i}' if label else None)
+                                label=f'{label}_Peak_{i}' if label else None)
                 lines.append(line)
 
         if show_result and hasattr(self.result_fit, 'success'):
