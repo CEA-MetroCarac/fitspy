@@ -83,7 +83,7 @@ class MainController(QObject):
             self.plot_controller.del_map
         )
         self.files_controller.spectraChanged.connect(
-            self.plot_controller.set_current_spectrum
+            self.plot_controller.set_current_spectra
         )
         self.files_controller.spectraChanged.connect(
             self.change_current_fit_model

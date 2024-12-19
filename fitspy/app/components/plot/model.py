@@ -27,7 +27,7 @@ class Model(QObject):
         super().__init__()
         self._spectra = Spectra()
         self.current_map = None
-        self.current_spectrum = []
+        self.current_spectra = []
         self.current_mode = None  # plot click mode
         self.peak_model = None
         self.tmp = None
@@ -121,7 +121,7 @@ class Model(QObject):
                 break
 
     def add_baseline_point(self, x, y):
-        first_spectrum = self.current_spectrum[0]
+        first_spectrum = self.current_spectra[0]
         if first_spectrum.baseline.mode not in ["Linear", "Polynomial"]:
             self.showToast.emit(
                 "info",
@@ -142,21 +142,21 @@ class Model(QObject):
         self._add_baseline_point(x, y)
 
     def _add_baseline_point(self, x, y):
-        first_spectrum = self.current_spectrum[0]
+        first_spectrum = self.current_spectra[0]
         if first_spectrum.baseline.is_subtracted:
-            for spectrum in self.current_spectrum:
+            for spectrum in self.current_spectra:
                 spectrum.load_profile(spectrum.fname)
                 spectrum.apply_range()
                 spectrum.baseline.is_subtracted = False
                 spectrum.baseline.points = [[], []]
                 spectrum.baseline.add_point(x, y)
-        for spectrum in self.current_spectrum:
+        for spectrum in self.current_spectra:
             spectrum.baseline.add_point(x, y)
 
         self.baselinePointsChanged.emit(first_spectrum.baseline.points)
 
     def del_baseline_point(self, x):
-        first_spectrum = self.current_spectrum[0]
+        first_spectrum = self.current_spectra[0]
         if len(first_spectrum.baseline.points[0]) == 0:
             return
         dist_min = np.inf
@@ -169,12 +169,12 @@ class Model(QObject):
         self.baselinePointsChanged.emit(first_spectrum.baseline.points)
 
     def set_baseline_points(self, points):
-        if self.current_spectrum:
-            self.current_spectrum[0].baseline.points = points
+        if self.current_spectra:
+            self.current_spectra[0].baseline.points = points
             self.refreshPlot.emit()
 
     def add_peak_point(self, ax, model, x, y):
-        first_spectrum = self.current_spectrum[0]
+        first_spectrum = self.current_spectra[0]
 
         # to take into account the strong aspect ratio in the axis represent.
         ratio = 1.0 / ax.get_data_ratio() ** 2
@@ -192,7 +192,7 @@ class Model(QObject):
         self.refreshPlot.emit()
 
     def del_peak_point(self, x):
-        first_spectrum = self.current_spectrum[0]
+        first_spectrum = self.current_spectra[0]
         if len(first_spectrum.peak_models) > 0:
             dist_min = np.inf
             for i, peak_model in enumerate(first_spectrum.peak_models):
@@ -215,26 +215,29 @@ class Model(QObject):
 
             title = None
             self.nearest_lines, labels = [], []
-            for i, line in enumerate(self.lines):
+            num_secondary = len(self.current_spectra) - 1
+            spectrum_lines = [self.lines[0]] + self.lines[-num_secondary:]
+
+            for i, line in enumerate(spectrum_lines):
                 if line.contains(event)[0]:
                     if len(self.nearest_lines) < 10:
                         CMAP = fitspy.DEFAULTS["peaks_cmap"]
                         color = CMAP(i % CMAP.N)
                         line.set(linewidth=1, color=color, zorder=1)
                         self.nearest_lines.append(line)
-                        labels.append(self.current_spectrum[i].fname)
+                        labels.append(self.current_spectra[i].fname)
                     else:
                         title = "The nearest lines exceed 10.\n"
                         title += "  Show the first 10 ones"
 
-        ax.legend(self.nearest_lines, labels, title=title, loc=1)
-        ax.get_figure().canvas.draw_idle()
-        return labels
+            ax.legend(self.nearest_lines, labels, title=title, loc=1)
+            ax.get_figure().canvas.draw_idle()
+            return labels
 
     def on_motion(self, ax, event):
         def annotate_params(i, color="k"):
             """Annotate figure with fit parameters"""
-            spectrum = self.current_spectrum[0]
+            spectrum = self.current_spectra[0]
             x = spectrum.x
             if not self.line_bkg_visible:
                 model = spectrum.peak_models[i]
@@ -258,10 +261,10 @@ class Model(QObject):
             self.tmp = ax.annotate(
                 text, xy=xy, xycoords="data", bbox=bbox, verticalalignment="top"
             )
-        if len(self.lines) > len(self.current_spectrum) and event.inaxes == ax:
+        if len(self.lines) > len(self.current_spectra) and event.inaxes == ax:
             # self.lines is like so: [spectrum1, ...(peaks...), spectrumN]
             # this func need to only highlight [...(peaks...)] (without first and secondaries spectra)
-            num_secondary = len(self.current_spectrum) - 1
+            num_secondary = len(self.current_spectra) - 1
             highlight_lines = (
                 self.lines[1:]
                 if num_secondary == 0
@@ -279,7 +282,7 @@ class Model(QObject):
             ax.figure.canvas.draw_idle()
 
     def preprocess(self):
-        for spectrum in self.current_spectrum:
+        for spectrum in self.current_spectra:
             spectrum.preprocess()
 
     def get_view_limits(self, ax):
@@ -310,12 +313,12 @@ class Model(QObject):
         ax.clear()
         ax.set_title(current_title)
 
-        if not self.current_spectrum:
+        if not self.current_spectra:
             ax.get_figure().canvas.draw_idle()
             return
 
         first_spectrum = True
-        for spectrum in self.current_spectrum:
+        for spectrum in self.current_spectra:
             x0, y0 = spectrum.x0.copy(), spectrum.y0.copy()
 
             # Plot outliers in green

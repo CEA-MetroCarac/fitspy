@@ -150,9 +150,9 @@ class PlotController(QObject):
     def del_map(self, fname):
         self.model.del_map(fname)
 
-    def set_current_spectrum(self, fnames):
+    def set_current_spectra(self, fnames):
         parent = self.model.parent()
-        self.model.current_spectrum = [
+        self.model.current_spectra = [
             self.model.spectra.get_objects(fname, parent)[0] for fname in fnames
         ]
 
@@ -163,7 +163,7 @@ class PlotController(QObject):
 
     def get_spectrum(self, fname=None):
         if fname is None:
-            return self.model.current_spectrum
+            return self.model.current_spectra
         return self.model.spectra.get_objects(fname)[0]
 
     def get_fit_models(self, delimiter):
@@ -227,7 +227,7 @@ class PlotController(QObject):
 
     def set_spectrum_attr(self, attr, value, fnames=None):
         if fnames is None:
-            for spectrum in self.model.current_spectrum:
+            for spectrum in self.model.current_spectra:
                 self.model.set_spectrum_attr(spectrum.fname, attr, value)
         else:
             for fname in fnames:
@@ -240,7 +240,7 @@ class PlotController(QObject):
 
     def apply_baseline(self):
         self.colorizeFromFitStatus.emit(
-            {s.fname: None for s in self.model.current_spectrum}
+            {s.fname: None for s in self.model.current_spectra}
         )
         self.model.preprocess()
         self.update_spectraplot()
@@ -248,7 +248,7 @@ class PlotController(QObject):
     def apply_spectral_range(self, min, max, fnames=None):
         if fnames is None:
             fnames = [
-                spectrum.fname for spectrum in self.model.current_spectrum
+                spectrum.fname for spectrum in self.model.current_spectra
             ]
 
         for fname in fnames:
@@ -279,14 +279,14 @@ class PlotController(QObject):
         self.model.peak_model = model
 
     def set_peaks(self, peaks):
-        if not self.model.current_spectrum:
+        if not self.model.current_spectra:
             return
-        spectrum = self.model.current_spectrum[0]
+        spectrum = self.model.current_spectra[0]
         spectrum.set_attributes(peaks)
         self.update_spectraplot()
 
     def set_bkg_model(self, model):
-        for i, spectrum in enumerate(self.model.current_spectrum):
+        for i, spectrum in enumerate(self.model.current_spectra):
             spectrum.set_bkg_model(model)
             spectrum.result_fit = lambda: None
             if i == 0 and spectrum.bkg_model:
@@ -294,9 +294,9 @@ class PlotController(QObject):
         self.update_spectraplot()
 
     def set_bkg(self, bkg):
-        if not self.model.current_spectrum:
+        if not self.model.current_spectra:
             return
-        for spectrum in self.model.current_spectrum:
+        for spectrum in self.model.current_spectra:
             spectrum.set_attributes(bkg)
 
         self.update_spectraplot()
@@ -305,7 +305,7 @@ class PlotController(QObject):
         self.model.spectra.set_attributes(models)
 
     def fit(self, model_dict, ncpus):
-        fnames = [spectrum.fname for spectrum in self.model.current_spectrum]
+        fnames = [spectrum.fname for spectrum in self.model.current_spectra]
         self.model.apply_model(
             model_dict=model_dict,
             fnames=fnames,
