@@ -20,6 +20,7 @@ class SettingsController(QObject):
     removeOutliers = Signal()
     setSpectrumAttr = Signal(str, object)
     baselinePointsChanged = Signal(list)
+    applyModel = Signal(object)
     applyBaseline = Signal()
     applySpectralRange = Signal(object, object)
     applyNormalization = Signal(bool, object, object)
@@ -151,32 +152,32 @@ class SettingsController(QObject):
 
         # Other settings
         self.solver_settings.fit_negative.toggled.connect(
-            lambda checked: self.update_model_dict_with_key(
+            lambda checked: self.update_and_emit(
                 "fit_params.fit_negative", checked
             )
         )
         self.solver_settings.fit_outliers.toggled.connect(
-            lambda checked: self.update_model_dict_with_key(
+            lambda checked: self.update_and_emit(
                 "fit_params.fit_outliers", checked
             )
         )
         self.solver_settings.method.currentTextChanged.connect(
-            lambda text: self.update_model_dict_with_key(
+            lambda text: self.update_and_emit(
                 "fit_params.method", FIT_METHODS[text]
             )
         )
         self.solver_settings.max_ite.valueChanged.connect(
-            lambda value: self.update_model_dict_with_key(
+            lambda value: self.update_and_emit(
                 "fit_params.max_ite", value
             )
         )
         self.solver_settings.coef_noise.valueChanged.connect(
-            lambda value: self.update_model_dict_with_key(
+            lambda value: self.update_and_emit(
                 "fit_params.coef_noise", value
             )
         )
         self.solver_settings.xtol.valueChanged.connect(
-            lambda value: self.update_model_dict_with_key(
+            lambda value: self.update_and_emit(
                 "fit_params.xtol", value
             )
         )
@@ -206,10 +207,17 @@ class SettingsController(QObject):
         self.load_user_models(fitspy.BKG_MODELS, fname=HOME / "Fitspy" / "bkg_models.py")
 
     def update_and_emit(self, key, value):
-        self.update_model_dict_with_key(key, value)
+        key, value = self.update_model_dict_with_key(key, value)
         self.setSpectrumAttr.emit(key, value)
 
     def update_model_dict_with_key(self, key, value):
+        """Update settings controller model dict by key, e.g. "fit_params.method" will 
+        update the "method" key in the "fit_params" dictionary
+
+        Returns:
+            key: Spectrum() attribute to be updated
+            value: New value to be set
+        """
         self.model.blockSignals(True)
         keys = key.split(".")
         current_dict = self.model.current_fit_model
@@ -218,9 +226,11 @@ class SettingsController(QObject):
                 current_dict[k] = {}
             current_dict = current_dict[k]
         current_dict[keys[-1]] = value
-        if key.startswith("fit_params"):
-            self.settingChanged.emit(key.replace(".", "_"), value)
         self.model.blockSignals(False)
+
+        if key.startswith("fit_params"):
+            return "fit_params", current_dict
+        return key, value
 
     def set_model(self, spectrum):
         """Set the current model to the spectrum model"""
@@ -229,6 +239,7 @@ class SettingsController(QObject):
         else:
             model = spectrum.save()
             model["baseline"].pop("y_eval")
+            model.pop("fname", None)
 
         self.model.current_fit_model = model
 
@@ -262,11 +273,12 @@ class SettingsController(QObject):
         first_key = next(iter(models))
         first_model = models[first_key]
         first_model.pop("fname", None)
-        self.model.current_fit_model = first_model
+        self.applyModel.emit(first_model)  # Applying in Spectrum objects first
 
     def apply_model(self, fit_model):
         """Reflects the changes in the model to the GUI"""
         self.model_builder.update_model(fit_model)
+        self.solver_settings.update_settings(fit_model.get("fit_params", {}))
         points = fit_model.get("baseline", {}).get("points", [[], []])
         self.set_baseline_points(points)
         self.update_peaks_table(fit_model)
@@ -367,8 +379,8 @@ class SettingsController(QObject):
 
         if isinstance(spectrum, dict):
             fit_model = spectrum
-            peak_models = fit_model.get("peak_models", {})
-            peak_labels = fit_model.get("peak_labels", [])
+            peak_models = fit_model.get("peak_models", fit_model.get("models"))
+            peak_labels = fit_model.get("peak_labels", fit_model.get("models_labels"))
 
             for key, model_dict in peak_models.items():
                 label = peak_labels[key]

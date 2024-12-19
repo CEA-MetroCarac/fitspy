@@ -410,12 +410,14 @@ class Model(QObject):
 
                 first_spectrum = False
             else:
+                x0, y0 = spectrum.x.copy(), spectrum.y.copy()
+                
                 # Subtract baseline
-                if (
-                    spectrum.baseline.y_eval is not None
-                    and view_options["Subtract bkg+baseline"]
-                ):
-                    y0 -= spectrum.baseline.y_eval
+                if spectrum.baseline.y_eval is not None:
+                    if view_options["Subtract bkg+baseline"] and not spectrum.baseline.is_subtracted:
+                        y0 -= spectrum.baseline.y_eval
+                    elif not view_options["Subtract bkg+baseline"] and spectrum.baseline.is_subtracted:
+                        y0 += spectrum.baseline.y_eval
 
                 # Subtract background model
                 if (
@@ -441,28 +443,19 @@ class Model(QObject):
         ax.get_figure().canvas.draw_idle()
 
     def apply_model(
-        self, model_dict=None, fnames=None, fit_params=None, ncpus=None
+        self, model_dict=None, fnames=None, ncpus=None
     ):
         """Apply model to the selected spectra"""
-        # model_dict = deepcopy(self.model_dict)
-
         if model_dict is None:
             self.showToast("error", "No model has been loaded", "")
             return
 
-        if fnames is None:
-            fnames = self.fileselector.filenames
-            fnames = [fnames[i] for i in self.fileselector.lbox.curselection()]
-
         nfiles = len(fnames)
         fit_status = {fname: None for fname in fnames}
-
-        if fit_params is not None:
-            for fname in fnames:
-                spectrum, _ = self.spectra.get_objects(fname)
-                spectrum.fit_params = deepcopy(fit_params)
-                fit_status[fname] = spectrum
-
+        for fname in fnames:
+            spectrum, _ = self.spectra.get_objects(fname)
+            # spectrum.set_attributes(model_dict)
+            fit_status[fname] = spectrum
         self.spectra.pbar_index = 0
         show_progressbar = False
 

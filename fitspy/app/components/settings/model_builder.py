@@ -428,9 +428,11 @@ class ModelBuilder(QWidget):
 
         # Normalization
         normalization = self.model_settings.normalization
+        normalization.normalize.blockSignals(True)
         normalization.range_min.setValue(model.get("normalize_range_min", 0))
         normalization.range_max.setValue(model.get("normalize_range_max", 0))
         normalization.normalize.setChecked(model.get("normalize", False))
+        normalization.normalize.blockSignals(False)
 
         # Fitting
         bkg_model = next(iter(model.get("bkg_model") or {}), "None")

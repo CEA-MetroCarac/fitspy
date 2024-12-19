@@ -141,6 +141,7 @@ class MainController(QObject):
         self.settings_controller.baselinePointsChanged.connect(
             self.plot_controller.set_baseline_points
         )
+        self.settings_controller.applyModel.connect(self.apply_model)
         self.settings_controller.applyBaseline.connect(self.apply_baseline)
         self.settings_controller.applySpectralRange.connect(
             self.plot_controller.apply_spectral_range
@@ -175,24 +176,6 @@ class MainController(QObject):
     def apply_settings(self):
         self.view.statusBox.ncpus.setCurrentText(self.model.ncpus)
         self.view.spectra_plot.ax.set_title(self.model.figure_options_title)
-        self.view.more_settings.solver_settings.method.setCurrentText(
-            self.model.fit_params_method
-        )
-        self.view.more_settings.solver_settings.fit_negative.setChecked(
-            self.model.fit_params_fit_negative
-        )
-        self.view.more_settings.solver_settings.fit_outliers.setChecked(
-            self.model.fit_params_fit_outliers
-        )
-        self.view.more_settings.solver_settings.max_ite.setValue(
-            self.model.fit_params_max_ite
-        )
-        self.view.more_settings.solver_settings.coef_noise.setValue(
-            self.model.fit_params_coef_noise
-        )
-        self.view.more_settings.solver_settings.xtol.setValue(
-            self.model.fit_params_xtol
-        )
         self.view.more_settings.other_settings.outliers_coef.setValue(
             self.model.outliers_coef
         )
@@ -485,3 +468,12 @@ class MainController(QObject):
         spectra = self.plot_controller.get_spectrum()
         if spectra:
             self.settings_controller.set_model(spectra[0])
+
+    def apply_model(self, model_dict):
+        spectra = self.plot_controller.get_spectrum()
+        if spectra:
+            for spectrum in spectra:
+                spectrum.set_attributes(model_dict)
+                spectrum.preprocess()
+            self.settings_controller.set_model(spectra[0])
+        self.show_toast("SUCCESS", "Model Applied", "Model has been applied.")

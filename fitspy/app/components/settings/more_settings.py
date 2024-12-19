@@ -13,7 +13,7 @@ from PySide6.QtWidgets import (
     QApplication,
 )
 
-from fitspy import FIT_METHODS, DEFAULTS
+from fitspy import FIT_METHODS, FIT_PARAMS
 from superqt.cmap import CmapCatalogComboBox
 from .custom_spinbox import SpinBox, DoubleSpinBox
 
@@ -30,28 +30,28 @@ class SolverSettings(QGroupBox):
         vbox = QVBoxLayout()
 
         self.fit_negative = QCheckBox("Fit negative values:")
-        self.fit_negative.setChecked(DEFAULTS["fit_params"]["fit_negative"])
+        self.fit_negative.setChecked(FIT_PARAMS["fit_negative"])
 
         self.fit_outliers = QCheckBox("Fit outliers:")
-        self.fit_outliers.setChecked(DEFAULTS["fit_params"]["fit_outliers"])
+        self.fit_outliers.setChecked(FIT_PARAMS["fit_outliers"])
 
         self.coef_noise_label = QLabel("Coefficient noise:")
         self.coef_noise = DoubleSpinBox()
-        self.coef_noise.setValue(DEFAULTS["fit_params"]["coef_noise"])
+        self.coef_noise.setValue(FIT_PARAMS["coef_noise"])
 
         self.max_ite_label = QLabel("Maximum iterations:")
         self.max_ite = SpinBox()
-        self.max_ite.setValue(DEFAULTS["fit_params"]["max_ite"])
+        self.max_ite.setValue(FIT_PARAMS["max_ite"])
 
         self.method_label = QLabel("Fit method:")
         self.method = QComboBox()
         self.method.addItems(FIT_METHODS.keys())
-        self.method.setCurrentText(DEFAULTS["fit_params"]["method"])
+        self.method.setCurrentText(FIT_PARAMS["method"])
 
         self.xtol_label = QLabel("x-tolerance:")
         self.xtol = DoubleSpinBox()
         self.xtol.setDecimals(6)
-        self.xtol.setValue(DEFAULTS["fit_params"]["xtol"])
+        self.xtol.setValue(FIT_PARAMS["xtol"])
 
         vbox.addWidget(self.fit_negative)
         vbox.addWidget(self.fit_outliers)
@@ -86,6 +86,18 @@ class SolverSettings(QGroupBox):
         )
 
         self.setLayout(vbox)
+
+    def update_settings(self, fit_params):
+        if not fit_params:
+            return
+        self.blockSignals(True)
+        self.fit_negative.setChecked(fit_params["fit_negative"])
+        self.fit_outliers.setChecked(fit_params["fit_outliers"])
+        self.coef_noise.setValue(fit_params["coef_noise"])
+        self.max_ite.setValue(fit_params["max_ite"])
+        self.method.setCurrentText(fit_params["method"])
+        self.xtol.setValue(fit_params["xtol"])
+        self.blockSignals(False)
 
 
 class OtherSettings(QGroupBox):

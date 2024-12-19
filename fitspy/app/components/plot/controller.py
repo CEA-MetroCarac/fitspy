@@ -305,11 +305,9 @@ class PlotController(QObject):
         self.model.spectra.set_attributes(models)
 
     def fit(self, model_dict, ncpus):
-        fit_params = model_dict.get("fit_params", {})
         fnames = [spectrum.fname for spectrum in self.model.current_spectrum]
         self.model.apply_model(
             model_dict=model_dict,
             fnames=fnames,
-            fit_params=fit_params,
             ncpus=ncpus,
         )
