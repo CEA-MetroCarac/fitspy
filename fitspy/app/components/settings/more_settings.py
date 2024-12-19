@@ -87,6 +87,11 @@ class SolverSettings(QGroupBox):
 
         self.setLayout(vbox)
 
+    def blockSignals(self, block):
+        super().blockSignals(block)
+        for child in self.findChildren(QWidget):
+            child.blockSignals(block)
+
     def update_settings(self, fit_params):
         if not fit_params:
             return

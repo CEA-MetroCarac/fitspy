@@ -108,6 +108,12 @@ class Model(QObject):
                 self.spectraMapDeleted.emit(fname)
                 break
 
+    def reinit_spectra(self, fnames):
+        for fname in fnames:
+            spectrum = self.spectra.get_objects(fname)[0]
+            spectrum.reinit()
+        self.refreshPlot.emit()
+
     def switch_map(self, fname):
         if fname is None:
             self.current_map = None

@@ -10,6 +10,7 @@ class FilesController(QObject):
     loadSpectraMap = Signal(str)
     delSpectrum = Signal(dict)
     delSpectraMap = Signal(str)
+    reinitSpectra = Signal(list)
     mapChanged = Signal(object)  # Can be a string or None
     spectraChanged = Signal(list)
     saveResults = Signal(list)
@@ -50,6 +51,9 @@ class FilesController(QObject):
         )
         self.spectrum_list.sel_all.clicked.connect(
             self.spectrum_list.list.selectAll
+        )
+        self.spectrum_list.reinit.clicked.connect(
+            lambda: self.reinitSpectra.emit(self.get_selected_fnames())
         )
         self.spectrum_list.rm_btn.clicked.connect(
             lambda: self.remove_selected_files(self.spectrum_list.list)

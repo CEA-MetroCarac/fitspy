@@ -416,6 +416,7 @@ class SettingsController(QObject):
                 self.model_builder.baseline_table,
                 self.model_builder.peaks_table,
                 self.model_builder.bkg_table,
+                self.solver_settings,
             ]
 
             for parent in parent_widgets:
@@ -433,6 +434,7 @@ class SettingsController(QObject):
             combo_box.setItemText(current_index, current_text + " (Preview)")
             model = load_from_json(current_text)
             model = model[next(iter(model))]
+            model.pop("fname", None)
             lock_inputs(True)
 
         else:
@@ -441,8 +443,7 @@ class SettingsController(QObject):
                 model = copy.deepcopy(self.model.backup_fit_model)
             combo_box.setItemText(current_index, current_text)
             lock_inputs(False)
-
-        self.apply_model(model)
+        self.applyModel.emit(model)
 
     def switch_peak_model(self, model_name):
         self.model_builder.tab_widget.setCurrentIndex(0)

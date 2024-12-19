@@ -82,6 +82,12 @@ class MainController(QObject):
         self.files_controller.delSpectraMap.connect(
             self.plot_controller.del_map
         )
+        self.files_controller.reinitSpectra.connect(
+            lambda fnames: (
+                self.plot_controller.reinit_spectra(fnames),
+                self.change_current_fit_model(fnames),
+            )
+        )
         self.files_controller.spectraChanged.connect(
             self.plot_controller.set_current_spectra
         )
@@ -476,4 +482,3 @@ class MainController(QObject):
                 spectrum.set_attributes(model_dict)
                 spectrum.preprocess()
             self.settings_controller.set_model(spectra[0])
-        self.show_toast("SUCCESS", "Model Applied", "Model has been applied.")

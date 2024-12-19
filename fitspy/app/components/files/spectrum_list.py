@@ -21,9 +21,13 @@ class SpectrumList(QWidget):
         self.title_label = QLabel("Spectrum:")
         self.count_label = QLabel("")
 
-        self.sel_all = QPushButton(icon=QIcon(get_icon_path("select-all.png")))
+        self.sel_all = QPushButton(icon=QIcon(get_icon_path("select-all.png")),
+                                   toolTip="Select all spectra")
         self.sel_all.setIconSize(QSize(20, 20))
-        self.rm_btn = QPushButton(icon=QIcon(get_icon_path("remove.png")))
+        self.reinit = QPushButton(icon=QIcon(get_icon_path("reset.png")),
+                                  toolTip="Reinitialize selected spectra")
+        self.rm_btn = QPushButton(icon=QIcon(get_icon_path("remove.png")),
+                                  toolTip="Remove selected spectra")
         self.rm_btn.setIconSize(QSize(20, 20))
         self.save_btn = QPushButton(
             icon=QIcon(get_icon_path("save.png")),
@@ -44,6 +48,7 @@ class SpectrumList(QWidget):
         title_layout.addStretch()  # horizontal spacer
 
         button_layout.addWidget(self.sel_all)
+        button_layout.addWidget(self.reinit)
         button_layout.addWidget(self.rm_btn)
         button_layout.addWidget(self.save_btn)
 

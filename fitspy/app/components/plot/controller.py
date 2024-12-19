@@ -150,6 +150,9 @@ class PlotController(QObject):
     def del_map(self, fname):
         self.model.del_map(fname)
 
+    def reinit_spectra(self, fnames):
+        self.model.reinit_spectra(fnames)
+
     def set_current_spectra(self, fnames):
         parent = self.model.parent()
         self.model.current_spectra = [
