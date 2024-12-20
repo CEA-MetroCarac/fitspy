@@ -1,4 +1,3 @@
-# TODO
 """
 Example of spectrum peak models reconstruction from .json and .csv parameters
 """
@@ -7,7 +6,7 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 
-from fitspy.spectra import Spectra, Spectrum
+from fitspy.core import Spectra, Spectrum
 
 DATA = Path(__file__).parent / "data"
 

@@ -261,6 +261,7 @@ class SettingsController(QObject):
             fname = QFileDialog.getOpenFileName(None, "Load File", "", TYPES)[0]
 
         if fname:
+            fname = str(fname)
             if fname not in self.model.loaded_models:
                 self.model_builder.model_selector.combo_box.addItem(fname)
                 self.model.loaded_models.append(fname)

@@ -6,7 +6,7 @@ import glob
 import tkinter
 import pandas as pd
 
-from fitspy.utils import hsorted
+from fitspy.core.utils import hsorted
 
 
 def safe_float(x):

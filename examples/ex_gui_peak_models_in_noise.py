@@ -1,38 +1,44 @@
-# TODO
 """
 Example illustrating the application of a 'Fitspy' model whose peak models for
 the 2nd spectrum cover areas entirely defined by noise (peaks: 1, 11, 13, 14,
 15)
 """
-import tkinter as tk
-from pathlib import Path
 
-from fitspy.app.gui import Appli
-from fitspy import PEAK_MODELS, BKG_MODELS
+import sys
+from pathlib import Path
+from PySide6.QtWidgets import QApplication
+
+from fitspy.app import MainController as Appli
 
 DATA = Path(__file__).parent / "data"
-DIRNAME = DATA / "spectra_3"
-
 
 def ex_gui_peak_models_in_noise(dirname_res=None):
-    root = tk.Tk()
-    appli = Appli(root)
+    """ Example of spectra automatic decomposition through the appli """
+    app = QApplication([])
+    app.setStyle("Fusion")
+    appli = Appli()
 
-    fnames = [DIRNAME / "spectrum_3_1.txt", DIRNAME / "spectrum_3_2.txt"]
-    fname_json = DIRNAME / "model.json"
+    # specify the dirname to work with
+    dirname = DATA / 'spectra_3'
+    fnames = [str(f) for f in dirname.glob('*.txt')]
+    appli.open(fnames=fnames)
 
-    appli.add_items(fnames=fnames)
-    appli.load_model(fname_json=fname_json)
-    appli.apply_model_to_all()
+    # load model and apply it to ALL SPECTRA
+    fname_json = str(dirname / 'model.json')
+    appli.settings_controller.load_model(fname_json)
+    appli.view.spectrum_list.sel_all.click()
+    appli.view.fit_model_editor.model_selector.apply.click()
+    appli.view.fit_model_editor.model_settings.fit.click()
 
     # save and destroy for pytest
     if dirname_res is not None:
         appli.save_results(dirname_res=dirname_res)
-        root.destroy()
+        app.quit()
         return
 
-    root.mainloop()
+    appli.view.show()
+    sys.exit(app.exec())
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     ex_gui_peak_models_in_noise()

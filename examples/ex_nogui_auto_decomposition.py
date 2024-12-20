@@ -1,4 +1,3 @@
-# TODO
 """
 Example of spectra automatic decomposition without passing by the GUI
 """
@@ -9,8 +8,8 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 from lmfit import report_fit
 
-from fitspy.spectra import Spectrum, Spectra
-from fitspy.utils import hsorted
+from fitspy.core import Spectrum, Spectra
+from fitspy.core.utils import hsorted
 
 DATA = Path(__file__).parent / "data"
 

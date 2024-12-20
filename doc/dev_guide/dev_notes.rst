@@ -42,6 +42,7 @@ TODO List
 ---------
 
 TODO Base:
+    - [ ] Write a submodule that provides all functions necessary to manipulate GUI via code only. + Rewrite examples to use this submodule
     - [ ] Update documentation
     - [x] Add a "Highlight spectra" click mode
     - [x] restore spectrum colorize_from_fit_status
@@ -64,9 +65,12 @@ TODO Base:
       - [x] Add Label choice and plot update
 
 TODO Fixes:
-    - [x] Peaks labels can sometimes overflow the plot
+    - [ ] Investigate exit not exiting properly on some systems (could be due to Threads, use QThread instead ?) `ultralytics issue 1167 <https://github.com/ultralytics/ultralytics/issues/11679>`_
+    - [ ] reinit in Spectrum() doesn't reinit fit_params
+    - [ ] Expressions in saved models are "" instead of None
     - [ ] Manage callbacks when no files have been loaded (allow saving model, placing points, and baseline without loading spectra)
     - [ ] Baseline_points, empty Y if attached ?
+    - [x] Peaks labels can sometimes overflow the plot
     - [x] Icons color dont follow theme
     - [x] Spectrum list is disordered compared to the map. When browsing through the spectra in the list, it should traverse the map from top to bottom and left to right.
     - [x] Port updates commit 6d303df (main)
@@ -77,9 +81,10 @@ TODO Opti:
     - [ ] Optimize plotting (setxdata and setydata instead of replotting the whole figure ?)
 
 TODO Others:
+    - [x] restore & update examples/ + tests/
     - [ ] Defaults values for peaks (and maybe more) may be irrelevant depending on data's nature
     - [ ] Inconsitencies in args names fnames vs files
-    - [ ] Explicit types in functions might be useful for maintainers(e.g. `def func(arg: type) -> type:`)
+    - [ ] Explicit types in functions might be useful for maintainers(e.g. `def func(arg: type) -> type: <https://github.com/CEA-MetroCarac/fitspy/blob/cfee0e6c881045447feed2105ec79c208b8d6a5a/fitspy/app/components/settings/controller.py#L183C9-L183C20>`_)
     - [ ] Change peak table colum _vary to _fixed
     - [ ] Why using np.float64 for baseline points ??
     - [ ] update README.md
@@ -89,14 +94,13 @@ TODO Others:
     - [ ] add github workflows back
     - [ ] update paper/
     - [ ] Is commented code better ? (in files controller > colorize_from_fit_status)
-    - [x] restore & update examples/ + tests/
 
 TODO Nice to Have:
     - [ ] Fitspy Icon for taskbar
     - [ ] Multirow-edit for peaks settings (see https://stackoverflow.com/questions/14586715/how-can-i-achieve-to-update-multiple-rows-in-a-qtableview)
     - [ ] Update save/load mechanisms to include data or not based on 'save spectrum file path only' checkbox state
     - [ ] update dynamically the 2D map figure during fitting
-    - [ ] Plot Dark/Light theme `https://stackoverflow.com/questions/77748488/how-to-dynamically-change-the-sheet-type-theme-during-runtime`_
+    - [ ] Plot Dark/Light `dynamic theme change <https://stackoverflow.com/questions/77748488/how-to-dynamically-change-the-sheet-type-theme-during-runtime>`_
     - [ ] Idea : scroll on plot to edit nearest peak bounds
     - [ ] Add a button to copy 2D Map in clipboard ? (add mpl toolbar ?)
     - [x] See multiple spectrum with their baseline subtracted or not (need to redefine what to plot for secondary spectrum instead of just x0+y0)   
@@ -107,9 +111,5 @@ TODO Nice to Have:
     - [x] Warn user to disable pan/zoom if 3 clicks are detected in a short time (indicating user might want to place a peak/baseline point)
 
 TODO Production:
-    - [ ] Update Github Actions tests + Auto Pypi Pre-release/Pre-release, see `https://github.com/CEA-MetroCarac/pyvsnr/tree/main/.github/workflows`_
+    - [ ] Update Github Actions tests + Auto Pypi Pre-release/Pre-release, see `pyvsnr workflows <https://github.com/CEA-MetroCarac/pyvsnr/tree/main/.github/workflows>`_
     - [ ] Update Zenodo
-
-.. _settings_controller.py > apply_model(self, fit_model): https://github.com/CEA-MetroCarac/fitspy/blob/cfee0e6c881045447feed2105ec79c208b8d6a5a/fitspy/app/components/settings/controller.py#L183C9-L183C20
-.. _https://stackoverflow.com/questions/77748488/how-to-dynamically-change-the-sheet-type-theme-during-runtime: https://stackoverflow.com/questions/77748488/how-to-dynamically-change-the-sheet-type-theme-during-runtime
-.. _https://github.com/CEA-MetroCarac/pyvsnr/tree/main/.github/workflows: https://github.com/CEA-MetroCarac/pyvsnr/tree/main/.github/workflows 

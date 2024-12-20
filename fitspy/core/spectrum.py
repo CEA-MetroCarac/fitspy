@@ -137,6 +137,7 @@ class Spectrum:
             self.range_max = self.x0.max()
             self.x = self.x0.copy()
             self.y = self.y0.copy()
+        self.outliers_limit = None
         self.normalize = False
         self.normalize_range_min = None
         self.normalize_range_max = None
@@ -728,29 +729,30 @@ class Spectrum:
 
         num_colors = cmap.N if cmap else None
 
-        for i, peak_model in enumerate(self.peak_models):
-            # remove temporarily 'expr' that can be related to another model
-            param_hints_orig = deepcopy(peak_model.param_hints)
-            for key, _ in peak_model.param_hints.items():
-                peak_model.param_hints[key]['expr'] = ''
-            params = peak_model.make_params()
-            # reassign 'expr'
-            peak_model.param_hints = param_hints_orig
+        if show_peak_models or show_result:
+            for i, peak_model in enumerate(self.peak_models):
+                # remove temporarily 'expr' that can be related to another model
+                param_hints_orig = deepcopy(peak_model.param_hints)
+                for key, _ in peak_model.param_hints.items():
+                    peak_model.param_hints[key]['expr'] = ''
+                params = peak_model.make_params()
+                # reassign 'expr'
+                peak_model.param_hints = param_hints_orig
 
-            y_peak = peak_model.eval(params, x=x)
-            y_peaks += y_peak
+                y_peak = peak_model.eval(params, x=x)
+                y_peaks += y_peak
 
-            if show_peak_models:
-                # Assign color from CMAP based on peak index
-                if cmap:
-                    normalized_index = i % num_colors
-                    color = cmap(normalized_index)
-                else:
-                    color = 'black'
+                if show_peak_models:
+                    # Assign color from CMAP based on peak index
+                    if cmap:
+                        normalized_index = i % num_colors
+                        color = cmap(normalized_index)
+                    else:
+                        color = 'black'
 
-                line, = ax.plot(x, y_peak, lw=linewidth, color=color,
-                                label=f'{label}_Peak_{i}' if label else None)
-                lines.append(line)
+                    line, = ax.plot(x, y_peak, lw=linewidth, color=color,
+                                    label=f'{label}_Peak_{i}' if label else None)
+                    lines.append(line)
 
         if show_result and hasattr(self.result_fit, 'success'):
             y_fit = y_bkg + y_peaks

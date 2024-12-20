@@ -7,9 +7,11 @@ from pytest import approx
 examples_path = Path(__file__).resolve().parent.parent / 'examples'
 sys.path.insert(0, str(examples_path))
 
-from test_gui_auto_decomposition import REFS
-
 from ex_nogui_auto_decomposition import auto_decomposition
+
+REFS = [[142.2017338937751, 28029.56087034003, 8.277805414840545],
+        [137.67515324567708, 18759.15930233963, 14.979941168937462],
+        [366.6105573370797, 8114.486816783022, 43.73282414562729]]
 
 
 def test_auto_decomposition():

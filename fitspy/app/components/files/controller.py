@@ -236,7 +236,7 @@ class FilesController(QObject):
         """Return the selected map filename and the selected spectrum filenames."""
         return self.get_selected_map_fname(), self.get_selected_fnames()
 
-    def get_spectrum_fnames(self, map_fname=None):
+    def get_spectra_fnames(self, map_fname=None):
         """Return the list of spectrum filenames for the given map filename."""
         if map_fname:
             return self.model.spectramaps_fnames[map_fname]
@@ -256,7 +256,7 @@ class FilesController(QObject):
             None
         ]  # Include None for spectrum without map
         for map_fname in map_fnames:
-            spectrum_fnames = self.get_spectrum_fnames(map_fname)
+            spectrum_fnames = self.get_spectra_fnames(map_fname)
             for spectrum_fname in spectrum_fnames:
                 normalized_map_fname = (
                     os.path.normpath(map_fname) if map_fname else "None"

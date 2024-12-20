@@ -1,7 +1,7 @@
-# DONE
 """
 Example of 2D maps loading
 """
+import sys
 from pathlib import Path
 from PySide6.QtWidgets import QApplication
 
@@ -22,16 +22,17 @@ def gui_2d_maps(dirname_res=None):
 
     # main_controller.remove_outliers() # spectra from the maps differ: DO NOT APPLY
 
-    # automatic evaluation on the first 5 spectra
+    # TODO Add some king of treatment to see app in action
 
     # save and destroy for pytest
     if dirname_res is not None:
         appli.save_results(dirname_res=dirname_res)
+        app.quit()
         return
 
     appli.view.show()
-    app.exec()
+    sys.exit(app.exec())
 
 
 if __name__ == "__main__":
-    gui_2d_maps(r"H:\Documents\fitspy\results")
+    gui_2d_maps()

@@ -109,10 +109,12 @@ class Model(QObject):
                 break
 
     def reinit_spectra(self, fnames):
+        fit_status_dict = {}
         for fname in fnames:
             spectrum = self.spectra.get_objects(fname)[0]
             spectrum.reinit()
-        self.refreshPlot.emit()
+            fit_status_dict[fname] = None
+        self.colorizeFromFitStatus.emit(fit_status_dict)
 
     def switch_map(self, fname):
         if fname is None:
@@ -325,13 +327,12 @@ class Model(QObject):
 
         first_spectrum = True
         for spectrum in self.current_spectra:
-            x0, y0 = spectrum.x0.copy(), spectrum.y0.copy()
+            x0 = spectrum.x0.copy()
 
             # Plot outliers in green
-            if spectrum.outliers_limit is not None:
-                inds = np.where(y0 > spectrum.outliers_limit)[0]
-                if len(inds) > 0:
-                    ax.plot(x0[inds], y0[inds], "o", c="lime")
+            x_outliers, y_outliers = spectrum.calculate_outliers()
+            if x_outliers is not None:
+                ax.plot(x_outliers, y_outliers, "o", c="lime")
 
             if first_spectrum and not view_options.get("Raw", False):
                 result_fit = spectrum.result_fit
@@ -419,14 +420,14 @@ class Model(QObject):
 
                 first_spectrum = False
             else:
-                x0, y0 = spectrum.x.copy(), spectrum.y.copy()
+                x, y = spectrum.x.copy(), spectrum.y.copy()
                 
                 # Subtract baseline
                 if spectrum.baseline.y_eval is not None:
                     if view_options["Subtract bkg+baseline"] and not spectrum.baseline.is_subtracted:
-                        y0 -= spectrum.baseline.y_eval
+                        y -= spectrum.baseline.y_eval
                     elif not view_options["Subtract bkg+baseline"] and spectrum.baseline.is_subtracted:
-                        y0 += spectrum.baseline.y_eval
+                        y += spectrum.baseline.y_eval
 
                 # Subtract background model
                 if (
@@ -434,10 +435,10 @@ class Model(QObject):
                     and view_options["Subtract bkg+baseline"]
                 ):
                     y_bkg = spectrum.bkg_model.eval(
-                        spectrum.bkg_model.make_params(), x=x0
+                        spectrum.bkg_model.make_params(), x=x
                     )
-                    y0 -= y_bkg
-                self.lines += ax.plot(x0, y0, "k-", lw=0.2, zorder=0)
+                    y -= y_bkg
+                self.lines += ax.plot(x, y, "k-", lw=0.2, zorder=0)
 
         if view_options.get("Legend", False):
             ax.legend()
@@ -484,6 +485,7 @@ class Model(QObject):
         def process_spectrum(spectrum, prefix=""):
             model_dict = spectrum.save()
             model_dict["baseline"].pop("y_eval", None)
+            model_dict.pop("y_bkg", None)
             fit_models[f"{prefix}{spectrum.fname}"] = model_dict
 
         fit_models = {}

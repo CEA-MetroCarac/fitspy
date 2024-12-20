@@ -2,6 +2,7 @@
 """
 Example of 2D maps loading
 """
+import sys
 from pathlib import Path
 from PySide6.QtWidgets import QApplication
 
@@ -25,7 +26,7 @@ def gui_apply_model_to_all(dirname_res=None):
     appli.settings_controller.load_model(fname_json)
     appli.view.spectrum_list.sel_all.click()
     appli.view.fit_model_editor.model_selector.apply.click()
-    # view.fit_model_editor.model_settings.fit.click()
+    appli.view.fit_model_editor.model_settings.fit.click()
 
     # # save results and figures
     # list_widget = view.spectrum_list.list
@@ -40,10 +41,11 @@ def gui_apply_model_to_all(dirname_res=None):
     # save and destroy for pytest
     if dirname_res is not None:
         appli.save_results(dirname_res=dirname_res)
+        app.quit()
         return
 
     appli.view.show()
-    app.exec()
+    sys.exit(app.exec())
 
 
 if __name__ == "__main__":

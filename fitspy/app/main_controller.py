@@ -228,14 +228,16 @@ class MainController(QObject):
             self.view.spectrum_list.list, selected["spectra"]
         )
 
-    def open(self, fnames: list[str] = None):
+    def open(self, fnames: list = None):
         if not fnames:
             fnames = QFileDialog.getOpenFileNames(None, "Load File", "", TYPES)[0]
+
+        fnames = [str(fname) for fname in fnames]
         self.files_controller.load_files(fnames)
 
     def save(self):
         maps_list = self.files_controller.get_map_fnames()
-        spectrum_list = self.files_controller.get_spectrum_fnames()
+        spectrum_list = self.files_controller.get_spectra_fnames()
         map, spectra = self.files_controller.get_full_selection()
         fname = QFileDialog.getSaveFileName(
             None, "Save File", "", TYPES.split(";;")[0]
@@ -314,7 +316,7 @@ class MainController(QObject):
 
     def change_current_fit_model(self, fnames):
         if fnames:
-            spectrum = self.plot_controller.get_spectrum(fnames[0])
+            spectrum = self.plot_controller.get_spectra(fnames[0])
             self.settings_controller.set_model(spectrum)
         else:
             self.plot_controller.update_spectraplot()
@@ -445,9 +447,9 @@ class MainController(QObject):
         fitspy.DEFAULTS["peaks_cmap"] = (
             self.view.more_settings.other_settings.peaks_cmap.currentColormap().to_mpl()
         )
-        if self.plot_controller.get_spectrum():
+        if self.plot_controller.get_spectra():
             self.settings_controller.update_peaks_table(
-                self.plot_controller.get_spectrum()[0], block_signals=False
+                self.plot_controller.get_spectra()[0], block_signals=False
             )
 
     def update_map_cmap(self):
@@ -471,12 +473,12 @@ class MainController(QObject):
         self.show_toast(
             "SUCCESS", "Models Restored", "Models have been restored."
         )
-        spectra = self.plot_controller.get_spectrum()
+        spectra = self.plot_controller.get_spectra()
         if spectra:
             self.settings_controller.set_model(spectra[0])
 
     def apply_model(self, model_dict):
-        spectra = self.plot_controller.get_spectrum()
+        spectra = self.plot_controller.get_spectra()
         if spectra:
             for spectrum in spectra:
                 spectrum.set_attributes(model_dict)
