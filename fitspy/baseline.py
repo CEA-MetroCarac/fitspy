@@ -105,8 +105,7 @@ class BaseLine:
             with warnings.catch_warnings():
                 warnings.simplefilter("ignore")
                 mask = np.zeros_like(y, dtype=bool)
-                step = max(1, mask.size // 1024)
-                mask[::step] = True
+                mask[::max(1,mask.size // 1024)]
                 mask[y <= 0] = False
                 self.y_eval = arpls(y[mask], coef=self.coef)
                 if False in mask:

@@ -1,0 +1,78 @@
+name: gen-doc
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+
+  build-doc:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: 'Choose Python version 3.11'
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+      - run: sudo apt-get install -y pandoc
+      - name: install package
+        run: pip install .
+      - name: install doc_reqs
+        run: pip install -r doc_requirements.txt
+      - name: 'run doc-build'
+        run: sphinx-build -j auto -b html "doc" "doc/build/html"
+      - uses: actions/upload-pages-artifact@v3.0.1
+        with:
+          path: 'doc/build/html/'
+
+  deploy-doc:
+    runs-on: ubuntu-latest
+    needs: [build-doc]
+    if: github.ref  == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: CEA-MetroCarac/fitspy-doc
+          ref: refs/heads/main
+          token: ${{ secrets.FITSPY_PAGES_ACTIONS_TOKEN }}
+      - name: Download doc artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: github-pages
+          path: ${{ runner.temp }}
+      - name: untar_doc
+        run: |
+          mkdir -p ${{ runner.temp }}/github-pages/
+          tar xf ${{ runner.temp }}/artifact.tar -C ${{ runner.temp }}/github-pages/
+          cp -r ${{ runner.temp }}/github-pages/* ${{ github.workspace }}
+      - name: setup git config
+        run: |
+          git config --global user.name "GitHub Actions Bot"
+          git config --global user.email "actions@github.com"
+      - name: commit docs
+        run: |
+          git status
+          git add --all
+          git commit -am "doc update"
+          git push
+      - name: cleanup
+        run: rm -rf *
+      - uses: actions/checkout@v4
+        with: 
+          repository: CEA-MetroCarac/CEA-MetroCarac.github.io
+          ref: refs/heads/main
+          token: ${{ secrets.FITSPY_PAGES_ACTIONS_TOKEN }}
+          submodules: true
+      - name: Pull & update submodules recursively
+        run: |
+          git submodule update --init --recursive
+          git submodule update --recursive --remote
+      - name: Commit submodule update
+        run: |
+          git add --all
+          git commit -m "Update submodules" || echo "No changes to commit"
+          git push
