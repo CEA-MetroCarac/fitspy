@@ -296,32 +296,14 @@ class FilesController(QObject):
             # Colorize all items in white if fit_status is empty
             self.spectrum_list.list.colorize_items()
             return
-        # OTHER IDEA of implementation that works:
-        # for fname, result_fit in fit_status.items():
-        #     if hasattr(result_fit, 'success'):
-        #         color = 'green' if result_fit.success else 'orange'
-        #     else:
-        #         color = 'white'
-
-        #     self.spectrum_list.list.colorize_items([fname], color)
-        color_groups = {
-            "green": [],
-            "orange": [],
-            None: [],  # default bkg color
-        }
 
         for fname, result_fit in fit_status.items():
-            if hasattr(result_fit, "success"):
-                if result_fit.success:
-                    color_groups["green"].append(fname)
-                else:
-                    color_groups["orange"].append(fname)
+            if hasattr(result_fit, 'success'):
+                color = 'green' if result_fit.success else 'orange'
             else:
-                color_groups[None].append(fname)
+                color = 'white'
 
-        for color, fnames in color_groups.items():
-            if fnames:
-                self.spectrum_list.list.colorize_items(fnames, color)
+            self.spectrum_list.list.colorize_items([fname], color)
 
     def set_selection(self, list_widget, selection_list, emit_signal=True):
         if not isinstance(selection_list, list):

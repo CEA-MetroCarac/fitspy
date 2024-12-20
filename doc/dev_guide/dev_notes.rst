@@ -89,11 +89,8 @@ TODO Others:
     - [ ] Why using np.float64 for baseline points ??
     - [ ] update README.md
     - [ ] update CITATION.cff
-    - [ ] update doc/
-    - [ ] add tests/ back
     - [ ] add github workflows back
     - [ ] update paper/
-    - [ ] Is commented code better ? (in files controller > colorize_from_fit_status)
 
 TODO Nice to Have:
     - [ ] Fitspy Icon for taskbar
