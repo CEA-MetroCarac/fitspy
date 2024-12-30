@@ -1,0 +1,173 @@
+{
+   "0": {
+      "fname": "../examples/data/data/2D_maps/ordered_map.txt  X=1757.0  Y=65.7",
+      "range_min": 55.589844,
+      "range_max": 958.501953,
+      "norm_mode": null,
+      "norm_position_ref": null,
+      "peak_labels": ["1", "2", "3", "4", "5"],
+      "fit_params": {
+         "method": "leastsq",
+         "fit_negative": false,
+         "fit_outliers": false,
+         "max_ite": 200,
+         "coef_noise": 1,
+         "xtol": 0.01
+      },
+      "baseline": {
+         "points": [[], []],
+         "mode": "Linear",
+         "order_max": 1,
+         "distance": 100,
+         "sigma": 0,
+         "attached": true,
+         "is_subtracted": false
+      },
+      "bkg_model": {
+         "Linear_user": {
+            "slope": {
+               "value": -0.01434604552310709,
+               "min": -Infinity,
+               "max": Infinity,
+               "vary": true,
+               "expr": null
+            },
+            "intercept": {
+               "value": 35.87932320503609,
+               "min": -Infinity,
+               "max": Infinity,
+               "vary": true,
+               "expr": null
+            }
+         }
+      },
+      "peak_models": {
+         "0": {
+            "Lorentzian_user": {
+               "ampli": {
+                  "value": 916.2341654320171,
+                  "min": 0,
+                  "max": Infinity,
+                  "vary": true,
+                  "expr": null
+               },
+               "x0": {
+                  "value": 520.1865689023851,
+                  "min": 499.828125,
+                  "max": 539.828125,
+                  "vary": true,
+                  "expr": null
+               },
+               "fwhm": {
+                  "value": 9.594398556396765,
+                  "min": 0,
+                  "max": 200,
+                  "vary": true,
+                  "expr": null
+               }
+            }
+         },
+         "1": {
+            "Lorentzian_user": {
+               "ampli": {
+                  "value": 25.44584621366715,
+                  "min": 0,
+                  "max": Infinity,
+                  "vary": true,
+                  "expr": null
+               },
+               "x0": {
+                  "value": 290.90743512803124,
+                  "min": 288.078125,
+                  "max": 328.078125,
+                  "vary": true,
+                  "expr": null
+               },
+               "fwhm": {
+                  "value": 88.40916170854874,
+                  "min": 0,
+                  "max": 200,
+                  "vary": true,
+                  "expr": null
+               }
+            }
+         },
+         "2": {
+            "Lorentzian_user": {
+               "ampli": {
+                  "value": 26.902277984656564,
+                  "min": 0,
+                  "max": Infinity,
+                  "vary": true,
+                  "expr": null
+               },
+               "x0": {
+                  "value": 620.5169449862575,
+                  "min": 596.632813,
+                  "max": 636.632813,
+                  "vary": true,
+                  "expr": null
+               },
+               "fwhm": {
+                  "value": 79.62372154709635,
+                  "min": 0,
+                  "max": 200,
+                  "vary": true,
+                  "expr": null
+               }
+            }
+         },
+         "3": {
+            "Lorentzian_user": {
+               "ampli": {
+                  "value": 57.690247513870986,
+                  "min": 0,
+                  "max": Infinity,
+                  "vary": true,
+                  "expr": null
+               },
+               "x0": {
+                  "value": 951.4566725434661,
+                  "min": 935.513672,
+                  "max": 975.513672,
+                  "vary": true,
+                  "expr": null
+               },
+               "fwhm": {
+                  "value": 35.700262161456955,
+                  "min": 0,
+                  "max": 200,
+                  "vary": true,
+                  "expr": null
+               }
+            }
+         },
+         "4": {
+            "Lorentzian_user": {
+               "ampli": {
+                  "value": 100.20986259976826,
+                  "min": 0,
+                  "max": Infinity,
+                  "vary": true,
+                  "expr": null
+               },
+               "x0": {
+                  "value": 537.4727733855926,
+                  "min": 537.445313,
+                  "max": 577.445313,
+                  "vary": true,
+                  "expr": null
+               },
+               "fwhm": {
+                  "value": 19.67778456497641,
+                  "min": 0,
+                  "max": 200,
+                  "vary": true,
+                  "expr": null
+               }
+            }
+         }
+      },
+      "result_fit_success": true
+   }
+}
