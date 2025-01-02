@@ -1,9 +1,7 @@
-from lmfit.models import (ConstantModel, LinearModel, ParabolicModel,
-                          ExponentialModel)
-from .core.models import (gaussian, lorentzian, gaussian_asym, lorentzian_asym,
-                           pseudovoigt)
+from lmfit.models import ConstantModel, LinearModel, ParabolicModel, ExponentialModel
+from .core.models import gaussian, lorentzian, gaussian_asym, lorentzian_asym, pseudovoigt
 
-VERSION = "2024.12dev"
+VERSION = "2025.1dev"
 
 PEAK_MODELS = {"Gaussian": gaussian,
                "Lorentzian": lorentzian,
@@ -26,10 +24,10 @@ FIT_PARAMS = {'method': 'leastsq', 'fit_negative': False, 'fit_outliers': False,
 
 DEFAULTS = {
     'theme': 'dark',
-    'ncpus' : 'Auto',
+    'ncpus': 'Auto',
     'outliers_coef': 1.5,
     'click_mode': 'baseline',
-    'peaks_cmap': 'Set1',
+    'peaks_cmap': 'tab10',
     'map_cmap': 'viridis',
     'figure_options': {
         'title': 'DEFAULT_TITLE (edit in toolbar)',
