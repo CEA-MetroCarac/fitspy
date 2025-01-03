@@ -119,7 +119,7 @@ class PeaksTable(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.initUI()
-        self.show_bounds_state = None
+        self.show_bounds_state = None # FIXME: bool instead ? What for show_bounds_state=True ?
         self.show_expr_state = None
 
     def initUI(self):
@@ -183,7 +183,7 @@ class PeaksTable(QWidget):
                         "min": param_dict["min"],
                         "max": param_dict["max"],
                         "value": param_dict["value"],
-                        "vary": get_widget_value(row, f"{param_name}_vary"),
+                        "vary": not get_widget_value(row, f"{param_name}_fixed"),
                         "expr": param_dict["expr"],
                     }
         return peaks
@@ -247,7 +247,7 @@ class PeaksTable(QWidget):
             if column not in self.table.columns:
                 if "MIN" in column and "MAX" in column:
                     self.table.add_column(column, SpinBoxGroupWithExpression)
-                elif column.endswith("_vary"):
+                elif column.endswith("_fixed"):
                     self.table.add_column(column, CenteredCheckBox)
                 else:
                     self.table.add_column(column, QLabel)
@@ -280,7 +280,7 @@ class PeaksTable(QWidget):
                             self.table.setCellWidget(
                                 row, self.table.get_column_index(param), widget
                             )
-                    elif param.endswith("_vary"):
+                    elif param.endswith("_fixed"):
                         existing_widget = self.table.cellWidget(
                             row, self.table.get_column_index(param)
                         )
@@ -350,7 +350,7 @@ class PeaksTable(QWidget):
                 widget.show_bounds(show_bounds)
                 widget.show_expr(show_expr)
                 row_widgets[param] = widget
-            elif param.endswith("_vary"):
+            elif param.endswith("_fixed"):
                 checked = params.get(param, False)
                 widget = CenteredCheckBox(
                     checked, callback=self.emit_peaks_changed
@@ -362,7 +362,7 @@ class PeaksTable(QWidget):
             if column not in self.table.columns:
                 if "MIN |" in column and "| MAX" in column:
                     self.table.add_column(column, SpinBoxGroupWithExpression)
-                elif column.endswith("_vary"):
+                elif column.endswith("_fixed"):
                     self.table.add_column(column, CenteredCheckBox)
                 else:
                     self.table.add_column(column, type(row_widgets[column]))

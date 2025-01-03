@@ -315,13 +315,13 @@ def get_model_params(MODELS):
             if not callable(instance):  # lmfit.models classes
                 for param in instance.param_names:
                     params.append(f"MIN | {param} | MAX")
-                    params.append(f"{param}_vary")
+                    params.append(f"{param}_fixed")
             else:  # custom python functions
                 func_args = get_func_args(instance)
                 for arg in func_args:
                     if arg != 'x':
                         params.append(f"MIN | {arg} | MAX")
-                        params.append(f"{arg}_vary")
+                        params.append(f"{arg}_fixed")
 
             MODEL_PARAMETERS[model_name] = params
         else:
