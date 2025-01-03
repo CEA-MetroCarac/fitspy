@@ -5,13 +5,8 @@ from PySide6.QtWidgets import QApplication, QFileDialog, QMessageBox
 from pyqttoast import Toast, ToastPreset
 
 import fitspy
-from fitspy.core import (
-    update_widget_palette,
-    to_snake_case,
-    replace_icon_colors,
-    save_to_json,
-    DELIMITER,
-)
+from fitspy.core import (Spectra, Spectrum,
+                         update_widget_palette, to_snake_case, replace_icon_colors, save_to_json)
 
 from .main_model import MainModel
 from .main_view import MainView
@@ -19,7 +14,7 @@ from .components.plot import PlotController
 from .components.files import FilesController
 from .components.settings import SettingsController
 
-TYPES = "Fitspy Workspace (*.fspy);;Spectrum/Spectramap (*.json *.txt);;JSON Files (*.json);;Text Files (*.txt)"
+# TYPES = "Fitspy Workspace (*.fspy);;Spectrum/Spectramap (*.json *.txt);;JSON Files (*.json);;Text Files (*.txt)"
 
 
 class MainController(QObject):
@@ -97,6 +92,7 @@ class MainController(QObject):
         self.files_controller.mapChanged.connect(
             self.plot_controller.switch_map
         )
+        self.files_controller.mapChanged2.connect(self.change_map)
         self.files_controller.addMarker.connect(self.plot_controller.set_marker)
         self.files_controller.loadState.connect(self.load_state)
         self.files_controller.saveResults.connect(
@@ -205,62 +201,76 @@ class MainController(QObject):
             state = getattr(self.model, setting)
             checkbox.setChecked(state)
 
+    # def load_state(self, selected, models):
+    #     # Restore model attributes to each spectrum
+    #     self.plot_controller.set_spectra_attributes(models)
+    #
+    #     # Delete spectrum that are in spectrum list but not in models (deleted by user from map(s))
+    #     spectrum_ids = self.files_controller.get_all_spectrum_ids(DELIMITER)
+    #     items = [
+    #         fname for fname in spectrum_ids if fname not in models
+    #     ]  # spectrum_ids to be deleted
+    #     if items:
+    #         items = self.files_controller.convert_spectrum_ids_to_dict(
+    #             items, DELIMITER
+    #         )
+    #         self.files_controller.remove_files(items)
+    #
+    #     # Restore selection
+    #     self.files_controller.set_selection(
+    #         self.view.maps_list.list, selected["map"]
+    #     )
+    #     self.files_controller.set_selection(
+    #         self.view.spectrum_list.list, selected["spectra"]
+    #     )
+
     def load_state(self, selected, models):
         # Restore model attributes to each spectrum
         self.plot_controller.set_spectra_attributes(models)
 
-        # Delete spectrum that are in spectrum list but not in models (deleted by user from map(s))
-        spectrum_ids = self.files_controller.get_all_spectrum_ids(DELIMITER)
-        items = [
-            fname for fname in spectrum_ids if fname not in models
-        ]  # spectrum_ids to be deleted
-        if items:
-            items = self.files_controller.convert_spectrum_ids_to_dict(
-                items, DELIMITER
-            )
-            self.files_controller.remove_files(items)
+        fit_status = {model['fname']: model['result_fit_success'] for model in models.values()}
+        self.files_controller.colorize_from_fit_status(fit_status)
+        # self.plot_controller.colorizeFromFitStatus.emit(fit_status) # FIXME: emit is better ?
 
-        # Restore selection
-        self.files_controller.set_selection(
-            self.view.maps_list.list, selected["map"]
-        )
-        self.files_controller.set_selection(
-            self.view.spectrum_list.list, selected["spectra"]
-        )
+        spectra = self.plot_controller.get_spectra()
+        if spectra:
+            self.settings_controller.set_model(spectra[0])
 
     def open(self, fnames: list = None):
         if not fnames:
-            fnames = QFileDialog.getOpenFileNames(None, "Load File", "", TYPES)[0]
-
+            # fnames = QFileDialog.getOpenFileNames(None, "Load File", "", TYPES)[0]
+            fnames = QFileDialog.getOpenFileNames(None, "Load File(s)")[0]
         fnames = [str(fname) for fname in fnames]
         self.files_controller.load_files(fnames)
 
-    def save(self):
-        maps_list = self.files_controller.get_map_fnames()
-        spectrum_list = self.files_controller.get_spectra_fnames()
-        map, spectra = self.files_controller.get_full_selection()
-        fname = QFileDialog.getSaveFileName(
-            None, "Save File", "", TYPES.split(";;")[0]
-        )[0]
-        if fname:
-            # Getting the models of all spectrum objects
-            fit_models = self.plot_controller.get_fit_models(DELIMITER)
+    # def save(self):
+    #     maps_list = self.files_controller.get_map_fnames()
+    #     spectrum_list = self.files_controller.get_spectra_fnames()
+    #     map, spectra = self.files_controller.get_full_selection()
+    #     fname = QFileDialog.getSaveFileName(
+    #         None, "Save File", "", TYPES.split(";;")[0]
+    #     )[0]
+    #     if fname:
+    #         # Getting the models of all spectrum objects
+    #         fit_models = self.plot_controller.get_fit_models(DELIMITER)
+    #
+    #         data = {
+    #             "files": {
+    #                 "maps_list": maps_list,
+    #                 "spectrum_list": spectrum_list,
+    #             },
+    #             "selected": {"map": map, "spectra": spectra},
+    #             "models": fit_models,
+    #         }
+    #         save_to_json(fname, data)
 
-            data = {
-                "files": {
-                    "maps_list": maps_list,
-                    "spectrum_list": spectrum_list,
-                },
-                "selected": {"map": map, "spectra": spectra},
-                "models": fit_models,
-            }
-            save_to_json(fname, data)
+    def save(self):
+        self.save_models(fnames=self.plot_controller.model.spectra.fnames)
 
     def clear(self):
-        if self.files_controller.get_all_spectrum_ids(DELIMITER):
-            if not self.show_confirmation_dialog(
-                "Current work will be cleared. Continue ?"
-            ):
+        # if self.files_controller.get_all_spectrum_ids(DELIMITER):
+        if len(self.plot_controller.model.spectra) > 0:
+            if not self.show_confirmation_dialog("Current work will be cleared. Continue ?"):
                 return
 
         # Remove all spectra and maps
@@ -320,7 +330,12 @@ class MainController(QObject):
             self.settings_controller.set_model(spectrum)
         else:
             self.plot_controller.update_spectraplot()
-            self.settings_controller.clear_model()
+            # self.settings_controller.clear_model() # FIXME: we want to preserve previous results
+
+    def change_map(self):
+        fit_status = {s.fname:s.result_fit.success for s in self.plot_controller.model.current_map
+                      if hasattr(s, 'result_fit') and hasattr(s.result_fit, 'success')}
+        self.plot_controller.colorizeFromFitStatus.emit(fit_status)
 
     def remove_outliers(self):
         self.plot_controller.remove_outliers(self.model.outliers_coef)
@@ -439,6 +454,19 @@ class MainController(QObject):
             spectra.save_results(directory, selected_items)
             self.show_toast("SUCCESS", "Saved", f"Results saved to {directory}")
 
+    def save_figures(self, dirname_fig=None, fnames=None):
+        list_widget = self.view.spectrum_list.list
+        selected_items = fnames or list_widget.get_all_fnames()
+        if not selected_items:
+            self.show_toast("ERROR", "No Selection", "No spectrum selected.")
+            return
+
+        directory = dirname_fig or QFileDialog.getExistingDirectory(None, "Select Save Directory")
+        if directory:
+            spectra = self.plot_controller.model.parent()
+            spectra.save_figures(directory, selected_items)
+            self.show_toast("SUCCESS", "Saved", f"Figures saved to {directory}")
+
     def open_manual(self):
         url = QUrl("https://cea-metrocarac.github.io/fitspy/doc/index.html")
         QDesktopServices.openUrl(url)
@@ -461,12 +489,20 @@ class MainController(QObject):
                 self.plot_controller.model.current_map
             )
 
-    def save_models(self):
-        fname = QFileDialog.getSaveFileName(
-            None, "Save File", "", "JSON Files (*.json);;All Files (*)"
-        )[0]
-        if fname:
-            save_to_json(fname, self.plot_controller.get_fit_models(DELIMITER))
+    # def save_models(self):
+    #     fname = QFileDialog.getSaveFileName(
+    #         None, "Save File", "", "JSON Files (*.json);;All Files (*)"
+    #     )[0]
+    #     if fname:
+    #         save_to_json(fname, self.plot_controller.get_fit_models(DELIMITER))
+
+    def save_models(self, fnames=None):
+        fname_json = QFileDialog.getSaveFileName(None, "Save File", "",
+                                                 "JSON Files (*.json);;All Files (*)")[0]
+        if fname_json:
+            if fnames is None:
+                fnames = self.files_controller.get_selected_fnames()
+            self.plot_controller.save_models(fname_json, fnames)
 
     def replay_models(self, models):
         self.plot_controller.set_spectra_attributes(models)

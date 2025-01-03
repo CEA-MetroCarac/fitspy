@@ -9,7 +9,7 @@ from parse import Parser
 
 from fitspy.core import Spectra, Spectrum, closest_index, get_2d_map
 
-POLICY = "X={x}  Y={y}"
+POLICY = "{name}  X={x}  Y={y}"
 PARSER = Parser(POLICY)
 
 
@@ -47,6 +47,8 @@ class SpectraMap(Spectra):
         parameter in the 2D-map displaying
     xrange: tuple of 2 floats
         Range of intensity to consider in the 2D-map displaying
+    marker: matplotlib.lines.Line2D
+        Maker used in the 2D-map axis to set a spectrum position
     """
 
     def __init__(self):
@@ -66,6 +68,7 @@ class SpectraMap(Spectra):
         self.ax_slider = None
         self.slider = None
         self.xrange = None
+        self.marker = None
 
     def create_map(self, fname):
         """ Create map """
@@ -96,7 +99,7 @@ class SpectraMap(Spectra):
         for vals in arr[1:]:
             # create the related spectrum object
             spectrum = Spectrum()
-            spectrum.fname = POLICY.format(x=vals[1], y=vals[0])
+            spectrum.fname = POLICY.format(name=fname, x=vals[1], y=vals[0])
             intensity = vals[2:][inds]
             spectrum.x = x
             spectrum.y = intensity
@@ -196,52 +199,57 @@ class SpectraMap(Spectra):
         # self.cbar.update_normal(self.img)
         self.ax.get_figure().canvas.draw_idle()
 
-    def remove_markers(self, canvas=None):
-        """ Remove all markers in the 2D-map """
-        if canvas is None:
-            fig = self.ax.get_figure()
-            canvas = fig.canvas
+    # def remove_marker(self, canvas=None):
+    #     """ Remove the marker in the 2D-map """
+    #     if canvas is None:
+    #         fig = self.ax.get_figure()
+    #         canvas = fig.canvas
+    #
+    #     if self.marker is not None:
+    #         [x.remove() for x in self.marker]
+    #         canvas.draw_idle()
+    #         self.marker = None
 
-        if hasattr(self, 'marker') and self.marker is not None:
-            [x.remove() for x in self.marker]
-            canvas.draw_idle()
-            self.marker = None
-
-    def set_marker(self, spectrum_or_fname_or_coords, canvas=None):
+    def set_marker(self, spectrum_id, canvas=None):
         """
         Set a marker on the plot.
 
-        Parameters:
-        spectrum_or_fname_or_coords: Can be a spectrum object, a spectrum fname, or a tuple (x, y).
+        Parameters
+        ----------
+        spectrum_id: Spectrum object, str or a tuple of 2 floats
+            a Spectrum object or its filename 'fname' or its (x, y) coordinates
 
-        Returns:
-        None if spectrum_or_fname_or_coords is a spectrum object or a spectrum fname.
-        A string "X={x}  Y={y}" if spectrum_or_fname_or_coords is a tuple (x, y).
+        Returns
+        -------
+        None if spectrum_id is a spectrum object or a spectrum fname.
+        A string corresponding to "{fname}  X={x}  Y={y}" if spectrum_id is a tuple (x, y).
         """
         if canvas is None:
             fig = self.ax.get_figure()
             canvas = fig.canvas
 
-        self.remove_markers(canvas)
+        if self.marker is not None:
+            [x.remove() for x in self.marker]
+            self.marker = None
 
-        if isinstance(spectrum_or_fname_or_coords, tuple) and len(spectrum_or_fname_or_coords) == 2:
-            x, y = spectrum_or_fname_or_coords
+        fname = None
+        if isinstance(spectrum_id, tuple) and len(spectrum_id) == 2:
+            x, y = spectrum_id
             x = self.xy_map[0][closest_index(self.xy_map[0], x)]
             y = self.xy_map[1][closest_index(self.xy_map[1], y)]
-            self.marker = self.ax.plot(x, y, 'rs', ms=9, mfc='none')
-            canvas.draw_idle()
-            return f"X={x}  Y={y}"
-        else:
-            if isinstance(spectrum_or_fname_or_coords, str):
-                spectrum = self.get_objects(spectrum_or_fname_or_coords)[0]
-            else:
-                spectrum = spectrum_or_fname_or_coords
-
+            fname = POLICY.format(name=self.fname, x=x, y=y)
+        elif isinstance(spectrum_id, str):
+            spectrum = self.get_objects(spectrum_id)[0]
             x, y = self.spectrum_coords(spectrum)
+        elif isinstance(spectrum_id, Spectrum):
+            spectrum = spectrum_id
+            x, y = self.spectrum_coords(spectrum)
+        else:
+            raise IOError
 
         self.marker = self.ax.plot(x, y, 'rs', ms=9, mfc='none')
         canvas.draw_idle()
-        return None
+        return fname
 
     def export_to_csv(self, fname):
         """ Export 'arr' class attribute in a .csv file named 'fname' """

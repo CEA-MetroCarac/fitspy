@@ -1,21 +1,25 @@
-# TODO
-# """
-# Example of preprocessed spectra model reloading through the application
-# """
-# import os
-# from pathlib import Path
+"""
+Example of preprocessed spectra model reloading through the application
+"""
+from pathlib import Path
 
-# from fitspy.app.gui import fitspy_launcher
+from fitspy.app.main import fitspy_launcher
 
-# DATA = Path(__file__).parent / "data"
+DATA = Path(__file__).parent / "data"
 
 
-# def gui_reload_model():
-#     """ Example of preprocessed spectra model reloading through the appli """
+def gui_reload_model():
+    """ Example of preprocessed spectra model reloading through the appli """
 
-#     fname = os.path.join(DATA, 'spectra_2', 'model.json')
-#     fitspy_launcher(fname_json=fname)
+    fitspy_launcher(fname_json=DATA / 'spectra_2' / 'model.json')
 
 
-# if __name__ == "__main__":
-#     gui_reload_model()
+def gui_reload_model_2d_map():
+    """ Example of preprocessed '2D map' spectra model reloading through the appli """
+
+    fitspy_launcher(fname_json=DATA / '2D_maps' / 'model.json')
+
+
+if __name__ == "__main__":
+    # gui_reload_model()
+    gui_reload_model_2d_map()

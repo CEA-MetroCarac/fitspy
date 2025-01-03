@@ -108,6 +108,7 @@ class Spectrum:
         Object resulting from lmfit fitting. Default value is a 'None' object
         (function) that enables to address a 'result_fit.success' status.
     """
+
     def __init__(self):
         from fitspy import FIT_PARAMS
         self.fname = None
@@ -117,7 +118,6 @@ class Spectrum:
         self.y0 = None
         self.x = None
         self.y = None
-        self.y_bkg = None
         self.outliers_limit = None
         self.baseline = BaseLine()
         self.normalize = False
@@ -199,7 +199,7 @@ class Spectrum:
                     setattr(self.baseline, key, model_dict['baseline'][key])
 
         if 'result_fit_success' in keys:
-            self.result_fit.success = model_dict['result_fit_success']
+            setattr(self.result_fit, "success", model_dict['result_fit_success'])
 
         # COMPATIBILITY with 'old' models
         #################################
@@ -697,26 +697,31 @@ class Spectrum:
         if show_outliers_limit and self.outliers_limit is not None:
             imin, imax = list(self.x0).index(x[0]), list(self.x0).index(x[-1])
             y_lim = self.outliers_limit[imin:imax + 1]  # pylint:disable=E1136
-            ax.plot(x, y_lim, 'r-', lw=2, label=f'{label}_Outliers limit' if label else 'Outliers limit')
+            ax.plot(x, y_lim, 'r-', lw=2,
+                    label=f'{label}_Outliers limit' if label else 'Outliers limit')
 
         if show_negative_values:
-            ax.plot(x[y < 0], y[y < 0], 'ro', ms=4, label=f'{label}_Negative values' if label else "Negative values")
+            ax.plot(x[y < 0], y[y < 0], 'ro', ms=4,
+                    label=f'{label}_Negative values' if label else "Negative values")
 
         if show_noise_level:
             ampli_noise = eval_noise_amplitude(y)
             y_noise_level = self.fit_params['coef_noise'] * ampli_noise
             ax.hlines(y=y_noise_level, xmin=x[0], xmax=x[-1], colors='r',
-                    linestyles='dashed', lw=0.5, label=f'{label}_Noise level' if label else "Noise level")
+                      linestyles='dashed', lw=0.5,
+                      label=f'{label}_Noise level' if label else "Noise level")
 
         if show_baseline and self.baseline.y_eval is not None and self.baseline.is_subtracted:
-            ax.plot(x, self.baseline.y_eval, 'g', label=f'{label}_Baseline' if label else "Baseline")
+            ax.plot(x, self.baseline.y_eval, 'g',
+                    label=f'{label}_Baseline' if label else "Baseline")
 
         y_bkg = np.zeros_like(x)
         if self.bkg_model is not None:
             y_bkg = self.bkg_model.eval(self.bkg_model.make_params(), x=x)
 
         if show_background and self.bkg_model is not None and not subtract_bkg:
-            line, = ax.plot(x, y_bkg, 'k--', lw=linewidth, label=f'{label}_Background' if label else "Background")
+            line, = ax.plot(x, y_bkg, 'k--', lw=linewidth,
+                            label=f'{label}_Background' if label else "Background")
             lines.append(line)
 
         ax.set_prop_cycle(None)
@@ -743,14 +748,8 @@ class Spectrum:
                 y_peaks += y_peak
 
                 if show_peak_models:
-                    # Assign color from CMAP based on peak index
-                    if cmap:
-                        normalized_index = i % num_colors
-                        color = cmap(normalized_index)
-                    else:
-                        color = 'black'
-
-                    line, = ax.plot(x, y_peak, lw=linewidth, color=color,
+                    line, = ax.plot(x, y_peak, lw=linewidth,
+                                    color=cmap(i % num_colors) if cmap else 'k',
                                     label=f'{label}_Peak_{i}' if label else None)
                     lines.append(line)
 
@@ -758,8 +757,8 @@ class Spectrum:
             y_fit = y_bkg + y_peaks
             if subtract_bkg:
                 y_fit -= y_bkg
-                self.y_bkg = y_bkg
-            ax.plot(x, y_fit, 'b', lw=linewidth, label=f'{label}_Fitted profile' if label else "Fitted profile")
+            ax.plot(x, y_fit, 'b', lw=linewidth,
+                    label=f'{label}_Fitted profile' if label else "Fitted profile")
 
         return lines
 

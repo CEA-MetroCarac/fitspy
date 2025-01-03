@@ -382,10 +382,12 @@ class Model(QObject):
                         y = spectrum.y[closest_index(spectrum.x, x0)]
 
                         if (
-                            view_options.get("Subtract bkg+baseline")
-                            and spectrum.y_bkg is not None
+                                view_options.get("Subtract bkg+baseline")
+                                and spectrum.bkg_model is not None
                         ):
-                            y -= spectrum.y_bkg[closest_index(spectrum.x, x0)]
+                            bkg_model = spectrum.bkg_model
+                            y_bkg = bkg_model.eval(bkg_model.make_params(), x=spectrum.x)
+                            y -= y_bkg[closest_index(spectrum.x, x0)]
 
                         xy = (x0, y + dy)
                         annotation_y.append(
@@ -481,19 +483,22 @@ class Model(QObject):
         self.colorizeFromFitStatus.emit(fit_status)
         self.refreshPlot.emit()
 
-    def get_fit_models(self, delimiter):
-        def process_spectrum(spectrum, prefix=""):
-            model_dict = spectrum.save()
-            model_dict["baseline"].pop("y_eval", None)
-            model_dict.pop("y_bkg", None)
-            fit_models[f"{prefix}{spectrum.fname}"] = model_dict
+    # def get_fit_models(self, delimiter):
+    #     def process_spectrum(spectrum, prefix=""):
+    #         model_dict = spectrum.save()
+    #         model_dict["baseline"].pop("y_eval", None)
+    #         # model_dict.pop("y_bkg", None)
+    #         fit_models[f"{prefix}{spectrum.fname}"] = model_dict
+    #
+    #     fit_models = {}
+    #     for spectramap in self.spectra.spectra_maps:
+    #         for spectrum in spectramap:
+    #             process_spectrum(spectrum, f"{spectramap.fname}{delimiter}")
+    #
+    #     for spectrum in self.spectra:
+    #         process_spectrum(spectrum, f"None{delimiter}")
+    #
+    #     return fit_models
 
-        fit_models = {}
-        for spectramap in self.spectra.spectra_maps:
-            for spectrum in spectramap:
-                process_spectrum(spectrum, f"{spectramap.fname}{delimiter}")
-
-        for spectrum in self.spectra:
-            process_spectrum(spectrum, f"None{delimiter}")
-
-        return fit_models
+    def save_models(self, fname_json, fnames=None):
+        self.spectra.save(fname_json, fnames=fnames)

@@ -65,18 +65,19 @@ class Spectra(list):
         """ Return spectrum and parent (spectra or spectra map)
             related to 'fname'. If 'parent' is provided, look for 'fname'
             in the provided spectra/spectra_map. """
+        fname = os.path.normpath(fname)
 
         if parent is not None:
-            fnames = [spectrum.fname for spectrum in parent]
+            fnames = [os.path.normpath(spectrum.fname) for spectrum in parent]
             if fname in fnames:
                 return parent[fnames.index(fname)], parent
         else:
-            fnames = [spectrum.fname for spectrum in self]
+            fnames = [os.path.normpath(spectrum.fname) for spectrum in self]
             if fname in fnames:
                 return self[fnames.index(fname)], self
 
             for spectra_map in self.spectra_maps:
-                fnames = [spectrum.fname for spectrum in spectra_map]
+                fnames = [os.path.normpath(spectrum.fname) for spectrum in spectra_map]
                 if fname in fnames:
                     return spectra_map[fnames.index(fname)], spectra_map
 
@@ -97,12 +98,15 @@ class Spectra(list):
 
         Parameters
         ----------
-        dirname_res: str
+        dirname_res: str or pathlib.Path object
             Dirname where to save the .csv files
         fnames: list of str, optional
             List of the spectrum 'fnames' to save. If None, consider all the
             spectrum contained in the 'spectra' list
         """
+        dirname_res = Path(dirname_res)
+        dirname_res.mkdir(parents=True, exist_ok=True)
+
         if fnames is None:
             fnames = self.fnames
 
@@ -136,7 +140,7 @@ class Spectra(list):
             names.append(name)
         dfr = dfr.iloc[:, list(np.argsort(names, kind='stable'))]
 
-        fname = Path(dirname_res) / "results.csv"
+        fname = dirname_res / "results.csv"
         dfr.to_csv(fname, sep=';', index=False)
 
     def save_figures(self, dirname_fig, fnames=None, bounds=None):
@@ -145,7 +149,7 @@ class Spectra(list):
 
         Parameters
         ----------
-        dirname_fig: str
+        dirname_fig: str or pathlib.Path object
             Dirname where to save the figures
         fnames: list of str, optional
             List of the spectrum 'fnames' to save. If None, consider all the
@@ -153,6 +157,9 @@ class Spectra(list):
         bounds: tuple of 2 tuples, optional
             Axis limits corresponding to ((xmin, xmax), (ymin, ymax))
         """
+        dirname_fig = Path(dirname_fig)
+        dirname_fig.mkdir(parents=True, exist_ok=True)
+
         if fnames is None:
             fnames = self.fnames
 
@@ -164,7 +171,7 @@ class Spectra(list):
                 ax.set_xlim(bounds[0])
                 ax.set_ylim(bounds[1])
             _, name, _ = fileparts(fname)
-            fname_fig = os.path.join(dirname_fig, name + '.png')
+            fname_fig = dirname_fig / (name + '.png')
             plt.savefig(fname_fig)
 
     @staticmethod
@@ -250,37 +257,37 @@ class Spectra(list):
         if show_progressbar:
             print()
 
-    def set_attributes(self, models, delimiter="", map_name="None"):
-        # Determine if models have integer keys
-        keys_are_int = all(isinstance(key, int) for key in models.keys())
-
-        if keys_are_int:
-            # Handle old JSON structure where keys are integers
-            fname_to_model = {
-                os.path.normpath(model.get("fname")): model
-                for model in models.values()
-                if model.get("fname")
-            }
-        else:
-            fname_to_model = models
-
-        # For each spectrum, find and apply the corresponding model
-        for spectrum in self:
-            normalized_fname = os.path.normpath(spectrum.fname)
-            if keys_are_int:
-                key = normalized_fname
-            else:
-                key = f"{map_name}{DELIMITER}{normalized_fname}"
-
-            model = fname_to_model.get(key)
-            if model:
-                spectrum.set_attributes(model)
-
-        # recursively set attributes for spectra maps
-        if hasattr(self, "spectra_maps"):
-            for spectramap in self.spectra_maps:
-                normalized_fname = os.path.normpath(spectramap.fname)
-                spectramap.set_attributes(fname_to_model, DELIMITER, normalized_fname)
+    # def set_attributes(self, models, delimiter="", map_name="None"):
+    #     # Determine if models have integer keys
+    #     keys_are_int = all(isinstance(key, int) for key in models.keys())
+    #
+    #     if keys_are_int:
+    #         # Handle old JSON structure where keys are integers
+    #         fname_to_model = {
+    #             os.path.normpath(model.get("fname")): model
+    #             for model in models.values()
+    #             if model.get("fname")
+    #         }
+    #     else:
+    #         fname_to_model = models
+    #
+    #     # For each spectrum, find and apply the corresponding model
+    #     for spectrum in self:
+    #         normalized_fname = os.path.normpath(spectrum.fname)
+    #         if keys_are_int:
+    #             key = normalized_fname
+    #         else:
+    #             key = f"{map_name}{DELIMITER}{normalized_fname}"
+    #
+    #         model = fname_to_model.get(key)
+    #         if model:
+    #             spectrum.set_attributes(model)
+    #
+    #     # recursively set attributes for spectra maps
+    #     if hasattr(self, "spectra_maps"):
+    #         for spectramap in self.spectra_maps:
+    #             normalized_fname = os.path.normpath(spectramap.fname)
+    #             spectramap.set_attributes(fname_to_model, DELIMITER, normalized_fname)
 
     def save(self, fname_json=None, fnames=None):
         """
@@ -314,37 +321,73 @@ class Spectra(list):
 
         return dict_spectra
 
-    @staticmethod
-    def load(fname_json, preprocess=False):
-        """ Return a Spectra object from a .json file """
+    # @staticmethod
+    # def load(fname_json=None, dict_spectra=None, preprocess=False):
+    #     """ Return a Spectra object from a .json file """
+    #     dict_spectra = dict_spectra or load_from_json(fname_json)
+    #
+    #     spectra = Spectra()
+    #     fname_maps = []
+    #     for model in dict_spectra.values():
+    #         fname = model['fname']
+    #
+    #         # spectrum attached to a SpectraMap object
+    #         if "  X=" in fname:
+    #             fname_map = fname.split("  X=")[0]
+    #             if fname_map not in fname_maps:
+    #                 from fitspy.core.spectra_map import SpectraMap
+    #                 spectra.spectra_maps.append(SpectraMap.load_map(fname_map))
+    #                 fname_maps.append(fname_map)
+    #             ind = fname_maps.index(fname_map)
+    #             spectra_map = spectra.spectra_maps[ind]
+    #             for spectrum in spectra_map:
+    #                 if fname == spectra_map.fname + '  ' + spectrum.fname:
+    #                     fname_ids = spectrum.fname
+    #                     spectrum.set_attributes(model)
+    #                     spectrum.fname = fname_ids
+    #                     if preprocess:
+    #                         spectrum.preprocess()
+    #                     break
+    #         else:
+    #             spectrum = Spectrum()
+    #             spectrum.set_attributes(model)
+    #             if preprocess:
+    #                 spectrum.preprocess()
+    #             spectra.append(spectrum)
+    #
+    #     return spectra
 
-        dict_spectra = load_from_json(fname_json)
+    @staticmethod
+    def load(fname_json=None, dict_spectra=None, preprocess=False):
+        """ Return a Spectra object from a .json file or directly from 'dict_spectra' """
+        dict_spectra = dict_spectra or load_from_json(fname_json)
 
         spectra = Spectra()
         fname_maps = []
-        for i in range(len(dict_spectra.keys())):
-            fname = dict_spectra[i]['fname']
+        for model in dict_spectra.values():
+            fname = model['fname']
 
             # spectrum attached to a SpectraMap object
-            if "X=" in fname:
+            if "  X=" in fname:
                 fname_map = fname.split("  X=")[0]
                 if fname_map not in fname_maps:
-                    from fitspy.spectra_map import SpectraMap
+                    from fitspy.core.spectra_map import SpectraMap
                     spectra.spectra_maps.append(SpectraMap.load_map(fname_map))
                     fname_maps.append(fname_map)
-                ind = fname_maps.index(fname_map)
-                spectra_map = spectra.spectra_maps[ind]
-                for spectrum in spectra_map:
-                    if fname == spectrum.fname:
-                        spectrum.set_attributes(dict_spectra[i])
-                        if preprocess:
-                            spectrum.preprocess()
-                        break
+
             else:
                 spectrum = Spectrum()
-                spectrum.set_attributes(dict_spectra[i])
-                if preprocess:
-                    spectrum.preprocess()
+                spectrum.fname = fname
                 spectra.append(spectrum)
 
+        spectra.set_attributes(dict_spectra, preprocess=preprocess)
+
         return spectra
+
+    def set_attributes(self, dict_spectra, preprocess=False):
+        """ Set attributes to spectrum object related to 'dict_spectra' """
+        for model in dict_spectra.values():
+            spectrum, _ = self.get_objects(model['fname'])
+            spectrum.set_attributes(model)
+            if preprocess:
+                spectrum.preprocess()

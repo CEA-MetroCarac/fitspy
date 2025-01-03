@@ -169,8 +169,8 @@ class PlotController(QObject):
             return self.model.current_spectra
         return self.model.spectra.get_objects(fname)[0]
 
-    def get_fit_models(self, delimiter):
-        return self.model.get_fit_models(delimiter)
+    # def get_fit_models(self, delimiter):
+    #     return self.model.get_fit_models(delimiter)
 
     def remove_outliers(self, coef):
         self.model.spectra.outliers_limit_calculation(coef=coef)
@@ -305,7 +305,7 @@ class PlotController(QObject):
         self.update_spectraplot()
 
     def set_spectra_attributes(self, models):
-        self.model.spectra.set_attributes(models)
+        self.model.spectra.set_attributes(models, preprocess=True)
 
     def fit(self, model_dict, ncpus):
         fnames = [spectrum.fname for spectrum in self.model.current_spectra]
@@ -314,3 +314,6 @@ class PlotController(QObject):
             fnames=fnames,
             ncpus=ncpus,
         )
+
+    def save_models(self, fname_json, fnames):
+        self.model.save_models(fname_json, fnames)

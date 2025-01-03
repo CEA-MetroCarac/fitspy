@@ -12,10 +12,11 @@ class FilesController(QObject):
     delSpectraMap = Signal(str)
     reinitSpectra = Signal(list)
     mapChanged = Signal(object)  # Can be a string or None
+    mapChanged2 = Signal()
     spectraChanged = Signal(list)
     saveResults = Signal(list)
     addMarker = Signal(str)
-    loadState = Signal(dict, dict)
+    loadState = Signal(dict, object)
 
     def __init__(self, spectrum_list, maps_list):
         super().__init__()
@@ -152,6 +153,8 @@ class FilesController(QObject):
 
         self.mapChanged.emit(selected_map)
         self.update_list_widget(spectrum_list, selected_files)
+        # FIXME: not so good but mapChanged and update_list_widget cannot be reversed in state :(
+        self.mapChanged2.emit()
         spectrum_list.itemSelectionChanged.emit()
 
     def update_count(self, list_widget, label_widget):
@@ -246,51 +249,53 @@ class FilesController(QObject):
         """Return the list of map filenames."""
         return list(self.model.spectramaps_fnames.keys())
 
-    def get_all_spectrum_ids(self, delimiter):
-        """Return the list of all spectrum IDs across all maps.
+    # def get_all_spectrum_ids(self, delimiter):
+    #     """Return the list of all spectrum IDs across all maps.
+    #
+    #     The format is: map_fname + delimiter + spectrum_fname.
+    #     """
+    #     all_spectrum_ids = []
+    #     map_fnames = self.get_map_fnames() + [
+    #         None
+    #     ]  # Include None for spectrum without map
+    #     for map_fname in map_fnames:
+    #         spectrum_fnames = self.get_spectra_fnames(map_fname)
+    #         for spectrum_fname in spectrum_fnames:
+    #             normalized_map_fname = (
+    #                 os.path.normpath(map_fname) if map_fname else "None"
+    #             )
+    #             normalized_spectrum_fname = os.path.normpath(spectrum_fname)
+    #             all_spectrum_ids.append(
+    #                 f"{normalized_map_fname}{delimiter}{normalized_spectrum_fname}"
+    #             )
+    #     return all_spectrum_ids
 
-        The format is: map_fname + delimiter + spectrum_fname.
-        """
-        all_spectrum_ids = []
-        map_fnames = self.get_map_fnames() + [
-            None
-        ]  # Include None for spectrum without map
-        for map_fname in map_fnames:
-            spectrum_fnames = self.get_spectra_fnames(map_fname)
-            for spectrum_fname in spectrum_fnames:
-                normalized_map_fname = (
-                    os.path.normpath(map_fname) if map_fname else "None"
-                )
-                normalized_spectrum_fname = os.path.normpath(spectrum_fname)
-                all_spectrum_ids.append(
-                    f"{normalized_map_fname}{delimiter}{normalized_spectrum_fname}"
-                )
-        return all_spectrum_ids
-
-    def convert_spectrum_ids_to_dict(self, spectrum_ids, delimiter):
-        """Convert a list of spectrum IDs into a dictionary.
-
-        The dictionary format is: {map_fname: [spectrum_fname, ...], ...}
-        """
-        spectrum_dict = {}
-        for spectrum_id in spectrum_ids:
-            map_fname, spectrum_fname = spectrum_id.split(delimiter)
-
-            if map_fname == "None":
-                map_fname = "None"
-
-            if map_fname not in spectrum_dict:
-                spectrum_dict[map_fname] = []
-            spectrum_dict[map_fname].append(spectrum_fname)
-        return spectrum_dict
+    # def convert_spectrum_ids_to_dict(self, spectrum_ids, delimiter):
+    #     """Convert a list of spectrum IDs into a dictionary.
+    #
+    #     The dictionary format is: {map_fname: [spectrum_fname, ...], ...}
+    #     """
+    #     spectrum_dict = {}
+    #     for spectrum_id in spectrum_ids:
+    #         map_fname, spectrum_fname = spectrum_id.split(delimiter)
+    #
+    #         if map_fname == "None":
+    #             map_fname = "None"
+    #
+    #         if map_fname not in spectrum_dict:
+    #             spectrum_dict[map_fname] = []
+    #         spectrum_dict[map_fname].append(spectrum_fname)
+    #     return spectrum_dict
 
     def colorize_from_fit_status(self, fit_status: dict):
         """
         Colorize the items in the spectrum list based on the fit status.
 
-        Parameters:
-        fit_status (dict): A dictionary where keys are filenames (str) and values are lmfit.model.ModelResult objects.
-                        The ModelResult objects should have a 'success' attribute indicating the fit status.
+        Parameters
+        ----------
+        fit_status: dict
+            A dictionary where keys are filenames (str) and values are either booleans (bool) or
+            objects with a 'success' attribute indicating the fit status (like lmfit.model.ModelResult).
         """
         if not fit_status:
             # Colorize all items in white if fit_status is empty
@@ -298,12 +303,13 @@ class FilesController(QObject):
             return
 
         for fname, result_fit in fit_status.items():
-            if hasattr(result_fit, 'success'):
+            if isinstance(result_fit, bool):
+                color = 'green' if result_fit else 'orange'
+            elif hasattr(result_fit, 'success'):
                 color = 'green' if result_fit.success else 'orange'
             else:
                 color = 'white'
-
-            self.spectrum_list.list.colorize_items([fname], color)
+            self.spectrum_list.list.colorize_items([os.path.normpath(fname)], color)
 
     def set_selection(self, list_widget, selection_list, emit_signal=True):
         if not isinstance(selection_list, list):
