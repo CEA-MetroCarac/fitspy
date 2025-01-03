@@ -55,6 +55,7 @@ class SettingsController(QObject):
         # Baseline settings
         baseline = self.model_builder.model_settings.baseline
         baseline_modes = {
+            baseline.none: None,
             baseline.semi_auto: "Semi-Auto",
             baseline.linear: "Linear",
             baseline.polynomial: "Polynomial",
@@ -239,12 +240,12 @@ class SettingsController(QObject):
         else:
             model = spectrum.save()
             model["baseline"].pop("y_eval")
-            model.pop("fname", None)
+            model.pop("fname", None) # TODO: what happens for fit_results=None with success as attr
 
         self.model.current_fit_model = model
 
     def update_model_dict(self, model_dict):
-        # Uncesseray to block signals as the update occurs key by key
+        # Unnecessary to block signals as the update occurs key by key
         for key, value in model_dict.items():
             self.model.current_fit_model[key] = value
 

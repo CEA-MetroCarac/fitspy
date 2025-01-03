@@ -81,12 +81,14 @@ class Baseline(QCollapsible):
         self.HLayout1.setSpacing(5)
         self.HLayout1.setContentsMargins(0, 0, 0, 0)
 
+        self.none = QRadioButton("None")
         self.semi_auto = QRadioButton("Semi-Auto :")
         self.slider = QSlider(Qt.Horizontal)
         self.slider.setRange(0, 10)
         # self.slider.setValue(5)
         self.import_btn = QPushButton("Import")
 
+        self.HLayout1.addWidget(self.none)
         self.HLayout1.addWidget(self.semi_auto)
         self.HLayout1.addWidget(self.slider)
         self.HLayout1.addWidget(self.import_btn)
@@ -108,6 +110,7 @@ class Baseline(QCollapsible):
         self.HLayout2.addWidget(self.order)
 
         self.button_group = QButtonGroup(self)
+        self.button_group.addButton(self.none)
         self.button_group.addButton(self.semi_auto)
         self.button_group.addButton(self.linear)
         self.button_group.addButton(self.polynomial)
@@ -411,15 +414,11 @@ class ModelBuilder(QWidget):
         # Baseline
         baseline = self.model_settings.baseline
         baseline_model = model.get("baseline", {})
-        baseline.button_group.setExclusive(False)
-        baseline.semi_auto.setChecked(
-            baseline_model.get("mode", None) == "Semi-Auto"
-        )
+
+        baseline.none.setChecked(baseline_model.get("mode", None) is None)
+        baseline.semi_auto.setChecked(baseline_model.get("mode", None) == "Semi-Auto")
         baseline.linear.setChecked(baseline_model.get("mode", None) == "Linear")
-        baseline.polynomial.setChecked(
-            baseline_model.get("mode", None) == "Polynomial"
-        )
-        baseline.button_group.setExclusive(True)
+        baseline.polynomial.setChecked(baseline_model.get("mode", None) == "Polynomial")
 
         baseline.attached.setChecked(baseline_model.get("attached", False))
         baseline.order.setValue(baseline_model.get("order_max", 0))
