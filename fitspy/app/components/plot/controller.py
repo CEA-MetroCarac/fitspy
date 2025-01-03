@@ -94,7 +94,8 @@ class PlotController(QObject):
 
         self.toolbar.baseline_radio.toggled.connect(self.on_click_mode_changed)
         self.toolbar.fitting_radio.toggled.connect(self.on_click_mode_changed)
-        self.toolbar.highlight_radio.toggled.connect(self.on_click_mode_changed)
+        self.toolbar.disable_radio.toggled.connect(self.on_click_mode_changed)
+
         self.spectra_plot.canvas.mpl_connect(
             "motion_notify_event", self.on_motion
         )
@@ -203,7 +204,7 @@ class PlotController(QObject):
             self.consecutive_clicks = 0
 
         point_type = self.toolbar.get_selected_radio()
-        if point_type == "highlight":
+        if point_type == "disable":
             fnames = self.model.highlight_spectrum(self.spectra_plot.ax, event)
             self.highlightSpectrum.emit(fnames, False)
             return

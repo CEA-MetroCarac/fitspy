@@ -26,7 +26,7 @@ DEFAULTS = {
     'theme': 'dark',
     'ncpus': 'Auto',
     'outliers_coef': 1.5,
-    'click_mode': 'baseline',
+    'click_mode': 'disable',
     'peaks_cmap': 'tab10',
     'map_cmap': 'viridis',
     'figure_options': {
