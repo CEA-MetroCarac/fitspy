@@ -227,8 +227,8 @@ class MainController(QObject):
     def load_state(self, selected, models):
         # Restore model attributes to each spectrum
         self.plot_controller.set_spectra_attributes(models)
-
-        fit_status = {model['fname']: model['result_fit_success'] for model in models.values()}
+        fit_status = {model['fname']: model['result_fit_success']
+                      for model in models.values() if 'result_fit_success' in model}
         self.files_controller.colorize_from_fit_status(fit_status)
         # self.plot_controller.colorizeFromFitStatus.emit(fit_status) # FIXME: emit is better ?
 
@@ -265,7 +265,10 @@ class MainController(QObject):
     #         save_to_json(fname, data)
 
     def save(self):
-        self.save_models(fnames=self.plot_controller.model.spectra.fnames)
+        fname_json = QFileDialog.getSaveFileName(None, "Save File", "",
+                                                 "JSON Files (*.json);;All Files (*)")[0]
+        if fname_json:
+            self.plot_controller.model.spectra.save(fname_json=fname_json)
 
     def clear(self):
         # if self.files_controller.get_all_spectrum_ids(DELIMITER):
