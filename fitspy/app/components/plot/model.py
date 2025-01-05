@@ -2,10 +2,12 @@ import os
 from copy import deepcopy
 from threading import Thread
 from collections import defaultdict
+from pathlib import Path
 import numpy as np
 
 import fitspy
 from PySide6.QtCore import QObject, Signal
+from PySide6.QtWidgets import QApplication, QFileDialog, QMessageBox
 from fitspy.core import Spectra, Spectrum
 
 
@@ -53,10 +55,19 @@ class Model(QObject):
         """Load the given list of file names as spectra"""
         for fname in fnames:
             fname = os.path.normpath(fname)
-            spectrum = Spectrum()
-            spectrum.load_profile(fname)
-            self.spectra.append(spectrum)
-            self.spectrumLoaded.emit(fname)
+            try:
+                spectrum = Spectrum()
+                spectrum.load_profile(fname)
+                self.spectra.append(spectrum)
+                self.spectrumLoaded.emit(fname)
+            except:
+                reply = QMessageBox.question(None, "Confirmation",
+                                             f"FAILED to load: {Path(fname).name}\nContinue ?",
+                                             QMessageBox.Yes | QMessageBox.No,
+                                             QMessageBox.No)
+                if reply == QMessageBox.No:
+                    return
+
 
     def del_spectrum(self, items):
         """Remove the spectrum(s) with the given file name(s).
@@ -94,11 +105,14 @@ class Model(QObject):
         from fitspy.core import SpectraMap
         fname = os.path.normpath(fname)
 
-        spectra_map = SpectraMap.load_map(fname)
-        self.spectra.spectra_maps.append(spectra_map)
+        try:
+            spectra_map = SpectraMap.load_map(fname)
+            self.spectra.spectra_maps.append(spectra_map)
 
-        fnames = [spectrum.fname for spectrum in spectra_map]
-        self.decodedSpectraMap.emit(fname, fnames)
+            fnames = [spectrum.fname for spectrum in spectra_map]
+            self.decodedSpectraMap.emit(fname, fnames)
+        except:
+            QMessageBox.warning(None, "Warning", f"FAILED to load: {Path(fname).name}")
 
     def del_map(self, fname):
         """Remove the spectramap with the given file name"""
