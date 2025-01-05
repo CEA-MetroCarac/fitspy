@@ -68,31 +68,53 @@ class Model(QObject):
                 if reply == QMessageBox.No:
                     return
 
+    # def del_spectrum(self, items):
+    #     """Remove the spectrum(s) with the given file name(s).
+    #
+    #     Args:
+    #         items (dict): A dictionary where keys can be None or a spectramap fname,
+    #                     and values are always a list of fname.
+    #     """
+    #     deleted_spectra = defaultdict(list)
+    #
+    #     for map_fname, fnames in items.items():
+    #         if map_fname:
+    #             parent = next(
+    #                 (
+    #                     sm
+    #                     for sm in self.spectra.spectra_maps
+    #                     if sm.fname == map_fname
+    #                 ),
+    #                 None,
+    #             )
+    #         else:
+    #             parent = self.spectra
+    #
+    #         for fname in fnames:
+    #             spectrum = self.spectra.get_objects(fname)[0]
+    #             parent.remove(spectrum)
+    #
+    #             parent_fname = getattr(parent, "fname", None)
+    #             deleted_spectra[parent_fname].append(fname)
+    #
+    #     self.spectrumDeleted.emit(deleted_spectra)
 
     def del_spectrum(self, items):
-        """Remove the spectrum(s) with the given file name(s).
+        """
+        Remove the spectrum(s) with the given file name(s).
 
-        Args:
-            items (dict): A dictionary where keys can be None or a spectramap fname,
-                        and values are always a list of fname.
+        Parameters
+        ----------
+
+        items: dict
+            Dictionary where keys can be None or a spectramap fname,
+            and values are always a list of fname.
         """
         deleted_spectra = defaultdict(list)
 
-        for map_fname, fnames in items.items():
-            if map_fname:
-                parent = next(
-                    (
-                        sm
-                        for sm in self.spectra.spectra_maps
-                        if sm.fname == map_fname
-                    ),
-                    None,
-                )
-            else:
-                parent = self.spectra
-
+        for _, fnames in items.items():
             for fname in fnames:
-                spectrum = self.spectra.get_objects(fname)[0]
+                spectrum, parent = self.spectra.get_objects(fname)
                 parent.remove(spectrum)
 
                 parent_fname = getattr(parent, "fname", None)
