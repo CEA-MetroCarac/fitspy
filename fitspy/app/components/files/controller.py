@@ -308,7 +308,7 @@ class FilesController(QObject):
             elif hasattr(result_fit, 'success'):
                 color = 'green' if result_fit.success else 'orange'
             else:
-                color = 'white'
+                color = None
             self.spectrum_list.list.colorize_items([os.path.normpath(fname)], color)
 
     def set_selection(self, list_widget, selection_list, emit_signal=True):
