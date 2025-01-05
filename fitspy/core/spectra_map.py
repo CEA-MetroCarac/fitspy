@@ -1,6 +1,7 @@
 """
 Class dedicated to handle 'Spectrum' objects from a 2D map managed by SpectraMap
 """
+import os
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -30,6 +31,8 @@ class SpectraMap(Spectra):
         (xmin, xmax, ymin, ymax)
     coords: list of list of 2 floats
         List containing the (x,y) coordinates for each spectrum in the 2D-map
+    fnames_map: list of str
+        List of the spectrum names related to the 2D-map
     intensity: numpy.ndarray(((len(shape_map[0]) * len(shape_map[1]), n))
         Array of spectra intensities (n-values) associated to the xy_map coords
     arr: numpy.ndarray((len(shape_map[0]), len(shape_map[1]))
@@ -58,6 +61,7 @@ class SpectraMap(Spectra):
         self.shape_map = None
         self.extent = None
         self.coords = None
+        self.fnames_map = None
         self.intensity = None
         self.arr = None
         self.outliers_limit = None
@@ -72,6 +76,7 @@ class SpectraMap(Spectra):
 
     def create_map(self, fname):
         """ Create map """
+        fname = os.path.normpath(fname)
         arr = get_2d_map(fname)
 
         x_map = x = list(np.sort(np.unique(arr[1:, 1])))
@@ -96,19 +101,22 @@ class SpectraMap(Spectra):
         intensity_map = np.nan * np.ones((len(x_map) * len(y_map), len(x)))
 
         coords = []
+        fnames_map = []
         for vals in arr[1:]:
+            intensity = vals[2:][inds]
+            ind_flat = x_map.index(vals[1]) + y_map.index(vals[0]) * len(x_map)
+            intensity_map[ind_flat, :] = intensity
+            coords.append([vals[1], vals[0]])
+
             # create the related spectrum object
             spectrum = Spectrum()
             spectrum.fname = POLICY.format(name=fname, x=vals[1], y=vals[0])
-            intensity = vals[2:][inds]
             spectrum.x = x
             spectrum.y = intensity
             spectrum.x0 = spectrum.x.copy()
             spectrum.y0 = spectrum.y.copy()
-            ind_flat = x_map.index(vals[1]) + y_map.index(vals[0]) * len(x_map)
-            intensity_map[ind_flat, :] = intensity
             self.append(spectrum)
-            coords.append([vals[1], vals[0]])
+            fnames_map.append(spectrum.fname)
 
         self.fname = fname
         self.xy_map = (x_map, y_map)
@@ -117,8 +125,19 @@ class SpectraMap(Spectra):
         self.intensity = intensity_map
         self.arr = np.sum(intensity_map, axis=1).reshape(self.shape_map)
         self.coords = coords
+        self.fnames_map = fnames_map
 
-    def spectrum_coords(self, spectrum):
+    def get_spectrum(self, fname):
+        """ Return the spectrum object related to 'fname' in the spectra map list """
+        fname = os.path.normpath(fname)
+        try:
+            return self[self.fnames_map.index(fname)]
+        except:
+            print(f"{fname} not found in the spectra map list")
+            return None
+
+    @staticmethod
+    def spectrum_coords(spectrum):
         """ Return the (x, y) map coordinates associated with 'spectrum' """
         res = PARSER.parse(spectrum.fname)
         x = float(res.named['x'])
@@ -233,17 +252,16 @@ class SpectraMap(Spectra):
             self.marker = None
 
         fname = None
-        if isinstance(spectrum_id, tuple) and len(spectrum_id) == 2:
+        if isinstance(spectrum_id, tuple):
             x, y = spectrum_id
             x = self.xy_map[0][closest_index(self.xy_map[0], x)]
             y = self.xy_map[1][closest_index(self.xy_map[1], y)]
             fname = POLICY.format(name=self.fname, x=x, y=y)
         elif isinstance(spectrum_id, str):
-            spectrum = self.get_objects(spectrum_id)[0]
+            spectrum = self.get_spectrum(spectrum_id)
             x, y = self.spectrum_coords(spectrum)
         elif isinstance(spectrum_id, Spectrum):
-            spectrum = spectrum_id
-            x, y = self.spectrum_coords(spectrum)
+            x, y = self.spectrum_coords(spectrum_id)
         else:
             raise IOError
 

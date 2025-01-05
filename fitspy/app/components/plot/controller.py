@@ -155,10 +155,8 @@ class PlotController(QObject):
         self.model.reinit_spectra(fnames)
 
     def set_current_spectra(self, fnames):
-        parent = self.model.parent()
-        self.model.current_spectra = [
-            self.model.spectra.get_objects(fname, parent)[0] for fname in fnames
-        ]
+        # parent = self.model.parent()
+        self.model.current_spectra = [self.model.spectra.get_objects(fname)[0] for fname in fnames]
 
     def update_spectraplot(self):
         ax = self.spectra_plot.ax

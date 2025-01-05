@@ -43,7 +43,7 @@ class Spectra(list):
     @property
     def fnames(self):
         """ Return all the fnames related to spectra AND spectra maps """
-        return [spectrum.fname for spectrum in self.all]
+        return [os.path.normpath(spectrum.fname) for spectrum in self.all]
 
     @property
     def all(self):
@@ -61,28 +61,26 @@ class Spectra(list):
             intensity.append(spectrum.y0)
         return np.asarray(intensity)
 
-    def get_objects(self, fname, parent=None):
-        """ Return spectrum and parent (spectra or spectra map)
-            related to 'fname'. If 'parent' is provided, look for 'fname'
-            in the provided spectra/spectra_map. """
+    def get_spectrum(self, fname):
+        """ Return spectrum from 'fname' contained in the 'spectra' list only """
         fname = os.path.normpath(fname)
+        fnames = [os.path.normpath(spectrum.fname) for spectrum in self]
+        try:
+            return self[fnames.index(fname)]
+        except:
+            print(f"{fname} not found in the spectra list")
+            return None
 
-        if parent is not None:
-            fnames = [os.path.normpath(spectrum.fname) for spectrum in parent]
-            if fname in fnames:
-                return parent[fnames.index(fname)], parent
+    def get_objects(self, fname):
+        """ Return spectrum and parent (spectra or spectra map) related to 'fname' """
+        fname = os.path.normpath(fname)
+        if "  X=" in fname:
+            fname_map = fname.split("  X=")[0]
+            fname_maps = [spectra_map.fname for spectra_map in self.spectra_maps]
+            spectra_map = self.spectra_maps[fname_maps.index(fname_map)]
+            return spectra_map.get_spectrum(fname), spectra_map
         else:
-            fnames = [os.path.normpath(spectrum.fname) for spectrum in self]
-            if fname in fnames:
-                return self[fnames.index(fname)], self
-
-            for spectra_map in self.spectra_maps:
-                fnames = [os.path.normpath(spectrum.fname) for spectrum in spectra_map]
-                if fname in fnames:
-                    return spectra_map[fnames.index(fname)], spectra_map
-
-        print(f"{fname} not found in spectra")
-        return None, None
+            return self.get_spectrum(fname), self
 
     def outliers_limit_calculation(self, coef=1.5, nmax=5):
         """ Calculate the outliers limit from 'coef' * intensity_ref """
@@ -120,9 +118,7 @@ class Spectra(list):
                 spectrum.save_stats(dirname_res)
                 name = Path(spectrum.fname).name
                 success = spectrum.result_fit.success
-                x, y = None, None
-                if isinstance(spectra, SpectraMap):
-                    x, y = spectra.spectrum_coords(spectrum)
+                x, y = SpectraMap.spectrum_coords(spectrum) if "  X=" in fname else (None, None)
                 res = spectrum.result_fit.best_values
                 res.update({'name': name, 'success': success, 'x': x, 'y': y})
                 results.append(res)
@@ -365,7 +361,7 @@ class Spectra(list):
         spectra = Spectra()
         fname_maps = []
         for model in dict_spectra.values():
-            fname = model['fname']
+            fname = os.path.normpath(model['fname'])
 
             # spectrum attached to a SpectraMap object
             if "  X=" in fname:
