@@ -336,9 +336,11 @@ class MainController(QObject):
             # self.settings_controller.clear_model() # FIXME: we want to preserve previous results
 
     def change_map(self):
-        fit_status = {s.fname:s.result_fit.success for s in self.plot_controller.model.current_map
-                      if hasattr(s, 'result_fit') and hasattr(s.result_fit, 'success')}
-        self.plot_controller.colorizeFromFitStatus.emit(fit_status)
+        current_map = self.plot_controller.model.current_map
+        if current_map:
+            fit_status = {spectrum.fname: spectrum.result_fit.success for spectrum in current_map
+                          if getattr(spectrum.result_fit, 'success', None) is not None}
+            self.plot_controller.colorizeFromFitStatus.emit(fit_status)
 
     def remove_outliers(self):
         self.plot_controller.remove_outliers(self.model.outliers_coef)
