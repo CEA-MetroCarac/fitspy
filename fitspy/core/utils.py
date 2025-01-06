@@ -12,6 +12,8 @@ import numpy as np
 import pandas as pd
 from lmfit.models import ExpressionModel
 from rsciio import IO_PLUGINS
+import time
+from functools import wraps
 
 from PySide6.QtWidgets import QWidget
 from PySide6.QtGui import QIcon, QPixmap, QImage
@@ -57,6 +59,19 @@ def update_widget_palette(widget, palette):
     widget.setPalette(palette)
     for child in widget.findChildren(QWidget):
         child.setPalette(palette)
+
+def measure_time(func):
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        start_time = time.time()
+        print(f"{func.__name__}", end=" ")
+        result = func(*args, **kwargs)
+        end_time = time.time()
+        elapsed_time = end_time - start_time
+        print(f"{elapsed_time:.2f}s")
+        return result
+
+    return wrapper
 
 def closest_item(element_list, value):
     """ Return the closest element in the given list """
