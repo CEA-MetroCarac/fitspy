@@ -69,7 +69,7 @@ class BkgTable(QWidget):
                         "min": param_dict["min"],
                         "max": param_dict["max"],
                         "value": param_dict["value"],
-                        "vary": get_widget_value(row, f"{param_name}_vary"),
+                        "vary": not get_widget_value(row, f"{param_name}_fixed"),
                         "expr": param_dict["expr"],
                     }
         return bkg_model
@@ -126,7 +126,7 @@ class BkgTable(QWidget):
             if column not in self.table.columns:
                 if "MIN" in column and "MAX" in column:
                     self.table.add_column(column, SpinBoxGroupWithExpression)
-                elif column.endswith("_vary"):
+                elif column.endswith("_fixed"):
                     self.table.add_column(column, CenteredCheckBox)
                 else:
                     self.table.add_column(column, QLabel)
@@ -146,7 +146,7 @@ class BkgTable(QWidget):
                         self.table.setCellWidget(
                             row, self.table.get_column_index(param), widget
                         )
-                elif param.endswith("_vary"):
+                elif param.endswith("_fixed"):
                     existing_widget = self.table.cellWidget(
                         row, self.table.get_column_index(param)
                     )
@@ -187,7 +187,7 @@ class BkgTable(QWidget):
                 widget.show_bounds(show_bounds)
                 widget.show_expr(show_expr)
                 row_widgets[param] = widget
-            elif param.endswith("_vary"):
+            elif param.endswith("_fixed"):
                 checked = params.get(param, False)
                 widget = CenteredCheckBox(
                     checked, callback=self.emit_bkg_changed
@@ -199,7 +199,7 @@ class BkgTable(QWidget):
             if column not in self.table.columns:
                 if "MIN |" in column and "| MAX" in column:
                     self.table.add_column(column, SpinBoxGroupWithExpression)
-                elif column.endswith("_vary"):
+                elif column.endswith("_fixed"):
                     self.table.add_column(column, CenteredCheckBox)
                 else:
                     self.table.add_column(column, type(row_widgets[column]))
@@ -210,7 +210,7 @@ class BkgTable(QWidget):
     def update_row(self, param_hints, row=0):
         for param, hints in param_hints.items():
             min_max_col = f"MIN | {param} | MAX"
-            vary_col = f"{param}_vary"
+            fixed_col = f"{param}_fixed"
 
             # Update SpinBoxGroupWithExpression
             spin_widget = self.table.cellWidget(
@@ -225,11 +225,11 @@ class BkgTable(QWidget):
                 )
 
             # Update CenteredCheckBox
-            vary_widget = self.table.cellWidget(
-                row, self.table.get_column_index(vary_col)
+            fixed_widget = self.table.cellWidget(
+                row, self.table.get_column_index(fixed_col)
             )
-            if isinstance(vary_widget, CenteredCheckBox):
-                vary_widget.setChecked(hints.get("vary", False))
+            if isinstance(fixed_widget, CenteredCheckBox):
+                fixed_widget.setChecked(hints.get("fixed", False))
 
     def show_bounds(self, show):
         for row in range(self.table.rowCount()):
