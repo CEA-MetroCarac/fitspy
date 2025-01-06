@@ -9,6 +9,11 @@ import fitspy
 from PySide6.QtCore import QObject, Signal
 from PySide6.QtWidgets import QApplication, QFileDialog, QMessageBox
 from fitspy.core import Spectra, Spectrum
+from fitspy.core.utils import closest_index, measure_time
+
+
+LABEL_OFFSET_RATIO = 0.005  # Ratio to offset label above the peak
+YLIM_BUFFER_RATIO = 0.05  # Ratio to extend y-axis limit
 
 
 class Model(QObject):
@@ -105,7 +110,6 @@ class Model(QObject):
 
         Parameters
         ----------
-
         items: dict
             Dictionary where keys can be None or a spectramap fname,
             and values are always a list of fname.
@@ -345,12 +349,157 @@ class Model(QObject):
     def store_original_view_limits(self, ax):
         self.original_xlim, self.original_ylim = self.get_view_limits(ax)
 
+    # @measure_time
+    # def update_spectraplot(self, ax, view_options):
+    #     """Update the plot with the current spectra"""
+    #     xlim, ylim = self.get_view_limits(ax)
+    #     if not hasattr(self, "original_xlim") or not hasattr(
+    #         self, "original_ylim"
+    #     ):
+    #         self.store_original_view_limits(ax)
+    #
+    #     current_title = ax.get_title()
+    #     ax.clear()
+    #     ax.set_title(current_title)
+    #
+    #     if not self.current_spectra:
+    #         ax.get_figure().canvas.draw_idle()
+    #         return
+    #
+    #     first_spectrum = True
+    #     for spectrum in self.current_spectra:
+    #         x0 = spectrum.x0.copy()
+    #
+    #         # Plot outliers in green
+    #         x_outliers, y_outliers = spectrum.calculate_outliers()
+    #         if x_outliers is not None:
+    #             ax.plot(x_outliers, y_outliers, "o", c="lime")
+    #
+    #         if first_spectrum and not view_options.get("Raw", False):
+    #             result_fit = spectrum.result_fit
+    #             baseline = spectrum.baseline
+    #
+    #             # baseline plotting
+    #             if not baseline.is_subtracted:
+    #                 x, y = spectrum.x, None
+    #                 if baseline.attached or baseline.mode == "Semi-Auto":
+    #                     y = spectrum.y
+    #                 baseline.plot(ax, x, y, attached=baseline.attached)
+    #
+    #             # Main spectrum plotting
+    #             self.lines = spectrum.plot(
+    #                 ax,
+    #                 show_outliers=view_options["Outliers"],
+    #                 show_outliers_limit=view_options["Outliers limits"],
+    #                 show_negative_values=view_options["Negative values"],
+    #                 show_peak_models=view_options["Peaks"],
+    #                 show_noise_level=view_options["Noise level"],
+    #                 show_baseline=view_options["Baseline"],
+    #                 show_background=view_options["Background"],
+    #                 subtract_baseline=view_options["Subtract bkg+baseline"],
+    #                 subtract_bkg=view_options["Subtract bkg+baseline"],
+    #                 show_result=view_options["Fit"],
+    #             )
+    #             self.line_bkg_visible = (
+    #                 view_options.get("Background", False) and spectrum.bkg_model
+    #             )
+    #
+    #             # Peak labels
+    #             if view_options.get("Peak labels", True):
+    #                 from fitspy.core import closest_index
+    #
+    #                 LABEL_OFFSET_RATIO = (
+    #                     0.005  # Ratio to offset label above the peak
+    #                 )
+    #                 YLIM_BUFFER_RATIO = 0.05  # Ratio to extend y-axis limit
+    #
+    #                 dy = LABEL_OFFSET_RATIO * spectrum.y.max()
+    #                 annotation_y = []
+    #                 for i, label in enumerate(spectrum.peak_labels):
+    #                     if not label:
+    #                         continue
+    #                     model = spectrum.peak_models[i]
+    #                     x0 = model.param_hints["x0"]["value"]
+    #                     y = spectrum.y[closest_index(spectrum.x, x0)]
+    #
+    #                     if (
+    #                             view_options.get("Subtract bkg+baseline")
+    #                             and spectrum.bkg_model is not None
+    #                     ):
+    #                         bkg_model = spectrum.bkg_model
+    #                         y_bkg = bkg_model.eval(bkg_model.make_params(), x=spectrum.x)
+    #                         y -= y_bkg[closest_index(spectrum.x, x0)]
+    #
+    #                     xy = (x0, y + dy)
+    #                     annotation_y.append(
+    #                         y + dy + LABEL_OFFSET_RATIO * spectrum.y.max()
+    #                     )
+    #
+    #                     ax.annotate(
+    #                         label,
+    #                         xy=xy,
+    #                         xytext=(0, 20),
+    #                         xycoords="data",
+    #                         textcoords="offset points",
+    #                         ha="center",
+    #                         size=14,
+    #                         arrowprops=dict(fc="k", arrowstyle="->"),
+    #                         verticalalignment="bottom",
+    #                         annotation_clip=True,
+    #                     )
+    #
+    #                 # Adjust y-axis to contain peak labels
+    #                 if annotation_y:
+    #                     max_annotation_y = max(annotation_y)
+    #                     current_ylim = ax.get_ylim()
+    #                     if max_annotation_y > current_ylim[1]:
+    #                         ax.set_ylim(
+    #                             top=max_annotation_y
+    #                             + YLIM_BUFFER_RATIO * spectrum.y.max()
+    #                         )
+    #
+    #             if hasattr(result_fit, "success") and result_fit.success:
+    #                 self.linewidth = 1
+    #
+    #             first_spectrum = False
+    #         else:
+    #             x, y = spectrum.x.copy(), spectrum.y.copy()
+    #
+    #             # Subtract baseline
+    #             if spectrum.baseline.y_eval is not None:
+    #                 if view_options["Subtract bkg+baseline"] and not spectrum.baseline.is_subtracted:
+    #                     y -= spectrum.baseline.y_eval
+    #                 elif not view_options["Subtract bkg+baseline"] and spectrum.baseline.is_subtracted:
+    #                     y += spectrum.baseline.y_eval
+    #
+    #             # Subtract background model
+    #             if (
+    #                 spectrum.bkg_model is not None
+    #                 and view_options["Subtract bkg+baseline"]
+    #             ):
+    #                 y_bkg = spectrum.bkg_model.eval(
+    #                     spectrum.bkg_model.make_params(), x=x
+    #                 )
+    #                 y -= y_bkg
+    #             self.lines += ax.plot(x, y, "k-", lw=0.2, zorder=0)
+    #
+    #     if view_options.get("Legend", False):
+    #         ax.legend()
+    #
+    #     self.tmp = None
+    #     self.linewidth = 0.5
+    #
+    #     if view_options.get("Preserve axes", False):
+    #         self.set_view_limits(ax, xlim, ylim)
+    #
+    #     # refresh the plot
+    #     ax.get_figure().canvas.draw_idle()
+
+    @measure_time
     def update_spectraplot(self, ax, view_options):
         """Update the plot with the current spectra"""
         xlim, ylim = self.get_view_limits(ax)
-        if not hasattr(self, "original_xlim") or not hasattr(
-            self, "original_ylim"
-        ):
+        if not hasattr(self, "original_xlim") or not hasattr(self, "original_ylim"):
             self.store_original_view_limits(ax)
 
         current_title = ax.get_title()
@@ -363,126 +512,66 @@ class Model(QObject):
 
         first_spectrum = True
         for spectrum in self.current_spectra:
-            x0 = spectrum.x0.copy()
+            self.lines = spectrum.plot(
+                ax,
+                show_outliers=view_options["Outliers"],
+                show_outliers_limit=view_options["Outliers limits"] * first_spectrum,
+                show_negative_values=view_options["Negative values"] * first_spectrum,
+                show_peak_models=view_options["Peaks"] * first_spectrum,
+                show_noise_level=view_options["Noise level"] * first_spectrum,
+                show_baseline=view_options["Baseline"] * first_spectrum,
+                show_background=view_options["Background"] * first_spectrum,
+                show_result=view_options["Fit"] * first_spectrum,
+                subtract_baseline=view_options["Subtract bkg+baseline"],
+                subtract_bkg=view_options["Subtract bkg+baseline"],
+                kwargs=None if first_spectrum else {'c': 'k', 'lw': 0.1, 'zorder': 0})
+            if first_spectrum and view_options.get("Legend", False):
+                ax.legend(loc=1)
+            first_spectrum = False
 
-            # Plot outliers in green
-            x_outliers, y_outliers = spectrum.calculate_outliers()
-            if x_outliers is not None:
-                ax.plot(x_outliers, y_outliers, "o", c="lime")
+        spectrum = self.current_spectra[0]
+        self.line_bkg_visible = view_options.get("Background", False) and spectrum.bkg_model
+        self.linewidth = 1 if getattr(spectrum.result_fit, "success", False) else 0.5 # FIXME: req ?
 
-            if first_spectrum and not view_options.get("Raw", False):
-                result_fit = spectrum.result_fit
-                baseline = spectrum.baseline
+        # Peak labels
+        if view_options.get("Peak labels", True):
+            dy_label = LABEL_OFFSET_RATIO * spectrum.y.max()
+            annotation_y = []
+            for i, label in enumerate(spectrum.peak_labels):
+                if not label:
+                    continue
+                model = spectrum.peak_models[i]
+                x0 = model.param_hints["x0"]["value"]
+                ind = closest_index(spectrum.x, x0)
+                x_label, y_label = spectrum.x[ind], spectrum.y[ind]
 
-                # baseline plotting
-                if not baseline.is_subtracted:
-                    x, y = spectrum.x, None
-                    if baseline.attached or baseline.mode == "Semi-Auto":
-                        y = spectrum.y
-                    baseline.plot(ax, x, y, attached=baseline.attached)
+                if view_options.get("Subtract bkg+baseline") and spectrum.bkg_model is not None:
+                    bkg_model = spectrum.bkg_model
+                    y_label -= bkg_model.eval(bkg_model.make_params(), x=x_label)
 
-                # Main spectrum plotting
-                self.lines = spectrum.plot(
-                    ax,
-                    show_outliers=view_options["Outliers"],
-                    show_outliers_limit=view_options["Outliers limits"],
-                    show_negative_values=view_options["Negative values"],
-                    show_peak_models=view_options["Peaks"],
-                    show_noise_level=view_options["Noise level"],
-                    show_baseline=view_options["Baseline"],
-                    show_background=view_options["Background"],
-                    subtract_baseline=view_options["Subtract bkg+baseline"],
-                    subtract_bkg=view_options["Subtract bkg+baseline"],
-                    show_result=view_options["Fit"],
+                xy = (x_label, y_label + dy_label)
+                annotation_y.append(y_label + 2 * dy_label)
+                ax.annotate(
+                    label,
+                    xy=xy,
+                    xytext=(0, 20),
+                    xycoords="data",
+                    textcoords="offset points",
+                    ha="center",
+                    size=14,
+                    arrowprops=dict(fc="k", arrowstyle="->"),
+                    verticalalignment="bottom",
+                    annotation_clip=True,
                 )
-                self.line_bkg_visible = (
-                    view_options.get("Background", False) and spectrum.bkg_model
-                )
 
-                # Peak labels
-                if view_options.get("Peak labels", True):
-                    from fitspy.core import closest_index
+            # Adjust y-axis to contain peak labels
+            if annotation_y:
+                max_annotation_y = max(annotation_y)
+                current_ylim = ax.get_ylim()
+                if max_annotation_y > current_ylim[1]:
+                    ax.set_ylim(top=max_annotation_y + YLIM_BUFFER_RATIO * spectrum.y.max())
 
-                    LABEL_OFFSET_RATIO = (
-                        0.005  # Ratio to offset label above the peak
-                    )
-                    YLIM_BUFFER_RATIO = 0.05  # Ratio to extend y-axis limit
-
-                    dy = LABEL_OFFSET_RATIO * spectrum.y.max()
-                    annotation_y = []
-                    for i, label in enumerate(spectrum.peak_labels):
-                        if not label:
-                            continue
-                        model = spectrum.peak_models[i]
-                        x0 = model.param_hints["x0"]["value"]
-                        y = spectrum.y[closest_index(spectrum.x, x0)]
-
-                        if (
-                                view_options.get("Subtract bkg+baseline")
-                                and spectrum.bkg_model is not None
-                        ):
-                            bkg_model = spectrum.bkg_model
-                            y_bkg = bkg_model.eval(bkg_model.make_params(), x=spectrum.x)
-                            y -= y_bkg[closest_index(spectrum.x, x0)]
-
-                        xy = (x0, y + dy)
-                        annotation_y.append(
-                            y + dy + LABEL_OFFSET_RATIO * spectrum.y.max()
-                        )
-
-                        ax.annotate(
-                            label,
-                            xy=xy,
-                            xytext=(0, 20),
-                            xycoords="data",
-                            textcoords="offset points",
-                            ha="center",
-                            size=14,
-                            arrowprops=dict(fc="k", arrowstyle="->"),
-                            verticalalignment="bottom",
-                            annotation_clip=True,
-                        )
-
-                    # Adjust y-axis to contain peak labels
-                    if annotation_y:
-                        max_annotation_y = max(annotation_y)
-                        current_ylim = ax.get_ylim()
-                        if max_annotation_y > current_ylim[1]:
-                            ax.set_ylim(
-                                top=max_annotation_y
-                                + YLIM_BUFFER_RATIO * spectrum.y.max()
-                            )
-
-                if hasattr(result_fit, "success") and result_fit.success:
-                    self.linewidth = 1
-
-                first_spectrum = False
-            else:
-                x, y = spectrum.x.copy(), spectrum.y.copy()
-                
-                # Subtract baseline
-                if spectrum.baseline.y_eval is not None:
-                    if view_options["Subtract bkg+baseline"] and not spectrum.baseline.is_subtracted:
-                        y -= spectrum.baseline.y_eval
-                    elif not view_options["Subtract bkg+baseline"] and spectrum.baseline.is_subtracted:
-                        y += spectrum.baseline.y_eval
-
-                # Subtract background model
-                if (
-                    spectrum.bkg_model is not None
-                    and view_options["Subtract bkg+baseline"]
-                ):
-                    y_bkg = spectrum.bkg_model.eval(
-                        spectrum.bkg_model.make_params(), x=x
-                    )
-                    y -= y_bkg
-                self.lines += ax.plot(x, y, "k-", lw=0.2, zorder=0)
-
-        if view_options.get("Legend", False):
-            ax.legend()
-
-        self.tmp = None
-        self.linewidth = 0.5
+        # self.tmp = None # FIXME: required ?
 
         if view_options.get("Preserve axes", False):
             self.set_view_limits(ax, xlim, ylim)
