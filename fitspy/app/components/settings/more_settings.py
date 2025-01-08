@@ -117,41 +117,43 @@ class OtherSettings(QGroupBox):
         vbox = QVBoxLayout()
         vbox.setAlignment(Qt.AlignTop)
 
+        # Outliers Removal
         hbox = QHBoxLayout()
 
-        self.coef_label = QLabel("Coef:")
-        hbox.addWidget(self.coef_label)
+        hbox.addWidget(QLabel("Outliers Removal:"))
 
+        container = QHBoxLayout()
+        container.setContentsMargins(0, 0, 0, 0)
+        container.setSpacing(0)
+        container.addWidget(QLabel("Coef. bounding limit:"))
         self.outliers_coef = DoubleSpinBox()
-        self.outliers_coef.setRange(0.0, 100.0)
+        self.outliers_coef.setRange(0., 10.)
         self.outliers_coef.setSingleStep(0.1)
-        hbox.addWidget(self.outliers_coef)
+        container.addWidget(self.outliers_coef)
+        hbox.addLayout(container)
 
-        self.outliers_removal = QPushButton("Outliers removal")
-        self.outliers_removal.setSizePolicy(
-            QSizePolicy.Fixed, QSizePolicy.Fixed
-        )
+        self.outliers_removal = QPushButton("Apply")
+        self.outliers_removal.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
         hbox.addWidget(self.outliers_removal)
-
         vbox.addLayout(hbox)
 
         # Peaks Colormap Selection
-        hbox_peaks_cmap = QHBoxLayout()
-        self.peaks_cmap_label = QLabel("Peaks Colormap:")
-        hbox_peaks_cmap.addWidget(self.peaks_cmap_label)
+        hbox = QHBoxLayout()
+
+        hbox.addWidget(QLabel("Peaks Colormap:"))
         # https://pyapp-kit.github.io/superqt/widgets/colormap_catalog/
         # https://cmap-docs.readthedocs.io/en/stable/catalog/#colormaps-by-category
         self.peaks_cmap = CmapCatalogComboBox(categories="qualitative")
-        hbox_peaks_cmap.addWidget(self.peaks_cmap)
-        vbox.addLayout(hbox_peaks_cmap)
+        hbox.addWidget(self.peaks_cmap)
+        vbox.addLayout(hbox)
 
         # 2D Map Colormap Selection
-        hbox_map_cmap = QHBoxLayout()
-        self.map_cmap_label = QLabel("2D Map Colormap:")
-        hbox_map_cmap.addWidget(self.map_cmap_label)
+        hbox = QHBoxLayout()
+
+        hbox.addWidget(QLabel("2D Map Colormap:"))
         self.map_cmap = CmapCatalogComboBox()
-        hbox_map_cmap.addWidget(self.map_cmap)
-        vbox.addLayout(hbox_map_cmap)
+        hbox.addWidget(self.map_cmap)
+        vbox.addLayout(hbox)
 
         self.setLayout(vbox)
 
