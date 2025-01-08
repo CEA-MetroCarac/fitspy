@@ -122,9 +122,9 @@ class Toolbar(QWidget):
     def initUI(self):
         hbox = QHBoxLayout()
         self.mpl_toolbar = CustomNavigationToolbar(self.canvas)
-        self.baseline_radio = QRadioButton("Baseline")
-        self.fitting_radio = QRadioButton("Peaks")
-        self.disable_radio = QRadioButton("Disable")
+        self.baseline_radio = QRadioButton("Baseline points")
+        self.peaks_radio = QRadioButton("Peaks points")
+        self.highlight_radio = QRadioButton("Spectrum Sel.")
         self.copy_btn = QPushButton(
             icon=QIcon(get_icon_path("clipboard-copy.png")),
             toolTip="Copy Figure to Clipboard",
@@ -136,10 +136,10 @@ class Toolbar(QWidget):
 
         hbox.addWidget(self.mpl_toolbar)
         hbox.addItem(spacer1)
-        hbox.addWidget(QLabel('Add/Delete points:'))
+        hbox.addWidget(QLabel('Click Mode:'))
         hbox.addWidget(self.baseline_radio)
-        hbox.addWidget(self.fitting_radio)
-        hbox.addWidget(self.disable_radio)
+        hbox.addWidget(self.peaks_radio)
+        hbox.addWidget(self.highlight_radio)
         hbox.addItem(spacer2)
         if self.view_options:
             hbox.addWidget(self.view_options)
@@ -154,10 +154,10 @@ class Toolbar(QWidget):
     def get_selected_radio(self):
         if self.baseline_radio.isChecked():
             return "baseline"
-        elif self.fitting_radio.isChecked():
-            return "fitting"
-        elif self.disable_radio.isChecked():
-            return "disable"
+        elif self.peaks_radio.isChecked():
+            return "peaks"
+        elif self.highlight_radio.isChecked():
+            return "highlight"
         return None
 
     def update_toolbar_icons(self):

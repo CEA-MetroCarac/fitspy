@@ -27,7 +27,7 @@ class PlotController(QObject):
         self.map2d_plot = map2d_plot
         self.toolbar = toolbar
         self.view_options = toolbar.view_options
-        self.too_many_objects_shown = False
+        # self.too_many_objects_shown = False
         self.init_click_timer()
         self.setup_connections()
 
@@ -93,33 +93,33 @@ class PlotController(QObject):
         self.model.askConfirmation.connect(self.askConfirmation)
 
         self.toolbar.baseline_radio.toggled.connect(self.on_click_mode_changed)
-        self.toolbar.fitting_radio.toggled.connect(self.on_click_mode_changed)
-        self.toolbar.disable_radio.toggled.connect(self.on_click_mode_changed)
+        self.toolbar.peaks_radio.toggled.connect(self.on_click_mode_changed)
+        self.toolbar.highlight_radio.toggled.connect(self.on_click_mode_changed)
 
-        self.spectra_plot.canvas.mpl_connect(
-            "motion_notify_event", self.on_motion
-        )
-        self.spectra_plot.canvas.mpl_connect(
-            "button_press_event", self.on_spectra_plot_click
-        )
+        self.spectra_plot.canvas.mpl_connect("motion_notify_event", self.on_motion)
+        self.spectra_plot.canvas.mpl_connect("button_press_event", self.on_spectra_plot_click)
 
         for label, checkbox in self.view_options.checkboxes.items():
             checkbox.stateChanged.connect(
                 lambda state, cb=checkbox: self.view_option_changed(cb)
             )
 
+    # def on_motion(self, event):
+    #     ax = self.spectra_plot.ax
+    #     if len(ax.get_lines()) > 100:
+    #         if not self.too_many_objects_shown:
+    #             self.showToast.emit(
+    #                 "INFO",
+    #                 "Too many objects",
+    #                 "Annotations during motion have been disabled to prevent lagging.",
+    #             )
+    #             self.too_many_objects_shown = True
+    #         return
+    #     self.too_many_objects_shown = False
+    #     self.model.on_motion(ax, event)
+
     def on_motion(self, event):
         ax = self.spectra_plot.ax
-        if len(ax.get_lines()) > 100:
-            if not self.too_many_objects_shown:
-                self.showToast.emit(
-                    "INFO",
-                    "Too many objects",
-                    "Annotations during motion have been disabled to prevent lagging.",
-                )
-                self.too_many_objects_shown = True
-            return
-        self.too_many_objects_shown = False
         self.model.on_motion(ax, event)
 
     def set_marker(self, spectrum_or_fname_or_coords):
@@ -201,31 +201,24 @@ class PlotController(QObject):
         else:
             self.consecutive_clicks = 0
 
+        x, y = event.xdata, event.ydata
         point_type = self.toolbar.get_selected_radio()
-        if point_type == "disable":
+
+        if point_type == "highlight":
             fnames = self.model.highlight_spectrum(self.spectra_plot.ax, event)
             self.highlightSpectrum.emit(fnames, False)
-            return
 
-        # if event.button not in [1, 3]:
-        #     return  # Ignore middle mouse button
-        action = "add" if event.button == 1 else "del"
+        elif point_type == "baseline":
+            if event.button == 1:
+                self.model.add_baseline_point(x, y)
+            else:
+                self.model.del_baseline_point(x)
 
-        if action == "add":
-            if point_type == "baseline":
-                self.model.add_baseline_point(event.xdata, event.ydata)
+        else: # point_type == "peaks":
+            if event.button == 1:
+                self.model.add_peak_point(self.spectra_plot.ax, self.model.peak_model, x, y)
             else:
-                self.model.add_peak_point(
-                    self.spectra_plot.ax,
-                    self.model.peak_model,
-                    event.xdata,
-                    event.ydata,
-                )
-        elif action == "del":
-            if point_type == "baseline":
-                self.model.del_baseline_point(event.xdata)
-            else:
-                self.model.del_peak_point(event.xdata)
+                self.model.del_peak_point(x)
 
     def set_spectrum_attr(self, attr, value, fnames=None):
         if fnames is None:

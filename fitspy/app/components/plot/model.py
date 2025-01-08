@@ -262,7 +262,7 @@ class Model(QObject):
                 line.set(linewidth=0.2, color='k', zorder=0)
 
             title = None
-            self.nearest_lines, labels = [], []
+            self.nearest_lines, fnames, labels = [], [], []
             num_secondary = len(self.current_spectra) - 1
             spectrum_lines = [self.lines[0]] + self.lines[-num_secondary:]
 
@@ -273,32 +273,73 @@ class Model(QObject):
                         color = CMAP(i % CMAP.N)
                         line.set(linewidth=1, color=color, zorder=1)
                         self.nearest_lines.append(line)
-                        labels.append(self.current_spectra[i].fname)
+                        fname = self.current_spectra[i].fname
+                        fnames.append(fname)
+                        labels.append(Path(fname).name)
                     else:
                         title = "The nearest lines exceed 10.\n"
                         title += "  Show the first 10 ones"
 
             ax.legend(self.nearest_lines, labels, title=title, loc=1)
             ax.get_figure().canvas.draw_idle()
-            return labels
+            return fnames
+
+    # def on_motion(self, ax, event):
+    #     def annotate_params(i, color="k"):
+    #         """Annotate figure with fit parameters"""
+    #         spectrum = self.current_spectra[0]
+    #         x = spectrum.x
+    #         if not self.line_bkg_visible:
+    #             model = spectrum.peak_models[i]
+    #             x0 = model.param_hints["x0"]["value"]
+    #         elif i == 0:
+    #             model = spectrum.bkg_model
+    #             x0 = 0.5 * (x[0] + x[-1])
+    #         else:
+    #             model = spectrum.peak_models[i - 1]
+    #             x0 = model.param_hints["x0"]["value"]
+    #
+    #         y0 = model.eval(model.make_params(), x=x0)
+    #         xy = (x0, min(y0, ax.get_ylim()[1]))
+    #
+    #         text = []
+    #         for name, val in model.param_hints.items():
+    #             text.append(f"{name}: {val['value']:.4g}")
+    #         text = "\n".join(text)
+    #
+    #         bbox = dict(facecolor="w", edgecolor=color, boxstyle="round")
+    #         self.tmp = ax.annotate(
+    #             text, xy=xy, xycoords="data", bbox=bbox, verticalalignment="top"
+    #         )
+    #     if len(self.lines) > len(self.current_spectra) and event.inaxes == ax:
+    #         # self.lines is like so: [spectrum1, ...(peaks...), spectrumN]
+    #         # this func need to only highlight [...(peaks...)] (without first and secondaries spectra)
+    #         num_secondary = len(self.current_spectra) - 1
+    #         highlight_lines = (
+    #             self.lines[1:]
+    #             if num_secondary == 0
+    #             else self.lines[1:-num_secondary]
+    #         )
+    #         for i, line in enumerate(highlight_lines):
+    #             if line.contains(event)[0]:
+    #                 line.set_linewidth(3)
+    #                 if self.tmp is not None:
+    #                     self.tmp.remove()
+    #                 annotate_params(i, color=line.get_c())
+    #             else:
+    #                 line.set_linewidth(self.linewidth)
+    #
+    #         ax.figure.canvas.draw_idle()
 
     def on_motion(self, ax, event):
-        def annotate_params(i, color="k"):
+
+        def annotate_params(x, y, i, color):
             """Annotate figure with fit parameters"""
             spectrum = self.current_spectra[0]
-            x = spectrum.x
-            if not self.line_bkg_visible:
-                model = spectrum.peak_models[i]
-                x0 = model.param_hints["x0"]["value"]
-            elif i == 0:
-                model = spectrum.bkg_model
-                x0 = 0.5 * (x[0] + x[-1])
+            if self.line_bkg_visible:
+                model = spectrum.bkg_model if i==0 else spectrum.peak_models[i - 1]
             else:
-                model = spectrum.peak_models[i - 1]
-                x0 = model.param_hints["x0"]["value"]
-
-            y0 = model.eval(model.make_params(), x=x0)
-            xy = (x0, min(y0, ax.get_ylim()[1]))
+                model = spectrum.peak_models[i]
 
             text = []
             for name, val in model.param_hints.items():
@@ -306,27 +347,25 @@ class Model(QObject):
             text = "\n".join(text)
 
             bbox = dict(facecolor="w", edgecolor=color, boxstyle="round")
-            self.tmp = ax.annotate(
-                text, xy=xy, xycoords="data", bbox=bbox, verticalalignment="top"
-            )
-        if len(self.lines) > len(self.current_spectra) and event.inaxes == ax:
-            # self.lines is like so: [spectrum1, ...(peaks...), spectrumN]
-            # this func need to only highlight [...(peaks...)] (without first and secondaries spectra)
-            num_secondary = len(self.current_spectra) - 1
-            highlight_lines = (
-                self.lines[1:]
-                if num_secondary == 0
-                else self.lines[1:-num_secondary]
-            )
-            for i, line in enumerate(highlight_lines):
-                if line.contains(event)[0]:
-                    line.set_linewidth(3)
-                    if self.tmp is not None:
-                        self.tmp.remove()
-                    annotate_params(i, color=line.get_c())
-                else:
-                    line.set_linewidth(self.linewidth)
+            self.tmp.append(ax.annotate(text, xy=(x, y), xycoords="data",
+                            bbox=bbox, verticalalignment="top"))
 
+        if self.tmp is not None:
+            [x.remove() for x in self.tmp]
+            self.tmp = None
+
+        nspectra = len(self.current_spectra)
+        lines = self.lines[1:-(nspectra - 1)] if nspectra > 1 else self.lines[1:]
+
+        if len(lines) > 0 and event.inaxes == ax:
+            for i, line in enumerate(lines):
+                if line.contains(event)[0]:
+                    x, y = line.get_xdata(), line.get_ydata()
+                    color = line.get_color()
+                    linestyle = line.get_linestyle()
+                    self.tmp = [ax.plot(x, y, c=color, ls=linestyle, lw=3)[0]]
+                    annotate_params(event.xdata, event.ydata, i, color)
+                    break
             ax.figure.canvas.draw_idle()
 
     def preprocess(self):
@@ -510,9 +549,19 @@ class Model(QObject):
             ax.get_figure().canvas.draw_idle()
             return
 
+        # 'interactive' baseline points management
+        spectrum = self.current_spectra[0]
+        baseline = spectrum.baseline
+        if not baseline.is_subtracted:
+            x, y = spectrum.x, None
+            if baseline.attached or baseline.mode == "Semi-Auto":
+                y = spectrum.y
+            baseline.plot(ax, x, y, attached=baseline.attached)
+
+        self.lines = []
         first_spectrum = True
         for spectrum in self.current_spectra:
-            self.lines = spectrum.plot(
+            self.lines += spectrum.plot(
                 ax,
                 show_outliers=view_options["Outliers"],
                 show_outliers_limit=view_options["Outliers limits"] * first_spectrum,
@@ -531,7 +580,6 @@ class Model(QObject):
 
         spectrum = self.current_spectra[0]
         self.line_bkg_visible = view_options.get("Background", False) and spectrum.bkg_model
-        self.linewidth = 1 if getattr(spectrum.result_fit, "success", False) else 0.5 # FIXME: req ?
 
         # Peak labels
         if view_options.get("Peak labels", True):
@@ -571,13 +619,11 @@ class Model(QObject):
                 if max_annotation_y > current_ylim[1]:
                     ax.set_ylim(top=max_annotation_y + YLIM_BUFFER_RATIO * spectrum.y.max())
 
-        # self.tmp = None # FIXME: required ?
-
         if view_options.get("Preserve axes", False):
             self.set_view_limits(ax, xlim, ylim)
 
         # refresh the plot
-        ax.get_figure().canvas.draw_idle()
+        ax.figure.canvas.draw_idle()
 
     def apply_model(
         self, model_dict=None, fnames=None, ncpus=None

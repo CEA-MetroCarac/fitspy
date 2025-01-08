@@ -662,11 +662,12 @@ class Spectrum:
                 is_ok = False
 
     def plot(self, ax,
-            show_outliers=True, show_outliers_limit=True,
-            show_negative_values=True, show_noise_level=True,
-            show_baseline=True, show_background=True,
-            show_peak_models=True, show_result=True,
-            subtract_baseline=True, subtract_bkg=True, label=None):
+             show_outliers=True, show_outliers_limit=True,
+             show_negative_values=True, show_noise_level=True,
+             show_baseline=True, show_background=True,
+             show_peak_models=True, show_result=True,
+             subtract_baseline=True, subtract_bkg=True,
+             label=None, kwargs=None):
         """ Plot the spectrum with the peak models """
         x, y = self.x.copy(), self.y.copy()
 
@@ -679,11 +680,11 @@ class Spectrum:
         if subtract_bkg and self.bkg_model is not None:
             y -= self.bkg_model.eval(self.bkg_model.make_params(), x=x)
 
-        linewidth = 0.5
-        if hasattr(self.result_fit, 'success') and self.result_fit.success:
-            linewidth = 1
+        linewidth = 1 if getattr(self.result_fit, "success", False) else 0.5
 
-        lines = [ax.plot(x, y, 'ko-', lw=0.5, ms=1, label=label)[0]]
+        if kwargs is None:
+            kwargs = {'c': 'k', 'lw': 0.5, 'marker': 'o', 'ms': 1}
+        lines = [ax.plot(x, y, label=label, **kwargs)[0]]
 
         if show_outliers:
             x_outliers, y_outliers = self.calculate_outliers()
@@ -691,8 +692,10 @@ class Spectrum:
                 inds = [list(x).index(x_outlier) for x_outlier in x_outliers]
                 if subtract_baseline and self.baseline.y_eval is not None:
                     y_outliers -= self.baseline.y_eval[inds]
-                ax.plot(x_outliers, y_outliers, 'o',
-                        c='lime', mec='k', label=f'{label}_Outliers' if label else 'Outliers')
+            else:
+                x_outliers = y_outliers = []
+            ax.plot(x_outliers, y_outliers, 'o',
+                    c='lime', mec='k', label=f'{label}_Outliers' if label else 'Outliers')
 
         if show_outliers_limit and self.outliers_limit is not None:
             imin, imax = list(self.x0).index(x[0]), list(self.x0).index(x[-1])
@@ -719,21 +722,23 @@ class Spectrum:
         if self.bkg_model is not None:
             y_bkg = self.bkg_model.eval(self.bkg_model.make_params(), x=x)
 
-        if show_background and self.bkg_model is not None and not subtract_bkg:
+        if show_background and self.bkg_model is not None:
             line, = ax.plot(x, y_bkg, 'k--', lw=linewidth,
                             label=f'{label}_Background' if label else "Background")
             lines.append(line)
 
-        ax.set_prop_cycle(None)
-        y_peaks = np.zeros_like(x)
+        # num_peaks = len(self.peak_models)
+        # cmap = fitspy.DEFAULTS['peaks_cmap'] if num_peaks > 0 else None # FIXME: why ?
+        # if isinstance(cmap, str):
+        #     cmap = cm.get_cmap(cmap)
+        # num_colors = cmap.N if cmap else None
 
-        num_peaks = len(self.peak_models)
-        cmap = fitspy.DEFAULTS['peaks_cmap'] if num_peaks > 0 else None
+        cmap = fitspy.DEFAULTS['peaks_cmap']
         if isinstance(cmap, str):
             cmap = cm.get_cmap(cmap)
 
-        num_colors = cmap.N if cmap else None
-
+        ax.set_prop_cycle(None)
+        y_peaks = np.zeros_like(x)
         if show_peak_models or show_result:
             for i, peak_model in enumerate(self.peak_models):
                 # remove temporarily 'expr' that can be related to another model
@@ -748,8 +753,8 @@ class Spectrum:
                 y_peaks += y_peak
 
                 if show_peak_models:
-                    line, = ax.plot(x, y_peak, lw=linewidth,
-                                    color=cmap(i % num_colors) if cmap else 'k',
+                    line, = ax.plot(x, y_peak, lw=linewidth, color=cmap(i % cmap.N),
+                                    # color=cmap(i % num_colors) if cmap else 'k',
                                     label=f'{label}_Peak_{i}' if label else None)
                     lines.append(line)
 
