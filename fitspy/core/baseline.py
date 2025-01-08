@@ -20,10 +20,10 @@ class BaseLine:
     ----------
     points: list of 2 lists
         List of the (x,y) baseline points coordinates
-    mode: str
-        Mode used to determine the baseline, among 'Semi-Auto' (semi-automatic
+    mode: str or None
+        Mode used to determine the baseline, among None, 'Semi-Auto' (semi-automatic
         baseline determination), 'Linear' (piecewise linear decomposition based
-        on users points definition) and 'Polynomial'. Default mode is 'Linear'
+        on users points definition) and 'Polynomial'. Default mode is None
     coef: int
         Smoothing coefficient used in the 'Semi-Auto' mode.
         The larger coef is, the smoother the resulting baseline
