@@ -1,6 +1,7 @@
 from PySide6.QtCore import QObject, Signal, QTimer
 
-from fitspy.core import to_snake_case
+from fitspy.apps.pyside.utils import to_snake_case
+
 from .model import Model
 
 
@@ -171,7 +172,7 @@ class PlotController(QObject):
     # def get_fit_models(self, delimiter):
     #     return self.model.get_fit_models(delimiter)
 
-    def remove_outliers(self, coef):
+    def outliers_calculation(self, coef):
         self.model.spectra.outliers_limit_calculation(coef=coef)
         self.update_spectraplot()
 

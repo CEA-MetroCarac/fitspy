@@ -1,8 +1,9 @@
 from PySide6.QtWidgets import QDialog, QLabel, QVBoxLayout, QFrame
 from PySide6.QtGui import QPixmap
 from PySide6.QtCore import Qt
+
 from fitspy import VERSION
-from fitspy.core import get_icon_path
+from fitspy.apps.pyside.utils import get_icon_path
 
 
 class About(QDialog):

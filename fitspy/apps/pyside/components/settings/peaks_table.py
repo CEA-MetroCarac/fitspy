@@ -14,7 +14,11 @@ from PySide6.QtCore import Qt, Signal
 
 from matplotlib.colors import rgb2hex
 import fitspy
-from fitspy.core import get_icon_path, get_model_params
+
+
+from fitspy.core import get_model_params
+from fitspy.apps.pyside.utils import get_icon_path
+from fitspy.apps.pyside import DEFAULTS
 
 from .generic_table import GenericTable
 from .custom_spinbox import DoubleSpinBox
@@ -25,7 +29,7 @@ def model_params():
 
 
 def cmap():
-    return fitspy.DEFAULTS["peaks_cmap"]
+    return DEFAULTS["peaks_cmap"]
 
 
 class SpinBoxGroupWithExpression(QWidget):

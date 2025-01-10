@@ -9,7 +9,8 @@ from PySide6.QtWidgets import (
     QHBoxLayout,
 )
 
-from fitspy.core import get_icon_path
+from fitspy.apps.pyside.utils import get_icon_path
+
 from .dragndrop_list import DragNDropList
 
 

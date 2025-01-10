@@ -2,22 +2,20 @@ import copy
 from pathlib import Path
 from PySide6.QtCore import QObject, Signal
 from PySide6.QtWidgets import QFileDialog, QWidget
-from .model import Model
 
 import fitspy
 from fitspy import FIT_METHODS
-from fitspy.core.utils import (
-    load_from_json,
-    load_models_from_txt,
-    load_models_from_py,
-)
+from fitspy.core.utils import load_from_json, load_models_from_txt, load_models_from_py
+
+from .model import Model
+
 
 TYPES = "JSON Files (*.json);;All Files (*)"
 
 
 class SettingsController(QObject):
     settingChanged = Signal(str, object)
-    removeOutliers = Signal()
+    calculateOutliers = Signal()
     setSpectrumAttr = Signal(str, object)
     baselinePointsChanged = Signal(list)
     applyModel = Signal(object)
@@ -186,8 +184,8 @@ class SettingsController(QObject):
         self.other_settings.outliers_coef.valueChanged.connect(
             lambda value: self.settingChanged.emit("outliers_coef", value)
         )
-        self.other_settings.outliers_removal.clicked.connect(
-            self.removeOutliers
+        self.other_settings.outliers_calculation.clicked.connect(
+            self.calculateOutliers
         )
         self.other_settings.peaks_cmap.currentColormapChanged.connect(
             lambda cmap: self.settingChanged.emit(

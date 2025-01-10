@@ -13,8 +13,10 @@ from PySide6.QtWidgets import (
     QApplication,
 )
 
-from fitspy import FIT_METHODS, FIT_PARAMS
 from superqt.cmap import CmapCatalogComboBox
+
+from fitspy import FIT_METHODS, FIT_PARAMS
+
 from .custom_spinbox import SpinBox, DoubleSpinBox
 
 
@@ -132,9 +134,9 @@ class OtherSettings(QGroupBox):
         container.addWidget(self.outliers_coef)
         hbox.addLayout(container)
 
-        self.outliers_removal = QPushButton("Apply")
-        self.outliers_removal.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
-        hbox.addWidget(self.outliers_removal)
+        self.outliers_calculation = QPushButton("Apply")
+        self.outliers_calculation.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        hbox.addWidget(self.outliers_calculation)
         vbox.addLayout(hbox)
 
         # Peaks Colormap Selection

@@ -13,7 +13,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 from .spectrum import Spectrum
-from fitspy.core import fileparts, save_to_json, load_from_json, DELIMITER
+from .utils import fileparts, save_to_json, load_from_json
 from .utils_mp import fit_mp
 
 

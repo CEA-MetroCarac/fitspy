@@ -16,8 +16,8 @@ from PySide6.QtWidgets import (
 from matplotlib.backends.backend_qtagg import NavigationToolbar2QT
 import matplotlib.cbook as cbook
 
-from fitspy import DEFAULTS
-from fitspy.core import to_title_case, get_icon_path
+from fitspy.apps.pyside.utils import to_title_case, get_icon_path
+from fitspy.apps.pyside import DEFAULTS
 
 
 class ViewOptions(QToolButton):

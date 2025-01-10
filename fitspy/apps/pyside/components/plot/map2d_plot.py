@@ -10,13 +10,12 @@ from PySide6.QtWidgets import (
     QTabWidget,
     QDockWidget,
 )
+import numpy as np
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_qtagg import FigureCanvas
 from superqt import QLabeledDoubleRangeSlider as QRangeSlider
 
-import fitspy
-
-import numpy as np
+from fitspy.apps.pyside import DEFAULTS
 
 
 class CommonTab(QWidget):
@@ -174,7 +173,7 @@ class Map2DPlot(QMainWindow):
         spectramap.plot_map(
             self.ax,
             range_slider=self.tab_widget.intensity_tab.range_slider,
-            cmap=fitspy.DEFAULTS["map_cmap"],
+            cmap=DEFAULTS["map_cmap"],
         )
 
     def update_plot(self, spectramap):
@@ -199,7 +198,7 @@ class Map2DPlot(QMainWindow):
             xrange=xrange,
             var=var,
             label=label,
-            cmap=fitspy.DEFAULTS["map_cmap"],
+            cmap=DEFAULTS["map_cmap"],
         )
 
     def update_plot_map(self, spectramap, xrange, var, label, current_tab):
@@ -207,7 +206,7 @@ class Map2DPlot(QMainWindow):
             xrange=xrange,
             var=var,
             label=label,
-            cmap=fitspy.DEFAULTS["map_cmap"],
+            cmap=DEFAULTS["map_cmap"],
         )
         vmin, vmax = (
             current_tab.vrange_slider.minimum(),

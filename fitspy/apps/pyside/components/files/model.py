@@ -1,5 +1,6 @@
 from PySide6.QtCore import QObject, Signal
-from fitspy.core import get_dim, load_from_json
+
+from fitspy.core.utils import get_dim, load_from_json
 
 
 class Model(QObject):

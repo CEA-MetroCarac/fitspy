@@ -22,6 +22,8 @@ from .baseline import BaseLine
 import fitspy
 
 
+CMAP_PEAKS = cm.get_cmap('tab10')
+
 def create_model(model, model_name, prefix=None):
     """ Return a 'model' (peak_model or 'bkg_model') object """
     if isinstance(model, ExpressionModel):
@@ -667,7 +669,7 @@ class Spectrum:
              show_baseline=True, show_background=True,
              show_peak_models=True, show_result=True,
              subtract_baseline=True, subtract_bkg=True,
-             label=None, kwargs=None):
+             label=None, kwargs=None, cmap_peaks=None):
         """ Plot the spectrum with the peak models """
         x, y = self.x.copy(), self.y.copy()
 
@@ -733,9 +735,10 @@ class Spectrum:
         #     cmap = cm.get_cmap(cmap)
         # num_colors = cmap.N if cmap else None
 
-        cmap = fitspy.DEFAULTS['peaks_cmap']
-        if isinstance(cmap, str):
-            cmap = cm.get_cmap(cmap)
+        # cmap = fitspy.DEFAULTS['peaks_cmap']
+        # if isinstance(cmap, str):
+        #     cmap = cm.get_cmap(cmap)
+        cmap_peaks = cmap_peaks or CMAP_PEAKS
 
         ax.set_prop_cycle(None)
         y_peaks = np.zeros_like(x)
@@ -753,7 +756,7 @@ class Spectrum:
                 y_peaks += y_peak
 
                 if show_peak_models:
-                    line, = ax.plot(x, y_peak, lw=linewidth, color=cmap(i % cmap.N),
+                    line, = ax.plot(x, y_peak, lw=linewidth, color=cmap_peaks(i % cmap_peaks.N),
                                     # color=cmap(i % num_colors) if cmap else 'k',
                                     label=f'{label}_Peak_{i}' if label else None)
                     lines.append(line)

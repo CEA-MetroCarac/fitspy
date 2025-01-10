@@ -1,15 +1,15 @@
 # DELIMITER = "@"  # Used by Spectra/SpectraMap (in set_attributes) and main_controller.py (in save
 # # and load .fspy) to identify correct spectrum object as "map@fname"
 
-DELIMITER = "  "  # Used by Spectra/SpectraMap (in set_attributes) and main_controller.py (in
-# save and load .fspy) to identify correct spectrum object as "map@fname"
+# DELIMITER = "  "  # Used by Spectra/SpectraMap (in set_attributes) and main_controller.py (in
+# # save and load .fspy) to identify correct spectrum object as "map@fname"
 
 from .utils import (
-    replace_icon_colors,
-    to_snake_case,
-    to_title_case,
-    get_icon_path,
-    update_widget_palette,
+    # replace_icon_colors,
+    # to_snake_case,
+    # to_title_case,
+    # get_icon_path,
+    # update_widget_palette,
     closest_item,
     closest_index,
     hsorted,

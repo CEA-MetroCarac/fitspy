@@ -4,15 +4,17 @@ from PySide6.QtGui import QColor, QDesktopServices
 from PySide6.QtWidgets import QApplication, QFileDialog, QMessageBox
 from pyqttoast import Toast, ToastPreset
 
-import fitspy
-from fitspy.core import (Spectra, Spectrum,
-                         update_widget_palette, to_snake_case, replace_icon_colors, save_to_json)
+# import fitspy
+from fitspy.core import Spectra, Spectrum
+from fitspy.core.utils import save_to_json
 
+from . import DEFAULTS
 from .main_model import MainModel
 from .main_view import MainView
 from .components.plot import PlotController
 from .components.files import FilesController
 from .components.settings import SettingsController
+from .utils import update_widget_palette, to_snake_case, replace_icon_colors
 
 # TYPES = "Fitspy Workspace (*.fspy);;Spectrum/Spectramap (*.json *.txt);;JSON Files (*.json);;Text Files (*.txt)"
 
@@ -136,7 +138,7 @@ class MainController(QObject):
 
         self.settings_controller.showToast.connect(self.show_toast)
         self.settings_controller.settingChanged.connect(self.set_setting)
-        self.settings_controller.removeOutliers.connect(self.remove_outliers)
+        self.settings_controller.calculateOutliers.connect(self.outliers_calculation)
         self.settings_controller.setSpectrumAttr.connect(
             self.plot_controller.set_spectrum_attr
         )
@@ -342,8 +344,8 @@ class MainController(QObject):
                           if getattr(spectrum.result_fit, 'success', None) is not None}
             self.plot_controller.colorizeFromFitStatus.emit(fit_status)
 
-    def remove_outliers(self):
-        self.plot_controller.remove_outliers(self.model.outliers_coef)
+    def outliers_calculation(self):
+        self.plot_controller.outliers_calculation(self.model.outliers_coef)
 
     def apply_baseline(self):
         mode = self.settings_controller.get_baseline_mode()
@@ -477,7 +479,7 @@ class MainController(QObject):
         QDesktopServices.openUrl(url)
 
     def update_peaks_cmap(self):
-        fitspy.DEFAULTS["peaks_cmap"] = (
+        DEFAULTS["peaks_cmap"] = (
             self.view.more_settings.other_settings.peaks_cmap.currentColormap().to_mpl()
         )
         if self.plot_controller.get_spectra():
@@ -486,7 +488,7 @@ class MainController(QObject):
             )
 
     def update_map_cmap(self):
-        fitspy.DEFAULTS["map_cmap"] = (
+        DEFAULTS["map_cmap"] = (
             self.view.more_settings.other_settings.map_cmap.currentColormap().to_mpl()
         )
         if self.plot_controller.model.current_map:

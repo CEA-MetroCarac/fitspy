@@ -1,6 +1,7 @@
 from PySide6.QtCore import QObject, Signal, Qt, QSettings
 from PySide6.QtGui import QColor, QPalette
-from fitspy import DEFAULTS
+
+from . import DEFAULTS
 
 
 class MainModel(QObject):

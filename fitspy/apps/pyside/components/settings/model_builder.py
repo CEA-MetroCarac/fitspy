@@ -20,7 +20,9 @@ from PySide6.QtWidgets import (
 
 import fitspy
 from superqt import QCollapsible
-from fitspy.core import get_icon_path
+
+from fitspy.apps.pyside.utils import get_icon_path
+
 from .custom_spinbox import SpinBox, DoubleSpinBox
 from .dragndrop_combo import DragNDropCombo
 from .peaks_table import PeaksTable

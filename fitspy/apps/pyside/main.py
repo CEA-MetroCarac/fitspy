@@ -1,7 +1,12 @@
 import sys
 from PySide6.QtWidgets import QApplication
-from fitspy.core import load_from_json, Spectra
-from fitspy.app import MainController, MainModel, MainView
+
+from fitspy.core import Spectra
+from fitspy.core.utils import load_from_json
+
+from .main_controller import MainController
+from .main_model import MainModel
+from .main_view import MainView
 
 
 class Appli:
@@ -18,8 +23,8 @@ class Appli:
     def add_items(self, fnames):
         self.controller.open(fnames)
 
-    def remove_outliers(self):
-        self.controller.remove_outliers()
+    def outliers_calculation(self):
+        self.controller.outliers_calculation()
 
     def load_model(self, fname_json):
         self.controller.settings_controller.load_model(fname_json)
@@ -31,6 +36,9 @@ class Appli:
         self.controller.files_controller.set_selection(self.view.spectrum_list.list, fnames)
         self.view.fit_model_editor.model_selector.apply.click()
         self.view.fit_model_editor.model_settings.fit.click()
+
+    def apply_model_to_all(self, ncpus=None):
+        self.apply_model(fnames=None, ncpus=ncpus)
 
     def auto_eval(self, model_name=None, fnames=None):
         fnames = fnames or self.fnames

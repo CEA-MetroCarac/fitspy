@@ -2,7 +2,7 @@ from PySide6.QtGui import QIcon, QAction
 from PySide6.QtWidgets import QSizePolicy, QToolBar, QWidget
 from PySide6.QtCore import QSize
 
-from fitspy.core import get_icon_path
+from fitspy.apps.pyside.utils import get_icon_path
 
 
 class MenuBar(QToolBar):
