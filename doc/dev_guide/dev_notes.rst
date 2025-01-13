@@ -42,6 +42,7 @@ TODO List
 ---------
 
 TODO Base:
+    - [x] Add None in Baseline Options
     - [ ] Write a submodule that provides all functions necessary to manipulate GUI via code only. + Rewrite examples to use this submodule
     - [ ] Update documentation
     - [x] Add a "Highlight spectra" click mode
@@ -65,6 +66,7 @@ TODO Base:
       - [x] Add Label choice and plot update
 
 TODO Fixes:
+    - [x] Results of previous calculations have to be preserved and displayed (colorize_from_status) when reloading a map
     - [ ] Investigate exit not exiting properly on some systems (could be due to Threads, use QThread instead ?) `ultralytics issue 1167 <https://github.com/ultralytics/ultralytics/issues/11679>`_
     - [ ] reinit in Spectrum() doesn't reinit fit_params
     - [ ] Expressions in saved models are "" instead of None
@@ -76,6 +78,7 @@ TODO Fixes:
     - [x] Port updates commit 6d303df (main)
 
 TODO Opti:
+    - [ ] Check (and avoid) multiple calls - code profiling
     - [ ] Refactor peaks_table.py + bkg_table.py by creating a new class
     - [ ] MULTIPROC BASELINE via apply_model ?
     - [ ] Optimize plotting (setxdata and setydata instead of replotting the whole figure ?)
