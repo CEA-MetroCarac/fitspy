@@ -1,18 +1,11 @@
-from PySide6.QtCore import Qt, Signal
-from PySide6.QtWidgets import (
-    QMainWindow,
-    QComboBox,
-    QWidget,
-    QVBoxLayout,
-    QLabel,
-    QHBoxLayout,
-    QPushButton,
-    QTabWidget,
-    QDockWidget,
-)
 import numpy as np
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_qtagg import FigureCanvas
+
+from PySide6.QtCore import Qt, Signal
+from PySide6.QtWidgets import (QMainWindow, QComboBox, QWidget, QVBoxLayout, QLabel, QHBoxLayout,
+                               QPushButton, QTabWidget, QDockWidget)
+
 from superqt import QLabeledDoubleRangeSlider as QRangeSlider
 
 from fitspy.apps.pyside import DEFAULTS
@@ -110,12 +103,9 @@ class Map2DPlot(QMainWindow):
         self.colorbar = None
 
     def initUI(self):
-        self.dock_widget = QDockWidget(
-            "Measurement sites (Drag to undock)", self
-        )
+        self.dock_widget = QDockWidget("Measurement sites (Drag to undock)", self)
         self.dock_widget.setFeatures(
-            QDockWidget.DockWidgetFloatable | QDockWidget.DockWidgetMovable
-        )
+            QDockWidget.DockWidgetFloatable | QDockWidget.DockWidgetMovable)
 
         self.dock_container = QWidget()
         self.dock_layout = QVBoxLayout(self.dock_container)
@@ -170,21 +160,16 @@ class Map2DPlot(QMainWindow):
         self.remove_colorbar()
 
     def plot_spectramap(self, spectramap):
-        spectramap.plot_map(
-            self.ax,
-            range_slider=self.tab_widget.intensity_tab.range_slider,
-            cmap=DEFAULTS["map_cmap"],
-        )
+        spectramap.plot_map(self.ax,
+                            range_slider=self.tab_widget.intensity_tab.range_slider,
+                            cmap=DEFAULTS["map_cmap"])
 
     def update_plot(self, spectramap):
         xrange = self.tab_widget.intensity_tab.range_slider.value()
         var = self.tab_widget.tabText(self.tab_widget.currentIndex())
         current_tab = self.tab_widget.currentWidget()
 
-        if hasattr(current_tab, "combo"):
-            label = current_tab.combo.currentText()
-        else:
-            label = ""
+        label = current_tab.combo.currentText() if hasattr(current_tab, "combo") else ""
 
         if hasattr(current_tab, "vrange_slider"):
             current_tab.vrange_slider.blockSignals(True)
@@ -192,31 +177,15 @@ class Map2DPlot(QMainWindow):
             current_tab.vrange_slider.blockSignals(False)
 
         vmin, vmax = current_tab.vrange_slider.value()
-        spectramap.plot_map_update(
-            vmin=vmin,
-            vmax=vmax,
-            xrange=xrange,
-            var=var,
-            label=label,
-            cmap=DEFAULTS["map_cmap"],
-        )
+        spectramap.plot_map_update(vmin=vmin, vmax=vmax, xrange=xrange, var=var, label=label,
+                                   cmap=DEFAULTS["map_cmap"])
 
     def update_plot_map(self, spectramap, xrange, var, label, current_tab):
-        spectramap.plot_map_update(
-            xrange=xrange,
-            var=var,
-            label=label,
-            cmap=DEFAULTS["map_cmap"],
-        )
-        vmin, vmax = (
-            current_tab.vrange_slider.minimum(),
-            current_tab.vrange_slider.maximum(),
-        )
+        spectramap.plot_map_update(xrange=xrange, var=var, label=label, cmap=DEFAULTS["map_cmap"])
+        vmin, vmax = current_tab.vrange_slider.minimum(), current_tab.vrange_slider.maximum()
         rvmin, rvmax = np.nanmin(spectramap.arr), np.nanmax(spectramap.arr)
 
-        if (vmin, vmax) != (rvmin, rvmax) and not np.all(
-            np.isnan(spectramap.arr)
-        ):
+        if (vmin, vmax) != (rvmin, rvmax) and not np.all(np.isnan(spectramap.arr)):
             current_tab.vrange_slider.setRange(rvmin, rvmax)
             current_tab.vrange_slider.setValue((rvmin, rvmax))
 
@@ -240,17 +209,8 @@ class Map2DPlot(QMainWindow):
 
     # Utility Functions
     def collect_unique_labels(self, spectramap):
-        return sorted(
-            list(
-                set(
-                    [
-                        label
-                        for spectrum in spectramap
-                        for label in spectrum.peak_labels
-                    ]
-                )
-            )
-        )
+        return sorted(list(set([label for spectrum in spectramap
+                                for label in spectrum.peak_labels])))
 
     def update_labels(self, spectramap):
         labels = self.collect_unique_labels(spectramap)

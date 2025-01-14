@@ -6,7 +6,8 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 
-from fitspy.core import Spectra, Spectrum
+from fitspy.core.spectra import Spectra
+from fitspy.core.spectrum import Spectrum
 
 DATA = Path(__file__).parent / "data"
 

@@ -13,11 +13,14 @@ from copy import deepcopy
 import numpy as np
 import matplotlib.cm as cm
 
-from fitspy.core import Spectra, Spectrum, SpectraMap
+from fitspy.core.spectra import Spectra
+from fitspy.core.spectrum import Spectrum
+from fitspy.core.spectra_map import SpectraMap
 from fitspy.core.utils import get_dim, closest_index, check_or_rename
 from fitspy.core.utils import load_models_from_txt, load_models_from_py
 
 from . import CMAP
+
 
 # TODO : change 'fit_params' from spectrum to spectra attribute (?)
 # TODO : (GUI) remove 'ncpus' from the fit settings

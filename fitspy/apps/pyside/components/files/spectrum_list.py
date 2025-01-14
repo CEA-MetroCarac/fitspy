@@ -1,16 +1,9 @@
 from PySide6.QtGui import QIcon
 from PySide6.QtCore import QSize
-from PySide6.QtWidgets import (
-    QWidget,
-    QLabel,
-    QPushButton,
-    QVBoxLayout,
-    QHBoxLayout,
-)
+from PySide6.QtWidgets import QWidget, QLabel, QPushButton, QVBoxLayout, QHBoxLayout
 
 from fitspy.apps.pyside.utils import get_icon_path
-
-from .dragndrop_list import DragNDropList
+from fitspy.apps.pyside.components.files.dragndrop_list import DragNDropList
 
 
 class SpectrumList(QWidget):
@@ -30,10 +23,8 @@ class SpectrumList(QWidget):
         self.rm_btn = QPushButton(icon=QIcon(get_icon_path("remove.png")),
                                   toolTip="Remove selected spectra")
         self.rm_btn.setIconSize(QSize(20, 20))
-        self.save_btn = QPushButton(
-            icon=QIcon(get_icon_path("save.png")),
-            toolTip="Save results of selected spectra",
-        )
+        self.save_btn = QPushButton(icon=QIcon(get_icon_path("save.png")),
+                                    toolTip="Save results of selected spectra")
         self.save_btn.setIconSize(QSize(20, 20))
 
         self.list = DragNDropList()

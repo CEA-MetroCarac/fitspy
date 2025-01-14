@@ -1,12 +1,6 @@
 from PySide6.QtWidgets import QComboBox
 from PySide6.QtCore import Qt, Signal
-from PySide6.QtGui import (
-    QDragEnterEvent,
-    QDragLeaveEvent,
-    QDropEvent,
-    QPainter,
-    QPalette,
-)
+from PySide6.QtGui import QDragEnterEvent, QDragLeaveEvent, QDropEvent, QPainter, QPalette
 
 
 class DragNDropCombo(QComboBox):
@@ -54,9 +48,7 @@ class DragNDropCombo(QComboBox):
                 painter.setPen(self.palette().color(QPalette.Highlight))
                 text = "Release to load file(s)"
             else:
-                painter.setPen(
-                    self.palette().color(QPalette.Disabled, QPalette.Text)
-                )
+                painter.setPen(self.palette().color(QPalette.Disabled, QPalette.Text))
                 text = "Fitting Models: Drag and Drop File(s) Here"
 
             rect = self.rect()

@@ -1,6 +1,7 @@
 import os
 from PySide6.QtCore import QObject, Signal
-from .model import Model
+
+from fitspy.apps.pyside.components.files.model import Model
 
 
 class FilesController(QObject):
@@ -37,45 +38,29 @@ class FilesController(QObject):
         self.model.delSpectraMap.connect(self.delSpectraMap)
         self.model.spectrumListChanged.connect(self.update_spectrum_list)
         self.model.mapsListChanged.connect(
-            lambda: self.update_list_widget(
-                self.maps_list.list, self.model.spectramaps_fnames
-            )
-        )
+            lambda: self.update_list_widget(self.maps_list.list, self.model.spectramaps_fnames))
         self.model.loadState.connect(self.loadState)
         self.model.clear.connect(self.clear)
 
         self.spectrum_list.list.filesDropped.connect(self.load_files)
         self.spectrum_list.list.itemSelectionChanged.connect(
-            lambda: self.update_selection(
-                self.spectrum_list.list, self.spectrum_list.count_label
-            )
-        )
-        self.spectrum_list.sel_all.clicked.connect(
-            self.spectrum_list.list.selectAll
-        )
+            lambda: self.update_selection(self.spectrum_list.list, self.spectrum_list.count_label))
+        self.spectrum_list.sel_all.clicked.connect(self.spectrum_list.list.selectAll)
         self.spectrum_list.reinit.clicked.connect(
-            lambda: self.reinitSpectra.emit(self.get_selected_fnames())
-        )
+            lambda: self.reinitSpectra.emit(self.get_selected_fnames()))
         self.spectrum_list.rm_btn.clicked.connect(
-            lambda: self.remove_selected_files(self.spectrum_list.list)
-        )
+            lambda: self.remove_selected_files(self.spectrum_list.list))
         self.spectrum_list.list.remove_selected_files = self.remove_selected_files
         self.spectrum_list.save_btn.clicked.connect(
-            lambda: self.saveResults.emit(self.get_selected_fnames())
-        )
+            lambda: self.saveResults.emit(self.get_selected_fnames()))
 
         self.maps_list.list.filesDropped.connect(self.load_files)
         self.maps_list.list.itemSelectionChanged.connect(
-            lambda: self.update_map_selection(
-                self.maps_list.list, self.spectrum_list.list
-            )
-        )
+            lambda: self.update_map_selection(self.maps_list.list, self.spectrum_list.list))
         self.maps_list.deselect_btn.clicked.connect(
-            lambda: self.maps_list.list.clearSelection()
-        )
+            lambda: self.maps_list.list.clearSelection())
         self.maps_list.rm_btn.clicked.connect(
-            lambda: self.remove_selected_files(self.maps_list.list)
-        )
+            lambda: self.remove_selected_files(self.maps_list.list))
         self.maps_list.list.remove_selected_files = self.remove_selected_files
 
     def load_files(self, files: list[str]):
@@ -96,15 +81,12 @@ class FilesController(QObject):
 
     def update_spectrum_list(self, spectramap):
         if spectramap is not None:
-            self.update_list_widget(
-                self.spectrum_list.list,
-                self.model.spectramaps_fnames[spectramap],
-            )
+            self.update_list_widget(self.spectrum_list.list,
+                                    self.model.spectramaps_fnames[spectramap])
         else:
             self.maps_list.list.clearSelection()
-            self.update_list_widget(
-                self.spectrum_list.list, self.model.spectrum_fnames
-            )
+            self.update_list_widget(self.spectrum_list.list,
+                                    self.model.spectrum_fnames)
 
     def update_list_widget(self, list_widget, files):
         """Refresh the list widget with the files and update the label."""
@@ -180,10 +162,7 @@ class FilesController(QObject):
         selected_items = list_widget.get_selected_fnames()
         # if user is about to delete all files and a map is selected
         # just delete the map instead of deleting all files
-        if (
-            len(selected_items) == list_widget.count()
-            and list_widget == self.spectrum_list.list
-        ):
+        if len(selected_items) == list_widget.count() and list_widget == self.spectrum_list.list:
             selected_map = self.maps_list.list.selectedItems()
             if selected_map:
                 self.del_map(selected_map[0].text())
@@ -213,11 +192,7 @@ class FilesController(QObject):
         list_widget.blockSignals(False)
 
         if plot_highlighted:
-            self.update_selection(
-                list_widget,
-                self.spectrum_list.count_label,
-                emit_marker=False,
-            )
+            self.update_selection(list_widget, self.spectrum_list.count_label, emit_marker=False)
         else:
             self.update_count(list_widget, self.spectrum_list.count_label)
             if fnames and self.model.current_map:
@@ -295,7 +270,8 @@ class FilesController(QObject):
         ----------
         fit_status: dict
             A dictionary where keys are filenames (str) and values are either booleans (bool) or
-            objects with a 'success' attribute indicating the fit status (like lmfit.model.ModelResult).
+            objects with a 'success' attribute indicating the fit status (like
+            lmfit.model.ModelResult).
         """
         if not fit_status:
             # Colorize all items in white if fit_status is empty
@@ -328,12 +304,12 @@ class FilesController(QObject):
             list_widget.itemSelectionChanged.emit()
 
     def clear(self):
-        map_fnames = list(self.model.spectramaps_fnames.keys())  # Maps
+        fnames_map = list(self.model.spectramaps_fnames.keys())  # Maps
         fnames = self.model.spectrum_fnames  # Independents Spectrum
 
         # Using remove_files acts as if the user would manually delete everything
         # thus, the signals to delete the spectrum objects associated to files are emitted
-        for map in map_fnames:
-            self.remove_files([map])
+        for fname_map in fnames_map:
+            self.remove_files([fname_map])
         if fnames:
             self.remove_files(fnames)

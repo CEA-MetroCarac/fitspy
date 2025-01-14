@@ -30,11 +30,10 @@ def gui_2d_maps(dirname_res=None, gui='pyside'):
     unordered_map = dirname / 'unordered_map.txt'
     appli.add_items(fnames=[ordered_map, unordered_map])
 
-    # spectra from 'ordered_map.txt' and 'unordered_map.txt' differ -> DO NOT APPLY
     # appli.outliers_calculation()
 
     # auto-evaluation on the first 5 of 1520 spectra belonging to 'ordered_map.txt'
-    appli.auto_eval(model_name='LorentzianAsym', fnames=appli.spectra.fnames[:5])
+    appli.auto_eval(model_name='LorentzianAsym', fnames=appli.fnames[:5])
 
     # save and destroy for pytest
     if dirname_res is not None:

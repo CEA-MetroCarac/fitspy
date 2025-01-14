@@ -1,7 +1,7 @@
 from PySide6.QtCore import QObject, Signal, Qt, QSettings
 from PySide6.QtGui import QColor, QPalette
 
-from . import DEFAULTS
+from fitspy.apps.pyside import DEFAULTS
 
 
 class MainModel(QObject):
@@ -12,9 +12,7 @@ class MainModel(QObject):
 
     def __init__(self):
         super().__init__()
-        self.settings = QSettings(
-            "CEA-MetroCarac", "Fitspy"
-        )  # these are stored in registry
+        self.settings = QSettings("CEA-MetroCarac", "Fitspy")  # these are stored in registry
         self._settings = {}
         self._initialize_settings()
 
@@ -40,20 +38,15 @@ class MainModel(QObject):
                 for sub_key, sub_default in default.items():
                     full_key = f"{key}_{sub_key}"
                     signal = signal_map.get(full_key)
-                    self._settings[full_key] = create_setting(
-                        sub_default, type(sub_default), signal
-                    )
+                    self._settings[full_key] = create_setting(sub_default,
+                                                              type(sub_default), signal)
             else:
                 signal = signal_map.get(key)
-                self._settings[key] = create_setting(
-                    default, type(default), signal
-                )
+                self._settings[key] = create_setting(default, type(default), signal)
 
         # Set initial values from QSettings
         for key, setting in self._settings.items():
-            setting["value"] = self.settings.value(
-                key, setting["default"], type=setting["type"]
-            )
+            setting["value"] = self.settings.value(key, setting["default"], type=setting["type"])
 
     def update_setting(self, label, state):
         """Update a setting and emit its signal if applicable."""

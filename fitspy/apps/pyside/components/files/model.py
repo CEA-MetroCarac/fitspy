@@ -44,12 +44,15 @@ class Model(QObject):
     def del_spectrum(self, items):
         """
         Remove spectra from the model and emit signal. Should not be manually called,
-        this function is a called at the end of a signal chain to only reflect the deletion after the object is removed.
+        this function is a called at the end of a signal chain to only reflect the deletion after
+        the object is removed.
         If you want to remove a spectrum, use remove_files() instead.
 
-        Parameters:
-        items (dict): A dictionary where keys can be None or a spectramap fname,
-                    and values are always a list of fname.
+        Parameters
+        ----------
+        items: dict
+            A dictionary where keys can be None or a spectramap fname, and values are always a list
+            of fname.
         """
         if not isinstance(items, dict):
             items = {None: items}
@@ -58,15 +61,12 @@ class Model(QObject):
         spectramap, fnames = next(iter(items.items()))
 
         if spectramap is not None:
-            self._spectramaps_fnames[spectramap] = [
-                fname
-                for fname in self._spectramaps_fnames[spectramap]
-                if fname not in fnames
-            ]
+            spectramap_fnames = [fname for fname in self._spectramaps_fnames[spectramap]
+                                 if fname not in fnames]
+            self._spectramaps_fnames[spectramap] = spectramap_fnames
         else:
-            self._spectrum_fnames = [
-                fname for fname in self._spectrum_fnames if fname not in fnames
-            ]
+            spectrum_fnames = [fname for fname in self._spectrum_fnames if fname not in fnames]
+            self._spectrum_fnames = spectrum_fnames
 
         # Emit the signal once for the modified spectramap
         self.spectrumListChanged.emit(spectramap)
@@ -160,28 +160,21 @@ class Model(QObject):
             else:
                 self.askConfirmation.emit(
                     "Loading .json work will replace current work. Continue ?",
-                    lambda: handle_loading(dict_spectra),
-                    (),
-                    {},
-                )
+                    lambda: handle_loading(dict_spectra), (), {})
 
-            files = [f for f in files if f not in fnames_json]
+            files = [file for file in files if file not in fnames_json]
 
         return files
 
     def load_spectrum_files(self, files):
         """Load spectrum files and emit signal if new files are added."""
-        new_files = [
-            file for file in files if file not in self._spectrum_fnames
-        ]
+        new_files = [file for file in files if file not in self._spectrum_fnames]
         if new_files:
             self.loadSpectrum.emit(files)
 
     def load_spectramap_files(self, files):
         """Load spectramap files and emit signal for each new file."""
-        new_files = [
-            file for file in files if file not in self._spectramaps_fnames
-        ]
+        new_files = [file for file in files if file not in self._spectramaps_fnames]
         for file in new_files:
             self.loadSpectraMap.emit(file)
 
@@ -213,14 +206,16 @@ class Model(QObject):
     def remove_files(self, files):
         """Remove files from the model and emit signals if files are removed.
 
-        Args:
-            files (list or dict): A list of files or a dictionary where keys can be None or a spectramap fname,
-                                and values are always a list of fname.
-
-                                When passed as a list, it should only be used by the app itself because
-                                when a user deletes spectrum from the list, we know these spectrum are
-                                from the current map due to how the app is built. Otherwise, a dictionary
-                                is necessary to identify each spectrum (whether it is from a map or not).
+        Parameters
+        ----------
+        files:  list or dict
+        A list of files or a dictionary where keys can be None or a spectramap fname, and values
+        are always a list of fname.
+        When passed as a list, it should only be used by the app itself because when a user deletes
+        spectrum from the list, we know these spectrum are from the current map due to how the app
+        is built.
+        Otherwise, a dictionary is necessary to identify each spectrum (whether it is from a map
+        or not).
         """
         if not files:
             print("No files selected for deletion.")

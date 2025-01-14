@@ -1,31 +1,19 @@
-from PySide6.QtWidgets import (
-    QLabel,
-    QVBoxLayout,
-    QPushButton,
-    QComboBox,
-    QLineEdit,
-    QCheckBox,
-    QHeaderView,
-    QWidget,
-    QHBoxLayout,
-)
-from PySide6.QtGui import QIcon
-from PySide6.QtCore import Qt, Signal
-
 from matplotlib.colors import rgb2hex
-import fitspy
+from PySide6.QtCore import Qt, Signal
+from PySide6.QtWidgets import (QLabel, QVBoxLayout, QPushButton, QComboBox, QLineEdit, QCheckBox,
+                               QHeaderView, QWidget, QHBoxLayout)
+from PySide6.QtGui import QIcon
 
-
-from fitspy.core import get_model_params
-from fitspy.apps.pyside.utils import get_icon_path
+from fitspy import PEAK_MODELS
+from fitspy.core.utils import get_model_params
 from fitspy.apps.pyside import DEFAULTS
-
-from .generic_table import GenericTable
-from .custom_spinbox import DoubleSpinBox
+from fitspy.apps.pyside.utils import get_icon_path
+from fitspy.apps.pyside.components.settings.generic_table import GenericTable
+from fitspy.apps.pyside.components.settings.custom_spinbox import DoubleSpinBox
 
 
 def model_params():
-    return get_model_params(fitspy.PEAK_MODELS)
+    return get_model_params(PEAK_MODELS)
 
 
 def cmap():
@@ -33,9 +21,7 @@ def cmap():
 
 
 class SpinBoxGroupWithExpression(QWidget):
-    def __init__(
-        self, min_value=None, value=None, max_value=None, expr=None, parent=None
-    ):
+    def __init__(self, min_value=None, value=None, max_value=None, expr=None, parent=None):
         super().__init__(parent)
         self.layout = QVBoxLayout(self)
         self.layout.setContentsMargins(0, 0, 0, 0)
@@ -123,16 +109,15 @@ class PeaksTable(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.initUI()
-        self.show_bounds_state = None # FIXME: bool instead ? What for show_bounds_state=True ?
+        self.show_bounds_state = None  # FIXME: bool instead ? What for show_bounds_state=True ?
         self.show_expr_state = None
 
     def initUI(self):
         main_layout = QVBoxLayout(self)
         main_layout.setContentsMargins(0, 0, 0, 0)
 
-        self.table = GenericTable(
-            columns={"Prefix": QLabel, "Label": QLineEdit, "Model": QComboBox}
-        )
+        columns = {"Prefix": QLabel, "Label": QLineEdit, "Model": QComboBox}
+        self.table = GenericTable(columns=columns)
         self.show_bounds(False)
         main_layout.addWidget(self.table)
         self.table.rowsDeleted.connect(self.emit_peaks_changed)
@@ -147,9 +132,7 @@ class PeaksTable(QWidget):
         def get_widget_value(row, column_name):
             # case insensitive search
             column_names = [col_name.lower() for col_name in self.table.columns]
-            widget = self.table.cellWidget(
-                row, column_names.index(column_name.lower())
-            )
+            widget = self.table.cellWidget(row, column_names.index(column_name.lower()))
 
             if isinstance(widget, SpinBoxGroupWithExpression):
                 return widget.get_values()
@@ -212,14 +195,15 @@ class PeaksTable(QWidget):
                         self.showToast.emit(
                             "WARNING",
                             "Value out of bounds",
-                            f"Value {param['value']} must be between {param['min']} and {param['max']}.",
+                            f"Value {param['value']} must be between {param['min']} and "
+                            f"{param['max']}.",
                         )
                         return
 
         self.peaksChanged.emit(peaks)
 
     def create_spin_box_group_with_expr(
-        self, min_value=0, value=0, max_value=0, expr=""
+            self, min_value=0, value=0, max_value=0, expr=""
     ):
         widget = SpinBoxGroupWithExpression(min_value, value, max_value, expr)
         widget.min_spin_box.editingFinished.connect(self.emit_peaks_changed)
@@ -233,11 +217,11 @@ class PeaksTable(QWidget):
     def update_columns_based_on_model(self):
         required_columns = ["Prefix", "Label", "Model"]
 
+        cellWidget = self.table.cellWidget
+
         # Getting additional required columns based on used models
         for row in range(self.table.rowCount()):
-            model_name = self.table.cellWidget(
-                row, self.table.get_column_index("Model")
-            ).currentText()
+            model_name = cellWidget(row, self.table.get_column_index("Model")).currentText()
             parameters = model_params().get(model_name, [])
             required_columns.extend(parameters)
 
@@ -258,51 +242,30 @@ class PeaksTable(QWidget):
 
         # Update each row
         for row in range(self.table.rowCount()):
-            model_name = self.table.cellWidget(
-                row, self.table.get_column_index("Model")
-            ).currentText()
+            model_name = cellWidget(row, self.table.get_column_index("Model")).currentText()
             parameters = model_params().get(model_name, [])
 
             # Set widgets for required parameters
             for param in parameters:
-                widget = self.table.cellWidget(
-                    row, self.table.get_column_index(param)
-                )
-                if (
-                    widget is None
-                    or isinstance(widget, QWidget)
-                    and not widget.children()
-                ):
+                col = self.table.get_column_index(param)
+                widget = cellWidget(row, col)
+                if widget is None or isinstance(widget, QWidget) and not widget.children():
                     if "MIN |" in param and "| MAX" in param:
-                        existing_widget = self.table.cellWidget(
-                            row, self.table.get_column_index(param)
-                        )
-                        if not isinstance(
-                            existing_widget, SpinBoxGroupWithExpression
-                        ):
+                        existing_widget = cellWidget(row, col)  # TODO: not different from widget
+                        if not isinstance(existing_widget, SpinBoxGroupWithExpression):
                             widget = self.create_spin_box_group_with_expr()
-                            self.table.setCellWidget(
-                                row, self.table.get_column_index(param), widget
-                            )
+                            self.table.setCellWidget(row, col, widget)
                     elif param.endswith("_fixed"):
-                        existing_widget = self.table.cellWidget(
-                            row, self.table.get_column_index(param)
-                        )
+                        existing_widget = cellWidget(row, col)
                         if not isinstance(existing_widget, CenteredCheckBox):
-                            widget = CenteredCheckBox(
-                                callback=self.emit_peaks_changed
-                            )
-                            self.table.setCellWidget(
-                                row, self.table.get_column_index(param), widget
-                            )
+                            widget = CenteredCheckBox(callback=self.emit_peaks_changed)
+                            self.table.setCellWidget(row, col, widget)
 
             # Remove widgets for parameters not required by the model
             for column in self.table.columns:
                 if column not in ["Prefix", "Label", "Model"] + parameters:
                     empty_widget = QWidget()
-                    self.table.setCellWidget(
-                        row, self.table.get_column_index(column), empty_widget
-                    )
+                    self.table.setCellWidget(row, col, empty_widget)
 
         self.table.resizeRowsToContents()
 
@@ -312,31 +275,22 @@ class PeaksTable(QWidget):
     def add_row(self, show_bounds, show_expr, **params):
         self.show_bounds_state = show_bounds
         self.show_expr_state = show_expr
-        prefix_btn = QPushButton(
-            text=params["prefix"],
-            icon=QIcon(get_icon_path("close.png")),
-            toolTip="Delete peak",
-        )
+        prefix_btn = QPushButton(text=params["prefix"], icon=QIcon(get_icon_path("close.png")),
+                                 toolTip="Delete peak")
         color = rgb2hex(cmap()(self.row_count % cmap().N))
         prefix_btn.setStyleSheet(f"color: {color};")
-        prefix_btn.clicked.connect(
-            lambda: self.table.remove_widget_row(prefix_btn)
-        )
+        prefix_btn.clicked.connect(lambda: self.table.remove_widget_row(prefix_btn))
 
         label_edit = QLineEdit(params["label"])
         label_edit.editingFinished.connect(self.emit_peaks_changed)
 
-        model_names = list(fitspy.PEAK_MODELS.keys())
+        model_names = list(PEAK_MODELS.keys())
         model_combo = QComboBox()
         model_combo.addItems(model_names)
         model_combo.setCurrentText(params["model_name"])
         model_combo.currentIndexChanged.connect(self.emit_peaks_changed)
 
-        row_widgets = {
-            "Prefix": prefix_btn,
-            "Label": label_edit,
-            "Model": model_combo,
-        }
+        row_widgets = {"Prefix": prefix_btn, "Label": label_edit, "Model": model_combo}
 
         model_name = params["model_name"]
         parameters = model_params().get(model_name, [])
@@ -348,17 +302,13 @@ class PeaksTable(QWidget):
                 value = params.get(f"{param_key}")
                 max_value = params.get(f"{param_key}_max")
                 expr = params.get(f"{param_key}_expr")
-                widget = self.create_spin_box_group_with_expr(
-                    min_value, value, max_value, expr
-                )
+                widget = self.create_spin_box_group_with_expr(min_value, value, max_value, expr)
                 widget.show_bounds(show_bounds)
                 widget.show_expr(show_expr)
                 row_widgets[param] = widget
             elif param.endswith("_fixed"):
                 checked = params.get(param, False)
-                widget = CenteredCheckBox(
-                    checked, callback=self.emit_peaks_changed
-                )
+                widget = CenteredCheckBox(checked, callback=self.emit_peaks_changed)
                 row_widgets[param] = widget
 
         # Ensure all columns are added to the table
@@ -376,9 +326,7 @@ class PeaksTable(QWidget):
 
     def update_prefix_colors(self):
         for row in range(self.table.rowCount()):
-            prefix_btn = self.table.cellWidget(
-                row, self.table.get_column_index("Prefix")
-            )
+            prefix_btn = self.table.cellWidget(row, self.table.get_column_index("Prefix"))
             color = rgb2hex(cmap()(row % cmap().N))
             prefix_btn.setStyleSheet(f"color: {color};")
 
@@ -386,9 +334,7 @@ class PeaksTable(QWidget):
         for row in range(self.table.rowCount()):
             for column_name in self.table.columns:
                 if "MIN |" in column_name and "| MAX" in column_name:
-                    widget = self.table.cellWidget(
-                        row, self.table.get_column_index(column_name)
-                    )
+                    widget = self.table.cellWidget(row, self.table.get_column_index(column_name))
                     if isinstance(widget, SpinBoxGroupWithExpression):
                         widget.show_bounds(show)
         self.show_bounds_state = show
@@ -401,9 +347,7 @@ class PeaksTable(QWidget):
         for row in range(self.table.rowCount()):
             for column_name in self.table.columns:
                 if "MIN |" in column_name and "| MAX" in column_name:
-                    widget = self.table.cellWidget(
-                        row, self.table.get_column_index(column_name)
-                    )
+                    widget = self.table.cellWidget(row, self.table.get_column_index(column_name))
                     if isinstance(widget, SpinBoxGroupWithExpression):
                         widget.show_expr(show)
             self.table.resizeRowsToContents()

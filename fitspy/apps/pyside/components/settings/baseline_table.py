@@ -1,13 +1,7 @@
-from PySide6.QtWidgets import (
-    QSizePolicy,
-    QGroupBox,
-    QVBoxLayout,
-    QHeaderView,
-    QLineEdit,
-)
 from PySide6.QtCore import Qt, Signal
+from PySide6.QtWidgets import QSizePolicy, QGroupBox, QVBoxLayout, QHeaderView, QLineEdit
 
-from .generic_table import GenericTable
+from fitspy.apps.pyside.components.settings.generic_table import GenericTable
 
 
 class BaselineTable(QGroupBox):
@@ -54,12 +48,8 @@ class BaselineTable(QGroupBox):
     def get_points(self):
         points = []
         for row in range(self.table.rowCount()):
-            x_widget = self.table.cellWidget(
-                row, self.table.get_column_index("X")
-            )
-            y_widget = self.table.cellWidget(
-                row, self.table.get_column_index("Y")
-            )
+            x_widget = self.table.cellWidget(row, self.table.get_column_index("X"))
+            y_widget = self.table.cellWidget(row, self.table.get_column_index("Y"))
             x_value = float(x_widget.text())
             y_value = float(y_widget.text())
             points.append((x_value, y_value))

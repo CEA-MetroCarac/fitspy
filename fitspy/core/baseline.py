@@ -9,7 +9,7 @@ from scipy.ndimage import gaussian_filter1d
 from scipy import sparse
 from scipy.linalg import cholesky
 
-from fitspy.core import closest_index
+from fitspy.core.utils import closest_index
 
 
 class BaseLine:
@@ -105,7 +105,7 @@ class BaseLine:
             with warnings.catch_warnings():
                 warnings.simplefilter("ignore")
                 mask = np.zeros_like(y, dtype=bool)
-                mask[::max(1,mask.size // 1024)] = True
+                mask[::max(1, mask.size // 1024)] = True
                 mask[y <= 0] = False
                 self.y_eval = arpls(y[mask], coef=self.coef)
                 if False in mask:

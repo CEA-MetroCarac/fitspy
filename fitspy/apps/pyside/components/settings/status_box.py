@@ -1,13 +1,6 @@
 import os
 from PySide6.QtCore import QSize
-from PySide6.QtWidgets import (
-    QVBoxLayout,
-    QHBoxLayout,
-    QLabel,
-    QProgressBar,
-    QWidget,
-    QComboBox,
-)
+from PySide6.QtWidgets import QVBoxLayout, QHBoxLayout, QLabel, QProgressBar, QWidget, QComboBox
 
 
 class StatusBox(QWidget):

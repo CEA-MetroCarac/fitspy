@@ -1,17 +1,9 @@
 from PySide6.QtGui import QIcon
 from PySide6.QtCore import QSize
-from PySide6.QtWidgets import (
-    QWidget,
-    QLabel,
-    QPushButton,
-    QListWidget,
-    QVBoxLayout,
-    QHBoxLayout,
-)
+from PySide6.QtWidgets import QWidget, QLabel, QPushButton, QListWidget, QVBoxLayout, QHBoxLayout
 
 from fitspy.apps.pyside.utils import get_icon_path
-
-from .dragndrop_list import DragNDropList
+from fitspy.apps.pyside.components.files.dragndrop_list import DragNDropList
 
 
 class MapsList(QWidget):
@@ -23,10 +15,8 @@ class MapsList(QWidget):
         self.title_label = QLabel("Maps:")
         self.count_label = QLabel("")
 
-        self.deselect_btn = QPushButton(
-            icon=QIcon(get_icon_path("deselect.png")),
-            toolTip="Deselect all. Go back to default spectrum list.",
-        )
+        self.deselect_btn = QPushButton(icon=QIcon(get_icon_path("deselect.png")),
+                                        toolTip="Deselect all. Go back to default spectrum list.")
         self.deselect_btn.setIconSize(QSize(20, 20))
         self.rm_btn = QPushButton(icon=QIcon(get_icon_path("remove.png")))
         self.rm_btn.setIconSize(QSize(20, 20))

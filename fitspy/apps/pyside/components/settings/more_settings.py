@@ -1,23 +1,11 @@
 from PySide6.QtCore import Qt
-from PySide6.QtWidgets import (
-    QSizePolicy,
-    QGroupBox,
-    QPushButton,
-    QWidget,
-    QVBoxLayout,
-    QHBoxLayout,
-    QCheckBox,
-    QComboBox,
-    QLabel,
-    QSpacerItem,
-    QApplication,
-)
-
+from PySide6.QtWidgets import (QSizePolicy, QGroupBox, QPushButton, QWidget, QVBoxLayout,
+                               QHBoxLayout, QCheckBox, QComboBox, QLabel, QSpacerItem, QApplication)
 from superqt.cmap import CmapCatalogComboBox
 
 from fitspy import FIT_METHODS, FIT_PARAMS
 
-from .custom_spinbox import SpinBox, DoubleSpinBox
+from fitspy.apps.pyside.components.settings.custom_spinbox import SpinBox, DoubleSpinBox
 
 
 class SolverSettings(QGroupBox):
@@ -83,9 +71,7 @@ class SolverSettings(QGroupBox):
         hbox3.addItem(spacer)
         vbox.addLayout(hbox3)
 
-        vbox.addItem(
-            QSpacerItem(0, 20, QSizePolicy.Minimum, QSizePolicy.Expanding)
-        )
+        vbox.addItem(QSpacerItem(0, 20, QSizePolicy.Minimum, QSizePolicy.Expanding))
 
         self.setLayout(vbox)
 

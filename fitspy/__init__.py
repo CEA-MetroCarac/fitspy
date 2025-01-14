@@ -2,8 +2,8 @@ from pathlib import Path
 import shutil
 from lmfit.models import ConstantModel, LinearModel, ParabolicModel, ExponentialModel
 
-from .core.models import gaussian, lorentzian, gaussian_asym, lorentzian_asym, pseudovoigt
-from .core.utils import load_models_from_txt, load_models_from_py
+from fitspy.core.models import gaussian, lorentzian, gaussian_asym, lorentzian_asym, pseudovoigt
+from fitspy.core.utils import load_models_from_txt, load_models_from_py
 
 VERSION = "2025.1dev"
 
@@ -25,9 +25,7 @@ FIT_METHODS = {'Leastsq': 'leastsq', 'Least_squares': 'least_squares',
                'Nelder-Mead': 'nelder', 'SLSQP': 'slsqp'}
 FIT_PARAMS = {'method': 'leastsq', 'fit_negative': False, 'fit_outliers': False,
               'max_ite': 200, 'coef_noise': 1, 'xtol': 1.e-4,
-              'ncpus': 'auto'} # 'ncpus' for apps.tkinter
-
-
+              'ncpus': 'auto'}  # 'ncpus' for apps.tkinter
 
 FITSPY_DIR = Path.home() / "Fitspy"
 SETTINGS_FNAME = FITSPY_DIR / "settings.json"

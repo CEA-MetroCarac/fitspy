@@ -1,6 +1,6 @@
+from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QDialog, QLabel, QVBoxLayout, QFrame
 from PySide6.QtGui import QPixmap
-from PySide6.QtCore import Qt
 
 from fitspy import VERSION
 from fitspy.apps.pyside.utils import get_icon_path
@@ -19,9 +19,7 @@ class About(QDialog):
         # Logo
         logo_label = QLabel()
         logo_pixmap = QPixmap(get_icon_path("logo.png"))
-        scaled_pixmap = logo_pixmap.scaled(
-            256, 256, Qt.KeepAspectRatio, Qt.SmoothTransformation
-        )
+        scaled_pixmap = logo_pixmap.scaled(256, 256, Qt.KeepAspectRatio, Qt.SmoothTransformation)
         logo_label.setPixmap(scaled_pixmap)
         logo_label.setAlignment(Qt.AlignCenter)
         layout.addWidget(logo_label)
@@ -49,8 +47,7 @@ class About(QDialog):
 
         # Description
         description_label = QLabel(
-            "Fitspy is a Python application for processing and analyzing spectral data."
-        )
+            "Fitspy is a Python application for processing and analyzing spectral data.")
         description_label.setWordWrap(True)
         description_label.setAlignment(Qt.AlignCenter)
         layout.addWidget(description_label)
@@ -61,9 +58,7 @@ class About(QDialog):
         layout.addWidget(license_label)
 
         # Website
-        website_label = QLabel(
-            '<a href="https://github.com/CEA-MetroCarac/fitspy">Homepage</a>'
-        )
+        website_label = QLabel('<a href="https://github.com/CEA-MetroCarac/fitspy">Homepage</a>')
         website_label.setOpenExternalLinks(True)
         website_label.setAlignment(Qt.AlignCenter)
         layout.addWidget(website_label)
@@ -77,9 +72,8 @@ class About(QDialog):
         # CEA MetroCarac Logos
         additional_logo_label = QLabel()
         additional_logo_pixmap = QPixmap(get_icon_path("logos.png"))
-        additional_scaled_pixmap = additional_logo_pixmap.scaled(
-            100, 100, Qt.KeepAspectRatio, Qt.SmoothTransformation
-        )
+        additional_scaled_pixmap = additional_logo_pixmap.scaled(100, 100, Qt.KeepAspectRatio,
+                                                                 Qt.SmoothTransformation)
         additional_logo_label.setPixmap(additional_scaled_pixmap)
         additional_logo_label.setAlignment(Qt.AlignCenter)
         layout.addWidget(additional_logo_label)
@@ -89,10 +83,13 @@ class About(QDialog):
         # Acknowledgments
         acknowledgments_text = (
             "This work, carried out on the CEA - Platform for Nanocharacterisation (PFNC), "
-            "was supported by the “Recherche Technologique de Base” program of the French National Research Agency (ANR).\n\n"
+            "was supported by the “Recherche Technologique de Base” program of the French "
+            "National Research Agency (ANR).\n\n"
             "Warm thanks to the <a href='https://joss.theoj.org/'>JOSS</a> reviewers "
-            "(<a href='https://github.com/maurov'>@maurov</a> and <a href='https://github.com/FCMeng'>@FCMeng</a>) "
-            "and editor (<a href='https://github.com/phibeck'>@phibeck</a>) for their contributions to enhancing Fitspy."
+            "(<a href='https://github.com/maurov'>@maurov</a> and <a "
+            "href='https://github.com/FCMeng'>@FCMeng</a>) "
+            "and editor (<a href='https://github.com/phibeck'>@phibeck</a>) for their "
+            "contributions to enhancing Fitspy."
         )
         acknowledgments_label = QLabel()
         acknowledgments_label.setTextFormat(Qt.RichText)
@@ -103,4 +100,3 @@ class About(QDialog):
         layout.addWidget(acknowledgments_label)
 
         self.setLayout(layout)
-

@@ -12,9 +12,9 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
-from .spectrum import Spectrum
-from .utils import fileparts, save_to_json, load_from_json
-from .utils_mp import fit_mp
+from fitspy.core.spectrum import Spectrum
+from fitspy.core.utils import fileparts, save_to_json, load_from_json
+from fitspy.core.utils_mp import fit_mp
 
 
 class Spectra(list):

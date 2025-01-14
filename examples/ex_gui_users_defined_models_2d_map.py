@@ -69,5 +69,5 @@ def ex_gui_users_models(ncpus=1, dirname_res=None, gui='pyside'):
 
 
 if __name__ == "__main__":
-    # ex_gui_users_models_from_py(ncpus=1, gui='pyside')
-    ex_gui_users_models_from_py(ncpus=1, gui='tkinter')
+    ex_gui_users_models_from_py(ncpus=1, gui='pyside')
+    # ex_gui_users_models_from_py(ncpus=1, gui='tkinter')

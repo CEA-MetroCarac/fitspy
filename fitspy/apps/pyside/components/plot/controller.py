@@ -1,8 +1,7 @@
 from PySide6.QtCore import QObject, Signal, QTimer
 
 from fitspy.apps.pyside.utils import to_snake_case
-
-from .model import Model
+from fitspy.apps.pyside.components.plot.model import Model
 
 
 class PlotController(QObject):
@@ -48,37 +47,25 @@ class PlotController(QObject):
         self.toolbar.copy_btn.clicked.connect(self.spectra_plot.copy_figure)
         self.spectra_plot.showToast.connect(self.showToast)
 
-        self.map2d_plot.canvas.mpl_connect(
-            "button_press_event", self.map2d_plot.on_click
-        )
+        self.map2d_plot.canvas.mpl_connect("button_press_event", self.map2d_plot.on_click)
         self.map2d_plot.dock_widget.topLevelChanged.connect(
-            self.map2d_plot.onDockWidgetTopLevelChanged
-        )
+            self.map2d_plot.onDockWidgetTopLevelChanged)
         self.map2d_plot.tab_widget.currentChanged.connect(
-            lambda: self.map2d_plot.onTabWidgetCurrentChanged(
-                self.model.current_map
-            )
-        )
+            lambda: self.map2d_plot.onTabWidgetCurrentChanged(self.model.current_map))
         self.map2d_plot.tab_widget.intensity_tab.range_slider.valueChanged.connect(
-            lambda: self.map2d_plot.onTabWidgetCurrentChanged(
-                self.model.current_map
-            )
-        )
+            lambda: self.map2d_plot.onTabWidgetCurrentChanged(self.model.current_map))
         self.map2d_plot.addMarker.connect(self.set_marker)
 
         for i in range(self.map2d_plot.tab_widget.count()):
             tab = self.map2d_plot.tab_widget.widget(i)
             tab.vrange_slider.valueChanged.connect(
-                lambda: self.map2d_plot.update_plot(self.model.current_map)
-            )
+                lambda: self.map2d_plot.update_plot(self.model.current_map))
             tab.export_btn.clicked.connect(
-                lambda: self.exportCSV.emit(self.model.current_map)
-            )
+                lambda: self.exportCSV.emit(self.model.current_map))
             if hasattr(tab, "combo"):
                 # FIXME FIX MAP2DPLOT MVC
                 tab.combo.currentIndexChanged.connect(
-                    lambda: self.map2d_plot.update_plot(self.model.current_map)
-                )
+                    lambda: self.map2d_plot.update_plot(self.model.current_map))
 
         self.model.showToast.connect(self.showToast)
         self.model.spectrumLoaded.connect(self.spectrumLoaded)
@@ -100,10 +87,9 @@ class PlotController(QObject):
         self.spectra_plot.canvas.mpl_connect("motion_notify_event", self.on_motion)
         self.spectra_plot.canvas.mpl_connect("button_press_event", self.on_spectra_plot_click)
 
-        for label, checkbox in self.view_options.checkboxes.items():
-            checkbox.stateChanged.connect(
-                lambda state, cb=checkbox: self.view_option_changed(cb)
-            )
+        # for label, checkbox in self.view_options.checkboxes.items():
+        for checkbox in self.view_options.checkboxes.values():
+            checkbox.stateChanged.connect(lambda state, cb=checkbox: self.view_option_changed(cb))
 
     # def on_motion(self, event):
     #     ax = self.spectra_plot.ax
@@ -125,9 +111,7 @@ class PlotController(QObject):
 
     def set_marker(self, spectrum_or_fname_or_coords):
         if self.model.current_map:
-            fname = self.model.current_map.set_marker(
-                spectrum_or_fname_or_coords
-            )
+            fname = self.model.current_map.set_marker(spectrum_or_fname_or_coords)
             if fname:
                 self.highlightSpectrum.emit([fname], True)
 
@@ -186,10 +170,7 @@ class PlotController(QObject):
     def on_spectra_plot_click(self, event):
         """Callback for click events on the spectra plot."""
         # Do not add baseline or peak points when pan or zoom are selected
-        if (
-            self.toolbar.mpl_toolbar.is_pan_active()
-            or self.toolbar.mpl_toolbar.is_zoom_active()
-        ):
+        if self.toolbar.mpl_toolbar.is_pan_active() or self.toolbar.mpl_toolbar.is_zoom_active():
             self.consecutive_clicks += 1
             self.click_timer.start()
             if self.consecutive_clicks > self.click_threshold:
@@ -215,7 +196,7 @@ class PlotController(QObject):
             else:
                 self.model.del_baseline_point(x)
 
-        else: # point_type == "peaks":
+        else:  # point_type == "peaks":
             if event.button == 1:
                 self.model.add_peak_point(self.spectra_plot.ax, self.model.peak_model, x, y)
             else:
@@ -235,37 +216,29 @@ class PlotController(QObject):
         self.model.set_baseline_points(points)
 
     def apply_baseline(self):
-        self.colorizeFromFitStatus.emit(
-            {s.fname: None for s in self.model.current_spectra}
-        )
+        self.colorizeFromFitStatus.emit({s.fname: None for s in self.model.current_spectra})
         self.model.preprocess()
         self.update_spectraplot()
 
-    def apply_spectral_range(self, min, max, fnames=None):
+    def apply_spectral_range(self, vmin, vmax, fnames=None):
         if fnames is None:
-            fnames = [
-                spectrum.fname for spectrum in self.model.current_spectra
-            ]
+            fnames = [spectrum.fname for spectrum in self.model.current_spectra]
 
         for fname in fnames:
-            self.model.set_spectrum_attr(fname, "range_min", min)
-            self.model.set_spectrum_attr(fname, "range_max", max)
+            self.model.set_spectrum_attr(fname, "range_min", vmin)
+            self.model.set_spectrum_attr(fname, "range_max", vmax)
 
         self.colorizeFromFitStatus.emit({fname: None for fname in fnames})
         self.model.preprocess()
         self.update_spectraplot()
 
-    def apply_normalization(self, state, min, max):
+    def apply_normalization(self, state, vmin, vmax):
         # for all spectrum
         parent = self.model.parent()
         for spectrum in parent:
             self.model.set_spectrum_attr(spectrum.fname, "normalize", state)
-            self.model.set_spectrum_attr(
-                spectrum.fname, "normalize_range_min", min
-            )
-            self.model.set_spectrum_attr(
-                spectrum.fname, "normalize_range_max", max
-            )
+            self.model.set_spectrum_attr(spectrum.fname, "normalize_range_min", vmin)
+            self.model.set_spectrum_attr(spectrum.fname, "normalize_range_max", vmax)
             self.colorizeFromFitStatus.emit({spectrum.fname: None})
             spectrum.preprocess()
 
@@ -302,11 +275,7 @@ class PlotController(QObject):
 
     def fit(self, model_dict, ncpus):
         fnames = [spectrum.fname for spectrum in self.model.current_spectra]
-        self.model.apply_model(
-            model_dict=model_dict,
-            fnames=fnames,
-            ncpus=ncpus,
-        )
+        self.model.apply_model(model_dict=model_dict, fnames=fnames, ncpus=ncpus)
 
     def save_models(self, fname_json, fnames):
         self.model.save_models(fname_json, fnames)

@@ -8,7 +8,9 @@ import matplotlib.pyplot as plt
 from matplotlib.widgets import RangeSlider
 from parse import Parser
 
-from fitspy.core import Spectra, Spectrum, closest_index, get_2d_map
+from fitspy.core.spectra import Spectra
+from fitspy.core.spectrum import Spectrum
+from fitspy.core.utils import closest_index, get_2d_map
 
 POLICY = "{name}  X={x}  Y={y}"
 PARSER = Parser(POLICY)
@@ -175,13 +177,13 @@ class SpectraMap(Spectra):
 
         # self.xrange = (self[0].x0.min(), self[0].x0.max())
         # self.slider = RangeSlider(self.ax_slider, "X-Range ",
-                                #   self.xrange[0], self.xrange[1],
-                                #   valinit=self.xrange)
+        #   self.xrange[0], self.xrange[1],
+        #   valinit=self.xrange)
         # self.slider.on_changed(self.plot_map_update)
         fig.canvas.draw_idle()
 
     def plot_map_update(self, xrange=None, var='Intensity', label='',
-                   vmin=None, vmax=None, cmap=None):
+                        vmin=None, vmax=None, cmap=None):
         """ 
         Update 'plot_map' with intensity or models parameter passed through
         'var' and 'label', and apply a custom colormap if provided.

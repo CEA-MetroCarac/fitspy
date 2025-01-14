@@ -1,21 +1,12 @@
 from pathlib import Path
 from PySide6.QtCore import QSize, Qt
-from PySide6.QtWidgets import (
-    QMainWindow,
-    QFrame,
-    QGridLayout,
-    QHBoxLayout,
-    QSplitter,
-    QTabWidget,
-    QVBoxLayout,
-    QWidget,
-    QMessageBox,
-)
+from PySide6.QtWidgets import (QMainWindow, QFrame, QGridLayout, QHBoxLayout, QSplitter, QTabWidget,
+                               QVBoxLayout, QWidget, QMessageBox)
 
-from .components import MenuBar, About
-from .components.plot import SpectraPlot, Map2DPlot, Toolbar
-from .components.settings import StatusBox, ModelBuilder, MoreSettings
-from .components.files import MapsList, SpectrumList
+from fitspy.apps.pyside.components import MenuBar, About
+from fitspy.apps.pyside.components.plot import SpectraPlot, Map2DPlot, Toolbar
+from fitspy.apps.pyside.components.settings import StatusBox, ModelBuilder, MoreSettings
+from fitspy.apps.pyside.components.files import MapsList, SpectrumList
 
 project_root = Path(__file__).resolve().parent.parent
 icons = project_root / "resources" / "iconpack"
@@ -133,18 +124,12 @@ class MainView(QMainWindow):
 
         # Set initial sizes for the splitter
         initial_sidebar_width = 170
-        self.main_splitter.setSizes(
-            [self.width() - initial_sidebar_width, initial_sidebar_width]
-        )
+        self.main_splitter.setSizes([self.width() - initial_sidebar_width, initial_sidebar_width])
 
     def closeEvent(self, event):
-        reply = QMessageBox.question(
-            self,
-            'Exit Confirmation',
-            'Are you sure you want to exit ?',
-            QMessageBox.Yes | QMessageBox.No,
-            QMessageBox.No
-        )
+        reply = QMessageBox.question(self, 'Exit Confirmation', 'Are you sure you want to exit ?',
+                                     QMessageBox.Yes | QMessageBox.No,
+                                     QMessageBox.Yes)
 
         if reply == QMessageBox.Yes:
             event.accept()

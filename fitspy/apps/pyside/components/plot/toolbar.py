@@ -1,20 +1,10 @@
+from matplotlib.backends.backend_qtagg import NavigationToolbar2QT
+from matplotlib import cbook
+
 from PySide6.QtCore import QSize, Qt
 from PySide6.QtGui import QIcon, QPixmap, QColor, QKeySequence, QShortcut
-from PySide6.QtWidgets import (
-    QToolButton,
-    QMenu,
-    QCheckBox,
-    QWidgetAction,
-    QRadioButton,
-    QPushButton,
-    QSpacerItem,
-    QSizePolicy,
-    QHBoxLayout,
-    QWidget,
-    QLabel
-)
-from matplotlib.backends.backend_qtagg import NavigationToolbar2QT
-import matplotlib.cbook as cbook
+from PySide6.QtWidgets import (QToolButton, QMenu, QCheckBox, QWidgetAction, QRadioButton,
+                               QPushButton, QSpacerItem, QSizePolicy, QHBoxLayout, QWidget, QLabel)
 
 from fitspy.apps.pyside.utils import to_title_case, get_icon_path
 from fitspy.apps.pyside import DEFAULTS
@@ -42,29 +32,20 @@ class ViewOptions(QToolButton):
             self.checkboxes[text] = checkbox
 
     def get_view_options(self):
-        return {
-            text: checkbox.isChecked()
-            for text, checkbox in self.checkboxes.items()
-        }
+        return {text: checkbox.isChecked() for text, checkbox in self.checkboxes.items()}
 
 
 class CustomNavigationToolbar(NavigationToolbar2QT):
     def _icon(self, name):
         path_regular = cbook._get_data_path("images", name)
-        path_large = path_regular.with_name(
-            path_regular.name.replace(".png", "_large.png")
-        )
+        path_large = path_regular.with_name(path_regular.name.replace(".png", "_large.png"))
         filename = str(path_large if path_large.exists() else path_regular)
 
         pm = QPixmap(filename)
-        pm.setDevicePixelRatio(
-            self.devicePixelRatioF() or 1
-        )  # rarely, devicePixelRatioF=0
+        pm.setDevicePixelRatio(self.devicePixelRatioF() or 1)  # rarely, devicePixelRatioF=0
         if self.palette().color(self.backgroundRole()).value() < 128:
             icon_color = self.palette().color(self.foregroundRole())
-            mask = pm.createMaskFromColor(
-                QColor("black"), Qt.MaskMode.MaskOutColor
-            )
+            mask = pm.createMaskFromColor(QColor("black"), Qt.MaskMode.MaskOutColor)
             pm.fill(icon_color)
             pm.setMask(mask)
         return QIcon(pm)
@@ -106,16 +87,10 @@ class Toolbar(QWidget):
         self.canvas = canvas
 
         # Generate checkboxes dynamically from DEFAULTS
-        checkboxes = [
-            (to_title_case(key), to_title_case(key))
-            for key in DEFAULTS["view_options"].keys()
-        ]  # (text, tooltip)
+        checkboxes = [(to_title_case(key), to_title_case(key))
+                      for key in DEFAULTS["view_options"].keys()]  # (text, tooltip)
 
-        self.view_options = (
-            None
-            if view_options is None
-            else view_options(checkboxes=checkboxes)
-        )
+        self.view_options = (None if view_options is None else view_options(checkboxes=checkboxes))
         self.initUI()
         self.setup_shortcuts()
 
@@ -125,10 +100,8 @@ class Toolbar(QWidget):
         self.baseline_radio = QRadioButton("Baseline points")
         self.peaks_radio = QRadioButton("Peaks points")
         self.highlight_radio = QRadioButton("Spectrum Sel.")
-        self.copy_btn = QPushButton(
-            icon=QIcon(get_icon_path("clipboard-copy.png")),
-            toolTip="Copy Figure to Clipboard",
-        )
+        self.copy_btn = QPushButton(icon=QIcon(get_icon_path("clipboard-copy.png")),
+                                    toolTip="Copy Figure to Clipboard")
         self.copy_btn.setIconSize(QSize(24, 24))
 
         spacer1 = QSpacerItem(0, 0, QSizePolicy.Expanding, QSizePolicy.Minimum)

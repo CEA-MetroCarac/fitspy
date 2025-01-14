@@ -1,15 +1,16 @@
 import os
-from copy import deepcopy
 from threading import Thread
 from collections import defaultdict
 from pathlib import Path
 import numpy as np
 
 from PySide6.QtCore import QObject, Signal
-from PySide6.QtWidgets import QApplication, QFileDialog, QMessageBox
+from PySide6.QtWidgets import QMessageBox
 
 # import fitspy
-from fitspy.core import Spectra, Spectrum, SpectraMap
+from fitspy.core.spectra import Spectra
+from fitspy.core.spectrum import Spectrum
+from fitspy.core.spectra_map import SpectraMap
 from fitspy.core.utils import closest_index, measure_time
 from fitspy.apps.pyside import DEFAULTS
 
@@ -182,10 +183,7 @@ class Model(QObject):
         if first_spectrum.baseline.is_subtracted:
             self.askConfirmation.emit(
                 "This action will reinitialize the spectrum. Continue?",
-                self._add_baseline_point,
-                (x, y),
-                {},
-            )
+                self._add_baseline_point, (x, y), {})
             return
 
         self._add_baseline_point(x, y)
@@ -270,8 +268,8 @@ class Model(QObject):
             for i, line in enumerate(spectrum_lines):
                 if line.contains(event)[0]:
                     if len(self.nearest_lines) < 10:
-                        # CMAP = fitspy.DEFAULTS["peaks_cmap"]
-                        color = CMAP_PEAKS(i % CMAP_PEAKS.N)
+                        cmap_peaks = DEFAULTS['peaks_cmap']
+                        color = cmap_peaks(i % cmap_peaks.N)
                         line.set(linewidth=1, color=color, zorder=1)
                         self.nearest_lines.append(line)
                         fname = self.current_spectra[i].fname
@@ -314,7 +312,8 @@ class Model(QObject):
     #         )
     #     if len(self.lines) > len(self.current_spectra) and event.inaxes == ax:
     #         # self.lines is like so: [spectrum1, ...(peaks...), spectrumN]
-    #         # this func need to only highlight [...(peaks...)] (without first and secondaries spectra)
+    #         # this func need to only highlight [...(peaks...)] (without first and secondaries
+    #         spectra)
     #         num_secondary = len(self.current_spectra) - 1
     #         highlight_lines = (
     #             self.lines[1:]
@@ -338,7 +337,7 @@ class Model(QObject):
             """Annotate figure with fit parameters"""
             spectrum = self.current_spectra[0]
             if self.line_bkg_visible:
-                model = spectrum.bkg_model if i==0 else spectrum.peak_models[i - 1]
+                model = spectrum.bkg_model if i == 0 else spectrum.peak_models[i - 1]
             else:
                 model = spectrum.peak_models[i]
 
@@ -347,9 +346,9 @@ class Model(QObject):
                 text.append(f"{name}: {val['value']:.4g}")
             text = "\n".join(text)
 
-            bbox = dict(facecolor="w", edgecolor=color, boxstyle="round")
+            bbox = {"facecolor": 'w', "edgecolor": color, "boxstyle": 'round'}
             self.tmp.append(ax.annotate(text, xy=(x, y), xycoords="data",
-                            bbox=bbox, verticalalignment="top"))
+                                        bbox=bbox, verticalalignment="top"))
 
         if self.tmp is not None:
             [x.remove() for x in self.tmp]
@@ -507,9 +506,11 @@ class Model(QObject):
     #
     #             # Subtract baseline
     #             if spectrum.baseline.y_eval is not None:
-    #                 if view_options["Subtract bkg+baseline"] and not spectrum.baseline.is_subtracted:
+    #                 if view_options["Subtract bkg+baseline"] and not
+    #                 spectrum.baseline.is_subtracted:
     #                     y -= spectrum.baseline.y_eval
-    #                 elif not view_options["Subtract bkg+baseline"] and spectrum.baseline.is_subtracted:
+    #                 elif not view_options["Subtract bkg+baseline"] and
+    #                 spectrum.baseline.is_subtracted:
     #                     y += spectrum.baseline.y_eval
     #
     #             # Subtract background model
@@ -535,7 +536,7 @@ class Model(QObject):
     #     # refresh the plot
     #     ax.get_figure().canvas.draw_idle()
 
-    @measure_time
+    # @measure_time
     def update_spectraplot(self, ax, view_options):
         """Update the plot with the current spectra"""
         xlim, ylim = self.get_view_limits(ax)
@@ -610,7 +611,7 @@ class Model(QObject):
                     textcoords="offset points",
                     ha="center",
                     size=14,
-                    arrowprops=dict(fc="k", arrowstyle="->"),
+                    arrowprops={"fc": 'k', "arrowstyle": '->'},
                     verticalalignment="bottom",
                     annotation_clip=True,
                 )
@@ -628,9 +629,7 @@ class Model(QObject):
         # refresh the plot
         ax.figure.canvas.draw_idle()
 
-    def apply_model(
-        self, model_dict=None, fnames=None, ncpus=None
-    ):
+    def apply_model(self, model_dict=None, fnames=None, ncpus=None):
         """Apply model to the selected spectra"""
         if model_dict is None:
             self.showToast("error", "No model has been loaded", "")
@@ -651,9 +650,7 @@ class Model(QObject):
         self.progressUpdated.emit(self.spectra, nfiles, ncpus)
         thread.join()
 
-        fit_status = {
-            fname: spectrum.result_fit for fname, spectrum in fit_status.items()
-        }
+        fit_status = {fname: spectrum.result_fit for fname, spectrum in fit_status.items()}
         self.colorizeFromFitStatus.emit(fit_status)
         self.refreshPlot.emit()
 

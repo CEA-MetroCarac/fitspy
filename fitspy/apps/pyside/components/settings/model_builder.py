@@ -1,33 +1,17 @@
-from PySide6.QtCore import Qt, Signal
+from PySide6.QtCore import Qt, Signal, QSize
 from PySide6.QtGui import QIcon
-from PySide6.QtCore import QSize
-from PySide6.QtWidgets import (
-    QRadioButton,
-    QSlider,
-    QVBoxLayout,
-    QHBoxLayout,
-    QScrollArea,
-    QPushButton,
-    QCheckBox,
-    QLabel,
-    QWidget,
-    QComboBox,
-    QSpacerItem,
-    QSizePolicy,
-    QButtonGroup,
-    QTabWidget,
-)
-
-import fitspy
+from PySide6.QtWidgets import (QRadioButton, QSlider, QVBoxLayout, QHBoxLayout, QScrollArea,
+                               QPushButton, QCheckBox, QLabel, QWidget, QComboBox, QSpacerItem,
+                               QSizePolicy, QButtonGroup, QTabWidget)
 from superqt import QCollapsible
 
+from fitspy import PEAK_MODELS, BKG_MODELS
 from fitspy.apps.pyside.utils import get_icon_path
-
-from .custom_spinbox import SpinBox, DoubleSpinBox
-from .dragndrop_combo import DragNDropCombo
-from .peaks_table import PeaksTable
-from .bkg_table import BkgTable
-from .baseline_table import BaselineTable
+from fitspy.apps.pyside.components.settings.custom_spinbox import SpinBox, DoubleSpinBox
+from fitspy.apps.pyside.components.settings.dragndrop_combo import DragNDropCombo
+from fitspy.apps.pyside.components.settings.peaks_table import PeaksTable
+from fitspy.apps.pyside.components.settings.bkg_table import BkgTable
+from fitspy.apps.pyside.components.settings.baseline_table import BaselineTable
 
 
 class SpectralRange(QCollapsible):
@@ -187,18 +171,10 @@ class Fitting(QCollapsible):
         vbox_layout.setContentsMargins(0, 0, 0, 0)
         vbox_layout.setSpacing(2)
 
-        self.peak_model = self.create_section(
-            vbox_layout,
-            "Peak model:",
-            fitspy.PEAK_MODELS.keys(),
-            model_type="peak",
-        )
-        self.bkg_model = self.create_section(
-            vbox_layout,
-            "Background model:",
-            fitspy.BKG_MODELS.keys(),
-            model_type="bkg",
-        )
+        self.peak_model = self.create_section(vbox_layout, "Peak model:",
+                                              PEAK_MODELS.keys(), model_type="peak")
+        self.bkg_model = self.create_section(vbox_layout, "Background model:",
+                                             BKG_MODELS.keys(), model_type="bkg")
 
         self.setContent(content_widget)
         self.expand(animate=False)
@@ -208,10 +184,8 @@ class Fitting(QCollapsible):
         spacer = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
         combo_box = DragNDropCombo()
         combo_box.addItems(items)
-        add = QPushButton(
-            "Add Model", icon=QIcon(get_icon_path("add.png")),
-            toolTip="Load .txt/.py file and add it to the list of models",
-        )
+        add = QPushButton("Add Model", icon=QIcon(get_icon_path("add.png")),
+                          toolTip="Load .txt/.py file and add it to the list of models")
 
         if model_type == "peak":
             add.clicked.connect(lambda: self.loadPeakModel.emit(None))
@@ -237,12 +211,12 @@ class Fitting(QCollapsible):
         """Refresh the items in peak_model and bkg_model combo boxes."""
         self.peak_model.blockSignals(True)
         self.peak_model.clear()
-        self.peak_model.addItems(fitspy.PEAK_MODELS.keys())
+        self.peak_model.addItems(PEAK_MODELS.keys())
         self.peak_model.blockSignals(False)
 
         self.bkg_model.blockSignals(True)
         self.bkg_model.clear()
-        self.bkg_model.addItems(fitspy.BKG_MODELS.keys())
+        self.bkg_model.addItems(BKG_MODELS.keys())
         self.bkg_model.blockSignals(False)
 
 
@@ -280,11 +254,9 @@ class ModelSettings(QWidget):
         HLayout.setSpacing(0)
         HLayout.setContentsMargins(0, 0, 0, 0)
 
-        self.save = QPushButton(
-            text="Save Model(s)",
-            icon=QIcon(get_icon_path("save.png")),
-            toolTip="Save selected fit models in a JSON file",
-        )
+        self.save = QPushButton(text="Save Model(s)",
+                                icon=QIcon(get_icon_path("save.png")),
+                                toolTip="Save selected fit models in a JSON file")
         self.save.setIconSize(QSize(20, 20))
 
         self.fit = QPushButton("Fit")
@@ -314,30 +286,22 @@ class ModelSelector(QWidget):
 
         self.combo_box = DragNDropCombo()
 
-        self.preview = QCheckBox(
-            "Preview", toolTip="Preview the selected model without applying it"
-        )
+        self.preview = QCheckBox("Preview",
+                                 toolTip="Preview the selected model without applying it")
 
-        self.replay = QPushButton(
-            "Replay", icon=QIcon(get_icon_path("replay.png")),
-            toolTip="Reload all models to their specified filename",
-        )
+        self.replay = QPushButton("Replay", icon=QIcon(get_icon_path("replay.png")),
+                                  toolTip="Reload all models to their specified filename")
         self.replay.setStyleSheet("""
             QPushButton {
                 padding: 4px 2px;
             }
         """)
 
-        self.apply = QPushButton(
-            "Apply Model",
-            toolTip="Apply the first model of file to selection",
-            icon=QIcon(get_icon_path("apply.png")),
-        )
+        self.apply = QPushButton("Apply Model", icon=QIcon(get_icon_path("apply.png")),
+                                 toolTip="Apply the first model of file to selection")
 
-        self.add = QPushButton(
-            "Add Model", icon=QIcon(get_icon_path("add.png")),
-            toolTip="Load .json file and add it to the list of models",
-        )
+        self.add = QPushButton("Add Model", icon=QIcon(get_icon_path("add.png")),
+                               toolTip="Load .json file and add it to the list of models")
 
         h_layout.addWidget(self.combo_box)
         h_layout.addWidget(self.preview)
@@ -406,12 +370,8 @@ class ModelBuilder(QWidget):
 
     def update_model(self, model):
         # Spectral range
-        self.model_settings.spectral_range.range_min.setValue(
-            model.get("range_min", 0)
-        )
-        self.model_settings.spectral_range.range_max.setValue(
-            model.get("range_max", 0)
-        )
+        self.model_settings.spectral_range.range_min.setValue(model.get("range_min", 0))
+        self.model_settings.spectral_range.range_max.setValue(model.get("range_max", 0))
 
         # Baseline
         baseline = self.model_settings.baseline
