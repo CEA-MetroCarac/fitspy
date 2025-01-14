@@ -1,7 +1,12 @@
+import sys
 import pytest
+from pathlib import Path
 from pytest import approx
 
-from examples.ex_gui_apply_model_to_all_new_spectra import \
+examples_path = Path(__file__).resolve().parent.parent / 'examples'
+sys.path.insert(0, str(examples_path))
+
+from ex_gui_apply_model_to_all_new_spectra import \
     gui_apply_model_to_all
 from utils import extract_results, display_is_ok
 

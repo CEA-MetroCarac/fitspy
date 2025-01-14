@@ -1,7 +1,12 @@
+import sys
 import pytest
+from pathlib import Path
 from pytest import approx
 
-from examples.ex_gui_2d_maps import gui_2d_maps
+examples_path = Path(__file__).resolve().parent.parent / 'examples'
+sys.path.insert(0, str(examples_path))
+
+from ex_gui_2d_maps import gui_2d_maps
 from utils import extract_results, display_is_ok
 
 

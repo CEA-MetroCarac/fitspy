@@ -1,40 +1,56 @@
 """
 Example of 2D maps loading
 """
-import os
-import tkinter as tk
+import sys
 from pathlib import Path
+from PySide6.QtWidgets import QApplication
+import tkinter as tk
 
-from fitspy.app.gui import Appli
+from fitspy.apps.pyside.main import Appli
+from fitspy.apps.tkinter.gui import Appli as Appli_tk
 
 DATA = Path(__file__).parent / "data"
 
 
-def gui_2d_maps(dirname_res=None):
+def gui_2d_maps(dirname_res=None, gui='pyside'):
     """ Example of 2D maps loading """
-    root = tk.Tk()
-    appli = Appli(root)
+    assert gui in ['pyside', 'tkinter']
 
-    # specify the dirname to work with
-    str_map = os.path.join(DATA, '2D_maps', 'ordered_map.txt')
-    unstr_map = os.path.join(DATA, '2D_maps', 'unordered_map.txt')
-    appli.add_items(fnames=[str_map, unstr_map])
+    if gui == 'pyside':
+        qapp = QApplication([])
+        qapp.setStyle("Fusion")
+        appli = Appli()
+    else:
+        root = tk.Tk()
+        appli = Appli_tk(root)
 
-    # appli.outliers_calculation() # spectra from the maps differ: DO NOT APPLY
+    # specify the dirname and the files to work with
+    dirname = DATA / '2D_maps'
+    ordered_map = dirname / 'ordered_map.txt'
+    unordered_map = dirname / 'unordered_map.txt'
+    appli.add_items(fnames=[ordered_map, unordered_map])
 
-    # automatic evaluation on the first 5 spectra
-    appli.auto_eval(model_name='LorentzianAsym',
-                    fnames=appli.spectra.fnames[:5])
-    # appli.auto_eval_all(model_name='LorentzianAsym') # 4220 spectra to handle
+    # appli.outliers_calculation()
+
+    # auto-evaluation on the first 5 of 1520 spectra belonging to 'ordered_map.txt'
+    appli.auto_eval(model_name='LorentzianAsym', fnames=appli.fnames[:5])
 
     # save and destroy for pytest
     if dirname_res is not None:
         appli.save_results(dirname_res=dirname_res)
-        root.destroy()
+        if gui == 'pyside':
+            qapp.quit()
+        else:
+            root.destroy()
         return
 
-    root.mainloop()
+    if gui == 'pyside':
+        appli.view.show()
+        sys.exit(qapp.exec())
+    else:
+        root.mainloop()
 
 
 if __name__ == "__main__":
-    gui_2d_maps()
+    gui_2d_maps(gui='pyside')
+    # gui_2d_maps(gui='tkinter')

@@ -1,10 +1,13 @@
+import sys
 import pytest
+from pathlib import Path
 from pytest import approx
 
-from examples.ex_gui_users_defined_models_2d_map import \
-    ex_gui_users_models_from_txt
-from examples.ex_gui_users_defined_models_2d_map import \
-    ex_gui_users_models_from_py
+examples_path = Path(__file__).resolve().parent.parent / 'examples'
+sys.path.insert(0, str(examples_path))
+
+from ex_gui_users_defined_models_2d_map import \
+    ex_gui_users_models_from_txt, ex_gui_users_models_from_py
 from utils import extract_results, display_is_ok
 
 REFS = [[520.1831869201959, 914.2251483716625, 9.564640452707362],
