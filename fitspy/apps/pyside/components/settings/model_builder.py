@@ -261,8 +261,8 @@ class ModelSettings(QWidget):
 
         self.fit = QPushButton("Fit")
 
-        HLayout.addWidget(self.save)
         HLayout.addWidget(self.fit)
+        HLayout.addWidget(self.save)
 
         main_layout.addLayout(HLayout)
 
@@ -365,8 +365,8 @@ class ModelBuilder(QWidget):
         vbox_layout.setStretch(0, 1)
         tab_content.setLayout(vbox_layout)
 
-        self.tab_widget.addTab(tab_content, "Peaks Table")
-        self.tab_widget.addTab(self.bkg_table, "Bkg Model")
+        self.tab_widget.addTab(tab_content, "Peaks")
+        self.tab_widget.addTab(self.bkg_table, "Background")
 
     def update_model(self, model):
         # Spectral range
