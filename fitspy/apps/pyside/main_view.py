@@ -32,25 +32,25 @@ class MainView(QMainWindow):
         self.gridLayout = QGridLayout(self.central)
         self.gridLayout.setContentsMargins(0, 0, 0, 0)
 
-        self.init_splitter()
+        # self.init_splitter()
         self.init_sidebar()
 
-        self.gridLayout.addWidget(self.main_splitter, 1, 3, 1, 1)
+        self.gridLayout.addWidget(self.main_splitter)
 
         self.verticalLayout.addWidget(self.central)
         self.setCentralWidget(self.centralwidget)
 
-    def init_splitter(self):
-        self.splitter = QSplitter(Qt.Vertical)
-
-        self.init_upper_frame()
-        self.init_bottom_widget()
-
-        self.splitter.addWidget(self.upper_frame)
-        self.splitter.addWidget(self.bottom_widget)
-
-        self.main_splitter = QSplitter(Qt.Horizontal)
-        self.main_splitter.addWidget(self.splitter)
+    # def init_splitter(self):
+    #     self.splitter = QSplitter(Qt.Vertical)
+    #
+    #     self.init_upper_frame()
+    #     self.init_bottom_widget()
+    #
+    #     self.splitter.addWidget(self.upper_frame)
+    #     self.splitter.addWidget(self.bottom_widget)
+    #
+    #     self.main_splitter = QSplitter(Qt.Horizontal)
+    #     self.main_splitter.addWidget(self.splitter)
 
     def init_upper_frame(self):
         self.upper_frame = QFrame()
@@ -74,7 +74,7 @@ class MainView(QMainWindow):
         self.tabWidget_2.setEnabled(True)
 
         self.fit_model_editor = ModelBuilder()
-        self.tabWidget_2.addTab(self.fit_model_editor, "Fit Model")
+        self.tabWidget_2.addTab(self.fit_model_editor, "Model")
 
         self.more_settings = MoreSettings()
         self.tabWidget_2.addTab(self.more_settings, "More settings")
@@ -118,13 +118,24 @@ class MainView(QMainWindow):
         self.sidebar_layout.addWidget(self.spectrum_list, 6)
         self.sidebar_layout.addWidget(self.statusBox, 0)
 
+        self.splitter = QSplitter(Qt.Vertical)
+
+        self.main_splitter = QSplitter(Qt.Horizontal)
         self.main_splitter.addWidget(self.sidebar)
-        self.main_splitter.setStretchFactor(0, 1)
-        self.main_splitter.setStretchFactor(1, 0)
+        self.main_splitter.addWidget(self.splitter)
 
         # Set initial sizes for the splitter
         initial_sidebar_width = 170
-        self.main_splitter.setSizes([self.width() - initial_sidebar_width, initial_sidebar_width])
+        self.main_splitter.setSizes([initial_sidebar_width, self.width() - initial_sidebar_width])
+
+        self.init_upper_frame()
+        self.init_bottom_widget()
+
+        self.splitter.addWidget(self.upper_frame)
+        self.splitter.addWidget(self.bottom_widget)
+
+        self.main_splitter.setStretchFactor(0, 1)
+        self.main_splitter.setStretchFactor(1, 0)
 
     def closeEvent(self, event):
         reply = QMessageBox.question(self, 'Exit Confirmation', 'Are you sure you want to exit ?',
