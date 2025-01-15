@@ -172,14 +172,16 @@ class SpectraMap(Spectra):
             range_slider.setRange(_min, _max)
             range_slider.setValue((_min, _max))
             range_slider.blockSignals(False)
+        else:
+            fig.subplots_adjust(top=0.92)
+            self.ax_slider = fig.add_axes([0.2, 0.92, 0.4, 0.05])
+            self.cbar = plt.colorbar(self.img, ax=self.ax)
+            self.xrange = (self[0].x0.min(), self[0].x0.max())
+            self.slider = RangeSlider(self.ax_slider, "X-Range ",
+                                      self.xrange[0], self.xrange[1],
+                                      valinit=self.xrange)
+            self.slider.on_changed(self.plot_map_update)
 
-        # self.cbar = plt.colorbar(self.img, ax=self.ax)
-
-        # self.xrange = (self[0].x0.min(), self[0].x0.max())
-        # self.slider = RangeSlider(self.ax_slider, "X-Range ",
-        #   self.xrange[0], self.xrange[1],
-        #   valinit=self.xrange)
-        # self.slider.on_changed(self.plot_map_update)
         fig.canvas.draw_idle()
 
     def plot_map_update(self, xrange=None, var='Intensity', label='',
@@ -211,13 +213,13 @@ class SpectraMap(Spectra):
 
         if cmap is not None:
             self.img.set_cmap(cmap)
-
         if vmin is not None:
             self.img.norm.vmin = vmin
         if vmax is not None:
             self.img.norm.vmax = vmax
+        if self.cbar is not None:
+            self.cbar.update_normal(self.img)
 
-        # self.cbar.update_normal(self.img)
         self.ax.get_figure().canvas.draw_idle()
 
     # def remove_marker(self, canvas=None):
