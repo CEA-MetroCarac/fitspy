@@ -579,14 +579,17 @@ class Model(QObject):
                 subtract_bkg=view_options["Subtract bkg+baseline"],
                 kwargs=None if first_spectrum else {'c': 'k', 'lw': 0.1, 'zorder': 0},
                 cmap_peaks=cmap_peaks)
-            if first_spectrum and view_options.get("Legend", False):
-                ax.legend(loc=1)
+            if first_spectrum:
+                if view_options.get("Residual", False):
+                    spectrum.plot_residual(ax)
+                if view_options.get("Legend", False):
+                    ax.legend(loc=1)
             first_spectrum = False
 
         spectrum = self.current_spectra[0]
         self.line_bkg_visible = view_options.get("Background", False) and spectrum.bkg_model
 
-        # Peak labels
+        # Add Peak labels annotations
         if view_options.get("Peak labels", True):
             dy_label = LABEL_OFFSET_RATIO * spectrum.y.max()
             annotation_y = []

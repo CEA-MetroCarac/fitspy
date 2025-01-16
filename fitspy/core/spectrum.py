@@ -783,7 +783,8 @@ class Spectrum:
                 bkg_model = self.bkg_model
                 y_fit += bkg_model.eval(bkg_model.make_params(), x=x)
             residual = y - y_fit
-        ax.plot(x, factor * residual, 'r', label=f"residual (x{factor})")
+        label = "residual" if factor == 1 else f"residual (x{factor})"
+        ax.plot(x, factor * residual, 'r', label=label)
         ax.legend()
 
     def save_params(self, dirname_params):
