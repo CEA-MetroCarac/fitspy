@@ -265,7 +265,10 @@ class Model(QObject):
             title = None
             self.nearest_lines, fnames, labels = [], [], []
             num_secondary = len(self.current_spectra) - 1
-            spectrum_lines = [self.lines[0]] + self.lines[-num_secondary:]
+            # spectrum_lines = [self.lines[0]] + self.lines[-num_secondary:]
+            spectrum_lines = [self.lines[0]]
+            if num_secondary > 0:
+                spectrum_lines += self.lines[-num_secondary:]
 
             for i, line in enumerate(spectrum_lines):
                 if line.contains(event)[0]:
