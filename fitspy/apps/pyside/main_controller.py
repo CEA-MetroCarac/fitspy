@@ -365,9 +365,8 @@ class MainController(QObject):
 
         directory = dirname_res or QFileDialog.getExistingDirectory(None, "Select Save Directory")
         if directory:
-            spectra = self.plot_controller.model.parent()
-            spectra.save_results(directory, selected_items)
-            self.show_toast("SUCCESS", "Saved", f"Results saved to {directory}")
+            self.plot_controller.model.spectra.save_results(directory, selected_items)
+            self.show_toast("SUCCESS", "Saved", f"Results saved into {directory}")
 
     def save_figures(self, dirname_fig=None, fnames=None):
         list_widget = self.view.spectrum_list.list
@@ -378,9 +377,8 @@ class MainController(QObject):
 
         directory = dirname_fig or QFileDialog.getExistingDirectory(None, "Select Save Directory")
         if directory:
-            spectra = self.plot_controller.model.parent()
-            spectra.save_figures(directory, selected_items)
-            self.show_toast("SUCCESS", "Saved", f"Figures saved to {directory}")
+            self.plot_controller.model.spectra.save_results(directory, selected_items)
+            self.show_toast("SUCCESS", "Saved", f"Figures saved into {directory}")
 
     def open_manual(self):
         url = QUrl("https://cea-metrocarac.github.io/fitspy/doc/index.html")

@@ -108,7 +108,7 @@ class Spectra(list):
         if fnames is None:
             fnames = self.fnames
 
-        from fitspy.core import SpectraMap
+        from fitspy.core.spectra_map import SpectraMap
 
         results = []
         for fname in fnames:
