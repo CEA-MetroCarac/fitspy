@@ -35,6 +35,8 @@ Therefore, the features of `Fitspy` make it an ideal tool for quickly fitting a 
 Install and launching
 ---------------------
 
+.. note::
+    Since its 2025.1 version, Fitspy can be launched using two interfaces: one corresponds to the original GUI built with **Tkinter**, and the other, more recent one, developed using **PySide6** with more 'flexibility'. As of 2025, both GUIs offer nearly identical features, but future efforts regarding fixes and updates will primarily focus on the PySide GUI.
 
 if python is not already installed in your PC:
 
@@ -47,7 +49,8 @@ in a command prompt (like **cmd** or **powershell**, accessible from the Windows
 * For a **basic install/upgrade** and launching::
 
     pip install fitspy --upgrade
-    fitspy
+    fitspy # advanced GUI based on PySide
+    fitspy_tk # primary GUI based on Tkinter
 
 *(If an error message is returned upon executing the first line, it likely indicates that python.exe is not included in your PATHs. In this case, (re)launch your python.exe and choose "modify" to select* **Add python.exe to PATH**)
 
@@ -55,7 +58,8 @@ in a command prompt (like **cmd** or **powershell**, accessible from the Windows
 * For a **full install** with data sets, examples and tests (requiring `git <https://git-scm.com/downloads>`_)::
 
     git clone https://github.com/CEA-MetroCarac/fitspy.git
-    fitspy
+    fitspy # advanced GUI based on PySide
+    fitspy_tk # primary GUI based on Tkinter
 
     # examples execution
     cd fitspy/examples
@@ -74,7 +78,34 @@ in a command prompt (like **cmd** or **powershell**, accessible from the Windows
 Quick start
 -----------
 
-Once the `Fitspy` GUI has opened, from top to bottom of the right panel, the strict minimum operations (in red) for a spectrum fitting consists of:
+Once the `Fitspy` GUI has opened,
+
+
+**PySide GUI :**
+
+from right to left, the strict minimum operations (in red) for a spectrum fitting consists of:
+
+- (`1 <files_selection.html>`_) **Select file(s) using drag an drop mode**
+- (`2 <fitting.html>`_) **Select a** :code:`Peak model`
+- (`3 <fitting.html>`_) **After clicking on** :code:`Peaks points`, **Select them on the main figure** *(with left/right click on the figure to add/delete a peak point)*
+- Repeat the last two actions as needed
+- (`5 <fitting.html>`_) :code:`Fit` **the spectrum/spectra selected in the files selector widget**
+- (`10 <fitting.html>`_) **Save results** (**fitted parameters** and **statistics**)
+
+.. figure::  ../_static/pyside/workflow.png
+   :align:   center
+   :width:   300
+
+.. raw:: html
+
+   <br>
+
+*(The entire workflow is described* `here <workflow.html>`_ *).*
+
+
+**Tkinter GUI :**
+
+from top to bottom of the right panel, the strict minimum operations (in red) for a spectrum fitting consists of:
 
 - (`1 <files_selection.html>`_) **Select file(s) from** :code:`Select Files`  **or**  :code:`Select Dir`
 - (`5 <fitting.html>`_) **Click on the** :code:`Fitting` **panel to activate it (if not)**
@@ -84,7 +115,7 @@ Once the `Fitspy` GUI has opened, from top to bottom of the right panel, the str
 - (`10 <fitting.html>`_) :code:`Fit Selec.` **the spectrum/spectra selected in the files selector widget or** :code:`Fit All` **the spectra**
 - (`11 <fitting.html>`_) :code:`Save Results` (**fitted parameters** and **statistics**)
 
-.. figure::  ../_static/workflow.png
+.. figure::  ../_static/tkinter/workflow.png
    :align:   center
    :width:   300
 

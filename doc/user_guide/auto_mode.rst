@@ -3,7 +3,7 @@ Auto mode
 
 An automatic mode for defining baseline and peak models is proposed in Fitspy. This can help in certain cases but will never override the acuity of a model manually defined by the user.
 
-:code:`Auto eval` mode in the GUI corresponds to the successive execution of the :code:`Semi-Auto` option for **Baseline** (see `here <baseline.html?semi-automatic-approach=#semi-automatic-approach>`_) followed by the :code:`Auto` mode for **Fitting**
+:code:`Auto eval` mode (in the Tkinter GUI only by using the python scripting) corresponds to the successive execution of the :code:`Semi-Auto` option for **Baseline** (see `here <baseline.html?semi-automatic-approach=#semi-automatic-approach>`_) followed by the :code:`Auto` mode for **Fitting**
 
 
 The :code:`Auto` mode in **Fitting** involves an iterative process of residual minimization.

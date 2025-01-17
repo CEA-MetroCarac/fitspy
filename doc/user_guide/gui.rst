@@ -1,12 +1,15 @@
 GUI description
 ===============
 
+.. note::
+    As of 2025, both GUIs (Tkinter and PySide) offer nearly identical features. Consequently, the descriptions below primarily refer to the Tkinter GUI. Any specificities of the PySide GUI will be detailed where applicable.
+
 Files selection
 ---------------
 
 The files selection is realized with the following widget:
 
-.. figure::  ../_static/files_selector.png
+.. figure::  ../_static/tkinter/files_selector.png
    :align:   center
 
 .. raw:: html
@@ -18,10 +21,10 @@ The files selection is realized with the following widget:
 **2D-map**: Once loaded in the GUI, if `Fitspy` detects that a '.txt' file corresponds to a 2D-map input data file (via the tabulation :code:`\t` as first character), this one is expanded.
 That is to say that each spectrum of the 2D-map appears individually in the files selection widget according to the 2D-map file basename and the (X) and (Y) spectrum coordinates in the grid as prefix::
 
-    {basename} X={X} Y={Y}
+    {basename}  X={X} Y={Y}
 
 
-A  2D-map figure is also opened to facilitate both the spectrum selection and the interaction with the files selector widget.
+A  2D-map figure is also opened to facilitate both the spectrum selection and the interaction with the files selector widget. Additionally, it allows to see the fit parameters in 2D displaying.
 
 
 .. figure::  ../_static/2d-map.png
@@ -32,10 +35,10 @@ A  2D-map figure is also opened to facilitate both the spectrum selection and th
 
 
 
-Global actions
---------------
+Global actions (Tkinter)
+------------------------
 
-.. figure::  ../_static/global_actions.png
+.. figure::  ../_static/tkinter/global_actions.png
    :align:   center
 
 .. raw:: html
@@ -60,7 +63,7 @@ Global actions
 Overall settings
 ----------------
 
-.. figure::  ../_static/overall_settings.png
+.. figure::  ../_static/tkinter/overall_settings.png
    :align:   center
 
 .. raw:: html
@@ -76,11 +79,14 @@ Overall settings
 This line is defined as corresponding to the envelope of the spectra multiplied by the :code:`coef` factor.
 Consequently, the spectra loaded at the time of defining this line must be consistent with each other. (See `here <fitting.html#outliers>`_ for more details).
 
+.. note::
+    In the **PySide GUI**, the outliers envelop parameters settings and calculation are perform from the :code:`More settings` panel
+
 
 Baseline
 --------
 
-.. figure::  ../_static/baseline.png
+.. figure::  ../_static/tkinter/baseline.png
    :align:   center
 
 .. raw:: html
@@ -106,7 +112,7 @@ It's important to note that a '*n*'-order polynomial approximation requires at l
 Normalization
 -------------
 
-.. figure::  ../_static/normalization.png
+.. figure::  ../_static/tkinter/normalization.png
    :align:   center
 
 .. raw:: html
@@ -121,7 +127,7 @@ An **optional** spectra normalization is offered and relies on the two following
 Fitting
 -------
 
-.. figure::  ../_static/fitting.png
+.. figure::  ../_static/tkinter/fitting.png
    :align:   center
 
 .. raw:: html
@@ -136,9 +142,9 @@ Fitting
 For manual peaks positioning by the user, each :code:`Peak model` (to be chosen between **Gaussian**, **Lorentzian**, **Asymetric Gaussian**, **Asymetric Lorentzian**, **Pseudovoigt** or as a **user-defined model**, see `here <peak_models.html>`_) is applied when left-clicking in the figure. (A right-click in the figure removes the nearest peak).
 
 
-:code:`Fit Selec.` and :code:`Fit All` perform the fitting based on the conditions defined in the :code:`Fit Settings` widget:
+:code:`Fit Selec.` and :code:`Fit All` perform the fitting based on the conditions defined in the :code:`Fit Settings` widget for the **Tkinter GUI** and in the :code:`More Settings` for the **PySide GUI**:
 
-.. figure::  ../_static/fit_settings.png
+.. figure::  ../_static/tkinter/fit_settings.png
    :align:   center
 
 .. raw:: html
@@ -157,7 +163,7 @@ Spectrum fit success or failure (related to reaching a fit convergence criterion
 The :code:`Parameters` widget can be used to interact with each of the spectra (deleting or labeling peak models, redefining models, ...).
 By default, all parameters are considered as free but may be fixed during the fitting using the right-handed selection boxes.
 
-.. figure::  ../_static/parameters.png
+.. figure::  ../_static/tkinter/parameters.png
    :align:   center
 
 .. raw:: html
@@ -171,7 +177,7 @@ Bounds and fit constraints can be addressed by activating the dedicated selector
 **Constraints** relies on literal expressions that can be parameters-dependent, using the prefix defined in the 2nd column.
 The example below shows how to constrain the second fitted peak to be half the amplitude of the first one.
 
-.. figure::  ../_static/fit_constraint.png
+.. figure::  ../_static/tkinter/fit_constraint.png
    :align:   center
 
 .. raw:: html
@@ -181,10 +187,10 @@ The example below shows how to constrain the second fitted peak to be half the a
 :code:`Save Results` consists of saving the fitted parameters and related statistics in a folder predefined by the user, respectively in a .csv and a .txt file using the spectrum file basename (See `here <outputs.html#fit-results>`_  for more details).
 
 
-Models
-------
+Models (Tkinter GUI)
+--------------------
 
-.. figure::  ../_static/models.png
+.. figure::  ../_static/tkinter/models.png
    :align:   center
 
 .. raw:: html
@@ -202,6 +208,10 @@ This implies that all the files defined in the *.json*  are reachable when reloa
 
 :code:`Apply to Sel.` or :code:`Apply to All` allows applying **strictly** *(ie without considering the parameters defined in the GUI)* the loaded model to the spectra selected in the files selection widget, or to all the spectra (resp.).
 
+Models (PySide GUI)
+-------------------
+
+TODO
 
 Main Figure
 -----------
@@ -209,8 +219,7 @@ Main Figure
 The main Figure widget displays the loaded spectra and allows manipulation of baseline and peaks models with the mouse.
 
 The standard navigation toolbar from *Matplotlib* allows panning, zooming and saving the current figure.
-The function associated with the |home|
-icon has been reconfigured to allow the figure rescaling on the current displayed spectrum.
+In the Tkinter GUI, the function associated with the |home| icon has been reconfigured to allow the figure rescaling on the current displayed spectrum.
 
 .. |home| image:: ../_static/home.png
 
@@ -221,9 +230,9 @@ icon has been reconfigured to allow the figure rescaling on the current displaye
 
    <br>
 
-:code:`Figure settings` (at the top) allows personalizing plots displays, figure title, and axis labels.
+:code:`Figure settings` (at the top for the **Tkinter GUI**) and :code:`View Options` (below the figure for the **PySide GUI**) allow personalizing plots displays, figure title, and axis labels (TO ADAPT for PySide).
 
-.. figure::  ../_static/figure_settings.png
+.. figure::  ../_static/tkinter/figure_settings.png
    :align:   center
 
 .. raw:: html
