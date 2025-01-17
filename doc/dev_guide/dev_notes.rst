@@ -42,9 +42,11 @@ TODO List
 ---------
 
 TODO Base:
+    - [ ] when changing a component of a fitted spectrum (peak, baseline, ...) 'reset' the spectrum color status
+    - [ ] Revisit the slider to make it visible (particularly in the light mode)
     - [x] Add None in Baseline Options
-    - [ ] Write a submodule that provides all functions necessary to manipulate GUI via code only. + Rewrite examples to use this submodule
-    - [ ] Update documentation
+    - [x] Write a submodule that provides all functions necessary to manipulate GUI via code only. + Rewrite examples to use this submodule
+    - [/] Update documentation (partially done) - adapt the doc for Models and Main Figure in the GUI section
     - [x] Add a "Highlight spectra" click mode
     - [x] restore spectrum colorize_from_fit_status
     - [x] Implement peaks model + bkg model load button
@@ -86,14 +88,14 @@ TODO Opti:
 TODO Others:
     - [x] restore & update examples/ + tests/
     - [ ] Defaults values for peaks (and maybe more) may be irrelevant depending on data's nature
-    - [ ] Inconsitencies in args names fnames vs files
+    - [ ] Inconsistencies in args names fnames vs files
     - [ ] Explicit types in functions might be useful for maintainers(e.g. `def func(arg: type) -> type: <https://github.com/CEA-MetroCarac/fitspy/blob/cfee0e6c881045447feed2105ec79c208b8d6a5a/fitspy/app/components/settings/controller.py#L183C9-L183C20>`_)
-    - [ ] Change peak table colum _vary to _fixed
+    - [x] Change peak table colum _vary to _fixed
     - [ ] Why using np.float64 for baseline points ??
     - [ ] update README.md
     - [ ] update CITATION.cff
-    - [ ] add github workflows back
-    - [ ] update paper/
+    - [x] add github workflows back
+    - [x] update paper/
 
 TODO Nice to Have:
     - [ ] Fitspy Icon for taskbar
