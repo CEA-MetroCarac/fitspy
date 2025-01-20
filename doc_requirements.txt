@@ -1,6 +1,7 @@
 sphinx<7
 sphinx-rtd-theme
 sphinx-mdinclude
+sphinx-copybutton
 nbsphinx
 nbsphinx-link
 ipython
