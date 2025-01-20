@@ -60,6 +60,18 @@ class Model(QObject):
     # def parent(self):
     #     return self.current_map or self.spectra
 
+    def load_spectra(self, models):
+        """ Load spectra from 'models' related to a .json file """
+        self._spectra = Spectra.load(dict_spectra=models, preprocess=True)
+
+        for spectrum in self.spectra:
+            self.spectrumLoaded.emit(spectrum.fname)
+
+        for spectra_map in self.spectra.spectra_maps:
+            fname = spectra_map.fname
+            fnames = [spectrum.fname for spectrum in spectra_map]
+            self.decodedSpectraMap.emit(fname, fnames)
+
     def load_spectrum(self, fnames):
         """Load the given list of file names as spectra"""
         for fname in fnames:

@@ -24,6 +24,9 @@ class MenuBar(QToolBar):
                                   shortcut="Ctrl+O")
         self.actionSave = QAction(self, icon=QIcon(get_icon_path("save.png")),
                                   toolTip="Save current work (Ctrl+S)", shortcut="Ctrl+S")
+        self.actionSaveData = QAction(self, icon=QIcon(get_icon_path("save_data.png")),
+                                      toolTip="Save current work with data (Ctrl+Shift+S)",
+                                      shortcut="Ctrl+Shift+S")
         self.actionClearEnv = QAction(self, icon=QIcon(get_icon_path("clear.png")),
                                       toolTip="Clear the environment (Ctrl+Shift+C)",
                                       shortcut="Ctrl+Shift+C")
@@ -39,6 +42,7 @@ class MenuBar(QToolBar):
         actions = [
             self.actionOpen,
             self.actionSave,
+            self.actionSaveData,
             self.actionClearEnv,
             self.actionRestoreDefaults,
             None,  # Separator

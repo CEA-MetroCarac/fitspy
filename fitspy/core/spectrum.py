@@ -176,6 +176,11 @@ class Spectrum:
                 else:
                     setattr(self, key, model_dict[key])
 
+        # to ensure good data formatting and typing
+        self.fname = os.path.normpath(self.fname)
+        self.x0 = np.array(self.x0) if self.x0 is not None else None
+        self.y0 = np.array(self.y0) if self.y0 is not None else None
+
         if 'peak_models' in keys:
             self.peak_index = itertools.count(start=1)
             self.peak_models = []
@@ -820,7 +825,7 @@ class Spectrum:
             with open(fname_stats, 'w') as fid:
                 fid.write(fit_report(self.result_fit))
 
-    def save(self, fname_json=None):
+    def save(self, fname_json=None, save_data=False):
         """ Return a 'model_dict' dictionary from the spectrum attributes and
             Save it if a 'fname_json' is given """
 
@@ -831,6 +836,10 @@ class Spectrum:
         for key, val in vars(self).items():
             if key not in excluded_keys:
                 model_dict[key] = val
+
+        if save_data:
+            model_dict['x0'] = list(self.x0)
+            model_dict['y0'] = list(self.y0)
 
         model_dict['baseline'] = dict(vars(self.baseline).items())
 

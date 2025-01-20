@@ -6,6 +6,7 @@ from fitspy.core.utils import get_dim, load_from_json
 class Model(QObject):
     spectrumListChanged = Signal(object)
     mapsListChanged = Signal()
+    loadSpectra = Signal(object)
     loadSpectraMap = Signal(str)
     loadSpectrum = Signal(list)
     delSpectrum = Signal(dict)
@@ -117,54 +118,39 @@ class Model(QObject):
     #     return files
 
     def load_saved_work(self, files):
-        """Load saved work if a .fspy file is present."""
+        """ Load saved work from a .json file """
 
-        def handle_loading(models):
+        def handle_models(models):
             self.clear.emit()
-            fname_maps = []
-            for model in models.values():
-                fname = model['fname']
-                # spectrum attached to a SpectraMap object
-                if "  X=" in fname:
-                    fname_map = fname.split("  X=")[0]
-                    if fname_map not in fname_maps:
-                        fname_maps.append(fname_map)
-                        self.load_spectramap_files([fname_map])
-                else:
-                    self.load_spectrum_files([fname])
+            self.loadSpectra.emit(models)
             self.loadState.emit({}, models)
             self.showToast.emit("SUCCESS", "Work loaded.", "")
 
         if isinstance(files, str):
             files = [files]
         elif not isinstance(files, list):
-            raise TypeError(
-                "files must be a list of file paths or a single file path as a string"
-            )
+            raise TypeError("files must be a list of file paths or a single file path as a string")
 
-        fnames_json = [f for f in files if f.endswith(".json")]
+        files_json = [file for file in files if file.endswith(".json")]
+        files_no_json = [file for file in files if not file.endswith(".json")]
 
-        if len(fnames_json) > 1:
+        if len(files_json) > 1:
             self.showToast.emit("ERROR",
                                 "Only one .json can be loaded at a time.",
                                 "Please select only one .json file.")
             return []
 
-        if len(fnames_json) == 1:
-            fname_json = fnames_json[0]
-            files.remove(fname_json)
-            dict_spectra = load_from_json(fname_json)
+        if len(files_json) == 1:
+            models = load_from_json(files_json[0])
             # No confirmation needed if workspace is empty
             if not self.spectramaps_fnames and not self.spectrum_fnames:
-                handle_loading(dict_spectra)
+                handle_models(models)
             else:
                 self.askConfirmation.emit(
                     "Loading .json work will replace current work. Continue ?",
-                    lambda: handle_loading(dict_spectra), (), {})
+                    lambda: handle_models(models), (), {})
 
-            files = [file for file in files if file not in fnames_json]
-
-        return files
+        return files_no_json
 
     def load_spectrum_files(self, files):
         """Load spectrum files and emit signal if new files are added."""

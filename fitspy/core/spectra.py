@@ -13,7 +13,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 from fitspy.core.spectrum import Spectrum
-from fitspy.core.utils import fileparts, save_to_json, load_from_json
+from fitspy.core.utils import fileparts, save_to_json, load_from_json, compress, decompress
 from fitspy.core.utils_mp import fit_mp
 
 
@@ -285,9 +285,9 @@ class Spectra(list):
     #             normalized_fname = os.path.normpath(spectramap.fname)
     #             spectramap.set_attributes(fname_to_model, DELIMITER, normalized_fname)
 
-    def save(self, fname_json=None, fnames=None):
+    def save(self, fname_json=None, fnames=None, save_data=False):
         """
-        Return a 'dict_spectra' dictionary with all the spectrum attributes and
+        Return a 'dict_spectra' dictionary with all the spectrum attributes (but objects) and
         Save it in a .json file if a 'fname_json' is given
 
         Parameters
@@ -297,15 +297,29 @@ class Spectra(list):
         fnames: list of str, optional
             List of the spectrum 'fnames' to save. If None, consider all the
             spectrum contained in the 'spectra' list
+        save_data: bool, optional
+            Activation keyword to write spectra/spectramap values at the end of the dictionary
+
+        Returns
+        -------
+        dict_spectra: dict
+            Dictionary with all the spectrum attributes but objects, and input data if 'save_data'
+            is set to True
+
         """
         if fnames is None:
             fnames = self.fnames
 
         dict_spectra = {}
         for i, fname in enumerate(fnames):
-            spectrum, _ = self.get_objects(fname)
-            dict_spectra[i] = spectrum.save()
+            spectrum, parent = self.get_objects(fname)
+            dict_spectra[i] = spectrum.save(save_data=save_data and parent is self)
             dict_spectra[i]['baseline'].pop('y_eval')
+
+        if save_data and len(self.spectra_maps) > 0:
+            dict_spectra['data'] = {}
+            for spectra_map in self.spectra_maps:
+                dict_spectra['data'][spectra_map.fname] = compress(spectra_map.arr0)
 
         if fname_json is not None:
             dirname = os.path.dirname(fname_json)
@@ -317,42 +331,6 @@ class Spectra(list):
 
         return dict_spectra
 
-    # @staticmethod
-    # def load(fname_json=None, dict_spectra=None, preprocess=False):
-    #     """ Return a Spectra object from a .json file """
-    #     dict_spectra = dict_spectra or load_from_json(fname_json)
-    #
-    #     spectra = Spectra()
-    #     fname_maps = []
-    #     for model in dict_spectra.values():
-    #         fname = model['fname']
-    #
-    #         # spectrum attached to a SpectraMap object
-    #         if "  X=" in fname:
-    #             fname_map = fname.split("  X=")[0]
-    #             if fname_map not in fname_maps:
-    #                 from fitspy.core.spectra_map import SpectraMap
-    #                 spectra.spectra_maps.append(SpectraMap.load_map(fname_map))
-    #                 fname_maps.append(fname_map)
-    #             ind = fname_maps.index(fname_map)
-    #             spectra_map = spectra.spectra_maps[ind]
-    #             for spectrum in spectra_map:
-    #                 if fname == spectra_map.fname + '  ' + spectrum.fname:
-    #                     fname_ids = spectrum.fname
-    #                     spectrum.set_attributes(model)
-    #                     spectrum.fname = fname_ids
-    #                     if preprocess:
-    #                         spectrum.preprocess()
-    #                     break
-    #         else:
-    #             spectrum = Spectrum()
-    #             spectrum.set_attributes(model)
-    #             if preprocess:
-    #                 spectrum.preprocess()
-    #             spectra.append(spectrum)
-    #
-    #     return spectra
-
     @staticmethod
     def load(fname_json=None, dict_spectra=None, preprocess=False):
         """ Return a Spectra object from a .json file or directly from 'dict_spectra' """
@@ -360,21 +338,26 @@ class Spectra(list):
 
         spectra = Spectra()
         fname_maps = []
-        for model in dict_spectra.values():
-            fname = os.path.normpath(model['fname'])
+        for key, model in dict_spectra.items():
+            if key != 'data':
+                fname = os.path.normpath(model['fname'])
 
-            # spectrum attached to a SpectraMap object
-            if "  X=" in fname:
-                fname_map = fname.split("  X=")[0]
-                if fname_map not in fname_maps:
+                if "  X=" in fname:  # spectrum attached to a SpectraMap object
                     from fitspy.core.spectra_map import SpectraMap
-                    spectra.spectra_maps.append(SpectraMap.load_map(fname_map))
-                    fname_maps.append(fname_map)
-
-            else:
-                spectrum = Spectrum()
-                spectrum.fname = fname
-                spectra.append(spectrum)
+                    fname_map = fname.split("  X=")[0]
+                    if fname_map not in fname_maps:
+                        if os.path.isfile(fname_map):
+                            spectra.spectra_maps.append(SpectraMap.load_map(fname_map))
+                        elif fname_map in dict_spectra.get('data', {}):
+                            arr0 = decompress(dict_spectra['data'][fname_map])
+                            spectra.spectra_maps.append(SpectraMap.load_map(fname_map, arr0=arr0))
+                        else:
+                            print(f'ERROR: unable to reload data related to {Path(fname_map).name}')
+                        fname_maps.append(fname_map)
+                else:
+                    spectrum = Spectrum()
+                    spectrum.fname = fname
+                    spectra.append(spectrum)
 
         spectra.set_attributes(dict_spectra, preprocess=preprocess)
 
@@ -382,8 +365,9 @@ class Spectra(list):
 
     def set_attributes(self, dict_spectra, preprocess=False):
         """ Set attributes to spectrum object related to 'dict_spectra' """
-        for model in dict_spectra.values():
-            spectrum, _ = self.get_objects(model['fname'])
-            spectrum.set_attributes(model)
-            if preprocess:
-                spectrum.preprocess()
+        for key, model in dict_spectra.items():
+            if key != 'data':
+                spectrum, _ = self.get_objects(model['fname'])
+                spectrum.set_attributes(model)
+                if preprocess:
+                    spectrum.preprocess()

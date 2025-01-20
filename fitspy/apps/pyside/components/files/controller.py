@@ -7,6 +7,7 @@ from fitspy.apps.pyside.components.files.model import Model
 class FilesController(QObject):
     showToast = Signal(str, str, str)
     askConfirmation = Signal(str, object, tuple, dict)
+    loadSpectra = Signal(object)
     loadSpectrum = Signal(list)
     loadSpectraMap = Signal(str)
     delSpectrum = Signal(dict)
@@ -32,6 +33,7 @@ class FilesController(QObject):
 
         self.model.showToast.connect(self.showToast)
         self.model.askConfirmation.connect(self.askConfirmation)
+        self.model.loadSpectra.connect(self.loadSpectra)
         self.model.loadSpectrum.connect(self.loadSpectrum)
         self.model.loadSpectraMap.connect(self.loadSpectraMap)
         self.model.delSpectrum.connect(self.delSpectrum)

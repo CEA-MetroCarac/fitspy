@@ -127,6 +127,9 @@ class PlotController(QObject):
     def switch_map(self, fname):
         self.model.switch_map(fname)
 
+    def load_spectra(self, models):
+        self.model.load_spectra(models)
+
     def load_spectrum(self, fnames):
         self.model.load_spectrum(fnames)
 

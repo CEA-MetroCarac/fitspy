@@ -15,6 +15,8 @@ import numpy as np
 import pandas as pd
 from lmfit.models import ExpressionModel
 from rsciio import IO_PLUGINS
+import base64
+import zlib
 
 
 def measure_time(func):
@@ -29,6 +31,7 @@ def measure_time(func):
         return result
 
     return wrapper
+
 
 def closest_item(element_list, value):
     """ Return the closest element in the given list """
@@ -134,6 +137,25 @@ def save_to_json(filename, dictionary, indent=3):
 
     with open(filename, 'w') as fid:
         fid.write(json_dumps)
+
+
+def compress(array):
+    """ Return a dict from a numpy array, compressed and encoded to a base64 string,
+        to be decompressed later """
+    compressed_array = zlib.compress(array.tobytes())
+    encoded_array = base64.b64encode(compressed_array).decode('utf-8')
+    data = {"shape": array.shape, "dtype": str(array.dtype), "array": encoded_array}
+    return data
+
+
+def decompress(data):
+    """ Decode and decompress a base64 string to a numpy array
+        from a 'data' dictionary produced by the compress() function """
+    shape = tuple(data["shape"])
+    dtype = np.dtype(data["dtype"])
+    compressed_array = base64.b64decode(data["array"].encode('utf-8'))
+    array = np.frombuffer(zlib.decompress(compressed_array), dtype=dtype).reshape(shape)
+    return array
 
 
 def load_models_from_txt(fname, MODELS):
@@ -267,14 +289,16 @@ def eval_noise_amplitude(y):
     ampli_noise = np.median(np.abs(delta1[mask] - delta2[mask]) / 2)
     return ampli_noise
 
+
 def get_func_args(func):
     signature = inspect.signature(func)
     args = list(signature.parameters.keys())
     return args
 
+
 def get_model_params(MODELS):
     MODEL_PARAMETERS = {"None": []}
-        
+
     for model_name, model in MODELS.items():
         if model is not None:
             try:

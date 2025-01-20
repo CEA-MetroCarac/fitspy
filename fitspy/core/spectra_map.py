@@ -24,6 +24,8 @@ class SpectraMap(Spectra):
     ----------
     fname: str
         Pathname associated to the loaded object
+    arr0: numpy.ndarray
+        Raw array with coordinates and intensities returned by fitspy.core.utils.get_2d_map()
     xy_map: tuple of 2 list
         Lists of x and y coordinates used in the 2D-map
     shape_map: tuple of 2 ints
@@ -59,6 +61,7 @@ class SpectraMap(Spectra):
     def __init__(self):
 
         self.fname = None
+        self.arr0 = None
         self.xy_map = None
         self.shape_map = None
         self.extent = None
@@ -76,13 +79,13 @@ class SpectraMap(Spectra):
         self.xrange = None
         self.marker = None
 
-    def create_map(self, fname):
+    def create_map(self, fname, arr0=None):
         """ Create map """
         fname = os.path.normpath(fname)
-        arr = get_2d_map(fname)
+        arr0 = get_2d_map(fname) if arr0 is None else arr0
 
-        x_map = x = list(np.sort(np.unique(arr[1:, 1])))
-        y_map = y = list(np.sort(np.unique(arr[1:, 0])))
+        x_map = x = list(np.sort(np.unique(arr0[1:, 1])))
+        y_map = y = list(np.sort(np.unique(arr0[1:, 0])))
 
         # grid range associated to 'arr' to be consistent with the tools axis
         xmin = ymin = -0.5
@@ -95,7 +98,7 @@ class SpectraMap(Spectra):
             ymax = y[0] - 0.5 * (y[1] - y[0])
 
         # wavelengths
-        x = arr[0][2:]
+        x = arr0[0][2:]
         inds = np.argsort(x)
         x = x[inds]
 
@@ -104,7 +107,7 @@ class SpectraMap(Spectra):
 
         coords = []
         fnames_map = []
-        for vals in arr[1:]:
+        for vals in arr0[1:]:
             intensity = vals[2:][inds]
             ind_flat = x_map.index(vals[1]) + y_map.index(vals[0]) * len(x_map)
             intensity_map[ind_flat, :] = intensity
@@ -121,6 +124,7 @@ class SpectraMap(Spectra):
             fnames_map.append(spectrum.fname)
 
         self.fname = fname
+        self.arr0 = arr0
         self.xy_map = (x_map, y_map)
         self.shape_map = (len(self.xy_map[1]), len(self.xy_map[0]))
         self.extent = [xmin, xmax, ymin, ymax]
@@ -280,9 +284,9 @@ class SpectraMap(Spectra):
             dfr.to_csv(fname, sep=';', header=False, index=False)
 
     @staticmethod
-    def load_map(fname):
-        """ Return a SpectraMap object from .txt file issued from labspec files
-            conversion """
+    def load_map(fname, arr0=None):
+        """ Return a SpectraMap object from a .txt file issued either from the labspec file
+            conversion or from the corresponding array 'arr0' previously saved and reloaded """
         spectra_map = SpectraMap()
-        spectra_map.create_map(fname)
+        spectra_map.create_map(fname, arr0=arr0)
         return spectra_map

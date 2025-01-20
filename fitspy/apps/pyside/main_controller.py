@@ -39,6 +39,7 @@ class MainController(QObject):
     def setup_connections(self):
         self.view.menuBar.actionOpen.triggered.connect(self.open)
         self.view.menuBar.actionSave.triggered.connect(self.save)
+        self.view.menuBar.actionSaveData.triggered.connect(lambda: self.save(save_data=True))
         self.view.menuBar.actionClearEnv.triggered.connect(self.clear)
 
         self.view.menuBar.actionRestoreDefaults.triggered.connect(self.model.restore_defaults)
@@ -57,6 +58,7 @@ class MainController(QObject):
 
         self.files_controller.showToast.connect(self.show_toast)
         self.files_controller.askConfirmation.connect(self.show_confirmation_dialog)
+        self.files_controller.loadSpectra.connect(self.plot_controller.load_spectra)
         self.files_controller.loadSpectrum.connect(self.plot_controller.load_spectrum)
         self.files_controller.loadSpectraMap.connect(self.plot_controller.load_map)
         self.files_controller.delSpectrum.connect(self.plot_controller.del_spectrum)
@@ -157,8 +159,9 @@ class MainController(QObject):
     #     )
 
     def load_state(self, selected, models):  # FIXME: Unused argument 'selected'
-        # Restore model attributes to each spectrum
-        self.plot_controller.set_spectra_attributes(models)
+        # # Restore model attributes to each spectrum
+        # self.plot_controller.set_spectra_attributes(models)
+
         fit_status = {model['fname']: model['result_fit_success']
                       for model in models.values() if 'result_fit_success' in model}
         self.files_controller.colorize_from_fit_status(fit_status)
@@ -196,11 +199,11 @@ class MainController(QObject):
     #         }
     #         save_to_json(fname, data)
 
-    def save(self):
+    def save(self, save_data=False):
         fname_json = QFileDialog.getSaveFileName(None, "Save File", "",
                                                  "JSON Files (*.json);;All Files (*)")[0]
         if fname_json:
-            self.plot_controller.model.spectra.save(fname_json=fname_json)
+            self.plot_controller.model.spectra.save(fname_json=fname_json, save_data=save_data)
 
     def clear(self):
         # if self.files_controller.get_all_spectrum_ids(DELIMITER):
