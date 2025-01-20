@@ -3,8 +3,11 @@ Example of spectra processing using users-defined model through the application
 """
 import sys
 from pathlib import Path
-from PySide6.QtWidgets import QApplication
 import tkinter as tk
+try:
+    from PySide6.QtWidgets import QApplication
+except ImportError:
+    pass
 
 from fitspy.apps.pyside.main import Appli
 from fitspy.apps.tkinter.gui import Appli as Appli_tk
