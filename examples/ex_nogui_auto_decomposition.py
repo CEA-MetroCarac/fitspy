@@ -8,7 +8,8 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 from lmfit import report_fit
 
-from fitspy.core import Spectrum, Spectra
+from fitspy.core.spectra import Spectra
+from fitspy.core.spectrum import Spectrum
 from fitspy.core.utils import hsorted
 
 DATA = Path(__file__).parent / "data"
