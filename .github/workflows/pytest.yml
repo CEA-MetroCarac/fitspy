@@ -14,7 +14,11 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: [ "3.7", "3.8", "3.9", "3.10" ] # scipy-1.11.1: Python version >= 3.9 required
+        python-version: [ "3.8", "3.9", "3.10", "3.11" ] # scipy-1.11.1: Python version >= 3.9 required
+    env:
+      # Display must be available globally for linux to know where xvfb is
+      DISPLAY: ":99.0"
+      QT_SELECT: "qt6"
 
     steps:
       - uses: actions/checkout@v3
@@ -25,7 +29,9 @@ jobs:
       - name: Install system dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y libegl1 libgl1-mesa-dev libxkbcommon-x11-0
+          sudo apt-get install -y lxvfb ibegl1 libgl1-mesa-dev libxkbcommon-x11-0
+          # start xvfb in the background
+          sudo /usr/bin/Xvfb $DISPLAY -screen 0 1280x1024x24 &
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
@@ -33,6 +39,6 @@ jobs:
           python -m pip install .
       - name: Test with pytest
         run: |
-          export DISPLAY=:99
-          Xvfb :99 &
+          # export DISPLAY=:99
+          # Xvfb :99 &
           python -m pytest tests/
