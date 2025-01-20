@@ -12,7 +12,7 @@ from utils import extract_results, display_is_ok
 
 @pytest.mark.skipif(not display_is_ok(), reason="DISPLAY problem")
 def test_gui_2d_maps(tmp_path):
-    gui_2d_maps(dirname_res=tmp_path)
+    gui_2d_maps(dirname_res=tmp_path, gui='tkinter')
 
     results = extract_results(dirname_res=tmp_path)
     # print(results)

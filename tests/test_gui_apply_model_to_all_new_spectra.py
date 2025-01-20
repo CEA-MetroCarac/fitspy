@@ -13,7 +13,7 @@ from utils import extract_results, display_is_ok
 
 @pytest.mark.skipif(not display_is_ok(), reason="DISPLAY problem")
 def test_gui_apply_model_to_all(tmp_path):
-    gui_apply_model_to_all(dirname_res=tmp_path)
+    gui_apply_model_to_all(dirname_res=tmp_path, gui='tkinter')
 
     results = extract_results(dirname_res=tmp_path)
     # print(results)
