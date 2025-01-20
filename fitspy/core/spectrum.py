@@ -7,7 +7,7 @@ import csv
 import itertools
 from copy import deepcopy
 import numpy as np
-import matplotlib.cm as cm
+import matplotlib
 from scipy.interpolate import interp1d
 from scipy.ndimage import uniform_filter1d
 from lmfit import Model, fit_report
@@ -21,7 +21,7 @@ from fitspy.core.utils import closest_index, fileparts, check_or_rename
 from fitspy.core.utils import save_to_json, load_from_json, eval_noise_amplitude
 from fitspy.core.baseline import BaseLine
 
-CMAP_PEAKS = cm.get_cmap('tab10')
+CMAP_PEAKS = matplotlib.colormaps['tab10']
 
 
 def create_model(model, model_name, prefix=None):
