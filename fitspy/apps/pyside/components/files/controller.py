@@ -65,7 +65,7 @@ class FilesController(QObject):
             lambda: self.remove_selected_files(self.maps_list.list))
         self.maps_list.list.remove_selected_files = self.remove_selected_files
 
-    def load_files(self, files: list[str]):
+    def load_files(self, files):
         self.model.load_files(files)
 
     def add_spectrum(self, fname):
