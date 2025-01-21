@@ -3,7 +3,7 @@ from threading import Thread
 from collections import defaultdict
 from pathlib import Path
 import numpy as np
-from matplotlib import cm
+import matplotlib
 
 from PySide6.QtCore import QObject, Signal
 from PySide6.QtWidgets import QMessageBox
@@ -15,7 +15,7 @@ from fitspy.core.spectra_map import SpectraMap
 from fitspy.core.utils import closest_index, measure_time
 from fitspy.apps.pyside import DEFAULTS
 
-CMAP = cm.get_cmap("tab10")
+CMAP = matplotlib.colormaps['tab10']
 LABEL_OFFSET_RATIO = 0.005  # Ratio to offset label above the peak
 YLIM_BUFFER_RATIO = 0.05  # Ratio to extend y-axis limit
 
