@@ -4,6 +4,7 @@ from PySide6.QtWidgets import QApplication
 from fitspy.apps.pyside.main_controller import MainController
 from fitspy.apps.pyside.main_model import MainModel
 from fitspy.apps.pyside.main_view import MainView
+from fitspy.apps.pyside import DEFAULTS, DEFAULTS_INITIAL
 
 
 class Appli:
@@ -80,7 +81,12 @@ class Appli:
 
 def init_app():
     """ Return an Appli and QApplication instances """
-    qapp = QApplication(sys.argv)
+    if not QApplication.instance():
+        qapp = QApplication(sys.argv)
+    else:
+        qapp = QApplication.instance()
+        DEFAULTS.clear()
+        DEFAULTS.update(DEFAULTS_INITIAL)
     qapp.setStyle("Fusion")
     appli = Appli()
     return appli, qapp

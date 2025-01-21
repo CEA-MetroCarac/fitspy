@@ -23,3 +23,5 @@ DEFAULTS = {
         'preserve_axes': False,
     }
 }
+
+DEFAULTS_INITIAL = DEFAULTS.copy()
