@@ -78,16 +78,29 @@ class Appli:
         self.controller.files_controller.load_files(str(fname_json))
 
 
-def fitspy_launcher(fname_json=None):
+def init_app():
+    """ Return an Appli and QApplication instances """
     qapp = QApplication(sys.argv)
     qapp.setStyle("Fusion")
     appli = Appli()
+    return appli, qapp
 
+
+def end_app(appli, qapp, dirname_res=None):
+    """ Quit properly the appli after saving the results if 'dirname_res' is given (for pytest) """
+    if dirname_res is not None:
+        appli.save_results(dirname_res=dirname_res)
+        qapp.quit()
+    else:
+        appli.view.show()
+        sys.exit(qapp.exec())
+
+
+def fitspy_launcher(fname_json=None):
+    appli, qapp = init_app()
     if fname_json is not None:
         appli.reload(fname_json)
-
-    appli.view.show()
-    sys.exit(qapp.exec())
+    end_app(appli, qapp)
 
 
 if __name__ == "__main__":

@@ -30,6 +30,7 @@ def extract_results(dirname_res):
     fnames = glob.glob(os.path.join(dirname_res, "*.csv"))
     fnames = hsorted([x for x in fnames if "results.csv" not in x])
     results = []
+    print(fnames)
     for fname in fnames:
         dfr = pd.read_csv(fname, sep=';', header=1)
         results.append([safe_float(x) for x in dfr.iloc[:, 2:]

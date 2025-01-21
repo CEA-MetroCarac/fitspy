@@ -554,16 +554,29 @@ class Appli(GUI):
             self.root.destroy()
 
 
-def fitspy_launcher(fname_json=None):
-    """ Launch the appli """
-
+def init_app():
+    """ Return an Appli and Tk instances """
     root = Tk()
     appli = Appli(root)
+    return appli, root
 
+
+def end_app(appli, root, dirname_res=None):
+    """ Quit properly the appli after saving the results if 'dirname_res' is given (for pytest) """
+    if dirname_res is not None:
+        appli.save_results(dirname_res=dirname_res)
+        root.destroy()
+        return
+    else:
+        root.mainloop()
+
+
+def fitspy_launcher(fname_json=None):
+    """ Launch the appli """
+    appli, root = init_app()
     if fname_json is not None:
         appli.reload(fname_json=fname_json)
-
-    root.mainloop()
+    end_app(appli, root)
 
 
 if __name__ == '__main__':

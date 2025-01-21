@@ -1,8 +1,7 @@
-import numpy as np
 import sys
-import pytest
 from pathlib import Path
-from pytest import approx
+import pytest
+import numpy as np
 
 examples_path = Path(__file__).resolve().parent.parent / 'examples'
 sys.path.insert(0, str(examples_path))
@@ -26,4 +25,4 @@ def test_auto_decomposition():
     # print(results)
 
     for result, reference in zip(results, REFS):
-        assert result == approx(reference, rel=2e-2)
+        assert result == pytest.approx(reference, rel=2e-2)
