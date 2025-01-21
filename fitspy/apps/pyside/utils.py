@@ -1,5 +1,6 @@
 import re
-import importlib.resources as pkg_resources
+from pathlib import Path
+# import importlib.resources as pkg_resources
 import numpy as np
 
 from PySide6.QtWidgets import QWidget
@@ -18,7 +19,8 @@ def replace_icon_colors(icon, old_color, new_color):
     arr = np.array(ptr).reshape((height, width, 4))
 
     old_color_arr = np.array([old_color.red(), old_color.green(), old_color.blue()])
-    new_color_arr = np.array([new_color.red(), new_color.green(), new_color.blue(), new_color.alpha()])
+    new_color_arr = np.array([new_color.red(), new_color.green(), new_color.blue(),
+                              new_color.alpha()])
 
     mask = np.all(arr[:, :, :3] == old_color_arr, axis=-1)
     arr[mask, :3] = new_color_arr[:3]  # Replace only the RGB channels
@@ -41,7 +43,8 @@ def to_title_case(any_case_str):
 
 def get_icon_path(icon_name):
     """ Return the QIcon object from the icon name """
-    icon_path = pkg_resources.files('fitspy.resources.iconpack') / icon_name
+    # icon_path = pkg_resources.files('fitspy.resources.iconpack') / icon_name
+    icon_path = Path(__file__).parents[2] / "resources" / "iconpack" / icon_name
     return str(icon_path)
 
 
