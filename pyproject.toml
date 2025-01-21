@@ -11,12 +11,13 @@ authors = [
 ]
 description = "Fitspy: a generic tool to fit spectra in python"
 readme = "README.md"
-requires-python = ">=3.8"
+requires-python = ">=3.7"
 keywords = ["Fitspy", "fit", "spectra", "spectrum", "map", "1D", "2D",
     "decomposition", "Gaussian", "Lorentzian", "Pseudovoigt", "GUI"]
 license = { text = "GPL v3" }
 classifiers = [
     'Programming Language :: Python :: 3',
+    'Programming Language :: Python :: 3.7',
     'Programming Language :: Python :: 3.8',
     'Programming Language :: Python :: 3.9',
     'Programming Language :: Python :: 3.10',
@@ -37,7 +38,7 @@ dependencies = [
     "parse",
     "dill",
     "superqt[cmap]",
-    "pyqt-toast-notification",
+#    "pyqt-toast-notification",
     "rosettasciio",
     "pywin32; platform_system == 'Windows'",
 ]
