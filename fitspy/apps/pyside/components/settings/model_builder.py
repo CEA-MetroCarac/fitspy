@@ -61,8 +61,6 @@ class Baseline(QCollapsible):
         vbox_layout.setSpacing(2)
         content_widget.setLayout(vbox_layout)
 
-        spacer = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
-
         self.HLayout1 = QHBoxLayout()
         self.HLayout1.setSpacing(5)
         self.HLayout1.setContentsMargins(0, 0, 0, 0)
@@ -89,9 +87,11 @@ class Baseline(QCollapsible):
         self.order = SpinBox()
 
         self.HLayout2.addWidget(self.linear)
-        self.HLayout2.addItem(spacer)
+        spacer1 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+        self.HLayout2.addItem(spacer1)
         self.HLayout2.addWidget(self.polynomial)
-        self.HLayout2.addItem(spacer)
+        spacer2 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+        self.HLayout2.addItem(spacer2)
         self.HLayout2.addWidget(self.label_order)
         self.HLayout2.addWidget(self.order)
 
@@ -110,7 +110,8 @@ class Baseline(QCollapsible):
         self.sigma = SpinBox()
 
         self.HLayout3.addWidget(self.attached)
-        self.HLayout3.addItem(spacer)
+        spacer3 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+        self.HLayout3.addItem(spacer3)
         self.HLayout3.addWidget(self.label_sigma)
         self.HLayout3.addWidget(self.sigma)
 
@@ -398,3 +399,18 @@ class ModelBuilder(QWidget):
         # Fitting
         bkg_model = next(iter(model.get("bkg_model") or {}), "None")
         self.model_settings.fitting.bkg_model.setCurrentText(bkg_model)
+
+
+if __name__ == "__main__":
+    import sys
+    from PySide6.QtWidgets import QApplication
+
+    app = QApplication(sys.argv)
+    obj = ModelBuilder()
+    # obj = SpectralRange()
+    # obj = Baseline()
+    # obj = Normalization()
+    # obj = Fitting()
+    # obj = ModelSettings()
+    obj.show()
+    sys.exit(app.exec())

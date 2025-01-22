@@ -1,6 +1,6 @@
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (QSizePolicy, QGroupBox, QPushButton, QWidget, QVBoxLayout,
-                               QHBoxLayout, QCheckBox, QComboBox, QLabel, QSpacerItem, QApplication)
+                               QHBoxLayout, QCheckBox, QComboBox, QLabel, QSpacerItem)
 from superqt.cmap import CmapCatalogComboBox
 
 from fitspy import FIT_METHODS, FIT_PARAMS
@@ -49,26 +49,29 @@ class SolverSettings(QGroupBox):
         hbox0 = QHBoxLayout()
         hbox0.addWidget(self.coef_noise_label)
         hbox0.addWidget(self.coef_noise)
-        spacer = QSpacerItem(20, 0, QSizePolicy.Minimum, QSizePolicy.Minimum)
-        hbox0.addItem(spacer)
+        spacer0 = QSpacerItem(20, 0, QSizePolicy.Minimum, QSizePolicy.Minimum)
+        hbox0.addItem(spacer0)
         vbox.addLayout(hbox0)
 
         hbox1 = QHBoxLayout()
         hbox1.addWidget(self.max_ite_label)
         hbox1.addWidget(self.max_ite)
-        hbox1.addItem(spacer)
+        spacer1 = QSpacerItem(20, 0, QSizePolicy.Minimum, QSizePolicy.Minimum)
+        hbox1.addItem(spacer1)
         vbox.addLayout(hbox1)
 
         hbox2 = QHBoxLayout()
         hbox2.addWidget(self.method_label)
         hbox2.addWidget(self.method)
-        hbox2.addItem(spacer)
+        spacer2 = QSpacerItem(20, 0, QSizePolicy.Minimum, QSizePolicy.Minimum)
+        hbox2.addItem(spacer2)
         vbox.addLayout(hbox2)
 
         hbox3 = QHBoxLayout()
         hbox3.addWidget(self.xtol_label)
         hbox3.addWidget(self.xtol)
-        hbox3.addItem(spacer)
+        spacer3 = QSpacerItem(20, 0, QSizePolicy.Minimum, QSizePolicy.Minimum)
+        hbox3.addItem(spacer3)
         vbox.addLayout(hbox3)
 
         vbox.addItem(QSpacerItem(0, 20, QSizePolicy.Minimum, QSizePolicy.Expanding))
@@ -165,16 +168,11 @@ class MoreSettings(QWidget):
 
 if __name__ == "__main__":
     import sys
+    from PySide6.QtWidgets import QApplication
 
     app = QApplication(sys.argv)
-
-    main_widget = QWidget()
-    main_layout = QVBoxLayout(main_widget)
-
-    more_settings = MoreSettings()
-    main_layout.addWidget(more_settings)
-
-    main_widget.setLayout(main_layout)
-    main_widget.show()
-
+    obj = SolverSettings()
+    # obj = OtherSettings()
+    # obj = MoreSettings()
+    obj.show()
     sys.exit(app.exec())
