@@ -227,3 +227,13 @@ class BkgTable(QWidget):
                         widget.show_expr(show)
             self.table.resizeRowsToContents()
         self.show_expr_state = show
+
+
+if __name__ == "__main__":
+    import sys
+    from PySide6.QtWidgets import QApplication
+
+    app = QApplication(sys.argv)
+    obj = BkgTable()
+    obj.show()
+    sys.exit(app.exec())

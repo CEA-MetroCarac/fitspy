@@ -61,3 +61,13 @@ class BaselineTable(QGroupBox):
         y_values = [point[1] for point in points]
 
         return [x_values, y_values]
+
+
+if __name__ == "__main__":
+    import sys
+    from PySide6.QtWidgets import QApplication
+
+    app = QApplication(sys.argv)
+    obj = BaselineTable()
+    obj.show()
+    sys.exit(app.exec())

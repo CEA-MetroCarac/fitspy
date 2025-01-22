@@ -86,3 +86,13 @@ class DragNDropList(QListWidget):
             self.remove_selected_files(self)  # defined after instantiation
         else:
             super().keyPressEvent(event)
+
+
+if __name__ == "__main__":
+    import sys
+    from PySide6.QtWidgets import QApplication
+
+    app = QApplication(sys.argv)
+    obj = DragNDropList()
+    obj.show()
+    sys.exit(app.exec())

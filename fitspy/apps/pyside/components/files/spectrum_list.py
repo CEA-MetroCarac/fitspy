@@ -54,11 +54,10 @@ class SpectrumList(QWidget):
 
 
 if __name__ == "__main__":
+    import sys
     from PySide6.QtWidgets import QApplication
 
-    app = QApplication([])
-
-    spectrum_list = SpectrumList()
-    spectrum_list.show()
-
-    app.exec()
+    app = QApplication(sys.argv)
+    obj = SpectrumList()
+    obj.show()
+    sys.exit(app.exec())

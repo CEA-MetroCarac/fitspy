@@ -150,3 +150,17 @@ class MainView(QMainWindow):
     def about(self):
         dialog = About(self)
         dialog.exec_()
+
+
+if __name__ == "__main__":
+    import sys
+    from PySide6.QtWidgets import QApplication
+
+    app = QApplication(sys.argv)
+    obj = MainView()
+    # obj = MenuBar()
+    # obj = MapsList()
+    # obj = SpectrumList()
+    # obj = StatusBox()
+    obj.show()
+    sys.exit(app.exec())

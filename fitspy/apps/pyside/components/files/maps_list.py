@@ -40,11 +40,10 @@ class MapsList(QWidget):
 
 
 if __name__ == "__main__":
+    import sys
     from PySide6.QtWidgets import QApplication
 
-    app = QApplication([])
-
-    maps_list = MapsList()
-    maps_list.show()
-
-    app.exec()
+    app = QApplication(sys.argv)
+    obj = MapsList()
+    obj.show()
+    sys.exit(app.exec())

@@ -84,3 +84,14 @@ class SpinBox(QSpinBox):
 
     def set_to_default(self):
         self.setValue(self.empty_value)
+
+
+if __name__ == "__main__":
+    import sys
+    from PySide6.QtWidgets import QApplication
+
+    app = QApplication(sys.argv)
+    obj = SpinBox()
+    # obj = DoubleSpinBox()
+    obj.show()
+    sys.exit(app.exec())

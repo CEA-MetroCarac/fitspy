@@ -55,3 +55,13 @@ class DragNDropCombo(QComboBox):
             painter.drawText(rect, Qt.AlignCenter, text)
 
             painter.restore()
+
+
+if __name__ == "__main__":
+    import sys
+    from PySide6.QtWidgets import QApplication
+
+    app = QApplication(sys.argv)
+    obj = DragNDropCombo()
+    obj.show()
+    sys.exit(app.exec())
