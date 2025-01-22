@@ -1,20 +1,18 @@
 def init_app(gui):
-    assert gui in ['pyside', 'tkinter']
-
-    if gui == 'pyside':
-        from fitspy.apps.pyside.main import init_app
-    else:
-        from fitspy.apps.tkinter.gui import init_app
-
-    return init_app()
+    from fitspy.apps.pyside.main import init_app as init_app_pyside
+    from fitspy.apps.tkinter.gui import init_app as init_app_tkinter
+    return eval(f"init_app_{gui}()")
 
 
 def end_app(gui, appli, app, dirname_res=None):
-    assert gui in ['pyside', 'tkinter']
+    from fitspy.apps.pyside.main import end_app as end_app_pyside
+    from fitspy.apps.tkinter.gui import end_app as end_app_tkinter
+    end_app = eval(f"end_app_{gui}")
+    return end_app(appli, app, dirname_res=dirname_res)
 
-    if gui == 'pyside':
-        from fitspy.apps.pyside.main import end_app
-    else:
-        from fitspy.apps.tkinter.gui import end_app
 
-    end_app(appli, app, dirname_res=dirname_res)
+def fitspy_launcher(gui='pyside', fname_json=None, dirname_res=None):
+    appli, qapp = init_app(gui)
+    if fname_json is not None:
+        appli.reload(fname_json)
+    end_app(gui, appli, qapp, dirname_res=dirname_res)

@@ -5,6 +5,7 @@ from fitspy.apps.pyside.main_controller import MainController
 from fitspy.apps.pyside.main_model import MainModel
 from fitspy.apps.pyside.main_view import MainView
 from fitspy.apps.pyside import DEFAULTS, DEFAULTS_INITIAL
+from fitspy.apps import fitspy_launcher as fitspy_launcher_generic
 
 
 class Appli:
@@ -103,10 +104,8 @@ def end_app(appli, qapp, dirname_res=None):
 
 
 def fitspy_launcher(fname_json=None):
-    appli, qapp = init_app()
-    if fname_json is not None:
-        appli.reload(fname_json)
-    end_app(appli, qapp)
+    """ Launch the Pyside appli """
+    fitspy_launcher_generic(fname_json=fname_json, gui='pyside')
 
 
 if __name__ == "__main__":

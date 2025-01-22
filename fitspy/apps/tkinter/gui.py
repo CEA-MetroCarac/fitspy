@@ -27,9 +27,11 @@ except:
 from fitspy import PEAK_MODELS, BKG_MODELS, PEAK_PARAMS, SETTINGS_FNAME
 from fitspy.core.utils import closest_index, save_to_json, load_from_json
 
-from .utils import add, interactive_entry as entry, ToggleFrame, FilesSelector, ProgressBar
-from .toplevels import ParamsView, StatsView, FitSettings, FigureSettings
-from .callbacks import Callbacks
+from fitspy.apps.tkinter.utils import add, interactive_entry as entry
+from fitspy.apps.tkinter.utils import ToggleFrame, FilesSelector, ProgressBar
+from fitspy.apps.tkinter.toplevels import ParamsView, StatsView, FitSettings, FigureSettings
+from fitspy.apps.tkinter.callbacks import Callbacks
+from fitspy.apps import fitspy_launcher as fitspy_launcher_generic
 
 FONT = ('Helvetica', 8, 'bold')
 
@@ -572,11 +574,8 @@ def end_app(appli, root, dirname_res=None):
 
 
 def fitspy_launcher(fname_json=None):
-    """ Launch the appli """
-    appli, root = init_app()
-    if fname_json is not None:
-        appli.reload(fname_json=fname_json)
-    end_app(appli, root)
+    """ Launch the Tkinter appli """
+    fitspy_launcher_generic(fname_json=fname_json, gui='tkinter')
 
 
 if __name__ == '__main__':
