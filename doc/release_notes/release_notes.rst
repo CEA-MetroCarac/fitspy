@@ -1,6 +1,31 @@
 Release Notes
 =============
 
+Version 2025.dev
+----------------
+
+**New features:**
+
+- A PySide application has been added (MAJOR CHANGE), aiming to be more flexible, easier to maintain (using the MVC approach), and more user-friendly (featuring Drag-and-Drop functionality, etc...).
+- Consequently, the project structure has been significantly reorganized: ``Spectrum``, ``Spectra``, and related modules have been moved into the ``fitspy.core`` directory, and ``fitspy.app`` has been renamed to ``fitspy.apps`` (with separate subdirectories for ``tkinter`` and ``pyside``).
+- Input data can now be saved directly in the model (as a .json file), allowing it to be replayed as-is, without relying on file path dependencies.
+
+
+**Enhancements:**
+
+
+- Peak label visibility has been improved (PySide).
+- Colormap settings have been added for peaks and 2D maps (PySide).
+- User warnings have been introduced for incorrect bounds in model parameters (PySide).
+- The 'baseline' subtraction feature has been extended to include the 'background'.
+- Spectra subsampling has been introduced in the semi-automatic baseline approach to reduce calculation time when applied to very large spectra.
+
+
+**Bug fixes:**
+
+- create the related ``dirname_fig`` in ``save_figures()`` if the directory does not exist
+
+
 Version 2024.5 (September 4, 2024)
 ----------------------------------
 
