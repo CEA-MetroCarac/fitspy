@@ -1,4 +1,4 @@
-name: Python test
+name: Python test (Windows)
 
 on:
   workflow_dispatch:
