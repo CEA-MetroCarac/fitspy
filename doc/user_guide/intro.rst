@@ -36,7 +36,7 @@ Install and launching
 ---------------------
 
 .. note::
-    Since its 2025.1 version, Fitspy can be launched using two interfaces: one corresponds to the original GUI built with **Tkinter**, and the other, more recent one, developed using **PySide6** with more 'flexibility'. As of 2025, both GUIs offer nearly identical features, but future efforts regarding fixes and updates will primarily focus on the PySide GUI.
+    Since its 2025.1 version, Fitspy can be launched using two interfaces: one corresponds to the original GUI built with **Tkinter**, and the other, more recent one, developed using **PySide** with more 'flexibility'. As of 2025, both GUIs offer nearly identical features, but future efforts regarding fixes and updates will primarily focus on the **PySide** GUI.
 
 if python is not already installed in your PC:
 
@@ -50,7 +50,7 @@ in a command prompt (like **cmd** or **powershell**, accessible from the Windows
 
     pip install fitspy --upgrade
     fitspy # advanced GUI based on PySide
-    fitspy_tk # primary GUI based on Tkinter
+    fitspy-tk # primary GUI based on Tkinter
 
 *(If an error message is returned upon executing the first line, it likely indicates that python.exe is not included in your PATHs. In this case, (re)launch your python.exe and choose "modify" to select* **Add python.exe to PATH**)
 
@@ -59,7 +59,7 @@ in a command prompt (like **cmd** or **powershell**, accessible from the Windows
 
     git clone https://github.com/CEA-MetroCarac/fitspy.git
     fitspy # advanced GUI based on PySide
-    fitspy_tk # primary GUI based on Tkinter
+    fitspy-tk # primary GUI based on Tkinter
 
     # examples execution
     cd fitspy/examples
@@ -81,7 +81,7 @@ Quick start
 Once the `Fitspy` GUI has opened,
 
 
-**PySide GUI :**
+<u>**PySide GUI**</u> :
 
 from right to left, the strict minimum operations (in red) for a spectrum fitting consists of:
 
@@ -103,7 +103,7 @@ from right to left, the strict minimum operations (in red) for a spectrum fittin
 *(The entire workflow is described* `here <workflow.html>`_ *).*
 
 
-**Tkinter GUI :**
+<u>**Tkinter GUI**</u>:
 
 from top to bottom of the right panel, the strict minimum operations (in red) for a spectrum fitting consists of:
 

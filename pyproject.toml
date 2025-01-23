@@ -47,7 +47,7 @@ dependencies = [
 
 [project.scripts]
 fitspy = "fitspy.apps.pyside.main:fitspy_launcher"
-fitspy_tk = "fitspy.apps.tkinter.gui:fitspy_launcher"
+fitspy-tk = "fitspy.apps.tkinter.gui:fitspy_launcher"
 
 [tool.setuptools]
 include-package-data = false

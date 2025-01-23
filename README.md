@@ -13,10 +13,11 @@
 **Fitspy** is a generic tool dedicated to **fit sp**ectra in **py**thon with GUIs that aims to be as simple and intuitive to use as possible.
 
 <p align="center" width="100%">
-    <img align="center" width="45%" src=https://cea-metrocarac.github.io/fitspy/_static/pyside/fitspy.png>
-    <img align="center" width="45%" src=https://cea-metrocarac.github.io/fitspy/_static/tkinter/fitspy.png>
-    <em>Illustration of the PySide GUI (left) and Tkinter GUI (right).</em> 
-
+    <img align="center" width="45%" src="https://cea-metrocarac.github.io/fitspy/_static/pyside/fitspy.png">
+    <img align="center" width="45%" src="https://cea-metrocarac.github.io/fitspy/_static/tkinter/fitspy.png">
+</p>
+<p align="center">
+    <em>Illustration of the PySide GUI (left) and Tkinter GUI (right).</em>
 </p>
 
 Processed spectra may be independent of each other or may result from 2D-maps
@@ -58,7 +59,7 @@ pip install fitspy
 pip install git+https://github.com/CEA-MetroCarac/fitspy
 ```
 
-*(See the [documentation](https://cea-metrocarac.github.io/fitspy/doc/user_guide/intro.html#install-and-launching) for more details)*
+*(See the [documentation](https://cea-metrocarac.github.io/fitspy/user_guide/intro.html#install-and-launching) for more details)*
 
 ## Tests and examples execution
 
@@ -71,13 +72,13 @@ python examples/ex_gui_auto_decomposition.py
 python examples/ex_.......
 ```
 
-*(See the [documentation](https://cea-metrocarac.github.io/fitspy/doc/user_guide/intro.html#install-and-launching) for more details)*
+*(See the [documentation](https://cea-metrocarac.github.io/fitspy/user_guide/intro.html#install-and-launching) for more details)*
 
 ## Quick start
 
 Since its 2025.1 version, Fitspy can be launched using two interfaces: either the one corresponding to the original GUI built with **Tkinter**, or a more recent and advanced one, using **PySide**. As of 2025, both GUIs offer nearly identical features, but future efforts regarding fixes and updates will primarily focus on the PySide GUI.
 
-**PySide GUI**:
+<u>**PySide GUI**</u>:
 
 Launch the application:
 
@@ -90,12 +91,12 @@ Then, use the **Model**  panel to set the model parameters to be used during the
 Peaks and an optional baseline associated with the model can be defined interactively by clicking on the desired position in the figure after activating **Peak points** (or **Baseline points** resp.) from the **Click Mode** radiobuttons located under the figure.
 Once the model build, The **Fit** can be launched. The corresponding model can be saved (in the **Model** panel) to be reload later (from the bottom-central panel) as-it with the same spectra (if the pathnames are still available) or just as a model for other spectra to be processed.
 
-**Tkinter GUI**:
+<u>**Tkinter GUI**</u>:
 
 Launch the application:
 
 ```
-fitspy_tk
+fitspy-tk
 ```
 
 From the top to the bottom of the right panel:
@@ -112,7 +113,7 @@ From the top to the bottom of the right panel:
 - *(Optional)* **Save** the parameters in **.csv** format
 - *(Optional)* **Save** the **Model** in a .json file (to be replayed later)
 
-*(See the [documentation](https://cea-metrocarac.github.io/fitspy/doc/user_guide/workflow.html) for more details)*
+*(See the [documentation](https://cea-metrocarac.github.io/fitspy/user_guide/workflow.html) for more details)*
 
 ## Acknowledgements
 
