@@ -282,9 +282,9 @@ class FilesController(QObject):
 
         for fname, result_fit in fit_status.items():
             if isinstance(result_fit, bool):
-                color = 'green' if result_fit else 'orange'
+                color = 'Lime' if result_fit else 'Orange'
             elif hasattr(result_fit, 'success'):
-                color = 'green' if result_fit.success else 'orange'
+                color = 'Lime' if result_fit.success else 'Orange'
             else:
                 color = None
             self.spectrum_list.list.colorize_items([os.path.normpath(fname)], color)
