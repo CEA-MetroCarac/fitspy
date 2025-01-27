@@ -32,7 +32,7 @@ class MainView(QMainWindow):
         self.gridLayout = QGridLayout(self.central)
         self.gridLayout.setContentsMargins(0, 0, 0, 0)
 
-        # self.init_splitter()
+        self.init_splitter()
         self.init_sidebar()
 
         self.gridLayout.addWidget(self.main_splitter)
@@ -40,17 +40,17 @@ class MainView(QMainWindow):
         self.verticalLayout.addWidget(self.central)
         self.setCentralWidget(self.centralwidget)
 
-    # def init_splitter(self):
-    #     self.splitter = QSplitter(Qt.Vertical)
-    #
-    #     self.init_upper_frame()
-    #     self.init_bottom_widget()
-    #
-    #     self.splitter.addWidget(self.upper_frame)
-    #     self.splitter.addWidget(self.bottom_widget)
-    #
-    #     self.main_splitter = QSplitter(Qt.Horizontal)
-    #     self.main_splitter.addWidget(self.splitter)
+    def init_splitter(self):
+        self.splitter = QSplitter(Qt.Vertical)
+
+        self.init_upper_frame()
+        self.init_bottom_widget()
+
+        self.splitter.addWidget(self.upper_frame)
+        self.splitter.addWidget(self.bottom_widget)
+
+        self.main_splitter = QSplitter(Qt.Horizontal)
+        self.main_splitter.addWidget(self.splitter)
 
     def init_upper_frame(self):
         self.upper_frame = QFrame()
@@ -118,21 +118,21 @@ class MainView(QMainWindow):
         self.sidebar_layout.addWidget(self.spectrum_list, 6)
         self.sidebar_layout.addWidget(self.statusBox, 0)
 
-        self.splitter = QSplitter(Qt.Vertical)
+        # self.splitter = QSplitter(Qt.Vertical)
 
-        self.main_splitter = QSplitter(Qt.Horizontal)
+        # self.main_splitter = QSplitter(Qt.Horizontal)
         self.main_splitter.addWidget(self.sidebar)
-        self.main_splitter.addWidget(self.splitter)
-
-        # Set initial sizes for the splitter
-        initial_sidebar_width = 170
-        self.main_splitter.setSizes([initial_sidebar_width, self.width() - initial_sidebar_width])
-
-        self.init_upper_frame()
-        self.init_bottom_widget()
-
-        self.splitter.addWidget(self.upper_frame)
-        self.splitter.addWidget(self.bottom_widget)
+        # self.main_splitter.addWidget(self.splitter)
+        #
+        # # Set initial sizes for the splitter
+        # initial_sidebar_width = 170
+        # self.main_splitter.setSizes([initial_sidebar_width, self.width() - initial_sidebar_width])
+        #
+        # self.init_upper_frame()
+        # self.init_bottom_widget()
+        #
+        # self.splitter.addWidget(self.upper_frame)
+        # self.splitter.addWidget(self.bottom_widget)
 
         self.main_splitter.setStretchFactor(0, 1)
         self.main_splitter.setStretchFactor(1, 0)
