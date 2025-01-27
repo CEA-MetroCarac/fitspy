@@ -81,11 +81,12 @@ Quick start
 Once the `Fitspy` GUI has opened,
 
 
-<u>**PySide GUI**</u> :
+PySide GUI :
+~~~~~~~~~~~~
 
-from right to left, the strict minimum operations (in red) for a spectrum fitting consists of:
+The strict minimum operations (in red) for a spectrum fitting consists of:
 
-- (`1 <files_selection.html>`_) **Select file(s) using drag an drop mode**
+- (`1 <files_selection.html>`_) **Select file(s) using drag an drop mode** (in the right panel)
 - (`2 <fitting.html>`_) **Select a** :code:`Peak model`
 - (`3 <fitting.html>`_) **After clicking on** :code:`Peaks points`, **Select them on the main figure** *(with left/right click on the figure to add/delete a peak point)*
 - Repeat the last two actions as needed
@@ -103,7 +104,8 @@ from right to left, the strict minimum operations (in red) for a spectrum fittin
 *(The entire workflow is described* `here <workflow.html>`_ *).*
 
 
-<u>**Tkinter GUI**</u>:
+Tkinter GUI :
+~~~~~~~~~~~~
 
 from top to bottom of the right panel, the strict minimum operations (in red) for a spectrum fitting consists of:
 
