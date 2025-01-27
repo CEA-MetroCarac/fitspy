@@ -95,7 +95,7 @@ The strict minimum operations (in red) for a spectrum fitting consists of:
 
 .. figure::  ../_static/pyside/workflow.png
    :align:   center
-   :width:   300
+   :width:   80%
 
 .. raw:: html
 
