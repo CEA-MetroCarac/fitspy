@@ -236,9 +236,8 @@ class PlotController(QObject):
         self.update_spectraplot()
 
     def apply_normalization(self, state, vmin, vmax):
-        # for all spectrum
-        parent = self.model.parent()
-        for spectrum in parent:
+        # for selected_spectrum
+        for spectrum in self.model.current_spectra:
             self.model.set_spectrum_attr(spectrum.fname, "normalize", state)
             self.model.set_spectrum_attr(spectrum.fname, "normalize_range_min", vmin)
             self.model.set_spectrum_attr(spectrum.fname, "normalize_range_max", vmax)
