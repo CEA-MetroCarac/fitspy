@@ -109,7 +109,6 @@ class SettingsController(QObject):
         model_selector.add.clicked.connect(self.load_model)
         model_selector.apply.clicked.connect(
             lambda: self.select_model(model_selector.combo_box.currentText()))
-        model_selector.replay.clicked.connect(self.replay_models)
         model_selector.preview.toggled.connect(self.preview_model)
 
         # Other settings
@@ -413,8 +412,3 @@ class SettingsController(QObject):
                 self.showToast.emit("WARNING", "Something went wrong",
                                     "No new models were found in the file")
         self.model_builder.model_settings.fitting.update_combo_boxes()
-
-    def replay_models(self):
-        fname = self.model_builder.model_selector.combo_box.currentText()
-        models = load_from_json(fname)
-        self.replayModels.emit(models)
