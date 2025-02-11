@@ -113,7 +113,6 @@ class MainController(QObject):
         self.settings_controller.setBkg.connect(self.plot_controller.set_bkg)
         self.settings_controller.saveModels.connect(self.save_models)
         self.settings_controller.fitRequested.connect(self.fit)
-        self.settings_controller.replayModels.connect(self.replay_models)
 
         app = QApplication.instance()
         app.aboutToQuit.connect(
@@ -414,13 +413,6 @@ class MainController(QObject):
             if fnames is None:
                 fnames = self.files_controller.get_selected_fnames()
             self.plot_controller.save_models(fname_json, fnames)
-
-    def replay_models(self, models):
-        self.plot_controller.set_spectra_attributes(models)
-        # self.show_toast("SUCCESS", "Models Restored", "Models have been restored.")
-        spectra = self.plot_controller.get_spectra()
-        if spectra:
-            self.settings_controller.set_model(spectra[0])
 
     def apply_model(self, model_dict):
         spectra = self.plot_controller.get_spectra()
