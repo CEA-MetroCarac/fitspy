@@ -179,7 +179,7 @@ class SettingsController(QObject):
             model["baseline"].pop("y_eval")
             model.pop("fname", None)  # TODO: what happens for fit_results=None with success as attr
 
-        self.model.current_fit_model = model
+        self.model.current_fit_model = copy.deepcopy(model)
 
     def update_model_dict(self, model_dict):
         # Unnecessary to block signals as the update occurs key by key
@@ -285,7 +285,7 @@ class SettingsController(QObject):
                 "value": param_dict.get("value"),
                 "max": param_dict.get("max"),
                 "vary": param_dict.get("vary"),
-                # "expr": param_dict.get("expr"),
+                "expr": param_dict.get("expr"),
             }
 
         def add_row_from_params(prefix, label, model_name, params):
@@ -302,7 +302,7 @@ class SettingsController(QObject):
                 row_params[param_key] = param_values.get("value")
                 row_params[f"{param_key}_max"] = param_values.get("max")
                 row_params[f"{param_key}_vary"] = param_values.get("vary")
-                # row_params[f"{param_key}_expr"] = param_values.get("expr")
+                row_params[f"{param_key}_expr"] = param_values.get("expr")
 
             show_bounds = self.model_builder.bounds_chbox.isChecked()
             show_expr = self.model_builder.expr_chbox.isChecked()
