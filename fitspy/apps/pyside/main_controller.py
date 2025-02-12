@@ -157,7 +157,7 @@ class MainController(QObject):
     #         self.view.spectrum_list.list, selected["spectra"]
     #     )
 
-    def load_state(self, selected, models):  # FIXME: Unused argument 'selected'
+    def load_state(self, models):
         # # Restore model attributes to each spectrum
         # self.plot_controller.set_spectra_attributes(models)
 
