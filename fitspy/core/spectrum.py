@@ -696,7 +696,8 @@ class Spectrum:
                 y += self.baseline.y_eval
 
         if subtract_bkg and self.bkg_model is not None:
-            y -= self.bkg_model.eval(self.bkg_model.make_params(), x=x)
+            with empty_expr(self.bkg_model):
+                y -= self.bkg_model.eval(self.bkg_model.make_params(), x=x)
 
         linewidth = 1 if getattr(self.result_fit, "success", False) else 0.5
 
@@ -738,7 +739,8 @@ class Spectrum:
 
         y_bkg = np.zeros_like(x)
         if self.bkg_model is not None:
-            y_bkg = self.bkg_model.eval(self.bkg_model.make_params(), x=x)
+            with empty_expr(self.bkg_model):
+                y_bkg = self.bkg_model.eval(self.bkg_model.make_params(), x=x)
 
         if show_background and self.bkg_model is not None:
             line, = ax.plot(x, y_bkg, 'k--', lw=linewidth,
