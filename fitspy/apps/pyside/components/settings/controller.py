@@ -301,7 +301,7 @@ class SettingsController(QObject):
                 row_params[f"{param_key}_min"] = param_values.get("min")
                 row_params[param_key] = param_values.get("value")
                 row_params[f"{param_key}_max"] = param_values.get("max")
-                row_params[f"{param_key}_vary"] = param_values.get("vary")
+                row_params[f"{param_key}_fixed"] = not param_values.get("vary")
                 row_params[f"{param_key}_expr"] = param_values.get("expr")
 
             show_bounds = self.model_builder.bounds_chbox.isChecked()
