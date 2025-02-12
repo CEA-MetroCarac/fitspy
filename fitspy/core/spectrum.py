@@ -5,6 +5,7 @@ import os
 import re
 import csv
 import itertools
+import contextlib
 from copy import deepcopy
 import numpy as np
 import matplotlib
@@ -23,6 +24,16 @@ from fitspy.core.baseline import BaseLine
 
 CMAP_PEAKS = matplotlib.colormaps['tab10']
 
+@contextlib.contextmanager
+def empty_expr(model):
+    original_expr = {key: val.get('expr', '') for key, val in model.param_hints.items()}
+    for key in model.param_hints:
+        model.param_hints[key]['expr'] = ''
+    try:
+        yield model
+    finally:
+        for key in model.param_hints:
+            model.param_hints[key]['expr'] = original_expr.get(key, '')
 
 def create_model(model, model_name, prefix=None):
     """ Return a 'model' (peak_model or 'bkg_model') object """
@@ -685,7 +696,8 @@ class Spectrum:
                 y += self.baseline.y_eval
 
         if subtract_bkg and self.bkg_model is not None:
-            y -= self.bkg_model.eval(self.bkg_model.make_params(), x=x)
+            with empty_expr(self.bkg_model):
+                y -= self.bkg_model.eval(self.bkg_model.make_params(), x=x)
 
         linewidth = 1 if getattr(self.result_fit, "success", False) else 0.5
 
@@ -727,7 +739,8 @@ class Spectrum:
 
         y_bkg = np.zeros_like(x)
         if self.bkg_model is not None:
-            y_bkg = self.bkg_model.eval(self.bkg_model.make_params(), x=x)
+            with empty_expr(self.bkg_model):
+                y_bkg = self.bkg_model.eval(self.bkg_model.make_params(), x=x)
 
         if show_background and self.bkg_model is not None:
             line, = ax.plot(x, y_bkg, 'k--', lw=linewidth,
@@ -740,13 +753,8 @@ class Spectrum:
         y_peaks = np.zeros_like(x)
         if show_peak_models or show_result:
             for i, peak_model in enumerate(self.peak_models):
-                # remove temporarily 'expr' that can be related to another model
-                param_hints_orig = deepcopy(peak_model.param_hints)
-                for key, _ in peak_model.param_hints.items():
-                    peak_model.param_hints[key]['expr'] = ''
-                params = peak_model.make_params()
-                # reassign 'expr'
-                peak_model.param_hints = param_hints_orig
+                with empty_expr(peak_model):
+                    params = peak_model.make_params()
 
                 y_peak = peak_model.eval(params, x=x)
                 y_peaks += y_peak
@@ -774,10 +782,12 @@ class Spectrum:
         else:
             y_fit = np.zeros_like(x)
             for peak_model in self.peak_models:
-                y_fit += peak_model.eval(peak_model.make_params(), x=x)
+                with empty_expr(peak_model):
+                    y_fit += peak_model.eval(peak_model.make_params(), x=x)
             if self.bkg_model is not None:
                 bkg_model = self.bkg_model
-                y_fit += bkg_model.eval(bkg_model.make_params(), x=x)
+                with empty_expr(bkg_model):
+                    y_fit += bkg_model.eval(bkg_model.make_params(), x=x)
             residual = y - y_fit
         label = "residual" if factor == 1 else f"residual (x{factor})"
         ax.plot(x, factor * residual, 'r', label=label)
