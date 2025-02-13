@@ -1,4 +1,7 @@
+from fitspy import VERSION
+
 DEFAULTS = {
+    'version': VERSION,
     'theme': 'dark',
     'ncpus': 'Auto',
     'outliers_coef': 1.5,

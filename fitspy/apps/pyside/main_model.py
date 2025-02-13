@@ -2,7 +2,7 @@ from PySide6.QtCore import QObject, Signal, Qt, QSettings
 from PySide6.QtGui import QColor, QPalette
 
 from fitspy.apps.pyside import DEFAULTS
-
+from fitspy import VERSION
 
 class MainModel(QObject):
     themeChanged = Signal()
@@ -14,7 +14,17 @@ class MainModel(QObject):
         super().__init__()
         self.settings = QSettings("CEA-MetroCarac", "Fitspy")  # these are stored in registry
         self._settings = {}
+        self._check_version()
         self._initialize_settings()
+
+    def _check_version(self):
+        """Check if stored version matches current version"""
+        stored_version = self.settings.value("version", None)
+        if stored_version != VERSION:
+            print(f"Version changed from {stored_version} to {VERSION}, resetting settings...")
+            self.settings.clear()
+            self.settings.setValue("version", VERSION)
+            self.settings.sync()
 
     def _initialize_settings(self):
         """Initialize settings from DEFAULTS and QSettings."""
@@ -131,3 +141,8 @@ class MainModel(QObject):
         for key, setting in self._settings.items():
             self.update_setting(key, setting["default"])
         self.defaultsRestored.emit()
+
+    def clear_settings(self):
+        """Clear all settings from the registry."""
+        self.settings.clear()
+        self.settings.sync()
