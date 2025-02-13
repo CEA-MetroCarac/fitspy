@@ -280,7 +280,7 @@ class FilesController(QObject):
             lmfit.model.ModelResult).
         """
         if not fit_status:
-            # Colorize all items in white if fit_status is empty
+            # Colorize all items with transparent bkg if fit_status is empty
             self.spectrum_list.list.colorize_items()
             return
 

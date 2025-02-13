@@ -164,7 +164,6 @@ class MainController(QObject):
         fit_status = {model['fname']: model['result_fit_success']
                       for model in models.values() if 'result_fit_success' in model}
         self.files_controller.colorize_from_fit_status(fit_status)
-        # self.plot_controller.colorizeFromFitStatus.emit(fit_status) # FIXME: emit is better ?
 
         spectra = self.plot_controller.get_spectra()
         if spectra:

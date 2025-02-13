@@ -747,15 +747,6 @@ class Spectrum:
                             label=f'{label}_Background' if label else "Background")
             lines.append(line)
 
-        # num_peaks = len(self.peak_models)
-        # cmap = fitspy.DEFAULTS['peaks_cmap'] if num_peaks > 0 else None # FIXME: why ?
-        # if isinstance(cmap, str):
-        #     cmap = cm.get_cmap(cmap)
-        # num_colors = cmap.N if cmap else None
-
-        # cmap = fitspy.DEFAULTS['peaks_cmap']
-        # if isinstance(cmap, str):
-        #     cmap = cm.get_cmap(cmap)
         cmap_peaks = cmap_peaks or CMAP_PEAKS
 
         ax.set_prop_cycle(None)
