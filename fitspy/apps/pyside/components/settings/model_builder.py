@@ -290,14 +290,6 @@ class ModelSelector(QWidget):
         self.preview = QCheckBox("Preview",
                                  toolTip="Preview the selected model without applying it")
 
-        self.replay = QPushButton("Replay", icon=QIcon(get_icon_path("replay.png")),
-                                  toolTip="Reload all models to their specified filename")
-        self.replay.setStyleSheet("""
-            QPushButton {
-                padding: 4px 2px;
-            }
-        """)
-
         self.apply = QPushButton("Apply Model", icon=QIcon(get_icon_path("apply.png")),
                                  toolTip="Apply the first model of file to selection")
 
@@ -306,7 +298,6 @@ class ModelSelector(QWidget):
 
         h_layout.addWidget(self.combo_box)
         h_layout.addWidget(self.preview)
-        h_layout.addWidget(self.replay)
         h_layout.addWidget(self.apply)
         h_layout.addWidget(self.add)
 

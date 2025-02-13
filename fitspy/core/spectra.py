@@ -56,10 +56,19 @@ class Spectra(list):
 
     def intensity(self):
         """Return the raw intensity array related to spectra AND spectra maps"""
-        intensity = []
-        for spectrum in self.all:
-            intensity.append(spectrum.y0)
-        return np.asarray(intensity)
+        # Get all y0 values
+        intensities = [spectrum.y0 for spectrum in self.all]
+        max_len = max(len(y0) for y0 in intensities)
+        
+        # Pad shorter arrays with NaN to match max length
+        padded = [
+            np.pad(y0, (0, max_len - len(y0)),
+                mode='constant',
+                constant_values=np.nan) if len(y0) < max_len else y0
+            for y0 in intensities
+        ]
+        
+        return np.asarray(padded)
 
     def get_spectrum(self, fname):
         """ Return spectrum from 'fname' contained in the 'spectra' list only """
@@ -85,10 +94,14 @@ class Spectra(list):
     def outliers_limit_calculation(self, coef=1.5, nmax=5):
         """ Calculate the outliers limit from 'coef' * intensity_ref """
         intensity = self.intensity()
-        inds = np.argsort(intensity, axis=0)[-nmax, :]
-        outliers_limit = coef * intensity[inds, np.arange(intensity.shape[1])]
+        
+        # Get mean of top nmax values for each wavelength point
+        sorted_values = -np.sort(-intensity, axis=0)
+        intensity_ref = np.nanmean(sorted_values[:nmax], axis=0)
+        
+        outliers_limit = coef * intensity_ref
         for spectrum in self.all:
-            spectrum.outliers_limit = outliers_limit
+            spectrum.outliers_limit = outliers_limit[:len(spectrum.y0)]
 
     def save_results(self, dirname_res, fnames=None):
         """

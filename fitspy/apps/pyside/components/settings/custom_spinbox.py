@@ -28,6 +28,11 @@ class DoubleSpinBox(QDoubleSpinBox):
         else:
             super().setValue(value)
 
+    def stepBy(self, steps):
+        base = self.value() or 0
+        new_value = base + steps * self.singleStep()
+        self.setValue(new_value)
+
     def contextMenuEvent(self, event):
         menu = self.lineEdit().createStandardContextMenu()
 
@@ -72,6 +77,11 @@ class SpinBox(QSpinBox):
             self.clear()
         else:
             super().setValue(value)
+    
+    def stepBy(self, steps):
+        base = self.value() or 0
+        new_value = base + steps * self.singleStep()
+        self.setValue(new_value)
 
     def contextMenuEvent(self, event):
         menu = self.lineEdit().createStandardContextMenu()
