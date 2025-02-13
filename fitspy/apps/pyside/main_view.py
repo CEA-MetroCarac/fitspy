@@ -42,6 +42,13 @@ class MainView(QMainWindow):
 
     def init_splitter(self):
         self.splitter = QSplitter(Qt.Vertical)
+        self.splitter.setStyleSheet(
+            """
+        QSplitter::handle:hover {
+            background: #999999;
+        }
+    """
+        )
 
         self.init_upper_frame()
         self.init_bottom_widget()
@@ -50,6 +57,13 @@ class MainView(QMainWindow):
         self.splitter.addWidget(self.bottom_widget)
 
         self.main_splitter = QSplitter(Qt.Horizontal)
+        self.main_splitter.setStyleSheet(
+            """
+        QSplitter::handle:hover {
+            background: #999999;
+        }
+    """
+        )
         self.main_splitter.addWidget(self.splitter)
 
     def init_upper_frame(self):
@@ -118,21 +132,7 @@ class MainView(QMainWindow):
         self.sidebar_layout.addWidget(self.spectrum_list, 6)
         self.sidebar_layout.addWidget(self.statusBox, 0)
 
-        # self.splitter = QSplitter(Qt.Vertical)
-
-        # self.main_splitter = QSplitter(Qt.Horizontal)
         self.main_splitter.addWidget(self.sidebar)
-        # self.main_splitter.addWidget(self.splitter)
-        #
-        # # Set initial sizes for the splitter
-        # initial_sidebar_width = 170
-        # self.main_splitter.setSizes([initial_sidebar_width, self.width() - initial_sidebar_width])
-        #
-        # self.init_upper_frame()
-        # self.init_bottom_widget()
-        #
-        # self.splitter.addWidget(self.upper_frame)
-        # self.splitter.addWidget(self.bottom_widget)
 
         self.main_splitter.setStretchFactor(0, 1)
         self.main_splitter.setStretchFactor(1, 0)
