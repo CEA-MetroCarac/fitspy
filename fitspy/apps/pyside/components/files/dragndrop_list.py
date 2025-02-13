@@ -77,7 +77,7 @@ class DragNDropList(QListWidget):
             item = self.item(i)
             if item.text() in fnames:
                 if color is None:
-                    item.setBackground(self.palette().base())
+                    item.setBackground(Qt.transparent)
                 else:
                     item.setBackground(QColor(color))
 
