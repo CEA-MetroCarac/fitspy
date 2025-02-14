@@ -11,7 +11,7 @@ class Model(QObject):
     loadSpectrum = Signal(list)
     delSpectrum = Signal(dict)
     delSpectraMap = Signal(str)
-    loadState = Signal(dict, object)
+    loadState = Signal(object)
     showToast = Signal(str, str, str)
     askConfirmation = Signal(str, object, tuple, dict)
     clear = Signal()
@@ -123,7 +123,7 @@ class Model(QObject):
         def handle_models(models):
             self.clear.emit()
             self.loadSpectra.emit(models)
-            self.loadState.emit({}, models)
+            self.loadState.emit(models)
             self.showToast.emit("SUCCESS", "Work loaded.", "")
 
         if isinstance(files, str):
