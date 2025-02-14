@@ -84,3 +84,14 @@ class GenericTable(QTableWidget):
                     self.row_count -= 1
                     self.rowsDeleted.emit([(row, row_data)])
                     return
+
+    def set_column_order(self, order):
+        current_columns = list(self.columns.keys())
+        new_order = [col for col in order if col in current_columns]
+        new_order += [col for col in current_columns if col not in new_order]
+
+        self.setHorizontalHeaderLabels(new_order)
+        self.columns = {col: self.columns[col] for col in new_order}
+        self.setColumnCount(len(self.columns))
+        self.setHorizontalHeaderLabels(list(self.columns.keys()))
+        # self.set_header_resize_mode(QHeaderView.ResizeToContents)

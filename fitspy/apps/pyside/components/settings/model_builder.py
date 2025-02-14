@@ -347,8 +347,8 @@ class ModelBuilder(QWidget):
     def setupTabWidget(self):
         self.tab_widget = QTabWidget()
         tab_content = QWidget()
-        self.peaks_table = PeaksTable(self)
-        self.bkg_table = BkgTable(self)
+        self.peaks_table = PeaksTable(parent=self)
+        self.bkg_table = BkgTable(parent=self)
 
         vbox_layout = QVBoxLayout()
         vbox_layout.setContentsMargins(0, 0, 0, 0)
