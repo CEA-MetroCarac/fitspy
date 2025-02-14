@@ -106,8 +106,11 @@ class PeaksTable(QWidget):
     peaksChanged = Signal(dict)
     showToast = Signal(str, str, str)
 
-    def __init__(self, parent=None):
+    def __init__(self, params_order=None, parent=None):
         super().__init__(parent)
+        if params_order is None:
+            params_order = ['Prefix', 'Label', 'Model', 'x0']
+        self.params_order = params_order
         self.initUI()
         self.show_bounds_state = None  # FIXME: bool instead ? What for show_bounds_state=True ?
         self.show_expr_state = None
@@ -251,23 +254,24 @@ class PeaksTable(QWidget):
                 widget = cellWidget(row, col)
                 if widget is None or isinstance(widget, QWidget) and not widget.children():
                     if "MIN |" in param and "| MAX" in param:
-                        existing_widget = cellWidget(row, col)  # TODO: not different from widget
-                        if not isinstance(existing_widget, SpinBoxGroupWithExpression):
+                        if not isinstance(widget, SpinBoxGroupWithExpression):
                             widget = self.create_spin_box_group_with_expr()
                             self.table.setCellWidget(row, col, widget)
                     elif param.endswith("_fixed"):
-                        existing_widget = cellWidget(row, col)
-                        if not isinstance(existing_widget, CenteredCheckBox):
+                        if not isinstance(widget, CenteredCheckBox):
                             widget = CenteredCheckBox(callback=self.emit_peaks_changed)
                             self.table.setCellWidget(row, col, widget)
 
             # Remove widgets for parameters not required by the model
             for column in self.table.columns:
                 if column not in ["Prefix", "Label", "Model"] + parameters:
-                    empty_widget = QWidget()
-                    self.table.setCellWidget(row, col, empty_widget)
+                    col_index = self.table.get_column_index(column)
+                    self.table.setCellWidget(row, col_index, QWidget())
 
         self.table.resizeRowsToContents()
+
+        if self.params_order:
+            self.reorder_params(self.params_order)
 
     def clear(self):
         self.table.clear()
@@ -352,3 +356,15 @@ class PeaksTable(QWidget):
                         widget.show_expr(show)
             self.table.resizeRowsToContents()
         self.show_expr_state = show
+
+    def reorder_params(self, order):
+        # Expand non basic items into full parameter columns.
+        new_order = []
+        for item in order:
+            if item in ["Prefix", "Label", "Model"]:
+                new_order.append(item)
+            else:
+                new_order.append(f"MIN | {item} | MAX")
+                new_order.append(f"{item}_fixed")
+        self.params_order = order
+        self.table.set_column_order(new_order)
