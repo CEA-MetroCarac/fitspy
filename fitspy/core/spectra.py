@@ -132,7 +132,8 @@ class Spectra(list):
                 name = Path(spectrum.fname).name
                 success = spectrum.result_fit.success
                 x, y = SpectraMap.spectrum_coords(spectrum) if "  X=" in fname else (None, None)
-                res = spectrum.result_fit.best_values
+                result_fit = spectrum.result_fit
+                res = result_fit.best_values if hasattr(result_fit, 'best_values') else {}
                 res.update({'name': name, 'success': success, 'x': x, 'y': y})
                 results.append(res)
 
