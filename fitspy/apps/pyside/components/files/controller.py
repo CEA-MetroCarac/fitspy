@@ -18,7 +18,7 @@ class FilesController(QObject):
     spectraChanged = Signal(list)
     saveResults = Signal(list)
     addMarker = Signal(str)
-    loadState = Signal(dict, object)
+    loadState = Signal(object)
 
     def __init__(self, spectrum_list, maps_list):
         super().__init__()
