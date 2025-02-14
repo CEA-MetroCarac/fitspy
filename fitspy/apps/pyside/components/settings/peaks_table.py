@@ -106,8 +106,11 @@ class PeaksTable(QWidget):
     peaksChanged = Signal(dict)
     showToast = Signal(str, str, str)
 
-    def __init__(self, parent=None):
+    def __init__(self, params_order=None, parent=None):
         super().__init__(parent)
+        if params_order is None:
+            params_order = ['Prefix', 'Label', 'Model', 'x0']
+        self.params_order = params_order
         self.initUI()
         self.show_bounds_state = None  # FIXME: bool instead ? What for show_bounds_state=True ?
         self.show_expr_state = None
@@ -267,6 +270,9 @@ class PeaksTable(QWidget):
 
         self.table.resizeRowsToContents()
 
+        if self.params_order:
+            self.reorder_params(self.params_order)
+
     def clear(self):
         self.table.clear()
 
@@ -350,3 +356,15 @@ class PeaksTable(QWidget):
                         widget.show_expr(show)
             self.table.resizeRowsToContents()
         self.show_expr_state = show
+
+    def reorder_params(self, order):
+        # Expand non basic items into full parameter columns.
+        new_order = []
+        for item in order:
+            if item in ["Prefix", "Label", "Model"]:
+                new_order.append(item)
+            else:
+                new_order.append(f"MIN | {item} | MAX")
+                new_order.append(f"{item}_fixed")
+        self.params_order = order
+        self.table.set_column_order(new_order)
