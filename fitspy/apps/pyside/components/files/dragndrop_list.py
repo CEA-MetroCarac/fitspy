@@ -1,6 +1,15 @@
 from PySide6.QtCore import Qt, Signal
-from PySide6.QtWidgets import QListWidget, QAbstractItemView
+from PySide6.QtWidgets import QListWidget, QAbstractItemView, QListWidgetItem
 from PySide6.QtGui import QDragEnterEvent, QDropEvent, QDragLeaveEvent, QPainter, QPalette, QColor
+
+
+class CustomQListWidgetItem(QListWidgetItem):
+    def __init__(self, text, original_text):
+        super().__init__(text)
+        self.original_text = original_text
+
+    def text(self):
+        return self.original_text
 
 
 class DragNDropList(QListWidget):
@@ -13,6 +22,10 @@ class DragNDropList(QListWidget):
         self.setSelectionBehavior(QAbstractItemView.SelectItems)
         self.setSelectionRectVisible(True)
         self.drag_active = False
+        self.format_function = None
+
+    def set_format_function(self, format_function):
+        self.format_function = format_function
 
     def get_all_fnames(self):
         return [self.item(i).text() for i in range(self.count())]
@@ -48,6 +61,12 @@ class DragNDropList(QListWidget):
             super().dropEvent(event)
         self.drag_active = False
         self.viewport().update()
+
+    def addItem(self, item):
+        if isinstance(item, str):
+            display_text = self.format_function(item) if self.format_function else item
+            item = CustomQListWidgetItem(display_text, item)
+        super().addItem(item)
 
     def paintEvent(self, event):
         super().paintEvent(event)

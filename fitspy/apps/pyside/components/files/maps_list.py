@@ -22,6 +22,7 @@ class MapsList(QWidget):
         self.rm_btn.setIconSize(QSize(20, 20))
 
         self.list = DragNDropList(selection_mode=QListWidget.SingleSelection)
+        self.list.set_format_function(lambda text: text.split("\\")[-1])
 
         main_layout = QVBoxLayout()
         main_layout.setContentsMargins(0, 0, 0, 0)
