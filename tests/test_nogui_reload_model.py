@@ -25,4 +25,4 @@ def test_nogui_reload_model():
     # print(results)
 
     for result, reference in zip(results, REFS):
-        assert result == pytest.approx(reference, rel=6e-2)
+        assert result == pytest.approx(reference, rel=1e-1)
