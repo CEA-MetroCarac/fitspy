@@ -93,7 +93,7 @@ class FilesController(QObject):
     def update_list_widget(self, list_widget, files):
         """Refresh the list widget with the files and update the label."""
         # Save current selection texts
-        old_selection = set(item.text() for item in list_widget.selectedItems())
+        old_selection = set(list_widget.get_selected_fnames())
         
         current_items = list_widget.get_all_fnames()
         new_items = files  # New items list, order preserved
@@ -122,18 +122,18 @@ class FilesController(QObject):
         list_widget.blockSignals(False)
 
         # Auto select the first item if none are selected
-        if not list_widget.selectedItems() and list_widget.count():
+        if not list_widget.get_selected_fnames() and list_widget.count():
             list_widget.setCurrentRow(0)
         
         # Compare new selection against the old selection and emit signal only if changed
-        new_selection = set(item.text() for item in list_widget.selectedItems())
+        new_selection = set(item for item in list_widget.get_selected_fnames())
         if old_selection != new_selection:
             list_widget.itemSelectionChanged.emit()
 
     def update_map_selection(self, maps_list, spectrum_list):
-        selected_items = maps_list.selectedItems()
-        if selected_items:
-            selected_map = selected_items[0].text()
+        selected_fnames = maps_list.get_selected_fnames()
+        if selected_fnames:
+            selected_map = selected_fnames[0]
             selected_files = self.model.spectramaps_fnames[selected_map]
         else:
             selected_map = None

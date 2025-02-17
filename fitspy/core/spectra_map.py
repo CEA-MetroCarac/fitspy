@@ -12,7 +12,7 @@ from fitspy.core.spectra import Spectra
 from fitspy.core.spectrum import Spectrum
 from fitspy.core.utils import closest_index, get_2d_map
 
-POLICY = "{name}  X={x}  Y={y}"
+POLICY = "{name}  X={x} Y={y}"
 PARSER = Parser(POLICY)
 
 
