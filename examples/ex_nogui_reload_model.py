@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 
 from fitspy.core.spectra import Spectra
 from fitspy.core.spectrum import Spectrum
+from fitspy.core.utils import hsorted
 
 DATA = Path(__file__).parent / "data"
 
@@ -15,7 +16,7 @@ def ex_nogui_reload_model(show_plots=False):
 
     dirname = DATA / "spectra_2"
 
-    spectra = Spectra(fnames=dirname.glob("*.txt"))
+    spectra = Spectra(fnames=hsorted(dirname.glob("*.txt")))
     spectra.apply_model(dirname / "model.json")
 
     if show_plots:
