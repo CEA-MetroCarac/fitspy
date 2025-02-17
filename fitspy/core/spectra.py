@@ -30,12 +30,20 @@ class Spectra(list):
     Parameters
     ----------
     spectra_list: list of Spectrum objects, optional
+    fnames: list of str, optional
+        List of spectra pathname
     """
 
-    def __init__(self, spectra_list=None):
+    def __init__(self, spectra_list=None, fnames=None):
 
         if spectra_list is not None:
             super().__init__(spectra_list)
+
+        if fnames is not None:
+            for fname in fnames:
+                spectrum = Spectrum()
+                spectrum.load_profile(fname)
+                self.append(spectrum)
 
         self.spectra_maps = []
         self.pbar_index = 0
@@ -206,14 +214,14 @@ class Spectra(list):
         model_dict = load_from_json(fname_json)[ind]
         return model_dict
 
-    def apply_model(self, model_dict, fnames=None, ncpus=1,
-                    show_progressbar=True):
+    def apply_model(self, model, fnames=None, ncpus=1, show_progressbar=True):
         """
         Apply 'model' to all or part of the spectra
 
         Parameters
         ----------
-        model_dict: dict
+        model: str or dict
+            filename to a Fitspy model ('.json' file) or
             Dictionary related to the Spectrum object attributes (obtained from
             Spectrum.save() for instance) to be applied
         fnames: list of str, optional
@@ -224,6 +232,13 @@ class Spectra(list):
         show_progressbar: bool, optional
             Activation key to show the progress bar
         """
+        if isinstance(model, (str, Path)) and Path(model).is_file():
+            model_dict = Spectra.load_model(model)
+        elif isinstance(model, dict):
+            model_dict = model
+        else:
+            raise IOError("'model' passes to apply_model() is not correct")
+
         if fnames is None:
             fnames = self.fnames
 

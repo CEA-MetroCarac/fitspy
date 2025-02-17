@@ -124,20 +124,14 @@ Once defined, a `Fitspy` model saved in a '.json' file can be applied to a more 
     from fitspy.core.spectrum import Spectrum
 
 
-    # list of the spectra pathnames to handle
-    dirname = Path(r"C:\Users\...")
-    fnames = dirname.glob('*.txt')
+    fnames = Path(r"C:\Users\...").glob('*.txt') # list of the spectra pathname to handle
+    model = r"C:\Users\...\model.json" # model pathname to work with
 
     # Spectra object creation
-    spectra = Spectra()
-    for fname in fnames:
-        spectrum = Spectrum()
-        spectrum.load_profile(fname)
-        spectra.append(spectrum)
+    spectra = Spectra(fnames=fnames)
 
     # Fitspy model loading and application
-    model = Spectra.load_model(fname_json=r"C:\Users\...\model.json")
     spectra.apply_model(model, ncpus=16)
 
-    # save the calculated fitting parameters
+    # Calculated fitting parameters saving
     spectra.save_results(dirname_results=r"C:\Users\...\results")
