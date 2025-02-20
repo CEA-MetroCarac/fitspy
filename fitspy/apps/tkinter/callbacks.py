@@ -794,6 +794,7 @@ class Callbacks:
         self.set_range()
         self.set_baseline_settings()
         self.set_normalize_settings()
+        self.bkg_name.set('None')
         self.plot()
 
     def reinit_all(self):
