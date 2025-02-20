@@ -194,7 +194,7 @@ class FilesSelector:
 
         for fname in hsorted(filenames):
             self.lbox.insert(END, os.path.basename(fname))
-            self.filenames.append(fname)
+            self.filenames.append(os.path.normpath(fname))
 
         # select the first new item
         self.select_item(ind_start)
