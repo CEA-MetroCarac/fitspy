@@ -24,6 +24,7 @@ from fitspy.core.baseline import BaseLine
 
 CMAP_PEAKS = matplotlib.colormaps['tab10']
 
+
 @contextlib.contextmanager
 def empty_expr(model):
     original_expr = {key: val.get('expr', '') for key, val in model.param_hints.items()}
@@ -34,6 +35,7 @@ def empty_expr(model):
     finally:
         for key in model.param_hints:
             model.param_hints[key]['expr'] = original_expr.get(key, '')
+
 
 def create_model(model, model_name, prefix=None):
     """ Return a 'model' (peak_model or 'bkg_model') object """
@@ -574,12 +576,12 @@ class Spectrum:
             fwhm_min = max(np.diff(x))
             for component in comp_model.components:
                 params = component.param_hints
-                ind = closest_index(x, params['x0']['value'])
-                params['ampli']['value'] = self.y_no_outliers[ind]
-                for key in params.keys():
-                    if key in ['fwhm', 'fwhm_l', 'fwhm_r']:
-                        param = params[key]
-                        param['value'] = max(fwhm_min, param['value'])
+                if params['ampli']['vary']:
+                    ind = closest_index(x, params['x0']['value'])
+                    params['ampli']['value'] = self.y_no_outliers[ind]
+                for key in ['fwhm', 'fwhm_l', 'fwhm_r']:
+                    if key in params and params[key]['vary']:
+                        params[key]['value'] = max(fwhm_min, params[key]['value'])
 
         # disable a peak_models in a noisy areas
         if noise_level > 0 and comp_model is not None:
