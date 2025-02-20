@@ -248,7 +248,7 @@ def get_1d_profile(fname):
         dfr = pd.read_csv(fname,
                           sep=r'\s+|\t|,|;| ', engine='python',
                           skiprows=1, usecols=[0, 1],
-                          names=['x0', 'y0'])
+                          names=['x0', 'y0']).dropna()
         x0 = dfr['x0'].to_numpy()
         y0 = dfr['y0'].to_numpy()
     else:
