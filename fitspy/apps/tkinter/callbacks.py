@@ -414,8 +414,8 @@ class Callbacks:
 
             def on_motion(event):
                 """ Highlight model when hovering with the mouse """
-                if self.lines is not None and event.inaxes == self.ax:
-                    for i, line in enumerate(self.lines):
+                if event.inaxes == self.ax and self.lines is not None and len(self.lines) > 1:
+                    for i, line in enumerate(self.lines[1:]):
                         if line.contains(event)[0]:
                             line.set_linewidth(3)
                             if self.tmp is not None:
