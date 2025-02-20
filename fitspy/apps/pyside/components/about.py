@@ -1,3 +1,4 @@
+import sys
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QDialog, QLabel, QVBoxLayout, QFrame
 from PySide6.QtGui import QPixmap
@@ -10,7 +11,6 @@ class About(QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setWindowTitle("About Fitspy")
-        self.setMinimumSize(400, 400)
         self.initUI()
 
     def initUI(self):
@@ -33,10 +33,15 @@ class About(QDialog):
         title_label.setAlignment(Qt.AlignCenter)
         layout.addWidget(title_label)
 
-        # Version
+        # Fitspy Version
         version_label = QLabel(f"Version: {VERSION}")
         version_label.setAlignment(Qt.AlignCenter)
         layout.addWidget(version_label)
+
+        # Python Version
+        python_version_label = QLabel(f"Python version: {sys.version.split()[0]}")
+        python_version_label.setAlignment(Qt.AlignCenter)
+        layout.addWidget(python_version_label)
 
         # Authors
         authors_label = QLabel(

@@ -75,6 +75,11 @@ class Appli:
         """ Save figures related to 'fnames' into 'dirname_res' """
         self.controller.save_figures(dirname_fig=dirname_fig, fnames=fnames)
 
+    def reinit_spectra(self, fnames=None):
+        """ Reinitialize the spectra """
+        fnames = fnames or self.fnames
+        self.controller.files_controller.reinitSpectra.emit(fnames)
+
     def reload(self, fname_json):
         """ Reload spectra as previously saved in the 'fname_json' file """
         self.controller.files_controller.load_files(str(fname_json))

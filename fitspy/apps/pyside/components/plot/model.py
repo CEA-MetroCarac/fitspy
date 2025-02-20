@@ -671,6 +671,7 @@ class Model(QObject):
 
         fit_status = {fname: spectrum.result_fit for fname, spectrum in fit_status.items()}
         self.colorizeFromFitStatus.emit(fit_status)
+        self.PeaksChanged.emit(self.current_spectra[0])
         self.refreshPlot.emit()
 
     # def get_fit_models(self, delimiter):
