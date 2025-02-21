@@ -270,9 +270,6 @@ class PeaksTable(QWidget):
 
         self.table.resizeRowsToContents()
 
-        if self.params_order:
-            self.reorder_params(self.params_order)
-
     def clear(self):
         self.table.clear()
 
@@ -324,6 +321,10 @@ class PeaksTable(QWidget):
                     self.table.add_column(column, CenteredCheckBox)
                 else:
                     self.table.add_column(column, type(row_widgets[column]))
+
+        if self.params_order:
+            self.reorder_params(self.params_order)
+            self.params_order = None
 
         self.table.add_row(**row_widgets)
         self.update_columns_based_on_model()
