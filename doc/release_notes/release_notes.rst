@@ -1,20 +1,25 @@
 Release Notes
 =============
 
-Version 2025.2
---------------
+
+Version 2025.2 (February 24, 2025)
+----------------------------------
 
 **Enhancements:**
+
 - Added python version in About window (PySide).
 - Added reinit_spectra method to Appli class for spectra reinitialization (PySide).
 
+
 **Bug fixes:**
+
 - Fixed #42: Do not reinitialize params when 'vary' is False
 - Fixed #43: Fit fails when Xmin/Xmax contains "inf" or "NaN"
 - Fixed #44: Peak Table values not in the correct columns
 
-Version 2025.1
---------------
+
+Version 2025.1 (February 17, 2025)
+----------------------------------
 
 **New features:**
 
@@ -25,7 +30,8 @@ Version 2025.1
 
 **Enhancements:**
 
-
+- Spectrum objects can be created directly by passing 'fnames' to Spectra(fnames=fnames)
+- a 'model.json' fname can be passed directly as 'model' to apply_model(model=model.json)
 - Peak label visibility has been improved (PySide).
 - Colormap settings have been added for peaks and 2D maps (PySide).
 - User warnings have been introduced for incorrect bounds in model parameters (PySide).
