@@ -3,50 +3,132 @@ basic tests suite
 """
 import numpy as np
 from pytest import approx
+import pytest
 
 from fitspy.core.spectrum import Spectrum
 
 
-def generate_basic_spectrum():
+@pytest.fixture
+def basic_spectrum():
     spectrum = Spectrum()
     spectrum.x = np.arange(0., 300.)
     spectrum.y = 100 * np.ones_like(spectrum.x)
+    spectrum.x0 = spectrum.x.copy()
+    spectrum.y0 = spectrum.y.copy()
     spectrum.add_peak_model('Gaussian', x0=100)
     spectrum.add_peak_model('Gaussian', x0=200)
     return spectrum
 
 
-def test_with_no_constraint():
-    spectrum = generate_basic_spectrum()
-    spectrum.fit()
+def test_with_no_constraint(basic_spectrum):
+    basic_spectrum.fit()
 
-    assert spectrum.peak_models[0].param_hints['ampli']['value'] == approx(82., abs=1)
-    assert spectrum.peak_models[1].param_hints['ampli']['value'] == approx(82., abs=1)
-
-
-def test_with_fixed_ampli():
-    spectrum = generate_basic_spectrum()
-    spectrum.peak_models[0].param_hints['ampli']['vary'] = False
-    spectrum.fit()
-
-    assert spectrum.peak_models[0].param_hints['ampli']['value'] == 100.
-    assert spectrum.peak_models[1].param_hints['ampli']['value'] == approx(81., abs=1)
+    assert basic_spectrum.peak_models[0].param_hints['ampli']['value'] == approx(82., abs=1)
+    assert basic_spectrum.peak_models[1].param_hints['ampli']['value'] == approx(82., abs=1)
 
 
-def test_with_expression():
-    spectrum = generate_basic_spectrum()
-    spectrum.peak_models[1].param_hints['ampli']['expr'] = 'm01_ampli*0.5'
-    spectrum.fit()
+def test_with_fixed_ampli(basic_spectrum):
+    basic_spectrum.peak_models[0].param_hints['ampli']['vary'] = False
+    basic_spectrum.fit()
 
-    assert spectrum.peak_models[1].param_hints['ampli']['value'] == \
-           0.5 * spectrum.peak_models[0].param_hints['ampli']['value']
+    assert basic_spectrum.peak_models[0].param_hints['ampli']['value'] == 100.
+    assert basic_spectrum.peak_models[1].param_hints['ampli']['value'] == approx(81., abs=1)
 
 
-def test_with_fixed_ampli_and_expression():
-    spectrum = generate_basic_spectrum()
-    spectrum.peak_models[0].param_hints['ampli']['vary'] = False
-    spectrum.peak_models[1].param_hints['ampli']['expr'] = 'm01_ampli*0.5'
-    spectrum.fit()
+def test_with_expression(basic_spectrum):
+    basic_spectrum.peak_models[1].param_hints['ampli']['expr'] = 'm01_ampli*0.5'
+    basic_spectrum.fit()
 
-    assert spectrum.peak_models[0].param_hints['ampli']['value'] == 100.
-    assert spectrum.peak_models[1].param_hints['ampli']['value'] == 50.
+    assert basic_spectrum.peak_models[1].param_hints['ampli']['value'] == \
+           0.5 * basic_spectrum.peak_models[0].param_hints['ampli']['value']
+
+
+def test_with_fixed_ampli_and_expression(basic_spectrum):
+    basic_spectrum.peak_models[0].param_hints['ampli']['vary'] = False
+    basic_spectrum.peak_models[1].param_hints['ampli']['expr'] = 'm01_ampli*0.5'
+    basic_spectrum.fit()
+
+    assert basic_spectrum.peak_models[0].param_hints['ampli']['value'] == 100.
+    assert basic_spectrum.peak_models[1].param_hints['ampli']['value'] == 50.
+
+
+def test_apply_range(basic_spectrum):
+    basic_spectrum.apply_range(range_min=50, range_max=150)
+    assert np.all(basic_spectrum.x >= 50)
+    assert np.all(basic_spectrum.x <= 150)
+    assert np.all(basic_spectrum.y == 100)
+
+
+def test_calculate_outliers(basic_spectrum):
+    basic_spectrum.outliers_limit = 110 * np.ones_like(basic_spectrum.x)
+    x_outliers, _ = basic_spectrum.calculate_outliers()
+    assert x_outliers is None
+
+    basic_spectrum.y0[10] = 120
+    basic_spectrum.apply_range(range_min=0, range_max=20)
+    basic_spectrum.outliers_limit = 110 * np.ones_like(basic_spectrum.x0)
+    x_outliers, _ = basic_spectrum.calculate_outliers()
+    assert len(x_outliers) == 1
+    assert x_outliers[0] == 10
+
+
+def test_normalization(basic_spectrum):
+    basic_spectrum.normalize = True
+    basic_spectrum.normalization()
+    assert np.max(basic_spectrum.y) == approx(100.0)
+
+    basic_spectrum.normalize_range_min = 90
+    basic_spectrum.normalize_range_max = 110
+    basic_spectrum.normalization()
+    assert np.max(basic_spectrum.y) == approx(100.0)
+
+
+def test_linear_baseline(basic_spectrum):
+    basic_spectrum.baseline.mode = 'Linear'
+    basic_spectrum.baseline.attached = False
+    basic_spectrum.baseline.add_point(50, 50)
+    basic_spectrum.baseline.add_point(150, 50)
+    basic_spectrum.eval_baseline()
+    basic_spectrum.subtract_baseline()
+    assert basic_spectrum.baseline.y_eval is not None
+    assert basic_spectrum.baseline.is_subtracted
+    assert np.all(basic_spectrum.y == 50)
+
+def test_semiauto_baseline(basic_spectrum):
+    basic_spectrum.auto_baseline()
+    assert basic_spectrum.baseline.mode == 'Semi-Auto'
+    basic_spectrum.eval_baseline()
+    assert np.all(basic_spectrum.baseline.y_eval == approx(100.0))
+
+
+def test_remove_models(basic_spectrum):
+    basic_spectrum.remove_models()
+    assert len(basic_spectrum.peak_models) == 0
+    assert basic_spectrum.bkg_model is None
+
+def test_fit_method(basic_spectrum):
+    basic_spectrum.fit(fit_method='least_squares')
+    assert basic_spectrum.result_fit.success
+
+def test_reinit(basic_spectrum):
+    basic_spectrum.apply_range(range_min=50, range_max=150)
+    basic_spectrum.reinit()
+    assert basic_spectrum.range_min is None
+    assert basic_spectrum.range_max is None
+    assert np.all(basic_spectrum.x == basic_spectrum.x0)
+    assert np.all(basic_spectrum.y == basic_spectrum.y0)
+
+
+def test_del_peak_model(basic_spectrum):
+    basic_spectrum.del_peak_model(0)
+    assert len(basic_spectrum.peak_models) == 1
+    assert len(basic_spectrum.peak_labels) == 1
+
+
+def test_reorder(basic_spectrum):
+    basic_spectrum.peak_models[0].param_hints['x0']['value'] = 150
+    basic_spectrum.peak_models[1].param_hints['x0']['value'] = 50
+    reordered_models = basic_spectrum.reorder()
+    assert reordered_models[0].param_hints['x0']['value'] == 50
+    reordered_models_reversed = basic_spectrum.reorder(reverse=True)
+    assert reordered_models_reversed[0].param_hints['x0']['value'] == 150
