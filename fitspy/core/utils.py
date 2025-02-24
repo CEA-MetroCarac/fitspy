@@ -286,7 +286,7 @@ def eval_noise_amplitude(y):
     delta = np.diff(y)
     delta1, delta2 = delta[:-1], delta[1:]
     mask = np.sign(delta1) * np.sign(delta2) == -1
-    ampli_noise = np.median(np.abs(delta1[mask] - delta2[mask]) / 2)
+    ampli_noise = np.median(np.abs(delta1[mask] - delta2[mask]) / 2) if np.any(mask) else 0
     return ampli_noise
 
 
