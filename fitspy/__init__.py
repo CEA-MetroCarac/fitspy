@@ -5,7 +5,7 @@ from lmfit.models import ConstantModel, LinearModel, ParabolicModel, Exponential
 from fitspy.core.models import gaussian, lorentzian, gaussian_asym, lorentzian_asym, pseudovoigt
 from fitspy.core.utils import load_models_from_txt, load_models_from_py
 
-VERSION = "2025.1"
+VERSION = "2025.2"
 
 PEAK_MODELS = {"Gaussian": gaussian,
                "Lorentzian": lorentzian,
