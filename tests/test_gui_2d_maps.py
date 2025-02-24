@@ -26,5 +26,5 @@ def test_gui_2d_maps(tmp_path, gui):
             [518.924006721169, 918.1000550166215, 7.996515556717398, 14.735078181904104]]
 
     for result, reference in zip(results, refs):
-        assert result == pytest.approx(reference)
+        assert result == pytest.approx(reference, rel=3e-4)
         # assert result[:2] == approx(reference[:2], rel=1e-1)

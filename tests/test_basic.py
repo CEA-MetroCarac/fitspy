@@ -73,13 +73,18 @@ def test_calculate_outliers(basic_spectrum):
 
 
 def test_normalization(basic_spectrum):
+    basic_spectrum.y[10] = 120
     basic_spectrum.normalize = True
+    basic_spectrum.normalize_range_min = 20
+    basic_spectrum.normalize_range_max = 30
     basic_spectrum.normalization()
-    assert np.max(basic_spectrum.y) == approx(100.0)
+    assert np.min(basic_spectrum.y) == approx(100.0)
+    assert np.max(basic_spectrum.y) == approx(120.0)
 
-    basic_spectrum.normalize_range_min = 90
-    basic_spectrum.normalize_range_max = 110
+    basic_spectrum.normalize_range_min = 0
+    basic_spectrum.normalize_range_max = 20
     basic_spectrum.normalization()
+    assert np.min(basic_spectrum.y) == approx(100/120*100)
     assert np.max(basic_spectrum.y) == approx(100.0)
 
 
@@ -95,10 +100,17 @@ def test_linear_baseline(basic_spectrum):
     assert np.all(basic_spectrum.y == 50)
 
 def test_semiauto_baseline(basic_spectrum):
+    x = basic_spectrum.x
+    peak = 50 * np.exp(-((x - 150) ** 2) / (2 * 20 ** 2))
+    basic_spectrum.y = basic_spectrum.y + peak
     basic_spectrum.auto_baseline()
     assert basic_spectrum.baseline.mode == 'Semi-Auto'
     basic_spectrum.eval_baseline()
-    assert np.all(basic_spectrum.baseline.y_eval == approx(100.0))
+    
+    # Check that the maximum of the evaluated baseline occurs near the peak position (x=150)
+    idx_peak = np.argmax(basic_spectrum.baseline.y_eval)
+    peak_position = basic_spectrum.x[idx_peak]
+    assert abs(peak_position - 150) < 5
 
 
 def test_remove_models(basic_spectrum):
