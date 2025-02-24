@@ -338,22 +338,17 @@ class SettingsController(QObject):
         current_text = combo_box.currentText().replace(" (Preview)", "")
 
         def lock_inputs(state):
-            # List of parent widgets to disable their children
-            parent_widgets = [
-                self.model_builder.model_settings.container,  # to keep the scroll bar enabled
+            widgets_to_disable = [
+                self.model_builder.model_settings.container,
                 self.model_builder.model_selector,
                 self.model_builder.baseline_table,
-                self.model_builder.peaks_table,
-                self.model_builder.bkg_table,
+                self.model_builder.bkg_table.table,
+                self.model_builder.peaks_table.table,
                 self.solver_settings,
             ]
 
-            for parent in parent_widgets:
-                for widget in parent.findChildren(QWidget):
-                    widget.setDisabled(state)
-
-            # Keep the preview checkbox enabled
-            self.model_builder.model_selector.preview.setDisabled(False)
+            for widget in widgets_to_disable:
+                widget.setDisabled(state)
 
         if checked:
             # Backup the current fit model
@@ -364,15 +359,15 @@ class SettingsController(QObject):
             model = load_from_json(current_text)
             model = model[next(iter(model))]
             model.pop("fname", None)
+            self.applyModel.emit(model)  # Applying before lock cause if peaks table is empty, nothing will be locked
             lock_inputs(True)
-
         else:
             # Restore the backup fit model
             if self.model.backup_fit_model is not None:
                 model = copy.deepcopy(self.model.backup_fit_model)
             combo_box.setItemText(current_index, current_text)
             lock_inputs(False)
-        self.applyModel.emit(model)
+            self.applyModel.emit(model)
 
     def switch_peak_model(self, model_name):
         self.model_builder.tab_widget.setCurrentIndex(0)
