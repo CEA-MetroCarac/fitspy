@@ -1,8 +1,20 @@
 Release Notes
 =============
 
-Version 2025.dev
-----------------
+Version 2025.2
+--------------
+
+**Enhancements:**
+- Added python version in About window (PySide).
+- Added reinit_spectra method to Appli class for spectra reinitialization (PySide).
+
+**Bug fixes:**
+- Fixed #42: Do not reinitialize params when 'vary' is False
+- Fixed #43: Fit fails when Xmin/Xmax contains "inf" or "NaN"
+- Fixed #44: Peak Table values not in the correct columns
+
+Version 2025.1
+--------------
 
 **New features:**
 
