@@ -506,7 +506,7 @@ class Spectrum:
 
     def fit(self, fit_method=None, fit_negative=None, fit_outliers=None,
             max_ite=None, coef_noise=None, xtol=None, reinit_guess=True,
-            independent_models=False, **kwargs):
+            **kwargs):
         """
         Fit the peaks and background models
 
@@ -537,9 +537,6 @@ class Spectrum:
             Key to adapt initial values for 'ampli' and 'fwhm', 'fwhm_l' or
             'fwhm_r' to the spectrum intensity at the corresponding point 'x0'.
             Default value is True.
-        independent_models: bool, optional
-            Key to fit each model of the composite model separately.
-            Default value is False.
         kwargs: dict, optional
             Dictionary of optional arguments passed to lmfit.fit()
         """
@@ -640,36 +637,14 @@ class Spectrum:
         if self.fit_params['method'] in ['leastsq', 'least_squares']:
             fit_kws.update({'xtol': self.fit_params['xtol']})
 
-        y = y[weights]
         x = x[weights]
-        if not independent_models:
-            self.result_fit = comp_model.fit(y, params, x=x,
-                                             method=self.fit_params['method'],
-                                             max_nfev=max_nfev,
-                                             fit_kws=fit_kws,
-                                             **kwargs)
-            self.reassign_params()
-
-        else:
-            best_fits = []
-            success = True
-            for k, model in enumerate(comp_model.components):
-                result_fit = model.fit(y, params, x=x,
-                                       method=self.fit_params['method'],
-                                       max_nfev=max_nfev,
-                                       fit_kws=fit_kws,
-                                       **kwargs)
-                success *= result_fit.success
-                best_fits.append(result_fit.best_fit)
-
-                # model parameters reassignment
-                for key in model.param_names:
-                    param = result_fit.params[key]
-                    name = key[4:]  # remove prefix 'mXX_'
-                    model.set_param_hint(name, value=param.value)
-
-            self.result_fit.best_fit = np.sum(np.asarray(best_fits), axis=0)
-            self.result_fit.success = success
+        y = y[weights]
+        self.result_fit = comp_model.fit(y, params, x=x,
+                                         method=self.fit_params['method'],
+                                         max_nfev=max_nfev,
+                                         fit_kws=fit_kws,
+                                         **kwargs)
+        self.reassign_params()
 
         # reassign initial 'vary' values
         if vary_init is not None:
