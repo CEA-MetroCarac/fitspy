@@ -334,7 +334,7 @@ class Spectrum:
 
     @staticmethod
     def create_peak_model(index, model_name, x0, ampli,
-                          fwhm=1., fwhm_l=1., fwhm_r=1., alpha=0.5):
+                          fwhm=1., fwhm_l=1., fwhm_r=1., alpha=0.5, dx0=20., dfwhm=200.):
         """
         Create a 'lmfit' model associated to one peak
 
@@ -355,6 +355,11 @@ class Spectrum:
         alpha: float, optional
             Optional parameter passed to the 'PseudoVoigt' model.
             Default value is 0.5.
+        dx0: float, optional
+            Variation allowed around x0. x0 in [x0-dx0; x0+dx0].
+            Default value is 20.
+        dfwhm: float, optional
+            Variation (upper value) allowed for fwhm / fwhm_l /fwhm_r. fwhm_ in [0; dfwhm]
 
         Returns
         -------
@@ -367,8 +372,8 @@ class Spectrum:
 
         kwargs_ = {'min': -np.inf, 'max': np.inf, 'vary': True, 'expr': None}
         kwargs_ampli = {'min': 0, 'max': np.inf, 'vary': True, 'expr': None}
-        kwargs_fwhm = {'min': 0, 'max': 200, 'vary': True, 'expr': None}
-        kwargs_x0 = {'min': x0 - 20, 'max': x0 + 20, 'vary': True, 'expr': None}
+        kwargs_fwhm = {'min': 0, 'max': dfwhm, 'vary': True, 'expr': None}
+        kwargs_x0 = {'min': x0 - dx0, 'max': x0 + dx0, 'vary': True, 'expr': None}
         kwargs_alpha = {'min': 0, 'max': 1, 'vary': True, 'expr': None}
 
         for name in peak_model.param_names:
@@ -395,7 +400,8 @@ class Spectrum:
                 self.bkg_model.set_param_hint(key, value=param.value)
 
     def add_peak_model(self, model_name, x0, ampli=None,
-                       fwhm=None, fwhm_l=None, fwhm_r=None, alpha=0.5):
+                       fwhm=None, fwhm_l=None, fwhm_r=None, alpha=0.5,
+                       dx0=20., dfwhm=200.):
         """
         Add a peak model passing model_name and indice position or parameters
 
@@ -414,7 +420,13 @@ class Spectrum:
             at Half Maximum. Default values are x-step size (x[1]-x[0]).
         alpha: float, optional
             Optional parameter passed to the 'PseudoVoigt' model.
-            Default values is 0.5.
+            Default value is 0.5.
+        dx0: float, optional
+            Variation allowed around x0, i.e. x0 should be in [x0-dx0; x0+dx0].
+            Default value is 20.
+        dfwhm: float, optional
+            Variation (upper value) allowed for fwhm*, i.e. fwhm* should be in [0; dfwhm]
+            Default value is 200.
         """
         dx = max(np.diff(self.x))
 
@@ -425,7 +437,7 @@ class Spectrum:
 
         index = next(self.peak_index)
         peak_model = self.create_peak_model(index, model_name, x0, ampli,
-                                            fwhm, fwhm_l, fwhm_r, alpha)
+                                            fwhm, fwhm_l, fwhm_r, alpha, dx0, dfwhm)
         self.peak_models.append(peak_model)
         self.peak_labels.append(f"{index}")
 
