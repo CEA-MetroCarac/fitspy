@@ -561,22 +561,22 @@ class Spectrum:
             self.fit_params['xtol'] = xtol
 
         x, y = self.x, self.y
-        weights = np.ones_like(x)
+        weights = np.ones_like(x, dtype=bool)
         vary_init = None
         noise_level = 0
 
         if not self.fit_params['fit_negative']:
-            weights[y < 0] = 0
+            weights[y < 0] = False
 
         if not self.fit_params['fit_outliers']:
             x_outliers, _ = self.calculate_outliers()
             if x_outliers is not None:
-                weights[np.where(np.isin(x, x_outliers))] = 0
+                weights[np.where(np.isin(x, x_outliers))] = False
 
         if self.fit_params['coef_noise'] > 0:
             ampli_noise = eval_noise_amplitude(y)
             noise_level = self.fit_params['coef_noise'] * ampli_noise
-            weights[y < noise_level] = 0
+            weights[y < noise_level] = False
 
         # composite model creation
         comp_model = None
@@ -640,8 +640,10 @@ class Spectrum:
         if self.fit_params['method'] in ['leastsq', 'least_squares']:
             fit_kws.update({'xtol': self.fit_params['xtol']})
 
+        y = y[weights]
+        x = x[weights]
         if not independent_models:
-            self.result_fit = comp_model.fit(y, params, x=x, weights=weights,
+            self.result_fit = comp_model.fit(y, params, x=x,
                                              method=self.fit_params['method'],
                                              max_nfev=max_nfev,
                                              fit_kws=fit_kws,
@@ -652,7 +654,7 @@ class Spectrum:
             best_fits = []
             success = True
             for k, model in enumerate(comp_model.components):
-                result_fit = model.fit(y, params, x=x, weights=weights,
+                result_fit = model.fit(y, params, x=x,
                                        method=self.fit_params['method'],
                                        max_nfev=max_nfev,
                                        fit_kws=fit_kws,
