@@ -260,7 +260,8 @@ class ModelSettings(QWidget):
                                 toolTip="Save selected fit models in a JSON file")
         self.save.setIconSize(QSize(20, 20))
 
-        self.fit = QPushButton("Fit")
+        self.fit = QPushButton(text="Run Model",
+                               toolTip="Preprocess+fit the selected spectra with current model")
 
         HLayout.addWidget(self.fit)
         HLayout.addWidget(self.save)
@@ -290,8 +291,11 @@ class ModelSelector(QWidget):
         self.preview = QCheckBox("Preview",
                                  toolTip="Preview the selected model without applying it")
 
-        self.apply = QPushButton("Apply Model", icon=QIcon(get_icon_path("apply.png")),
-                                 toolTip="Apply the first model of file to selection")
+        self.apply = QPushButton(
+            "Apply Model",
+            icon=QIcon(get_icon_path("apply.png")),
+            toolTip="Apply the first model of file to selection, no preprocessing/fitting",
+        )
 
         self.add = QPushButton("Add Model", icon=QIcon(get_icon_path("add.png")),
                                toolTip="Load .json file and add it to the list of models")
