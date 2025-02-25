@@ -2,7 +2,6 @@ import os
 from PySide6.QtCore import QObject, QUrl
 from PySide6.QtGui import QColor, QDesktopServices
 from PySide6.QtWidgets import QApplication, QFileDialog, QMessageBox
-# from pyqttoast import Toast, ToastPreset
 
 # import fitspy
 # from fitspy.core.spectra import Spectra
@@ -56,7 +55,7 @@ class MainController(QObject):
         self.model.peaksCmapChanged.connect(self.update_peaks_cmap)
         self.model.mapCmapChanged.connect(self.update_map_cmap)
 
-        # self.files_controller.showToast.connect(self.show_toast)
+        self.files_controller.showToast.connect(self.show_toast)
         self.files_controller.askConfirmation.connect(self.show_confirmation_dialog)
         self.files_controller.loadSpectra.connect(self.plot_controller.load_spectra)
         self.files_controller.loadSpectrum.connect(self.plot_controller.load_spectrum)
@@ -75,7 +74,7 @@ class MainController(QObject):
         self.files_controller.saveResults.connect(
             lambda fnames: self.save_results(fnames=fnames))
 
-        # self.plot_controller.showToast.connect(self.show_toast)
+        self.plot_controller.showToast.connect(self.show_toast)
         self.plot_controller.askConfirmation.connect(self.show_confirmation_dialog)
         self.plot_controller.spectrumLoaded.connect(self.files_controller.add_spectrum)
         self.plot_controller.spectrumDeleted.connect(self.files_controller.del_spectrum)
@@ -93,7 +92,7 @@ class MainController(QObject):
             self.files_controller.colorize_from_fit_status)
         self.plot_controller.exportCSV.connect(self.export_to_csv)
 
-        # self.settings_controller.showToast.connect(self.show_toast)
+        self.settings_controller.showToast.connect(self.show_toast)
         self.settings_controller.settingChanged.connect(self.set_setting)
         self.settings_controller.calculateOutliers.connect(self.outliers_calculation)
         self.settings_controller.setSpectrumAttr.connect(self.plot_controller.set_spectrum_attr)
@@ -292,27 +291,33 @@ class MainController(QObject):
             print("Operation aborted by the user.")
             return False
 
-    # def show_toast(self, preset, title, text, duration=3000):
-    #     preset_mapping = {
-    #         "success": (ToastPreset.SUCCESS, ToastPreset.SUCCESS_DARK),
-    #         "warning": (ToastPreset.WARNING, ToastPreset.WARNING_DARK),
-    #         "error": (ToastPreset.ERROR, ToastPreset.ERROR_DARK),
-    #         "info": (ToastPreset.INFORMATION, ToastPreset.INFORMATION_DARK),
-    #     }
-    #
-    #     current_theme = self.model.theme
-    #     is_dark_theme = current_theme == "dark"
-    #
-    #     toast = Toast(self.view)
-    #     toast.setDuration(duration)
-    #     toast.setTitle(title)
-    #     toast.setText(text)
-    #
-    #     # Select the appropriate preset based on the theme
-    #     selected_preset = preset_mapping[preset.lower()][is_dark_theme]
-    #     toast.applyPreset(selected_preset)
-    #
-    #     toast.show()
+    def show_toast(self, preset, title, text, duration=3000):  
+        try:  # https://github.com/niklashenning/pyqttoast/issues/23
+            from pyqttoast import Toast, ToastPreset
+        except:
+            print(f"[{preset.upper()}] {title}: {text}")
+            return
+
+        preset_mapping = {
+            "success": (ToastPreset.SUCCESS, ToastPreset.SUCCESS_DARK),
+            "warning": (ToastPreset.WARNING, ToastPreset.WARNING_DARK),
+            "error": (ToastPreset.ERROR, ToastPreset.ERROR_DARK),
+            "info": (ToastPreset.INFORMATION, ToastPreset.INFORMATION_DARK),
+        }
+    
+        current_theme = self.model.theme
+        is_dark_theme = current_theme == "dark"
+    
+        toast = Toast(self.view)
+        toast.setDuration(duration)
+        toast.setTitle(title)
+        toast.setText(text)
+    
+        # Select the appropriate preset based on the theme
+        selected_preset = preset_mapping[preset.lower()][is_dark_theme]
+        toast.applyPreset(selected_preset)
+    
+        toast.show()
 
     def get_ncpus(self, nfiles):
         """Return the number of CPUs to work with"""

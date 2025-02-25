@@ -36,7 +36,7 @@ dependencies = [
     "parse",
     "dill",
     "superqt[cmap]",
-    #    "pyqt-toast-notification",
+    "pyqt-toast-notification",
     "rosettasciio",
     "pywin32; platform_system == 'Windows'",
 ]
