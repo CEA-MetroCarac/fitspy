@@ -21,6 +21,8 @@ def cmap():
 
 
 class SpinBoxGroupWithExpression(QWidget):
+    showToast = Signal(str, str, str)
+    
     def __init__(self, min_value=None, value=None, max_value=None, expr=None, parent=None):
         super().__init__(parent)
         self.layout = QVBoxLayout(self)
@@ -36,6 +38,12 @@ class SpinBoxGroupWithExpression(QWidget):
         self.min_spin_box.setMinimumWidth(min_width)
         self.value_spin_box.setMinimumWidth(min_width)
         self.max_spin_box.setMinimumWidth(min_width)
+
+        self.min_spin_box.editingFinished.connect(self._validate_bounds)
+        self.max_spin_box.valueChanged.connect(self._validate_bounds)
+        self.value_spin_box.editingFinished.connect(self._validate_value)
+
+        self._previous_value = value if value is not None else float("inf")
 
         if min_value is not None:
             self.min_spin_box.setValue(min_value)
@@ -54,6 +62,44 @@ class SpinBoxGroupWithExpression(QWidget):
 
         self.layout.addLayout(self.spin_box_layout)
         self.layout.addWidget(self.expr_edit)
+    
+    def _validate_bounds(self):
+        min_val = self.min_spin_box.value()
+        max_val = self.max_spin_box.value()
+        
+        if min_val > max_val:
+            # Reset to previous valid bounds
+            if self.sender() == self.min_spin_box:
+                self.min_spin_box.setValue(max_val)
+            else:
+                self.max_spin_box.setValue(min_val)
+            self.showToast.emit(
+                "WARNING",
+                "Invalid bounds",
+                "Minimum value must be less than maximum value.",
+            )
+            return False
+        return True
+
+    def _validate_value(self):
+        if not self._validate_bounds():
+            self.value_spin_box.setValue(self._previous_value)
+            return
+            
+        min_val = self.min_spin_box.value()
+        max_val = self.max_spin_box.value()
+        current_val = self.value_spin_box.value()
+
+        if not (min_val <= current_val <= max_val):
+            self.value_spin_box.setValue(self._previous_value)
+            self.showToast.emit(
+                "WARNING",
+                "Value out of bounds",
+                f"Value {current_val} must be between {min_val} and "
+                f"{max_val}.",
+            )
+        else:
+            self._previous_value = current_val
 
     def get_values(self):
         return {
@@ -180,30 +226,7 @@ class PeaksTable(QWidget):
 
     def emit_peaks_changed(self):
         self.update_columns_based_on_model()
-
-        peaks = self.get_peaks()
-
-        # if there is a peak with incorrect bounds, show a warning and return
-        for peak in peaks["peak_models"].values():
-            for model in peak.values():
-                for param in model.values():
-                    if param["min"] > param["max"]:
-                        self.showToast.emit(
-                            "WARNING",
-                            "Invalid bounds",
-                            "Minimum value must be less than maximum value.",
-                        )
-                        return
-                    if not (param["min"] <= param["value"] <= param["max"]):
-                        self.showToast.emit(
-                            "WARNING",
-                            "Value out of bounds",
-                            f"Value {param['value']} must be between {param['min']} and "
-                            f"{param['max']}.",
-                        )
-                        return
-
-        self.peaksChanged.emit(peaks)
+        self.peaksChanged.emit(self.get_peaks())
 
     def create_spin_box_group_with_expr(
             self, min_value=0, value=0, max_value=0, expr=""
@@ -214,6 +237,7 @@ class PeaksTable(QWidget):
         widget.max_spin_box.editingFinished.connect(self.emit_peaks_changed)
         widget.expr_edit.editingFinished.connect(self.emit_peaks_changed)
         widget.show_bounds(self.show_bounds_state)
+        widget.showToast.connect(self.showToast)
         widget.show_expr(self.show_expr_state)
         return widget
 
