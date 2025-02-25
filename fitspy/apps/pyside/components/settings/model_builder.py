@@ -308,6 +308,15 @@ class ModelSelector(QWidget):
         h_layout.setStretch(4, 0)
 
         self.setLayout(h_layout)
+    
+    def setDisabled(self, state):
+        """Override setDisabled to keep preview checkbox enabled"""
+        self.combo_box.setDisabled(state)
+        self.apply.setDisabled(state)
+        self.add.setDisabled(state)
+        
+    def setEnabled(self, state):
+        self.setDisabled(not state)
 
 
 class ModelBuilder(QWidget):

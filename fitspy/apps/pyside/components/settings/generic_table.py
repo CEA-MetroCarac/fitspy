@@ -16,6 +16,19 @@ class GenericTable(QTableWidget):
         self.setSelectionMode(QAbstractItemView.MultiSelection)
         self.setSelectionBehavior(QAbstractItemView.SelectRows)
 
+    def setDisabled(self, state):
+        """Override setDisabled to keep scrollbars enabled while disabling cell widgets"""
+        super().setEnabled(True)
+        
+        for row in range(self.rowCount()):
+            for col in range(self.columnCount()):
+                widget = self.cellWidget(row, col)
+                if widget:
+                    widget.setEnabled(not state)
+
+    def setEnabled(self, state):
+        self.setDisabled(not state)
+
     def set_header_resize_mode(self, mode):
         header = self.horizontalHeader()
         for col in range(self.columnCount()):
