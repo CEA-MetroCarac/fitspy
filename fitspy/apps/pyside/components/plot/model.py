@@ -364,17 +364,10 @@ class Model(QObject):
 
             bbox = {"facecolor": 'w', "edgecolor": color, "boxstyle": 'round'}
             self.tmp.append(ax.annotate(text, xy=(x, y), xycoords="data",
-                                        bbox=bbox, verticalalignment="top"))
+                                        bbox=bbox, verticalalignment="bottom"))
 
         if self.tmp is not None:
-            for annotation in self.tmp:
-                try:
-                    annotation.remove()
-                except (NotImplementedError, RuntimeError, ValueError):
-                    # Silently handle the case where annotation was already removed
-                    # This can happen when the plot is redrawn (e.g., during a fit operation)
-                    # while annotations are visible
-                    pass
+            [x.remove() for x in self.tmp]
             self.tmp = None
 
         nspectra = len(self.current_spectra)
@@ -569,6 +562,7 @@ class Model(QObject):
         current_title = ax.get_title()
         ax.clear()
         ax.set_title(current_title)
+        self.tmp = None
 
         if not self.current_spectra:
             ax.get_figure().canvas.draw_idle()

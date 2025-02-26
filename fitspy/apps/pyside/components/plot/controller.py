@@ -106,8 +106,10 @@ class PlotController(QObject):
     #     self.model.on_motion(ax, event)
 
     def on_motion(self, event):
-        ax = self.spectra_plot.ax
-        self.model.on_motion(ax, event)
+        view_options = self.view_options.get_view_options()
+        if view_options["Annotations"]:
+            ax = self.spectra_plot.ax
+            self.model.on_motion(ax, event)
 
     def set_marker(self, spectrum_or_fname_or_coords):
         if self.model.current_map:

@@ -23,6 +23,7 @@ DEFAULTS = {
         "residual": False,
         "peaks": True,
         "peak_labels": True,
+        "annotations": True,
         'preserve_axes': False,
     }
 }
