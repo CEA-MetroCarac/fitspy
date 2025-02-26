@@ -215,17 +215,15 @@ class Callbacks:
             showerror(message='No model has been loaded')
             return
 
+        if fit_params is not None:
+            model_dict['fit_params'] = fit_params
+
         if fnames is None:
             fnames = self.fileselector.filenames
             fnames = [fnames[i] for i in self.fileselector.lbox.curselection()]
 
         nfiles = len(fnames)
         ncpus = ncpus or self.get_ncpus(nfiles=nfiles)
-
-        if fit_params is not None:
-            for fname in fnames:
-                spectrum, _ = self.spectra.get_objects(fname)
-                spectrum.fit_params = deepcopy(fit_params)
 
         self.spectra.pbar_index = 0
         args = (model_dict, fnames, ncpus)
