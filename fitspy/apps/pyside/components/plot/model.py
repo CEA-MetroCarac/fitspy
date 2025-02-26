@@ -367,7 +367,14 @@ class Model(QObject):
                                         bbox=bbox, verticalalignment="top"))
 
         if self.tmp is not None:
-            [x.remove() for x in self.tmp]
+            for annotation in self.tmp:
+                try:
+                    annotation.remove()
+                except (NotImplementedError, RuntimeError, ValueError):
+                    # Silently handle the case where annotation was already removed
+                    # This can happen when the plot is redrawn (e.g., during a fit operation)
+                    # while annotations are visible
+                    pass
             self.tmp = None
 
         nspectra = len(self.current_spectra)
