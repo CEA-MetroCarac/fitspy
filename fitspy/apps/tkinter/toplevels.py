@@ -359,9 +359,11 @@ class FitSettings(Settings):
         super().__init__(root)
         neg_value = int(FIT_PARAMS['fit_negative'])
         outliers = int(FIT_PARAMS['fit_outliers'])
+        independent = int(FIT_PARAMS['independent_models'])
         self.params = {
             'fit_negative_values': StringVar(value=['Off', 'On'][neg_value]),
             'fit_outliers': StringVar(value=['Off', 'On'][outliers]),
+            'independent_models': StringVar(value=['Off', 'On'][independent]),
             'coef_noise': DoubleVar(value=FIT_PARAMS['coef_noise']),
             'maximum_iterations': IntVar(value=FIT_PARAMS['max_ite']),
             'method': StringVar(value=FIT_PARAMS['method']),

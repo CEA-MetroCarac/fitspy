@@ -19,11 +19,14 @@ class SolverSettings(QGroupBox):
 
         vbox = QVBoxLayout()
 
-        self.fit_negative = QCheckBox("Fit negative values:")
+        self.fit_negative = QCheckBox("Fit negative values")
         self.fit_negative.setChecked(FIT_PARAMS["fit_negative"])
 
-        self.fit_outliers = QCheckBox("Fit outliers:")
+        self.fit_outliers = QCheckBox("Fit outliers")
         self.fit_outliers.setChecked(FIT_PARAMS["fit_outliers"])
+
+        self.independent_models = QCheckBox("Independent models")
+        self.independent_models.setChecked(FIT_PARAMS["independent_models"])
 
         self.coef_noise_label = QLabel("Coefficient noise:")
         self.coef_noise = DoubleSpinBox()
@@ -45,6 +48,7 @@ class SolverSettings(QGroupBox):
 
         vbox.addWidget(self.fit_negative)
         vbox.addWidget(self.fit_outliers)
+        vbox.addWidget(self.independent_models)
 
         hbox0 = QHBoxLayout()
         hbox0.addWidget(self.coef_noise_label)
@@ -89,6 +93,7 @@ class SolverSettings(QGroupBox):
         self.blockSignals(True)
         self.fit_negative.setChecked(fit_params["fit_negative"])
         self.fit_outliers.setChecked(fit_params["fit_outliers"])
+        self.independent_models.setChecked(fit_params["independent_models"])
         self.coef_noise.setValue(fit_params["coef_noise"])
         self.max_ite.setValue(fit_params["max_ite"])
         self.method.setCurrentText(fit_params["method"])

@@ -119,6 +119,9 @@ class Spectrum:
             Relative error desired in the solution approximated by the 'Leastsq'
             or the 'Least_square' algorithm.
             Default is 1e-4.
+        * independent_models: bool
+            Key to fit each model of the composite model separately.
+            Default value is False.
     result_fit: lmfit.ModelResult
         Object resulting from lmfit fitting. Default value is a 'None' object
         (function) that enables to address a 'result_fit.success' status.
@@ -178,6 +181,8 @@ class Spectrum:
             self.fit_params['max_ite'] = model_dict.pop('max_ite')
         if 'xtol' in keys:
             self.fit_params['xtol'] = model_dict.pop('xtol')
+        if 'independent_models' in keys:
+            self.fit_params['independent_models'] = model_dict.pop('independent_models')
 
         for key, val in vars(self).items():
             if key in keys and key != 'baseline':
@@ -504,7 +509,7 @@ class Spectrum:
                                               vary=True, expr=None)
             self.bkg_model.name2 = bkg_name
 
-    def fit(self, fit_method=None, fit_negative=None, fit_outliers=None,
+    def fit(self, fit_method=None, fit_negative=None, fit_outliers=None, independent_models=None,
             max_ite=None, coef_noise=None, xtol=None, reinit_guess=True,
             **kwargs):
         """
@@ -521,6 +526,9 @@ class Spectrum:
             Default value is False.
         fit_outliers: bool, optional
             Activation key to take into account outliers during the fit.
+            Default value is False.
+        independent_models: bool, optional
+            Key to fit each model of the composite model separately.
             Default value is False.
         max_ite: int, optional
             Number of maximum iterations (1 iteration corresponds to 1 gradient
@@ -550,6 +558,8 @@ class Spectrum:
             self.fit_params['fit_negative'] = fit_negative
         if fit_outliers is not None:
             self.fit_params['fit_outliers'] = fit_outliers
+        if independent_models is not None:
+            self.fit_params['independent_models'] = independent_models
         if max_ite is not None:
             self.fit_params['max_ite'] = max_ite
         if coef_noise is not None:
@@ -637,17 +647,41 @@ class Spectrum:
         if self.fit_params['method'] in ['leastsq', 'least_squares']:
             fit_kws.update({'xtol': self.fit_params['xtol']})
 
-        self.result_fit = comp_model.fit(y[mask], params, x=x[mask],
-                                         method=self.fit_params['method'],
-                                         max_nfev=max_nfev,
-                                         fit_kws=fit_kws,
-                                         **kwargs)
+        if not self.fit_params['independent_models']:
 
+            self.result_fit = comp_model.fit(y[mask], params, x=x[mask],
+                                             method=self.fit_params['method'],
+                                             max_nfev=max_nfev,
+                                             fit_kws=fit_kws,
+                                             **kwargs)
+            self.reassign_params()
+
+        else:
+
+            best_fits = []
+            success = True
+            for k, model in enumerate(comp_model.components):
+                result_fit = model.fit(y[mask], params, x=x[mask],
+                                       method=self.fit_params['method'],
+                                       max_nfev=max_nfev,
+                                       fit_kws=fit_kws,
+                                       **kwargs)
+                success *= result_fit.success
+                best_fits.append(result_fit.best_fit)
+
+                # model parameters reassignment
+                for key in model.param_names:
+                    param = result_fit.params[key]
+                    name = key[4:]  # remove prefix 'mXX_'
+                    model.set_param_hint(name, value=param.value)
+
+            self.result_fit.best_fit = np.sum(np.asarray(best_fits), axis=0)
+            self.result_fit.success = success
+
+        # give to 'best_fit' its correct size
         best_fit = self.result_fit.best_fit
         self.result_fit.best_fit = mask.astype(float)
         self.result_fit.best_fit[mask] = best_fit
-
-        self.reassign_params()
 
         # reassign initial 'vary' values
         if vary_init is not None:

@@ -116,6 +116,8 @@ class SettingsController(QObject):
             lambda checked: self.update_and_emit("fit_params.fit_negative", checked))
         self.solver_settings.fit_outliers.toggled.connect(
             lambda checked: self.update_and_emit("fit_params.fit_outliers", checked))
+        self.solver_settings.independent_models.toggled.connect(
+            lambda checked: self.update_and_emit("fit_params.independent_models", checked))
         self.solver_settings.method.currentTextChanged.connect(
             lambda text: self.update_and_emit("fit_params.method", FIT_METHODS[text]))
         self.solver_settings.max_ite.valueChanged.connect(
