@@ -97,8 +97,16 @@ class DragNDropList(QListWidget):
             if item.text() in fnames:
                 if color is None:
                     item.setBackground(Qt.transparent)
+                    item.setForeground(Qt.NoBrush)
                 else:
-                    item.setBackground(QColor(color))
+                    bg_color = QColor(color)
+                    item.setBackground(bg_color)
+                    
+                    # Calculate luminance to determine if text should be black or white
+                    luminance = (0.299 * bg_color.red() + 
+                                0.587 * bg_color.green() + 
+                                0.114 * bg_color.blue()) / 255
+                    item.setForeground(Qt.black if luminance > 0.5 else Qt.white)
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Delete:
