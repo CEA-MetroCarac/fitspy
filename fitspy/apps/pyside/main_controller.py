@@ -54,6 +54,8 @@ class MainController(QObject):
         self.model.defaultsRestored.connect(self.apply_settings)
         self.model.peaksCmapChanged.connect(self.update_peaks_cmap)
         self.model.mapCmapChanged.connect(self.update_map_cmap)
+        self.model.dx0Changed.connect(lambda: DEFAULTS.update({"dx0": self.model.dx0}))
+        self.model.dfwhmChanged.connect(lambda: DEFAULTS.update({"dfwhm": self.model.dfwhm}))
 
         self.files_controller.showToast.connect(self.show_toast)
         self.files_controller.askConfirmation.connect(self.show_confirmation_dialog)
@@ -123,6 +125,8 @@ class MainController(QObject):
         self.view.more_settings.other_settings.outliers_coef.setValue(self.model.outliers_coef)
         self.view.more_settings.other_settings.peaks_cmap.setCurrentText(self.model.peaks_cmap)
         self.view.more_settings.other_settings.map_cmap.setCurrentText(self.model.map_cmap)
+        self.view.more_settings.other_settings.dx0.setValue(self.model.dx0)
+        self.view.more_settings.other_settings.dfwhm.setValue(self.model.dfwhm)
 
         radio_button = getattr(self.view.toolbar, f"{self.model.click_mode}_radio")
         radio_button.setChecked(True)

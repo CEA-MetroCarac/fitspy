@@ -6,6 +6,8 @@ DEFAULTS = {
     'ncpus': 'Auto',
     'outliers_coef': 1.5,
     'click_mode': 'highlight',
+    'dx0': 20,
+    'dfwhm': 200,
     'peaks_cmap': 'tab10',
     'map_cmap': 'viridis',
     'figure_options': {'title': 'DEFAULT_TITLE (edit in toolbar)'},

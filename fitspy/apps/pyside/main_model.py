@@ -9,6 +9,8 @@ class MainModel(QObject):
     peaksCmapChanged = Signal()
     mapCmapChanged = Signal()
     defaultsRestored = Signal()
+    dx0Changed = Signal()
+    dfwhmChanged = Signal()
 
     def __init__(self):
         super().__init__()
@@ -32,6 +34,8 @@ class MainModel(QObject):
             "theme": self.themeChanged,
             "peaks_cmap": self.peaksCmapChanged,
             "map_cmap": self.mapCmapChanged,
+            "dx0": self.dx0Changed,
+            "dfwhm": self.dfwhmChanged,
         }
 
         def create_setting(default, type, signal=None):

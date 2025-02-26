@@ -134,6 +134,10 @@ class SettingsController(QObject):
             lambda cmap: self.settingChanged.emit("peaks_cmap", cmap.name.split(":")[1]))
         self.other_settings.map_cmap.currentColormapChanged.connect(
             lambda cmap: self.settingChanged.emit("map_cmap", cmap.name.split(":")[1]))
+        self.other_settings.dx0.valueChanged.connect(
+            lambda value: self.settingChanged.emit("dx0", value))
+        self.other_settings.dfwhm.valueChanged.connect(
+            lambda value: self.settingChanged.emit("dfwhm", value))
 
     def load_default_models(self):
         HOME = Path.home()

@@ -248,7 +248,7 @@ class Model(QObject):
             if dist < dist_min:
                 dist_min, ind_min = dist, ind
 
-        first_spectrum.add_peak_model(model, x0=x_sp[ind_min])
+        first_spectrum.add_peak_model(model, x0=x_sp[ind_min], dx0=DEFAULTS['dx0'], dfwhm=DEFAULTS['dfwhm'])
         self.PeaksChanged.emit(first_spectrum)
         self.refreshPlot.emit()
 

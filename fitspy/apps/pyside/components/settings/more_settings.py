@@ -4,7 +4,7 @@ from PySide6.QtWidgets import (QSizePolicy, QGroupBox, QPushButton, QWidget, QVB
 from superqt.cmap import CmapCatalogComboBox
 
 from fitspy import FIT_METHODS, FIT_PARAMS
-
+from fitspy.apps.pyside import DEFAULTS
 from fitspy.apps.pyside.components.settings.custom_spinbox import SpinBox, DoubleSpinBox
 
 
@@ -135,7 +135,6 @@ class OtherSettings(QGroupBox):
 
         # Peaks Colormap Selection
         hbox = QHBoxLayout()
-
         hbox.addWidget(QLabel("Peaks Colormap:"))
         # https://pyapp-kit.github.io/superqt/widgets/colormap_catalog/
         # https://cmap-docs.readthedocs.io/en/stable/catalog/#colormaps-by-category
@@ -145,10 +144,25 @@ class OtherSettings(QGroupBox):
 
         # 2D Map Colormap Selection
         hbox = QHBoxLayout()
-
         hbox.addWidget(QLabel("2D Map Colormap:"))
         self.map_cmap = CmapCatalogComboBox()
         hbox.addWidget(self.map_cmap)
+        vbox.addLayout(hbox)
+
+        # dx0
+        hbox = QHBoxLayout()
+        hbox.addWidget(QLabel("X0 Bounds (±):"))
+        self.dx0 = DoubleSpinBox()
+        self.dx0.setValue(DEFAULTS["dx0"])
+        hbox.addWidget(self.dx0)
+        vbox.addLayout(hbox)
+
+        # dfwhm
+        hbox = QHBoxLayout()
+        hbox.addWidget(QLabel("FWHM Max (0/+):"))
+        self.dfwhm = DoubleSpinBox()
+        self.dfwhm.setValue(DEFAULTS["dfwhm"])
+        hbox.addWidget(self.dfwhm)
         vbox.addLayout(hbox)
 
         self.setLayout(vbox)
