@@ -112,8 +112,8 @@ class Spectrum:
             Default is 200.
         * coef_noise: float
             Coefficient applied to the estimated noise amplitude to define a
-            threshold below which the fit weights are set to 0, and local
-            peak models are disabled .
+            threshold below which the mask values are set to False, and local
+            peak models are disabled.
             Default is 2.
         * xtol: float
             Relative error desired in the solution approximated by the 'Leastsq'
@@ -558,22 +558,22 @@ class Spectrum:
             self.fit_params['xtol'] = xtol
 
         x, y = self.x, self.y
-        weights = np.ones_like(x, dtype=bool)
+        mask = np.ones_like(x, dtype=bool)
         vary_init = None
         noise_level = 0
 
         if not self.fit_params['fit_negative']:
-            weights[y < 0] = False
+            mask[y < 0] = False
 
         if not self.fit_params['fit_outliers']:
             x_outliers, _ = self.calculate_outliers()
             if x_outliers is not None:
-                weights[np.where(np.isin(x, x_outliers))] = False
+                mask[np.where(np.isin(x, x_outliers))] = False
 
         if self.fit_params['coef_noise'] > 0:
             ampli_noise = eval_noise_amplitude(y)
             noise_level = self.fit_params['coef_noise'] * ampli_noise
-            weights[y < noise_level] = False
+            mask[y < noise_level] = False
 
         # composite model creation
         comp_model = None
@@ -637,13 +637,16 @@ class Spectrum:
         if self.fit_params['method'] in ['leastsq', 'least_squares']:
             fit_kws.update({'xtol': self.fit_params['xtol']})
 
-        x = x[weights]
-        y = y[weights]
-        self.result_fit = comp_model.fit(y, params, x=x,
+        self.result_fit = comp_model.fit(y[mask], params, x=x[mask],
                                          method=self.fit_params['method'],
                                          max_nfev=max_nfev,
                                          fit_kws=fit_kws,
                                          **kwargs)
+
+        best_fit = self.result_fit.best_fit
+        self.result_fit.best_fit = mask.astype(float)
+        self.result_fit.best_fit[mask] = best_fit
+
         self.reassign_params()
 
         # reassign initial 'vary' values
