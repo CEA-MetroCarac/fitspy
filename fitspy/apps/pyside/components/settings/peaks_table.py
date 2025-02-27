@@ -122,6 +122,12 @@ class SpinBoxGroupWithExpression(QWidget):
         self.min_spin_box.setVisible(show)
         self.max_spin_box.setVisible(show)
 
+    def blockSignals(self, b):
+        self.min_spin_box.blockSignals(b)
+        self.value_spin_box.blockSignals(b)
+        self.max_spin_box.blockSignals(b)
+        self.expr_edit.blockSignals(b)
+
 
 class CenteredCheckBox(QWidget):
     def __init__(self, checked=False, callback=None, parent=None):
@@ -146,6 +152,9 @@ class CenteredCheckBox(QWidget):
 
     def setChecked(self, checked):
         self.checkbox.setChecked(checked)
+    
+    def blockSignals(self, b):
+        self.checkbox.blockSignals(b)
 
 
 class PeaksTable(QWidget):
@@ -167,6 +176,7 @@ class PeaksTable(QWidget):
 
         columns = {"Prefix": QLabel, "Label": QLineEdit, "Model": QComboBox}
         self.table = GenericTable(columns=columns)
+        self.table.widgetsChanged.connect(self.emit_peaks_changed)  
         self.show_bounds(False)
         main_layout.addWidget(self.table)
         self.table.rowsDeleted.connect(self.emit_peaks_changed)
@@ -232,10 +242,6 @@ class PeaksTable(QWidget):
             self, min_value=0, value=0, max_value=0, expr=""
     ):
         widget = SpinBoxGroupWithExpression(min_value, value, max_value, expr)
-        widget.min_spin_box.editingFinished.connect(self.emit_peaks_changed)
-        widget.value_spin_box.editingFinished.connect(self.emit_peaks_changed)
-        widget.max_spin_box.editingFinished.connect(self.emit_peaks_changed)
-        widget.expr_edit.editingFinished.connect(self.emit_peaks_changed)
         widget.show_bounds(self.show_bounds_state)
         widget.showToast.connect(self.showToast)
         widget.show_expr(self.show_expr_state)
@@ -283,7 +289,7 @@ class PeaksTable(QWidget):
                             self.table.setCellWidget(row, col, widget)
                     elif param.endswith("_fixed"):
                         if not isinstance(widget, CenteredCheckBox):
-                            widget = CenteredCheckBox(callback=self.emit_peaks_changed)
+                            widget = CenteredCheckBox()
                             self.table.setCellWidget(row, col, widget)
 
             # Remove widgets for parameters not required by the model
@@ -307,13 +313,11 @@ class PeaksTable(QWidget):
         prefix_btn.clicked.connect(lambda: self.table.remove_widget_row(prefix_btn))
 
         label_edit = QLineEdit(params["label"])
-        label_edit.editingFinished.connect(self.emit_peaks_changed)
-
+        
         model_names = list(PEAK_MODELS.keys())
         model_combo = QComboBox()
         model_combo.addItems(model_names)
         model_combo.setCurrentText(params["model_name"])
-        model_combo.currentIndexChanged.connect(self.emit_peaks_changed)
 
         row_widgets = {"Prefix": prefix_btn, "Label": label_edit, "Model": model_combo}
 
@@ -333,7 +337,7 @@ class PeaksTable(QWidget):
                 row_widgets[param] = widget
             elif param.endswith("_fixed"):
                 checked = params.get(param, False)
-                widget = CenteredCheckBox(checked, callback=self.emit_peaks_changed)
+                widget = CenteredCheckBox(checked)
                 row_widgets[param] = widget
 
         # Ensure all columns are added to the table
