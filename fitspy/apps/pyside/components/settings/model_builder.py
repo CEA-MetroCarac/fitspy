@@ -292,9 +292,9 @@ class ModelSelector(QWidget):
                                  toolTip="Preview the selected model without applying it")
 
         self.apply = QPushButton(
-            "Apply Model",
+            "Set Model",
             icon=QIcon(get_icon_path("apply.png")),
-            toolTip="Apply the first model of file to selection, no preprocessing/fitting",
+            toolTip="Set the first model of file to selection, no preprocessing/fitting",
         )
 
         self.add = QPushButton("Add Model", icon=QIcon(get_icon_path("add.png")),
