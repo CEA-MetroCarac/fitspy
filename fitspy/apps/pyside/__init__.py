@@ -29,5 +29,12 @@ DEFAULTS = {
         'preserve_axes': False,
     }
 }
-
 DEFAULTS_INITIAL = DEFAULTS.copy()
+
+# Settings migration mappings
+SETTINGS_KEY_MIGRATIONS = {
+    # "new_key_1": ["old_key_1a", "old_key_1b"],
+}
+SETTINGS_VALUE_MIGRATIONS = {
+    "click_mode": {"fitting": "peaks"},
+}
