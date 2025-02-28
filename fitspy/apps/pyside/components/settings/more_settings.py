@@ -159,7 +159,7 @@ class OtherSettings(QGroupBox):
 
         # dfwhm
         hbox = QHBoxLayout()
-        hbox.addWidget(QLabel("FWHM Max (0/+):"))
+        hbox.addWidget(QLabel("FWHM Max:"))
         self.dfwhm = DoubleSpinBox()
         self.dfwhm.setValue(DEFAULTS["dfwhm"])
         hbox.addWidget(self.dfwhm)
