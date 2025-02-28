@@ -41,7 +41,7 @@ class Appli:
         if ncpus:
             self.model.ncpus = ncpus
         self.controller.files_controller.set_selection(self.view.spectrum_list.list, fnames)
-        self.view.fit_model_editor.model_selector.apply.click()
+        self.view.fit_model_editor.model_selector.set.click()
         self.view.fit_model_editor.model_settings.fit.click()
 
     def apply_model_to_all(self, ncpus=None):

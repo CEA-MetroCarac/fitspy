@@ -260,7 +260,7 @@ class ModelSettings(QWidget):
                                 toolTip="Save selected fit models in a JSON file")
         self.save.setIconSize(QSize(20, 20))
 
-        self.fit = QPushButton(text="Run Model",
+        self.fit = QPushButton(text="Apply Model",
                                toolTip="Preprocess+fit the selected spectra with current model")
 
         HLayout.addWidget(self.fit)
@@ -291,7 +291,7 @@ class ModelSelector(QWidget):
         self.preview = QCheckBox("Preview",
                                  toolTip="Preview the selected model without applying it")
 
-        self.apply = QPushButton(
+        self.set = QPushButton(
             "Set Model",
             icon=QIcon(get_icon_path("apply.png")),
             toolTip="Set the first model of file to selection, no preprocessing/fitting",
@@ -302,7 +302,7 @@ class ModelSelector(QWidget):
 
         h_layout.addWidget(self.combo_box)
         h_layout.addWidget(self.preview)
-        h_layout.addWidget(self.apply)
+        h_layout.addWidget(self.set)
         h_layout.addWidget(self.add)
 
         h_layout.setStretch(0, 1)
@@ -316,7 +316,7 @@ class ModelSelector(QWidget):
     def setDisabled(self, state):
         """Override setDisabled to keep preview checkbox enabled"""
         self.combo_box.setDisabled(state)
-        self.apply.setDisabled(state)
+        self.set.setDisabled(state)
         self.add.setDisabled(state)
         
     def setEnabled(self, state):
@@ -372,6 +372,7 @@ class ModelBuilder(QWidget):
 
         self.tab_widget.addTab(tab_content, "Peaks")
         self.tab_widget.addTab(self.bkg_table, "Background")
+        self.tab_widget.addTab(QWidget(), ".json model editor")
 
     def update_model(self, model):
         # Spectral range

@@ -107,7 +107,7 @@ class SettingsController(QObject):
         model_selector.combo_box.itemAdded.connect(
             lambda fname: self.load_model(fname))
         model_selector.add.clicked.connect(self.load_model)
-        model_selector.apply.clicked.connect(
+        model_selector.set.clicked.connect(
             lambda: self.select_model(model_selector.combo_box.currentText()))
         model_selector.preview.toggled.connect(self.preview_model)
 
