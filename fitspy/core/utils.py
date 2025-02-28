@@ -244,19 +244,25 @@ def get_x_data_from_rsciio(fname):
 def get_1d_profile(fname):
     """ Return the spectrum support ('x0') and its intensity ('y0') """
 
-    if Path(fname).suffix in ['.txt', '.csv']:
+    try:
         dfr = pd.read_csv(fname,
                           sep=r'\s+|\t|,|;| ', engine='python',
                           skiprows=1, usecols=[0, 1],
                           names=['x0', 'y0']).dropna()
         x0 = dfr['x0'].to_numpy()
         y0 = dfr['y0'].to_numpy()
-    else:
-        x0, y0 = get_x_data_from_rsciio(fname)
-        if y0.ndim != 1:
-            raise IOError(f"incorrect dimension associated with {fname}")
-
-    return x0, y0
+        return x0, y0
+    except:
+        try:
+            x0, y0 = get_x_data_from_rsciio(fname)
+            if y0.ndim != 1:
+                print(f"incorrect dimension associated with {fname}")
+                return None, None
+            else:
+                return x0, y0
+        except:
+            print(f"Unable to read data from {fname}")
+            return None, None
 
 
 def get_2d_map(fname):
