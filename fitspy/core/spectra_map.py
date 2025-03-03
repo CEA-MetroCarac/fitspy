@@ -161,6 +161,7 @@ class SpectraMap(Spectra):
         """ Plot the integrated spectra map intensities on 'ax' """
         ax.clear()
         self.ax = ax
+        self.marker = None
 
         fig = self.ax.get_figure()
         # fig.subplots_adjust(top=0.92)
