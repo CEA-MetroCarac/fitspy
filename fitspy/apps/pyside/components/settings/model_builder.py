@@ -1,14 +1,13 @@
 from PySide6.QtCore import Qt, Signal, QSize
 from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import (QRadioButton, QSlider, QVBoxLayout, QHBoxLayout, QScrollArea,
-                               QPushButton, QCheckBox, QLabel, QWidget, QComboBox, QSpacerItem,
+                               QPushButton, QCheckBox, QLabel, QWidget, QSpacerItem,
                                QSizePolicy, QButtonGroup, QTabWidget)
 from superqt import QCollapsible
 
 from fitspy import PEAK_MODELS, BKG_MODELS
 from fitspy.apps.pyside.utils import get_icon_path
-from fitspy.apps.pyside.components.settings.custom_spinbox import SpinBox, DoubleSpinBox
-from fitspy.apps.pyside.components.settings.dragndrop_combo import DragNDropCombo
+from fitspy.apps.pyside.components.custom_widgets import SpinBox, DoubleSpinBox, DragNDropCombo
 from fitspy.apps.pyside.components.settings.peaks_table import PeaksTable
 from fitspy.apps.pyside.components.settings.bkg_table import BkgTable
 from fitspy.apps.pyside.components.settings.baseline_table import BaselineTable
@@ -69,7 +68,7 @@ class Baseline(QCollapsible):
         self.semi_auto = QRadioButton("Semi-Auto :")
         self.slider = QSlider(Qt.Horizontal)
         self.slider.setRange(0, 10)
-        # self.slider.setValue(5)
+        self.slider.wheelEvent = lambda event: event.ignore()
         self.import_btn = QPushButton("Import")
 
         self.HLayout1.addWidget(self.none)

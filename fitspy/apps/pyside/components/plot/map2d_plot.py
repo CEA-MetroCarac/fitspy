@@ -3,11 +3,12 @@ from matplotlib.figure import Figure
 from matplotlib.backends.backend_qtagg import FigureCanvas
 
 from PySide6.QtCore import Qt, Signal
-from PySide6.QtWidgets import (QMainWindow, QComboBox, QWidget, QVBoxLayout, QLabel, QHBoxLayout,
+from PySide6.QtWidgets import (QMainWindow, QWidget, QVBoxLayout, QLabel, QHBoxLayout,
                                QPushButton, QTabWidget, QDockWidget)
 
 from superqt import QLabeledDoubleRangeSlider as QRangeSlider
 
+from fitspy.apps.pyside.components.custom_widgets import ComboBox
 from fitspy.apps.pyside import DEFAULTS
 
 
@@ -44,7 +45,7 @@ class CommonTabWithCombo(CommonTab):
 
     def initUI(self):
         label = QLabel("Label: ")
-        self.combo = QComboBox()
+        self.combo = ComboBox()
 
         hbox = QHBoxLayout()
         hbox.addWidget(label)

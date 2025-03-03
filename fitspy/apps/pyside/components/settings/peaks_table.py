@@ -1,6 +1,6 @@
 from matplotlib.colors import rgb2hex
 from PySide6.QtCore import Qt, Signal
-from PySide6.QtWidgets import (QLabel, QVBoxLayout, QPushButton, QComboBox, QLineEdit, QCheckBox,
+from PySide6.QtWidgets import (QLabel, QVBoxLayout, QPushButton, QLineEdit, QCheckBox,
                                QHeaderView, QWidget, QHBoxLayout)
 from PySide6.QtGui import QIcon
 
@@ -9,8 +9,7 @@ from fitspy.core.utils import get_model_params
 from fitspy.apps.pyside import DEFAULTS
 from fitspy.apps.pyside.utils import get_icon_path
 from fitspy.apps.pyside.components.settings.generic_table import GenericTable
-from fitspy.apps.pyside.components.settings.custom_spinbox import DoubleSpinBox
-
+from fitspy.apps.pyside.components.custom_widgets import DoubleSpinBox, ComboBox
 
 def model_params():
     return get_model_params(PEAK_MODELS)
@@ -174,7 +173,7 @@ class PeaksTable(QWidget):
         main_layout = QVBoxLayout(self)
         main_layout.setContentsMargins(0, 0, 0, 0)
 
-        columns = {"Prefix": QLabel, "Label": QLineEdit, "Model": QComboBox}
+        columns = {"Prefix": QLabel, "Label": QLineEdit, "Model": ComboBox}
         self.table = GenericTable(columns=columns)
         self.table.widgetsChanged.connect(self.emit_peaks_changed)  
         self.show_bounds(False)
@@ -315,7 +314,7 @@ class PeaksTable(QWidget):
         label_edit = QLineEdit(params["label"])
         
         model_names = list(PEAK_MODELS.keys())
-        model_combo = QComboBox()
+        model_combo = ComboBox()
         model_combo.addItems(model_names)
         model_combo.setCurrentText(params["model_name"])
 

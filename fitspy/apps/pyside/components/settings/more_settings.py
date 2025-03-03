@@ -1,11 +1,11 @@
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (QSizePolicy, QGroupBox, QPushButton, QWidget, QVBoxLayout,
-                               QHBoxLayout, QCheckBox, QComboBox, QLabel, QSpacerItem)
+                               QHBoxLayout, QCheckBox, QLabel, QSpacerItem)
 from superqt.cmap import CmapCatalogComboBox
 
+from fitspy.apps.pyside.components.custom_widgets import SpinBox, DoubleSpinBox, ComboBox
 from fitspy import FIT_METHODS, FIT_PARAMS
 from fitspy.apps.pyside import DEFAULTS
-from fitspy.apps.pyside.components.settings.custom_spinbox import SpinBox, DoubleSpinBox
 
 
 class SolverSettings(QGroupBox):
@@ -37,7 +37,7 @@ class SolverSettings(QGroupBox):
         self.max_ite.setValue(FIT_PARAMS["max_ite"])
 
         self.method_label = QLabel("Fit method:")
-        self.method = QComboBox()
+        self.method = ComboBox()
         self.method.addItems(FIT_METHODS.keys())
         self.method.setCurrentText(FIT_PARAMS["method"])
 

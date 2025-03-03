@@ -1,7 +1,7 @@
 import os
 from PySide6.QtCore import QSize
-from PySide6.QtWidgets import QVBoxLayout, QHBoxLayout, QLabel, QProgressBar, QWidget, QComboBox
-
+from PySide6.QtWidgets import QVBoxLayout, QHBoxLayout, QLabel, QProgressBar, QWidget
+from fitspy.apps.pyside.components.custom_widgets import ComboBox
 
 class StatusBox(QWidget):
     def __init__(self):
@@ -31,7 +31,7 @@ class StatusBox(QWidget):
         self.cpuCountLabel.setText("CPUs:")
         hbox.addWidget(self.cpuCountLabel)
 
-        self.ncpus = QComboBox(self)
+        self.ncpus = ComboBox(self)
         self.populate_cpu_choices()
         hbox.addWidget(self.ncpus)
 
