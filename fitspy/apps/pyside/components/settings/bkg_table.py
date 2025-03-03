@@ -3,7 +3,6 @@ from PySide6.QtWidgets import QLabel, QVBoxLayout, QHeaderView, QWidget
 
 from fitspy import BKG_MODELS
 from fitspy.core.utils import get_model_params
-from fitspy.apps.pyside import DEFAULTS
 from fitspy.apps.pyside.components.settings.generic_table import GenericTable
 from fitspy.apps.pyside.components.settings.peaks_table import (SpinBoxGroupWithExpression,
                                                                 CenteredCheckBox)
@@ -21,7 +20,6 @@ class BkgTable(QWidget):
         super().__init__(parent)
         self.bkg_model = list(model_params().keys())[0]
         self.initUI()
-        self.cmap = DEFAULTS["peaks_cmap"]
         self.show_bounds_state = False
         self.show_expr_state = False
 

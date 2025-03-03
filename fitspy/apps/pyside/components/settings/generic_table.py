@@ -14,8 +14,8 @@ class GenericTable(QTableWidget):
         self.setHorizontalHeaderLabels(list(columns.keys()))
         self.row_count = 0
 
-        self.setSelectionMode(QAbstractItemView.MultiSelection)
-        self.setSelectionBehavior(QAbstractItemView.SelectRows)
+        self.setSelectionMode(QAbstractItemView.ExtendedSelection)
+        self.setSelectionBehavior(QAbstractItemView.SelectItems)
         self.lastEditingWidget = None
         self.itemSelectionChanged.connect(self.handleSelectionChanged)
 
