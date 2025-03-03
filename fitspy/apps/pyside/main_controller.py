@@ -42,10 +42,8 @@ class MainController(QObject):
         self.view.menuBar.actionClearEnv.triggered.connect(self.clear)
 
         self.view.menuBar.actionRestoreDefaults.triggered.connect(self.model.restore_defaults)
-        self.view.menuBar.actionLightMode.triggered.connect(
-            lambda: self.set_setting("theme", "light"))
-        self.view.menuBar.actionDarkMode.triggered.connect(
-            lambda: self.set_setting("theme", "dark"))
+        self.view.menuBar.actionTheme.triggered.connect(
+            lambda: self.set_setting("theme", "light" if self.model.theme == "dark" else "dark"))
         self.view.menuBar.actionManual.triggered.connect(self.open_manual)
         self.view.menuBar.actionAbout.triggered.connect(self.view.about)
         self.view.statusBox.ncpus.currentTextChanged.connect(

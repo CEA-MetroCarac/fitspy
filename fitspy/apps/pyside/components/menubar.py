@@ -13,10 +13,8 @@ class MenuBar(QToolBar):
     def init_ui(self):
         self.actionManual = QAction(self, icon=QIcon(get_icon_path("manual.png")),
                                     toolTip="Manual")
-        self.actionDarkMode = QAction(self, icon=QIcon(get_icon_path("dark.png")),
-                                      toolTip="Dark Mode")
-        self.actionLightMode = QAction(self, icon=QIcon(get_icon_path("light-mode.png")),
-                                       toolTip="Light Mode")
+        self.actionTheme = QAction(self, icon=QIcon(get_icon_path("dark-light.png")),
+                                    toolTip="Switch between dark and light mode")
         self.actionAbout = QAction(self, icon=QIcon(get_icon_path("about.png")),
                                    toolTip="About")
         self.actionOpen = QAction(self, icon=QIcon(get_icon_path("icons8-folder-96.png")),
@@ -47,8 +45,7 @@ class MenuBar(QToolBar):
             self.actionRestoreDefaults,
             None,  # Separator
             QWidget(self),  # Spacer
-            self.actionDarkMode,
-            self.actionLightMode,
+            self.actionTheme,
             None,  # Separator
             self.actionManual,
             self.actionAbout,
