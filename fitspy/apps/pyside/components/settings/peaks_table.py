@@ -305,20 +305,20 @@ class PeaksTable(QWidget):
     def add_row(self, show_bounds, show_expr, **params):
         self.show_bounds_state = show_bounds
         self.show_expr_state = show_expr
-        prefix_btn = QPushButton(text=params["prefix"], icon=QIcon(get_icon_path("close.png")),
+        prefix = QPushButton(text=params["prefix"], icon=QIcon(get_icon_path("close.png")),
                                  toolTip="Delete peak")
         color = rgb2hex(cmap()(self.row_count % cmap().N))
-        prefix_btn.setStyleSheet(f"color: {color};")
-        prefix_btn.clicked.connect(lambda: self.table.remove_widget_row(prefix_btn))
+        prefix.setStyleSheet(f"color: {color};")
+        prefix.clicked.connect(lambda: self.table.remove_widget_row(prefix))
 
-        label_edit = QLineEdit(params["label"])
+        label = QLineEdit(params["label"])
         
         model_names = list(PEAK_MODELS.keys())
         model_combo = ComboBox()
         model_combo.addItems(model_names)
         model_combo.setCurrentText(params["model_name"])
 
-        row_widgets = {"Prefix": prefix_btn, "Label": label_edit, "Model": model_combo}
+        row_widgets = {"Prefix": prefix, "Label": label, "Model": model_combo}
 
         model_name = params["model_name"]
         parameters = model_params().get(model_name, [])
@@ -358,9 +358,9 @@ class PeaksTable(QWidget):
 
     def update_prefix_colors(self):
         for row in range(self.table.rowCount()):
-            prefix_btn = self.table.cellWidget(row, self.table.get_column_index("Prefix"))
+            prefix = self.table.cellWidget(row, self.table.get_column_index("Prefix"))
             color = rgb2hex(cmap()(row % cmap().N))
-            prefix_btn.setStyleSheet(f"color: {color};")
+            prefix.setStyleSheet(f"color: {color};")
 
     def show_bounds(self, show):
         for row in range(self.table.rowCount()):

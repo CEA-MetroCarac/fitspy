@@ -371,7 +371,6 @@ class ModelBuilder(QWidget):
 
         self.tab_widget.addTab(tab_content, "Peaks")
         self.tab_widget.addTab(self.bkg_table, "Background")
-        self.tab_widget.addTab(QWidget(), ".json model editor")
 
     def update_model(self, model):
         # Spectral range
