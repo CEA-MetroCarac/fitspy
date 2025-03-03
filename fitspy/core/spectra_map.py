@@ -5,12 +5,13 @@ import os
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+from matplotlib.patches import Rectangle
 from matplotlib.widgets import RangeSlider
 from parse import Parser
 
 from fitspy.core.spectra import Spectra
 from fitspy.core.spectrum import Spectrum
-from fitspy.core.utils import closest_index, get_2d_map
+from fitspy.core.utils import closest_index, get_2d_map, compute_marker_size
 
 POLICY = "{name}  X={x} Y={y}"
 PARSER = Parser(POLICY)
@@ -257,7 +258,7 @@ class SpectraMap(Spectra):
             canvas = fig.canvas
 
         if self.marker is not None:
-            [x.remove() for x in self.marker]
+            self.marker.remove()
             self.marker = None
 
         fname = None
@@ -274,7 +275,17 @@ class SpectraMap(Spectra):
         else:
             raise IOError
 
-        self.marker = self.ax.plot(x, y, 'rs', ms=9, mfc='none')
+        marker_size = compute_marker_size(self.ax)
+        
+        self.marker = Rectangle(
+            (x - marker_size/2, y - marker_size/2),
+            marker_size, marker_size,
+            fill=False,
+            edgecolor='red',
+            linewidth=1.5
+        )
+        self.ax.add_patch(self.marker)
+        
         canvas.draw_idle()
         return fname
 
