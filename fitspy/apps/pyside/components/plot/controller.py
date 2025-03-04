@@ -255,6 +255,7 @@ class PlotController(QObject):
         if not self.model.current_spectra:
             return
         spectrum = self.model.current_spectra[0]
+        spectrum.result_fit = lambda: None
         spectrum.set_attributes(peaks)
         self.update_spectraplot()
 

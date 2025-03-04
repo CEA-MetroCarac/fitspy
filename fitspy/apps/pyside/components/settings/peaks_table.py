@@ -284,7 +284,7 @@ class PeaksTable(QWidget):
                 if widget is None or isinstance(widget, QWidget) and not widget.children():
                     if "MIN |" in param and "| MAX" in param:
                         if not isinstance(widget, SpinBoxGroupWithExpression):
-                            widget = self.create_spin_box_group_with_expr()
+                            widget = self.create_spin_box_group_with_expr(0,1,200)
                             self.table.setCellWidget(row, col, widget)
                     elif param.endswith("_fixed"):
                         if not isinstance(widget, CenteredCheckBox):

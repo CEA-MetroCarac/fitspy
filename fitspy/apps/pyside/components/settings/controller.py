@@ -1,7 +1,7 @@
 import copy
 from pathlib import Path
 from PySide6.QtCore import QObject, Signal
-from PySide6.QtWidgets import QFileDialog, QWidget
+from PySide6.QtWidgets import QFileDialog
 
 from fitspy import FIT_METHODS, BKG_MODELS, PEAK_MODELS
 from fitspy.core.utils import load_from_json, load_models_from_txt, load_models_from_py
