@@ -15,7 +15,7 @@ class SettingsController(QObject):
     calculateOutliers = Signal()
     setSpectrumAttr = Signal(str, object)
     baselinePointsChanged = Signal(list)
-    applyModel = Signal(object)
+    setModel = Signal(object)
     applyBaseline = Signal()
     applySpectralRange = Signal(object, object)
     applyNormalization = Signal(bool, object, object)
@@ -218,7 +218,7 @@ class SettingsController(QObject):
         first_key = next(iter(models))
         first_model = models[first_key]
         first_model.pop("fname", None)
-        self.applyModel.emit(first_model)  # Applying in Spectrum objects first
+        self.setModel.emit(first_model)  # Applying in Spectrum objects first
 
     def apply_model(self, fit_model):
         """Reflects the changes in the model to the GUI"""
@@ -365,7 +365,7 @@ class SettingsController(QObject):
             model = load_from_json(current_text)
             model = model[next(iter(model))]
             model.pop("fname", None)
-            self.applyModel.emit(model)  # Applying before lock cause if peaks table is empty, nothing will be locked
+            self.setModel.emit(model)  # Applying before lock cause if peaks table is empty, nothing will be locked
             lock_inputs(True)
         else:
             # Restore the backup fit model
@@ -373,7 +373,7 @@ class SettingsController(QObject):
                 model = copy.deepcopy(self.model.backup_fit_model)
             combo_box.setItemText(current_index, current_text)
             lock_inputs(False)
-            self.applyModel.emit(model)
+            self.setModel.emit(model)
 
     def switch_peak_model(self, model_name):
         self.model_builder.tab_widget.setCurrentIndex(0)

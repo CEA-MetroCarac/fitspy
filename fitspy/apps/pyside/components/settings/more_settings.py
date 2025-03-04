@@ -93,7 +93,7 @@ class SolverSettings(QGroupBox):
         self.blockSignals(True)
         self.fit_negative.setChecked(fit_params["fit_negative"])
         self.fit_outliers.setChecked(fit_params["fit_outliers"])
-        self.independent_models.setChecked(fit_params["independent_models"])
+        self.independent_models.setChecked(fit_params.get("independent_models", False))  # Retrocompatibility
         self.coef_noise.setValue(fit_params["coef_noise"])
         self.max_ite.setValue(fit_params["max_ite"])
         self.method.setCurrentText(fit_params["method"])

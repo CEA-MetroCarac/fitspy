@@ -98,7 +98,7 @@ class MainController(QObject):
         self.settings_controller.setSpectrumAttr.connect(self.plot_controller.set_spectrum_attr)
         self.settings_controller.baselinePointsChanged.connect(
             self.plot_controller.set_baseline_points)
-        self.settings_controller.applyModel.connect(self.apply_model)
+        self.settings_controller.setModel.connect(self.apply_model)
         self.settings_controller.applyBaseline.connect(self.apply_baseline)
         self.settings_controller.applySpectralRange.connect(
             self.plot_controller.apply_spectral_range)
@@ -404,13 +404,6 @@ class MainController(QObject):
             self.view.more_settings.other_settings.map_cmap.currentColormap().to_mpl())
         if self.plot_controller.model.current_map:
             self.view.measurement_sites.update_plot(self.plot_controller.model.current_map)
-
-    # def save_models(self):
-    #     fname = QFileDialog.getSaveFileName(
-    #         None, "Save File", "", "JSON Files (*.json);;All Files (*)"
-    #     )[0]
-    #     if fname:
-    #         save_to_json(fname, self.plot_controller.get_fit_models(DELIMITER))
 
     def save_models(self, fnames=None):
         fname_json = QFileDialog.getSaveFileName(None, "Save File", "",
