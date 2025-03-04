@@ -329,25 +329,3 @@ def get_model_params(MODELS):
             MODEL_PARAMETERS[model_name] = []
 
     return MODEL_PARAMETERS
-
-
-def compute_marker_size(ax, base_percent=0.02):
-    """
-    Compute the marker size based on the current axis limits and a base percentage.
-    Parameters
-    ----------
-    ax : matplotlib.axes.Axes
-        The axes object for which to compute the marker size.
-    base_percent : float, optional
-        The base percentage to use for the marker size calculation.
-        Default is 0.02 (2%).
-    Returns
-    -------
-    float
-        The computed marker size.
-    """
-
-    x_range = ax.get_xlim()[1] - ax.get_xlim()[0]
-    y_range = ax.get_ylim()[1] - ax.get_ylim()[0]
-    marker_size = min(x_range, y_range) * base_percent
-    return marker_size

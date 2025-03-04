@@ -11,7 +11,7 @@ from parse import Parser
 
 from fitspy.core.spectra import Spectra
 from fitspy.core.spectrum import Spectrum
-from fitspy.core.utils import closest_index, get_2d_map, compute_marker_size
+from fitspy.core.utils import closest_index, get_2d_map
 
 POLICY = "{name}  X={x} Y={y}"
 PARSER = Parser(POLICY)
@@ -275,17 +275,16 @@ class SpectraMap(Spectra):
         else:
             raise IOError
 
-        marker_size = compute_marker_size(self.ax)
-        
-        self.marker = Rectangle(
-            (x - marker_size/2, y - marker_size/2),
-            marker_size, marker_size,
-            fill=False,
-            edgecolor='red',
-            linewidth=1.5
-        )
+        dx_ = np.pad(np.diff(self.xy_map[0]), pad_width=1, mode='edge')
+        dx = 0.5 * (dx_[:-1] + dx_[1:])[closest_index(self.xy_map[0], x)]
+
+        dy_ = np.pad(np.diff(self.xy_map[1]), pad_width=1, mode='edge')
+        dy = 0.5 * (dy_[:-1] + dy_[1:])[closest_index(self.xy_map[1], y)]
+
+        self.marker = Rectangle((x - dx / 2, y - dy / 2), dx, dy,
+                                fill=False, edgecolor='r', linewidth=1.5)
         self.ax.add_patch(self.marker)
-        
+
         canvas.draw_idle()
         return fname
 
