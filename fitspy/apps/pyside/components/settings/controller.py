@@ -1,4 +1,5 @@
 import copy
+import numpy as np
 from pathlib import Path
 from PySide6.QtCore import QObject, Signal
 from PySide6.QtWidgets import QFileDialog
@@ -327,6 +328,7 @@ class SettingsController(QObject):
 
             self.update_model_dict(fit_model)
         else:
+            self.model_builder.peaks_table.dx = max(np.diff(spectrum.x))
             for label, model in zip(spectrum.peak_labels, spectrum.peak_models):
                 add_row_from_params(model._prefix, label, model.name2, model.param_hints)
             self.set_model(spectrum)

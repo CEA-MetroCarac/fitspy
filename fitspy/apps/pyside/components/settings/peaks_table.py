@@ -14,6 +14,11 @@ from fitspy.apps.pyside.components.custom_widgets import DoubleSpinBox, ComboBox
 def model_params():
     return get_model_params(PEAK_MODELS)
 
+def is_bound_param(param):
+    return "MIN |" and "| MAX" in param
+
+def extract_param_name(param):
+    return param.split("|")[1].strip().lower()
 
 def cmap():
     return DEFAULTS["peaks_cmap"]
@@ -165,6 +170,7 @@ class PeaksTable(QWidget):
         if params_order is None:
             params_order = ['Prefix', 'Label', 'Model', 'x0']
         self.params_order = params_order
+        self.dx = 1.0
         self.initUI()
         self.show_bounds_state = None  # FIXME: bool instead ? What for show_bounds_state=True ?
         self.show_expr_state = None
@@ -221,7 +227,7 @@ class PeaksTable(QWidget):
             params = model_params()
 
             for param in params[model_name]:
-                if "MIN |" and "| MAX" in param:
+                if is_bound_param(param):
                     param_name = param.split(" | ")[1].lower()
                     param_dict = get_widget_value(row, param)
                     peak_models[row][model_name][param_name] = {
@@ -238,9 +244,21 @@ class PeaksTable(QWidget):
         self.peaksChanged.emit(self.get_peaks())
 
     def create_spin_box_group_with_expr(
-            self, min_value=0, value=0, max_value=0, expr=""
+        self, min=None, value=None, max=None, expr="", param_name=None
     ):
-        widget = SpinBoxGroupWithExpression(min_value, value, max_value, expr)
+        defaults = DEFAULTS.get(param_name, {
+            "min": 0,
+            "value": self.dx,
+            "max": DEFAULTS["dfwhm"]
+        })
+        min = min or defaults["min"]
+        value = value or defaults["value"]
+        max = max or defaults["max"]
+
+        if min is None or value is None or max is None:
+            raise ValueError("min, value, and max cannot be None")
+
+        widget = SpinBoxGroupWithExpression(min, value, max, expr)
         widget.show_bounds(self.show_bounds_state)
         widget.showToast.connect(self.showToast)
         widget.show_expr(self.show_expr_state)
@@ -282,9 +300,11 @@ class PeaksTable(QWidget):
                 col = self.table.get_column_index(param)
                 widget = cellWidget(row, col)
                 if widget is None or isinstance(widget, QWidget) and not widget.children():
-                    if "MIN |" in param and "| MAX" in param:
+                    if is_bound_param(param):
                         if not isinstance(widget, SpinBoxGroupWithExpression):
-                            widget = self.create_spin_box_group_with_expr(0,1,200)
+                            widget = self.create_spin_box_group_with_expr(
+                                param_name=extract_param_name(param)
+                            )
                             self.table.setCellWidget(row, col, widget)
                     elif param.endswith("_fixed"):
                         if not isinstance(widget, CenteredCheckBox):
@@ -312,7 +332,7 @@ class PeaksTable(QWidget):
         prefix.clicked.connect(lambda: self.table.remove_widget_row(prefix))
 
         label = QLineEdit(params["label"])
-        
+
         model_names = list(PEAK_MODELS.keys())
         model_combo = ComboBox()
         model_combo.addItems(model_names)
@@ -324,12 +344,12 @@ class PeaksTable(QWidget):
         parameters = model_params().get(model_name, [])
         for param in parameters:
             # Getting min, value, max and expr values
-            if "MIN |" in param and "| MAX" in param:
-                param_key = param.split("|")[1].strip().lower()
-                min_value = params.get(f"{param_key}_min")
-                value = params.get(f"{param_key}")
-                max_value = params.get(f"{param_key}_max")
-                expr = params.get(f"{param_key}_expr")
+            if is_bound_param(param):
+                param_name = extract_param_name(param)
+                min_value = params.get(f"{param_name}_min")
+                value = params.get(f"{param_name}")
+                max_value = params.get(f"{param_name}_max")
+                expr = params.get(f"{param_name}_expr")
                 widget = self.create_spin_box_group_with_expr(min_value, value, max_value, expr)
                 widget.show_bounds(show_bounds)
                 widget.show_expr(show_expr)
@@ -342,7 +362,7 @@ class PeaksTable(QWidget):
         # Ensure all columns are added to the table
         for column in row_widgets.keys():
             if column not in self.table.columns:
-                if "MIN |" in column and "| MAX" in column:
+                if is_bound_param(column):
                     self.table.add_column(column, SpinBoxGroupWithExpression)
                 elif column.endswith("_fixed"):
                     self.table.add_column(column, CenteredCheckBox)
@@ -365,7 +385,7 @@ class PeaksTable(QWidget):
     def show_bounds(self, show):
         for row in range(self.table.rowCount()):
             for column_name in self.table.columns:
-                if "MIN |" in column_name and "| MAX" in column_name:
+                if is_bound_param(column_name):
                     widget = self.table.cellWidget(row, self.table.get_column_index(column_name))
                     if isinstance(widget, SpinBoxGroupWithExpression):
                         widget.show_bounds(show)
@@ -378,7 +398,7 @@ class PeaksTable(QWidget):
     def show_expr(self, show):
         for row in range(self.table.rowCount()):
             for column_name in self.table.columns:
-                if "MIN |" in column_name and "| MAX" in column_name:
+                if is_bound_param(column_name):
                     widget = self.table.cellWidget(row, self.table.get_column_index(column_name))
                     if isinstance(widget, SpinBoxGroupWithExpression):
                         widget.show_expr(show)
