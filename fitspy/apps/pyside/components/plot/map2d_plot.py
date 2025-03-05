@@ -184,11 +184,13 @@ class Map2DPlot(QMainWindow):
     def update_plot_map(self, spectramap, xrange, var, label, current_tab):
         spectramap.plot_map_update(xrange=xrange, var=var, label=label, cmap=DEFAULTS["map_cmap"])
         vmin, vmax = current_tab.vrange_slider.minimum(), current_tab.vrange_slider.maximum()
-        rvmin, rvmax = np.nanmin(spectramap.arr), np.nanmax(spectramap.arr)
 
-        if (vmin, vmax) != (rvmin, rvmax) and not np.all(np.isnan(spectramap.arr)):
-            current_tab.vrange_slider.setRange(rvmin, rvmax)
-            current_tab.vrange_slider.setValue((rvmin, rvmax))
+        if not np.all(np.isnan(spectramap.arr)):
+            rvmin, rvmax = np.nanmin(spectramap.arr), np.nanmax(spectramap.arr)
+        
+            if (vmin, vmax) != (rvmin, rvmax):
+                current_tab.vrange_slider.setRange(rvmin, rvmax)
+                current_tab.vrange_slider.setValue((rvmin, rvmax))
 
     # Colorbar Functions
     def add_colorbar(self):
