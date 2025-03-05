@@ -6,6 +6,7 @@ from tkinter import Toplevel, Label, Entry, Button, Checkbutton, Text, Scrollbar
 from tkinter import IntVar, DoubleVar, StringVar, BooleanVar, W, E, END, RIGHT
 from tkinter.ttk import Combobox
 
+import numpy as np
 from matplotlib.colors import rgb2hex
 from lmfit import fit_report
 from lmfit.model import ModelResult
@@ -147,8 +148,9 @@ class ParamsView(ResultView):
         if new_model_name != old_model_name:
             ampli = spectrum.peak_models[i].param_hints['ampli']['value']
             x0 = spectrum.peak_models[i].param_hints['x0']['value']
-            peak_model = spectrum.create_peak_model(i + 1, new_model_name,
-                                                    x0=x0, ampli=ampli)
+            dx = max(np.diff(spectrum.x))
+            peak_model = spectrum.create_peak_model(i + 1, new_model_name, x0=x0, ampli=ampli,
+                                                    fwhm=dx, fwhm_l=dx, fwhm_r=dx)
             spectrum.peak_models[i] = peak_model
             self.spectrum.result_fit = lambda: None
             self.plot()  # pylint:disable=not-callable
