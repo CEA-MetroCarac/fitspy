@@ -1,3 +1,4 @@
+from pathlib import Path
 from PySide6.QtCore import QObject, Signal, QTimer
 
 from fitspy.apps.pyside.utils import to_snake_case
@@ -154,6 +155,12 @@ class PlotController(QObject):
             self.model.current_spectra = [spectrum]
         else:
             self.model.current_spectra = [self.model.spectra.get_objects(fname)[0] for fname in fnames]
+        self.update_plot_title()
+
+    def update_plot_title(self):
+        if self.model.current_spectra:
+            model_name = Path(self.model.current_spectra[0].fname).name
+            self.spectra_plot.ax.set_title(f"Model: {model_name}")
 
     def update_spectraplot(self):
         ax = self.spectra_plot.ax
