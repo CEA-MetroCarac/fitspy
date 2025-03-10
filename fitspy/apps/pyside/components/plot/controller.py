@@ -2,6 +2,7 @@ from PySide6.QtCore import QObject, Signal, QTimer
 
 from fitspy.apps.pyside.utils import to_snake_case
 from fitspy.apps.pyside.components.plot.model import Model
+from fitspy.core.spectrum import Spectrum
 
 
 class PlotController(QObject):
@@ -145,8 +146,14 @@ class PlotController(QObject):
         self.model.reinit_spectra(fnames)
 
     def set_current_spectra(self, fnames):
-        # parent = self.model.parent()
-        self.model.current_spectra = [self.model.spectra.get_objects(fname)[0] for fname in fnames]
+        if isinstance(fnames, str):
+            fnames = [fnames]
+
+        if len(fnames) == 1 and fnames[0].endswith('.json'):
+            spectrum = Spectrum.create_from_model(fnames[0])
+            self.model.current_spectra = [spectrum]
+        else:
+            self.model.current_spectra = [self.model.spectra.get_objects(fname)[0] for fname in fnames]
 
     def update_spectraplot(self):
         ax = self.spectra_plot.ax

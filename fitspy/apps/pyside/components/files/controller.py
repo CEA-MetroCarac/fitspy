@@ -59,8 +59,7 @@ class FilesController(QObject):
         self.maps_list.list.filesDropped.connect(self.load_files)
         self.maps_list.list.itemSelectionChanged.connect(
             lambda: self.update_map_selection(self.maps_list.list, self.spectrum_list.list))
-        self.maps_list.deselect_btn.clicked.connect(
-            lambda: self.maps_list.list.clearSelection())
+        self.maps_list.deselect_btn.clicked.connect(self.maps_list.clearSelection)
         self.maps_list.rm_btn.clicked.connect(
             lambda: self.remove_selected_files(self.maps_list.list))
         self.maps_list.list.remove_selected_files = self.remove_selected_files
@@ -86,7 +85,7 @@ class FilesController(QObject):
             self.update_list_widget(self.spectrum_list.list,
                                     self.model.spectramaps_fnames[spectramap])
         else:
-            self.maps_list.list.clearSelection()
+            self.maps_list.clearSelection()
             self.update_list_widget(self.spectrum_list.list,
                                     self.model.spectrum_fnames)
 
@@ -229,44 +228,6 @@ class FilesController(QObject):
     def get_map_fnames(self):
         """Return the list of map filenames."""
         return list(self.model.spectramaps_fnames.keys())
-
-    # def get_all_spectrum_ids(self, delimiter):
-    #     """Return the list of all spectrum IDs across all maps.
-    #
-    #     The format is: map_fname + delimiter + spectrum_fname.
-    #     """
-    #     all_spectrum_ids = []
-    #     map_fnames = self.get_map_fnames() + [
-    #         None
-    #     ]  # Include None for spectrum without map
-    #     for map_fname in map_fnames:
-    #         spectrum_fnames = self.get_spectra_fnames(map_fname)
-    #         for spectrum_fname in spectrum_fnames:
-    #             normalized_map_fname = (
-    #                 os.path.normpath(map_fname) if map_fname else "None"
-    #             )
-    #             normalized_spectrum_fname = os.path.normpath(spectrum_fname)
-    #             all_spectrum_ids.append(
-    #                 f"{normalized_map_fname}{delimiter}{normalized_spectrum_fname}"
-    #             )
-    #     return all_spectrum_ids
-
-    # def convert_spectrum_ids_to_dict(self, spectrum_ids, delimiter):
-    #     """Convert a list of spectrum IDs into a dictionary.
-    #
-    #     The dictionary format is: {map_fname: [spectrum_fname, ...], ...}
-    #     """
-    #     spectrum_dict = {}
-    #     for spectrum_id in spectrum_ids:
-    #         map_fname, spectrum_fname = spectrum_id.split(delimiter)
-    #
-    #         if map_fname == "None":
-    #             map_fname = "None"
-    #
-    #         if map_fname not in spectrum_dict:
-    #             spectrum_dict[map_fname] = []
-    #         spectrum_dict[map_fname].append(spectrum_fname)
-    #     return spectrum_dict
 
     def colorize_from_fit_status(self, fit_status: dict):
         """

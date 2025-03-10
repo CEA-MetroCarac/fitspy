@@ -39,6 +39,10 @@ class MapsList(QWidget):
 
         self.setLayout(main_layout)
 
+    def clearSelection(self):
+        """ Clear selection of the list """
+        self.list.clearSelection()
+
 
 if __name__ == "__main__":
     import sys

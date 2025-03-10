@@ -110,7 +110,6 @@ class SettingsController(QObject):
         model_selector.add.clicked.connect(self.load_model)
         model_selector.set.clicked.connect(
             lambda: self.select_model(model_selector.combo_box.currentText()))
-        model_selector.preview.toggled.connect(self.preview_model)
 
         # Other settings
         self.solver_settings.fit_negative.toggled.connect(
@@ -415,3 +414,6 @@ class SettingsController(QObject):
                 self.showToast.emit("WARNING", "Something went wrong",
                                     "No new models were found in the file")
         self.model_builder.model_settings.fitting.update_combo_boxes()
+
+    def get_model_fname(self):
+        return self.model_builder.model_selector.combo_box.currentText()

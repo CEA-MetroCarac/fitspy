@@ -47,7 +47,12 @@ class Model(QObject):
         self.nearest_lines = []
 
     def set_spectrum_attr(self, fname, attr, value):
-        spectrum = self.spectra.get_objects(fname)[0]
+        # .json model's "dummy spectrum" is not stored in self.spectra
+        if fname == self.current_spectra[0].fname:
+            spectrum = self.current_spectra[0]
+        else:
+            spectrum = self.spectra.get_objects(fname)[0]
+
         attrs = attr.split(".")
         for attr in attrs[:-1]:
             spectrum = getattr(spectrum, attr)
@@ -82,12 +87,7 @@ class Model(QObject):
                 self.spectra.append(spectrum)
                 self.spectrumLoaded.emit(fname)
             except:
-                reply = QMessageBox.question(None, "Confirmation",
-                                             f"FAILED to load: {Path(fname).name}\nContinue ?",
-                                             QMessageBox.Yes | QMessageBox.No,
-                                             QMessageBox.No)
-                if reply == QMessageBox.No:
-                    return
+                self.showToast.emit("ERROR", "Failed to load spectrum", fname)
 
     # def del_spectrum(self, items):
     #     """Remove the spectrum(s) with the given file name(s).

@@ -3,10 +3,7 @@ from PySide6.QtCore import QObject, QUrl
 from PySide6.QtGui import QColor, QDesktopServices
 from PySide6.QtWidgets import QApplication, QFileDialog, QMessageBox
 
-# import fitspy
-# from fitspy.core.spectra import Spectra
-# from fitspy.core.spectrum import Spectrum
-# from fitspy.core.utils import save_to_json
+from fitspy.core.utils import load_from_json, save_to_json
 from fitspy.apps.pyside import DEFAULTS
 from fitspy.apps.pyside.main_model import MainModel
 from fitspy.apps.pyside.main_view import MainView
@@ -14,10 +11,6 @@ from fitspy.apps.pyside.utils import update_widget_palette, to_snake_case, repla
 from fitspy.apps.pyside.components.plot import PlotController
 from fitspy.apps.pyside.components.files import FilesController
 from fitspy.apps.pyside.components.settings import SettingsController
-
-
-# TYPES = "Fitspy Workspace (*.fspy);;Spectrum/Spectramap (*.json *.txt);;JSON Files (
-# *.json);;Text Files (*.txt)"
 
 
 class MainController(QObject):
@@ -65,7 +58,11 @@ class MainController(QObject):
         self.files_controller.reinitSpectra.connect(
             lambda fnames: (self.plot_controller.reinit_spectra(fnames),
                             self.change_current_fit_model(fnames)))
-        self.files_controller.spectraChanged.connect(self.plot_controller.set_current_spectra)
+        self.files_controller.spectraChanged.connect(
+            lambda fnames: self.plot_controller.set_current_spectra(
+                fnames or self.settings_controller.get_model_fname()
+            )
+        )
         self.files_controller.spectraChanged.connect(self.change_current_fit_model)
         self.files_controller.mapChanged.connect(self.plot_controller.switch_map)
         self.files_controller.mapChanged2.connect(self.change_map)
@@ -112,6 +109,9 @@ class MainController(QObject):
         self.settings_controller.setBkg.connect(self.plot_controller.set_bkg)
         self.settings_controller.saveModels.connect(self.save_models)
         self.settings_controller.fitRequested.connect(self.fit)
+        self.settings_controller.model_builder.model_selector.combo_box.currentTextChanged.connect(
+            self.view.spectrum_list.clearSelection
+        )
 
         app = QApplication.instance()
         app.aboutToQuit.connect(
@@ -258,8 +258,7 @@ class MainController(QObject):
             spectrum = self.plot_controller.get_spectra(fnames[0])
             self.settings_controller.set_model(spectrum)
         else:
-            self.plot_controller.update_spectraplot()
-            # self.settings_controller.clear_model() # FIXME: we want to preserve previous results
+            self.settings_controller.select_model(self.settings_controller.get_model_fname())
 
     def change_map(self):
         current_map = self.plot_controller.model.current_map
@@ -306,19 +305,19 @@ class MainController(QObject):
             "error": (ToastPreset.ERROR, ToastPreset.ERROR_DARK),
             "info": (ToastPreset.INFORMATION, ToastPreset.INFORMATION_DARK),
         }
-    
+
         current_theme = self.model.theme
         is_dark_theme = current_theme == "dark"
-    
+
         toast = Toast(self.view)
         toast.setDuration(duration)
         toast.setTitle(title)
         toast.setText(text)
-    
+
         # Select the appropriate preset based on the theme
         selected_preset = preset_mapping[preset.lower()][is_dark_theme]
         toast.applyPreset(selected_preset)
-    
+
         toast.show()
 
     def get_ncpus(self, nfiles):
@@ -411,7 +410,14 @@ class MainController(QObject):
         if fname_json:
             if fnames is None:
                 fnames = self.files_controller.get_selected_fnames()
-            self.plot_controller.save_models(fname_json, fnames)
+
+            if not fnames:  # empty selection for .json model preview
+                model_data = load_from_json(self.settings_controller.get_model_fname())
+                current_model = self.settings_controller.model.current_fit_model
+                model_data[0].update(current_model)
+                save_to_json(fname_json, model_data)
+            else:
+                self.plot_controller.save_models(fname_json, fnames)
 
     def apply_model(self, model_dict):
         spectra = self.plot_controller.get_spectra()
