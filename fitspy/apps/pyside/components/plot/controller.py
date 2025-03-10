@@ -38,7 +38,7 @@ class PlotController(QObject):
             self.consecutive_clicks = 0
 
         self.consecutive_clicks = 0
-        self.click_threshold = 3
+        self.click_threshold = 1
         self.click_interval = 1000
         self.click_timer = QTimer()
         self.click_timer.setInterval(self.click_interval)
