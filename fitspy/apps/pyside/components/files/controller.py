@@ -168,7 +168,7 @@ class FilesController(QObject):
         # if user is about to delete all files and a map is selected
         # just delete the map instead of deleting all files
         if len(selected_items) == list_widget.count() and list_widget == self.spectrum_list.list:
-            selected_map = self.maps_list.list.selectedItems()
+            selected_map = self.maps_list.selectedItems()
             if selected_map:
                 self.del_map(selected_map[0].text())
                 return

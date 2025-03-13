@@ -57,6 +57,10 @@ class SpectrumList(QWidget):
         """ Clear selection of the list """
         self.list.clearSelection()
 
+    def selectedItems(self):
+        """ Return selected items """
+        return self.list.selectedItems()
+
 
 if __name__ == "__main__":
     import sys
