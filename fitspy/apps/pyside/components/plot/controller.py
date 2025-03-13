@@ -1,7 +1,9 @@
+from pathlib import Path
 from PySide6.QtCore import QObject, Signal, QTimer
 
 from fitspy.apps.pyside.utils import to_snake_case
 from fitspy.apps.pyside.components.plot.model import Model
+from fitspy.core.spectrum import Spectrum
 
 
 class PlotController(QObject):
@@ -36,7 +38,7 @@ class PlotController(QObject):
             self.consecutive_clicks = 0
 
         self.consecutive_clicks = 0
-        self.click_threshold = 3
+        self.click_threshold = 1
         self.click_interval = 1000
         self.click_timer = QTimer()
         self.click_timer.setInterval(self.click_interval)
@@ -145,8 +147,20 @@ class PlotController(QObject):
         self.model.reinit_spectra(fnames)
 
     def set_current_spectra(self, fnames):
-        # parent = self.model.parent()
-        self.model.current_spectra = [self.model.spectra.get_objects(fname)[0] for fname in fnames]
+        if isinstance(fnames, str):
+            fnames = [fnames]
+
+        if len(fnames) == 1 and fnames[0].endswith('.json'):
+            spectrum = Spectrum.create_from_model(fnames[0])
+            self.model.current_spectra = [spectrum]
+        else:
+            self.model.current_spectra = [self.model.spectra.get_objects(fname)[0] for fname in fnames]
+        self.update_plot_title()
+
+    def update_plot_title(self):
+        if self.model.current_spectra:
+            model_name = Path(self.model.current_spectra[0].fname).name
+            self.spectra_plot.ax.set_title(f"Model: {model_name}")
 
     def update_spectraplot(self):
         ax = self.spectra_plot.ax

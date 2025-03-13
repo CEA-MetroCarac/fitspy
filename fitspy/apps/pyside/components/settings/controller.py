@@ -28,6 +28,7 @@ class SettingsController(QObject):
     fitRequested = Signal(object)
     replayModels = Signal(object)  # dict doesnt work with json serialization
     showToast = Signal(str, str, str)
+    modelSelectionChanged = Signal(str)
 
     def __init__(self, model_builder, more_settings):
         super().__init__()
@@ -110,7 +111,7 @@ class SettingsController(QObject):
         model_selector.add.clicked.connect(self.load_model)
         model_selector.set.clicked.connect(
             lambda: self.select_model(model_selector.combo_box.currentText()))
-        model_selector.preview.toggled.connect(self.preview_model)
+        model_selector.combo_box.currentTextChanged.connect(self.modelSelectionChanged)
 
         # Other settings
         self.solver_settings.fit_negative.toggled.connect(
@@ -217,7 +218,12 @@ class SettingsController(QObject):
     def select_model(self, fname):
         models = load_from_json(fname)
         first_key = next(iter(models))
-        first_model = models[first_key]
+        
+        if first_key in ['0',0]:
+            first_model = models[first_key]  # Dict of models
+        else:
+            first_model = models  # Single model
+        
         first_model.pop("fname", None)
         self.setModel.emit(first_model)  # Applying in Spectrum objects first
 
@@ -415,3 +421,6 @@ class SettingsController(QObject):
                 self.showToast.emit("WARNING", "Something went wrong",
                                     "No new models were found in the file")
         self.model_builder.model_settings.fitting.update_combo_boxes()
+
+    def get_model_fname(self):
+        return self.model_builder.model_selector.combo_box.currentText()

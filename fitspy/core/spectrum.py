@@ -194,7 +194,7 @@ class Spectrum:
                     setattr(self, key, model_dict[key])
 
         # to ensure good data formatting and typing
-        self.fname = os.path.normpath(self.fname)
+        self.fname = os.path.normpath(self.fname) if self.fname is not None else None
         self.x0 = np.array(self.x0) if self.x0 is not None else None
         self.y0 = np.array(self.y0) if self.y0 is not None else None
 
@@ -335,7 +335,9 @@ class Spectrum:
             xmin = self.normalize_range_min or -np.inf
             xmax = self.normalize_range_max or np.inf
             mask = np.logical_and(self.x >= xmin, self.x <= xmax)
-            self.y *= 100 / self.y_no_outliers[mask].max()
+            max_value = self.y_no_outliers[mask].max()
+            if max_value > 0:  # Avoid division by zero
+                self.y *= 100 / max_value
 
     @staticmethod
     def create_peak_model(index, model_name, x0, ampli,
@@ -928,4 +930,33 @@ class Spectrum:
         if preprocess:
             spectrum.preprocess()
 
+        return spectrum
+    
+    @staticmethod
+    def create_from_model(fname, num_points=1000):
+        """Create a dummy spectrum with appropriate x-range based on model parameters"""
+        model_dict = load_from_json(fname)
+        
+        spectrum = Spectrum()
+        spectrum.set_attributes(model_dict)
+        spectrum.fname = fname
+        
+        x_range = [0, 1000]
+        x0_values = []
+        
+        # Determine appropriate x-range from peak positions if available
+        if 'peak_models' in model_dict and model_dict['peak_models']:
+            for _, peak_model in model_dict['peak_models'].items():
+                for _, params in peak_model.items():
+                    if 'x0' in params:
+                        x0_values.append(params['x0']['value'])
+            
+            if x0_values:
+                min_x0, max_x0 = min(x0_values), max(x0_values)
+                # padding = (max_x0 - min_x0) * 0.5 if max_x0 > min_x0 else 100
+                x_range = [min_x0, max_x0]
+        
+        spectrum.x = spectrum.x0 = np.linspace(x_range[0], x_range[1], num_points)
+        spectrum.y = spectrum.y0 = np.zeros_like(spectrum.x)
+        
         return spectrum

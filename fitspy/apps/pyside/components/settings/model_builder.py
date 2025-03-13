@@ -287,9 +287,6 @@ class ModelSelector(QWidget):
 
         self.combo_box = DragNDropCombo()
 
-        self.preview = QCheckBox("Preview",
-                                 toolTip="Preview the selected model without applying it")
-
         self.set = QPushButton(
             "Set Model",
             icon=QIcon(get_icon_path("apply.png")),
@@ -300,7 +297,6 @@ class ModelSelector(QWidget):
                                toolTip="Load .json file and add it to the list of models")
 
         h_layout.addWidget(self.combo_box)
-        h_layout.addWidget(self.preview)
         h_layout.addWidget(self.set)
         h_layout.addWidget(self.add)
 
