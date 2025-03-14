@@ -1,6 +1,25 @@
 Release Notes
 =============
 
+Version 2025.3 (March 14, 2025)
+----------------------------------
+
+**Enhancements:**
+
+- #49 Add possibility to view/edit .json model without having to load Spectrum
+- Adds multi-row edit
+- Adds dx0 and dfwhm settings
+- List items foreground color now based on background luminance
+
+**Bug fixes:**
+
+- Fixed #45: Preview mode prevents from scrolling in peaks table
+- Fixed #46: Disable widgets edit on wheel scroll
+- Fixed #47: Map marker size is not tied to pixel size
+- Fixed #48: Can't edit peaks after fit
+- Fixed #50: RuntimeWarning: All-NaN slice encountered
+- Fixes "NotImplementedError: cannot remove artist"
+
 
 Version 2025.2 (February 24, 2025)
 ----------------------------------
