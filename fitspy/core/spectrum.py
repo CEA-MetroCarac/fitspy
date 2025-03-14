@@ -943,18 +943,22 @@ class Spectrum:
         
         x_range = [0, 1000]
         x0_values = []
+        fwhm_values = []
         
         # Determine appropriate x-range from peak positions if available
         if 'peak_models' in model_dict and model_dict['peak_models']:
             for _, peak_model in model_dict['peak_models'].items():
                 for _, params in peak_model.items():
-                    if 'x0' in params:
-                        x0_values.append(params['x0']['value'])
+                    x0_values.append(params['x0']['value'])
+
+                    if 'fwhm' in params:
+                        fwhm_values.append(params['fwhm']['value'])
+                    elif 'fwhm_l' in params and 'fwhm_r' in params:
+                        fwhm_values.append(max(params['fwhm_l']['value'], params['fwhm_r']['value']))
             
-            if x0_values:
-                min_x0, max_x0 = min(x0_values), max(x0_values)
-                # padding = (max_x0 - min_x0) * 0.5 if max_x0 > min_x0 else 100
-                x_range = [min_x0, max_x0]
+            min_x0, max_x0 = min(x0_values), max(x0_values)
+            padding = max(fwhm_values) * 3
+            x_range = [min_x0 - padding, max_x0 + padding]
         
         spectrum.x = spectrum.x0 = np.linspace(x_range[0], x_range[1], num_points)
         spectrum.y = spectrum.y0 = np.zeros_like(spectrum.x)
