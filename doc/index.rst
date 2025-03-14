@@ -46,8 +46,9 @@ Welcome to the Fitspy documentation !
 
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 3
    :caption: API References
+   :titlesonly:
 
    api/modules.rst
 

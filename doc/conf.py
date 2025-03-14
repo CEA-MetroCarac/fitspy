@@ -11,6 +11,7 @@
 # All configuration values have a default; values that are commented out
 # serve to show the default.
 
+import os
 import sys
 from datetime import datetime
 
@@ -40,7 +41,7 @@ extensions = [
     'sphinx.ext.autosummary',
     'sphinx.ext.autosectionlabel',
     'matplotlib.sphinxext.plot_directive',
-    'sphinx_copybutton',
+    # 'sphinx_copybutton',
     # 'sphinx_toggleprompt',
     # 'sphinxcontrib.towncrier',
 ]
@@ -212,6 +213,27 @@ htmlhelp_basename = 'Fitspydoc'
 # built documentation
 autoclass_content = 'both'
 
+autosummary_generate = False
+
+autosummary_imported_members = False
+
+napoleon_use_ivar = True
+napoleon_use_param = True
+napoleon_use_rtype = False
+napoleon_include_private_with_doc = True
+
+# Empêche les sections "Module contents" et "Submodules" d'apparaître
+toc_object_entries = False
+
+autodoc_default_options = {
+    "members": True,
+    "undoc-members": True,
+    "show-inheritance": True,
+    "private-members": False,
+    "special-members": False,
+    "no-index": True,
+}
+
 autodoc_member_order = 'bysource'
 
 # -- Options for LaTeX output --------------------------------------------
@@ -304,12 +326,24 @@ def run_apidoc(_):
     cur_dir = os.path.normpath(os.path.dirname(__file__))
     output_path = os.path.join(cur_dir, 'api')
     modules = os.path.normpath(os.path.join(cur_dir, "../fitspy"))
-    exclude_pattern = []
+    root_modules = [f"../fitspy/{name}" for name in os.listdir(os.path.dirname(fitspy.__file__))
+                    if name.endswith(".py") and not name.startswith("__")]
+    exclude_pattern = root_modules
     # exclude_pattern = ["../fitspy/tests",
     #                    "../fitspy/external",
     #                    "../fitspy/io_plugins/unbcf_fast.pyx"]
-    main(['-e', '-f', '-P', '-o', output_path, modules, *exclude_pattern])
+    main(['-f', '-P', '--module-first', '-o', output_path, modules, *exclude_pattern])
+
+
+def skip_toc(app, docname, source):
+    if "Module contents" in source[0]:
+        source[0] = source[0].replace("Module contents", "")
+    if "Submodules" in source[0]:
+        source[0] = source[0].replace("Submodules", "")
+    if "Packages" in source[0]:
+        source[0] = source[0].replace("Packages", "")
 
 
 def setup(app):
     app.connect('builder-inited', run_apidoc)
+    app.connect("source-read", skip_toc)
