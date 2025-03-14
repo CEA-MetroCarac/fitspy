@@ -41,7 +41,7 @@ extensions = [
     'sphinx.ext.autosummary',
     'sphinx.ext.autosectionlabel',
     'matplotlib.sphinxext.plot_directive',
-    # 'sphinx_copybutton',
+    'sphinx_copybutton',
     # 'sphinx_toggleprompt',
     # 'sphinxcontrib.towncrier',
 ]

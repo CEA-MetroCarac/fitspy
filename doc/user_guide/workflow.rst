@@ -14,11 +14,11 @@ However, although python scripts can be very practical when working with repetit
 GUI Mode
 --------
 
-** PySide GUI :**
+** PySide GUI:**
 
 .. figure::  ../_static/pyside/workflow.png
    :align:   center
-   :width:   300
+   :width:   80%
 
 .. raw:: html
 
@@ -54,7 +54,7 @@ Or, after removing all spectra in the file selector widget (:code:`Remove All`),
 - (`10 <fitting.html>`_) **Save results** (**fitted parameters** and **statistics**)
 
 
-** Tkinter GUI :**
+** Tkinter GUI:**
 
 .. figure::  ../_static/tkinter/workflow.png
    :align:   center
@@ -116,6 +116,32 @@ Although it is more recommended to use the GUI to define a `Fitspy` model **visu
     # model saving
     spectrum.save(fname_json=r"C:\Users\...\model.json")
 
+.. note::
+
+    During the peak model creation, other parameters can be passed to `add_peak_model() <../api/fitspy.core.html#fitspy.core.spectrum.Spectrum.add_peak_model>`_ (see the API doc).
+    Given the large number of parameters, only the main ones have been retained as arguments. Therefore, to have fine control over each parameter, you can use a dictionary as follows::
+
+        peaks_params = {1: {'name': 'Lorentzian',
+                            'x0': {'value': 322, 'min': 300, 'max': 330},
+                            'fwhm': {'value': 30, 'min': 22, 'max': 45}},
+
+                        2: {'name': 'Lorentzian',
+                            'x0': {'value': 402, 'vary': False},
+                            'ampli': {'expr': '0.5*m01_ampli'}},
+
+                        3: {'name': 'LorentzianAsym',
+                            'x0': {'value': 445},
+                            'fwhm_l': {'value': 30, 'min': 20, 'max': 47},
+                            'fwhm_r': {'value': 20, 'min': 10, 'max': 25}}}
+
+        # create peaks with default values (name and x0 are the mandatory values)
+        for params in peaks_params.values():
+            spectrum.add_peak_model(params['name'], params['x0']['value'])
+
+        # replace default values by the user's ones ('min', 'max', 'vary', 'expr')
+        for peak_model, params in zip(spectrum.peak_models, peaks_params.values()):
+            [peak_model.set_param_hint(key, **vals) for key, vals in params.items() if key != 'name']
+
 
 Once defined, a `Fitspy` model saved in a '.json' file can be applied to a more consequent data set as follows::
 
@@ -124,7 +150,7 @@ Once defined, a `Fitspy` model saved in a '.json' file can be applied to a more 
     from fitspy.core.spectrum import Spectrum
 
 
-    fnames = Path(r"C:\Users\...").glob('*.txt') # list of the spectra pathname to handle
+    fnames = Path(r"C:\Users\...").glob('*.txt') # list of the spectra pathnames to handle
     model = r"C:\Users\...\model.json" # model pathname to work with
 
     # Spectra object creation

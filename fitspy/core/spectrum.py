@@ -424,7 +424,7 @@ class Spectrum:
             spectrum profile at position x0
         fwhm, fwhm_l, fwhm_r: floats, optional
             Optional parameters passed to the model related to the Full Width
-            at Half Maximum. Default values are x-step size (x[1]-x[0]).
+            at Half Maximum. Default values are the maximum x-step size Max(x[i+1]-x[i]).
         alpha: float, optional
             Optional parameter passed to the 'PseudoVoigt' model.
             Default value is 0.5.
@@ -432,7 +432,7 @@ class Spectrum:
             Variation allowed around x0, i.e. x0 should be in [x0-dx0; x0+dx0].
             Default value is 20.
         dfwhm: float, optional
-            Variation (upper value) allowed for fwhm*, i.e. fwhm* should be in [0; dfwhm]
+            Variation (upper value) allowed for the fwhm's, i.e. the fwhm's should be in [0; dfwhm]
             Default value is 200.
         """
         dx = max(np.diff(self.x))
@@ -931,20 +931,20 @@ class Spectrum:
             spectrum.preprocess()
 
         return spectrum
-    
+
     @staticmethod
     def create_from_model(fname, num_points=1000):
         """Create a dummy spectrum with appropriate x-range based on model parameters"""
         model_dict = load_from_json(fname)
-        
+
         spectrum = Spectrum()
         spectrum.set_attributes(model_dict)
         spectrum.fname = fname
-        
+
         x_range = [0, 1000]
         x0_values = []
         fwhm_values = []
-        
+
         # Determine appropriate x-range from peak positions if available
         if 'peak_models' in model_dict and model_dict['peak_models']:
             for _, peak_model in model_dict['peak_models'].items():
@@ -954,13 +954,14 @@ class Spectrum:
                     if 'fwhm' in params:
                         fwhm_values.append(params['fwhm']['value'])
                     elif 'fwhm_l' in params and 'fwhm_r' in params:
-                        fwhm_values.append(max(params['fwhm_l']['value'], params['fwhm_r']['value']))
-            
+                        fwhm_values.append(max(params['fwhm_l']['value'],
+                                               params['fwhm_r']['value']))
+
             min_x0, max_x0 = min(x0_values), max(x0_values)
             padding = max(fwhm_values) * 3
             x_range = [min_x0 - padding, max_x0 + padding]
-        
+
         spectrum.x = spectrum.x0 = np.linspace(x_range[0], x_range[1], num_points)
         spectrum.y = spectrum.y0 = np.zeros_like(spectrum.x)
-        
+
         return spectrum
