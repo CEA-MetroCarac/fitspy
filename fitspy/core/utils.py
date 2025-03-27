@@ -17,6 +17,7 @@ from lmfit.models import ExpressionModel
 from rsciio import IO_PLUGINS
 import base64
 import zlib
+import h5py
 
 
 def measure_time(func):
@@ -197,7 +198,10 @@ def get_dim(fname):
 
     dim = None
 
-    if Path(fname).suffix in ['.txt', '.csv']:
+    if Path(fname).suffix == '.h5':
+        dim = 1
+
+    elif Path(fname).suffix in ['.txt', '.csv', 'xy']:
         with open(fname, 'r') as fid:
             dim = 2 if fid.readline()[0] == "\t" else 1
 
@@ -243,6 +247,21 @@ def get_x_data_from_rsciio(fname):
 
 def get_1d_profile(fname):
     """ Return the spectrum support ('x0') and its intensity ('y0') """
+
+    # Explore other formats related to:
+    #  - first, .h5 format related to XRD data
+    #  - then, 2-column ascii file like .csv, .txt, .xy, ...
+    #  - finally, proprietary format as .dm3, .dm4, ...
+
+    if Path(fname).suffix == '.h5':
+        try:
+            with h5py.File(fname, "r") as fid:
+                x0 = fid["ENTRY/DATA_CONCAT/Q"][:]
+                y0 = fid["ENTRY/DATA_CONCAT/I"][:]
+            return x0, y0
+        except:
+            print(f"Unable to read data from {fname}")
+            return None, None
 
     try:
         dfr = pd.read_csv(fname,
