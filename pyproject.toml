@@ -50,6 +50,7 @@ dependencies = [
     "superqt[cmap]",
     "pyqt-toast-notification",
     "rosettasciio",
+    "h5py",
     "pywin32; platform_system == 'Windows'",
 ]
 
