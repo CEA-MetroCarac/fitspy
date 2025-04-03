@@ -198,7 +198,7 @@ def get_dim(fname):
 
     dim = None
 
-    if Path(fname).suffix == '.h5':
+    if Path(fname).suffix[:4] in ['.h5', '.h4', '.hdf']:
         dim = 1
 
     elif Path(fname).suffix in ['.txt', '.csv', 'xy']:
@@ -245,19 +245,70 @@ def get_x_data_from_rsciio(fname):
     return x, data
 
 
+def get_x_data_from_nxcansas(fname):
+    """ Return the spectrum support ('data_x') and the related intensities
+            ('data_y') considering NXcanSAS data format """
+
+    # with h5py.File(fname, "r") as h5_obj:
+    #     x0 = h5_obj["ENTRY/DATA_RAD_AVG/Q"][:]
+    #     y0 = h5_obj["ENTRY/DATA_RAD_AVG/I"][:]
+    #     return x0, y0
+
+    with h5py.File(fname, "r") as h5_obj:
+
+        def find_path():
+            """find a group that is an entry point defined by the NXcanSAS standard"""
+            for group_name, group in h5_obj.items():
+                if group.attrs.get("NX_class") == "NXentry":
+                    return f"{group_name}/{group.attrs.get('default', '')}"
+            return None
+
+        path_to_data = find_path()
+        if path_to_data is None:
+            raise Exception(f"The file {Path(fname).name} does not follow the NXcanSAS standard")
+
+        # We extract the axes
+        # path_to_data = "ENTRY/DATA"
+        attr_data_group = h5_obj[path_to_data].attrs
+        try:
+            data_y_name = attr_data_group["signal"]
+        except Exception as exception:
+            raise Exception(f"There is no signal attribute in {path_to_data}")
+
+        try:
+            Q_indices = attr_data_group["Q_indices"]
+        except Exception as exception:
+            raise Exception(f"There is no Q_indices attribute in {path_to_data}")
+
+        try:
+            I_axes = attr_data_group["I_axes"]
+            if not isinstance(I_axes, list):
+                I_axes = [I_axes]
+        except Exception as exception:
+            raise Exception(f"There is no I_axes attribute in {path_to_data}")
+
+        if len(Q_indices) != 1:
+            raise Exception(f"Your data in {path_to_data} is not 1D")
+
+        data_x_name = I_axes[int(Q_indices[0])]
+
+        data_x = h5_obj[f"{path_to_data}/{data_x_name}"][:]
+        data_y = h5_obj[f"{path_to_data}/{data_y_name}"][:]
+
+    return data_x, data_y
+
+
 def get_1d_profile(fname):
     """ Return the spectrum support ('x0') and its intensity ('y0') """
 
     # Explore other formats related to:
-    #  - first, .h5 format related to XRD data
+    #  - first, HDF format related to XRD data (NXCanSAS format)
     #  - then, 2-column ascii file like .csv, .txt, .xy, ...
     #  - finally, proprietary format as .dm3, .dm4, ...
 
-    if Path(fname).suffix == '.h5':
+    if Path(fname).suffix[:4] in ['.h5', '.h4', '.hdf']:
         try:
-            with h5py.File(fname, "r") as fid:
-                x0 = fid["ENTRY/DATA_CONCAT/Q"][:]
-                y0 = fid["ENTRY/DATA_CONCAT/I"][:]
+            x0, y0 = get_x_data_from_nxcansas(fname)
             return x0, y0
         except:
             print(f"Unable to read data from {fname}")
