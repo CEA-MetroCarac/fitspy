@@ -5,6 +5,7 @@ import os
 import re
 import json
 from pathlib import Path
+from charset_normalizer import from_path
 import importlib
 import itertools
 import runpy
@@ -315,8 +316,9 @@ def get_1d_profile(fname):
             return None, None
 
     try:
+        encoding = from_path(fname).best().encoding
         dfr = pd.read_csv(fname,
-                          sep=r'\s+|\t|,|;| ', engine='python',
+                          sep=r'\s+|\t|,|;| ', engine='python', encoding=encoding,
                           skiprows=1, usecols=[0, 1],
                           names=['x0', 'y0']).dropna()
         x0 = dfr['x0'].to_numpy()
