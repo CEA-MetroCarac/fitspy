@@ -361,7 +361,7 @@ class Callbacks:
             show_noise_level = fig_settings['plot_noise_level'].get() == 'On'
             show_baseline = fig_settings['plot_baseline'].get() == 'On'
             show_background = fig_settings['plot_background'].get() == 'On'
-            subtract_baseline = subtract_bkg = self.subtract_baseline.get()
+            subtract_baseline = subtract_bkg = self.subtract_baseline_bkg.get()
             self.lines = spectrum.plot(self.ax,
                                        show_outliers=show_outliers,
                                        show_outliers_limit=show_outl_limit,
