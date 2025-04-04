@@ -104,8 +104,8 @@ Here is an example of a peak_models.py file to be placed in :code:`%HOMEUSER%/Fi
 and
 
 .. math::
-    2d_{hkl} \sin \theta_{1} = \lambda_{Ka1}
-    2d_{hkl} \sin \theta_{2} = \lambda_{Ka2}
+    2d_{hkl} \sin \theta_{1} = \lambda_{Ka1} \\
+    2d_{hkl} \sin \theta_{2} = \lambda_{Ka2} \\
     \sin \theta_{2}  =  \frac{\lambda_{Ka2}}{\lambda_{Ka1}} \sin \theta_{1}
 
 ::
