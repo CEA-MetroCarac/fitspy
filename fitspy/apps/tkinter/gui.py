@@ -177,7 +177,7 @@ class GUI(Callbacks):
                         text='Preserve axis'), 2, 0)
         self.subtract_baseline = BooleanVar(value=True)
         add(Checkbutton(frame_visu, variable=self.subtract_baseline,
-                        text='Subtract baseline', command=self.plot), 2, 0, E)
+                        text='Subtract baseline+background', command=self.plot), 2, 0, E)
         # FILES SELECTION frame
         #######################
 
