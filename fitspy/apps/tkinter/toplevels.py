@@ -405,9 +405,12 @@ class FigureSettings(Settings):
                        'plot_residual': StringVar(value='Off'),
                        'coef_residual': IntVar(value=1),
                        'show_peaks_labels': StringVar(value='On'),
+                       'x-log': StringVar(value='Off'),
+                       'y-log': StringVar(value='Off'),
                        'title': StringVar(value='DEFAULT'),
                        'x_label': StringVar(value=''),
-                       'y_label': StringVar(value='')}
+                       'y_label': StringVar(value=''),
+                       }
 
     def frame_creation(self, bind_fun, excluded_keys=None):
         excluded_keys = ['title', 'x_label', 'y_label']

@@ -28,6 +28,8 @@ DEFAULTS = {
         "peak_labels": True,
         "annotations": True,
         'preserve_axes': False,
+        'x-log': False,
+        'y-log': False,
     }
 }
 DEFAULTS_INITIAL = DEFAULTS.copy()
