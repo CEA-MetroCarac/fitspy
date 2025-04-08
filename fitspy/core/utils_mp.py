@@ -19,7 +19,7 @@ def fit(spectrum_):
 
     shared_queue.put(1)
 
-    return (spectrum.x, spectrum.y,
+    return (spectrum.x, spectrum.y, spectrum.weights,
             spectrum.baseline.y_eval, spectrum.baseline.is_subtracted,
             dill.dumps(spectrum.result_fit))
 
@@ -44,8 +44,9 @@ def fit_mp(spectra, ncpus, queue_incr):
     for res, spectrum in zip(results, spectra):
         spectrum.x = res[0]
         spectrum.y = res[1]
-        spectrum.baseline.y_eval = res[2]
-        spectrum.baseline.is_subtracted = res[3]
-        spectrum.result_fit = dill.loads(res[4])
+        spectrum.weights = res[2]
+        spectrum.baseline.y_eval = res[3]
+        spectrum.baseline.is_subtracted = res[4]
+        spectrum.result_fit = dill.loads(res[5])
 
         spectrum.reassign_params()

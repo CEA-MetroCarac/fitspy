@@ -14,6 +14,7 @@ DEFAULTS = {
     'figure_options': {'title': 'DEFAULT_TITLE (edit in toolbar)'},
     'view_options': {
         "legend": True,
+        "weights": True,
         "fit": True,
         "negative_values": True,
         "outliers": True,

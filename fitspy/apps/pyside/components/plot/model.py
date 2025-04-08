@@ -248,7 +248,8 @@ class Model(QObject):
             if dist < dist_min:
                 dist_min, ind_min = dist, ind
 
-        first_spectrum.add_peak_model(model, x0=x_sp[ind_min], dx0=DEFAULTS['dx0'], dfwhm=DEFAULTS['dfwhm'])
+        first_spectrum.add_peak_model(model, x0=x_sp[ind_min], dx0=DEFAULTS['dx0'],
+                                      dfwhm=DEFAULTS['dfwhm'])
         self.PeaksChanged.emit(first_spectrum)
         self.refreshPlot.emit()
 
@@ -583,6 +584,7 @@ class Model(QObject):
         for spectrum in self.current_spectra:
             self.lines += spectrum.plot(
                 ax,
+                show_weights=view_options["Weights"] * first_spectrum,
                 show_outliers=view_options["Outliers"],
                 show_outliers_limit=view_options["Outliers limits"] * first_spectrum,
                 show_negative_values=view_options["Negative values"] * first_spectrum,

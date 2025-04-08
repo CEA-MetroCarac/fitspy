@@ -10,6 +10,8 @@ Two types of input data can be interpreted:
 .. note::
     From the 2024.5, it is possible to load **.dm3, .dm4, .emd, .hspy, .nxs** files and many other formats thanks to the **rosettasciio** readers integration (see `here <https://hyperspy.org/rosettasciio/user_guide/supported_formats/index.html#supported-formats>`_ for more details about the readable formats).
 
+    From the 2025.4, **HDF**-based files (**.h5, .h4, .hdf**) related to NXCanSAS format can be read.
+
 
 1D-spectrum
 -----------
@@ -18,7 +20,7 @@ The input data file format for a single spectrum is based on 2 columns represent
 
 The separators between the columns can be tabulation :code:`\t`, comma :code:`,`, semicolon :code:`;` or space :code:`\ `.
 
-Note that the first row is skipped and the (x, y) rows can be unordered.
+Note that **the first row is skipped** and the (x, y) rows can be unordered.
 
 Example of input data file::
 
@@ -37,6 +39,14 @@ Example of input data file::
 
 (Full 1D data files can be found `here <https://github.com/CEA-MetroCarac/fitspy/tree/main/examples/data/spectra_1/>`_.)
 
+From the 2025.4, `weights <https://lmfit.github.io/lmfit-py/model.html#lmfit.model.weights>`_ used during the fit processing can be set via a third and optional column::
+
+    #Wave       #Intensity  #Weights
+    958.468750	307.873749  2.82
+    956.974609	292.814697  3.01
+    955.480469	327.923798  0.25
+    953.984375	307.819580  2.96
+    ...
 
 2D-map spectra
 --------------

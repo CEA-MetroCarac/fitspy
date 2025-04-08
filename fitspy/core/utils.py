@@ -310,33 +310,39 @@ def get_1d_profile(fname):
     if Path(fname).suffix[:4] in ['.h5', '.h4', '.hdf']:
         try:
             x0, y0 = get_x_data_from_nxcansas(fname)
-            return x0, y0
+            return x0, y0, None
         except:
             print(f"Unable to read data from {fname}")
-            return None, None
+            return None, None, None
 
     try:
         with open(fname, encoding="utf-8", errors="ignore") as fid:
             lines = fid.readlines()[1:]  # skip first line safely
 
         dfr = pd.read_csv(StringIO("".join(lines)),
-                          sep=r'\s+|\t|,|;| ', engine='python',
-                          header=None, usecols=[0, 1],
-                          names=['x0', 'y0']).dropna()
+                          sep=r'\s+|\t|,|;| ', engine='python', header=None).dropna()
+        if dfr.shape[1] == 2:
+            dfr.columns = ['x0', 'y0']
+            weights = None
+        elif dfr.shape[1] == 3:
+            dfr.columns = ['x0', 'y0', 'weights']
+            weights = dfr['weights'].to_numpy()
+        else:
+            raise IOError(f"Inappropriate format: {dfr.shape[1]} columns detected")
         x0 = dfr['x0'].to_numpy()
         y0 = dfr['y0'].to_numpy()
-        return x0, y0
+        return x0, y0, weights
     except:
         try:
             x0, y0 = get_x_data_from_rsciio(fname)
             if y0.ndim != 1:
                 print(f"incorrect dimension associated with {fname}")
-                return None, None
+                return None, None, None
             else:
-                return x0, y0
+                return x0, y0, None
         except:
             print(f"Unable to read data from {fname}")
-            return None, None
+            return None, None, None
 
 
 def get_2d_map(fname):

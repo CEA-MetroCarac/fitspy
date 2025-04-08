@@ -62,12 +62,14 @@ This number, which corresponds to the maximum number of calls of the gradient de
 In the GUI, when the maximum number is reached without meeting the convergence criterion, the fit result is labeled as 'non-converged' and is displayed with an orange banner in the files selector widget. In case of convergence, the banner turns green.
 
 
-Weighting
-~~~~~~~~~
+Mask and Weights
+~~~~~~~~~~~~~~~~
 
-Similarly to noisy areas of outliers, the presence of negative values in the profiles to be fitted, resulting notably from baseline or background removal, can adversely affect the quality of results. To mitigate the impact of these negative values during the fit, a weight of '0' can be assigned to them. This is achieved through the **'fit negative values : Off'** option in the GUI or by the :code:`fit_negative` parameter passed to :func:`~fitspy.spectrum.Spectrum.fit`.
+Similarly to noisy areas of outliers, the presence of negative values in the profiles to be fitted, resulting notably from baseline or background removal, can adversely affect the quality of results. To mitigate the impact of these negative values during the fit, a mask to ignore them during the fit processing can be assigned to these values. This is achieved through the **'fit negative values : Off'** option in the GUI or by the :code:`fit_negative` parameter passed to :func:`~fitspy.spectrum.Spectrum.fit`.
 
 (The same with :code:`fit_outliers` for outliers and :code:`coef_noise` to bypass regions defined mainly by noise).
+
+Moreover, from the 2025.4, `weights <https://lmfit.github.io/lmfit-py/model.html#lmfit.model.weights>`_ (related to uncertainties measurements for instance) can be set via the input data files. See `here <input_data.html#d-spectrum>`_.
 
 
 Multi-threading

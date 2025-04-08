@@ -134,8 +134,10 @@ class Spectrum:
         self.range_max = None
         self.x0 = None
         self.y0 = None
+        self.weights0 = None
         self.x = None
         self.y = None
+        self.weights = None
         self.outliers_limit = None
         self.baseline = BaseLine()
         self.normalize = False
@@ -154,6 +156,7 @@ class Spectrum:
         self.range_max = None
         self.x = self.x0.copy()
         self.y = self.y0.copy()
+        self.weights = self.weights0.copy()
         self.outliers_limit = None
         self.normalize = False
         self.normalize_range_min = None
@@ -197,6 +200,7 @@ class Spectrum:
         self.fname = os.path.normpath(self.fname) if self.fname is not None else None
         self.x0 = np.array(self.x0) if self.x0 is not None else None
         self.y0 = np.array(self.y0) if self.y0 is not None else None
+        self.weights0 = np.array(self.weights0) if self.weights0 is not None else None
 
         if 'peak_models' in keys:
             self.peak_index = itertools.count(start=1)
@@ -256,7 +260,7 @@ class Spectrum:
             elif "norm_position_ref" in keys:  # 'Attractors'
                 norm_position_ref = model_dict["norm_position_ref"]
                 if norm_position_ref is not None:
-                    x, _ = get_1d_profile(self.fname)
+                    x = get_1d_profile(self.fname)[0]
                     # consider 10 pts around 'norm_position_ref' (to simplify)
                     delta = np.abs(10 * (x[1] - x[0]))
                     self.normalize = True
@@ -277,17 +281,21 @@ class Spectrum:
         """ Load profile from 'fname' with 1 header line and 2 (x,y) columns"""
 
         if self.x0 is None:
-            x0, y0 = get_1d_profile(fname)
+            x0, y0, weights0 = get_1d_profile(fname)
 
             # reordering
             inds = np.argsort(x0)
             self.x0 = x0[inds]
             self.y0 = y0[inds]
+            if weights0 is not None:
+                self.weights0 = weights0[inds]
 
             self.fname = fname
 
         self.x = self.x0.copy()
         self.y = self.y0.copy()
+        if weights0 is not None:
+            self.weights = self.weights0.copy()
 
     def apply_range(self, range_min=None, range_max=None):
         """ Apply range to the raw spectrum """
@@ -299,6 +307,8 @@ class Spectrum:
 
         self.x = self.x0[mask].copy()
         self.y = self.y0[mask].copy()
+        if weights0 is not None:
+            self.weights = self.weights0[mask].copy()
 
     def calculate_outliers(self):
         """ Return outliers points (x,y) coordinates """
@@ -569,7 +579,7 @@ class Spectrum:
         if xtol is not None:
             self.fit_params['xtol'] = xtol
 
-        x, y = self.x, self.y
+        x, y, weights = self.x, self.y, self.weights
         mask = np.ones_like(x, dtype=bool)
         vary_init = None
         noise_level = 0
@@ -649,9 +659,13 @@ class Spectrum:
         if self.fit_params['method'] in ['leastsq', 'least_squares']:
             fit_kws.update({'xtol': self.fit_params['xtol']})
 
+        if weights is not None:
+            weights = weights[mask]
+
         if not self.fit_params['independent_models']:
 
             self.result_fit = comp_model.fit(y[mask], params, x=x[mask],
+                                             weights=weights,
                                              method=self.fit_params['method'],
                                              max_nfev=max_nfev,
                                              fit_kws=fit_kws,
@@ -664,6 +678,7 @@ class Spectrum:
             success = True
             for k, model in enumerate(comp_model.components):
                 result_fit = model.fit(y[mask], params, x=x[mask],
+                                       weights=weights,
                                        method=self.fit_params['method'],
                                        max_nfev=max_nfev,
                                        fit_kws=fit_kws,
@@ -734,6 +749,7 @@ class Spectrum:
                 is_ok = False
 
     def plot(self, ax,
+             show_weights=True,
              show_outliers=True, show_outliers_limit=True,
              show_negative_values=True, show_noise_level=True,
              show_baseline=True, show_background=True,
@@ -759,6 +775,9 @@ class Spectrum:
             kwargs = {'c': 'k', 'lw': 0.5, 'marker': 'o', 'ms': 1}
         lines = [ax.plot(x, y, label=label, **kwargs)[0]]
 
+        if show_weights and self.weights is not None:
+            ax.plot(x, self.weights, 'b', lw=2, label=f'{label}_Weights' if label else 'Weights')
+
         if show_outliers:
             x_outliers, y_outliers = self.calculate_outliers()
             if x_outliers is not None:
@@ -773,7 +792,7 @@ class Spectrum:
         if show_outliers_limit and self.outliers_limit is not None:
             imin, imax = list(self.x0).index(x[0]), list(self.x0).index(x[-1])
             y_lim = self.outliers_limit[imin:imax + 1]  # pylint:disable=E1136
-            ax.plot(x, y_lim, 'r-', lw=2,
+            ax.plot(x, y_lim, 'r', lw=2,
                     label=f'{label}_Outliers limit' if label else 'Outliers limit')
 
         if show_negative_values:
@@ -884,7 +903,7 @@ class Spectrum:
         """ Return a 'model_dict' dictionary from the spectrum attributes and
             Save it if a 'fname_json' is given """
 
-        excluded_keys = ['x0', 'y0', 'x', 'y', 'outliers_limit',
+        excluded_keys = ['x0', 'y0', 'weights0', 'x', 'y', 'weights', 'outliers_limit',
                          'peak_models', 'peak_index', 'bkg_model',
                          'result_fit', 'baseline']
         model_dict = {}
@@ -895,6 +914,7 @@ class Spectrum:
         if save_data:
             model_dict['x0'] = list(self.x0)
             model_dict['y0'] = list(self.y0)
+            model_dict['weights0'] = list(self.weights0)
 
         model_dict['baseline'] = dict(vars(self.baseline).items())
 
