@@ -396,6 +396,7 @@ class FigureSettings(Settings):
         super().__init__(root)
         self.params = {'plot_fit': StringVar(value='On'),
                        'plot_negative_values': StringVar(value='On'),
+                       'plot_weights': StringVar(value='Off'),
                        'plot_outliers': StringVar(value='On'),
                        'plot_outliers_limit': StringVar(value='On'),
                        'plot_noise_level': StringVar(value='On'),

@@ -355,6 +355,7 @@ class Callbacks:
         self.ax.set_ylabel(fig_settings['y_label'].get(), fontsize=18)
 
         if fig_settings['plot_fit'].get() == 'On':
+            show_weights = fig_settings['plot_weights'].get() == 'On'
             show_outliers = fig_settings['plot_outliers'].get() == 'On'
             show_outl_limit = fig_settings['plot_outliers_limit'].get() == 'On'
             show_neg_values = fig_settings['plot_negative_values'].get() == 'On'
@@ -363,6 +364,7 @@ class Callbacks:
             show_background = fig_settings['plot_background'].get() == 'On'
             subtract_baseline = subtract_bkg = self.subtract_baseline_bkg.get()
             self.lines = spectrum.plot(self.ax,
+                                       show_weights=show_weights,
                                        show_outliers=show_outliers,
                                        show_outliers_limit=show_outl_limit,
                                        show_negative_values=show_neg_values,
