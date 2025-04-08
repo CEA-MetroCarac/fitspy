@@ -156,7 +156,7 @@ class Spectrum:
         self.range_max = None
         self.x = self.x0.copy()
         self.y = self.y0.copy()
-        self.weights = self.weights0.copy()
+        self.weights = self.weights0.copy() if self.weights0 is not None else None
         self.outliers_limit = None
         self.normalize = False
         self.normalize_range_min = None
@@ -294,7 +294,7 @@ class Spectrum:
 
         self.x = self.x0.copy()
         self.y = self.y0.copy()
-        if weights0 is not None:
+        if self.weights0 is not None:
             self.weights = self.weights0.copy()
 
     def apply_range(self, range_min=None, range_max=None):
@@ -307,7 +307,7 @@ class Spectrum:
 
         self.x = self.x0[mask].copy()
         self.y = self.y0[mask].copy()
-        if weights0 is not None:
+        if self.weights0 is not None:
             self.weights = self.weights0[mask].copy()
 
     def calculate_outliers(self):
