@@ -917,16 +917,20 @@ class Callbacks:
                     return
 
                 else:  # dim == 1
-                    if fname_first_item is None:
-                        fname_first_item = fname
+                    try:
+                        spectrum = Spectrum()
+                        spectrum.fname = fname
 
-                    spectrum = Spectrum()
-                    spectrum.fname = fname
+                        spectrum.preprocess()
+                        self.spectra.append(spectrum)
 
-                    spectrum.preprocess()
-                    self.spectra.append(spectrum)
+                        if fname_first_item is None:
+                            fname_first_item = fname
+                    except:
+                        pass
 
-        self.update(fname=fname_first_item or self.fileselector.filenames[0])
+        if fname_first_item is not None:
+            self.update(fname=fname_first_item)
 
     def update_markers(self, fname):
         """  Markers management in 2D-maps """
