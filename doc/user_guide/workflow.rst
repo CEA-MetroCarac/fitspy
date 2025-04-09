@@ -142,6 +142,7 @@ Although it is more recommended to use the GUI to define a `Fitspy` model **visu
         for peak_model, params in zip(spectrum.peak_models, peaks_params.values()):
             [peak_model.set_param_hint(key, **vals) for key, vals in params.items() if key != 'name']
 
+A full example is available here: `ex_nogui_peak_models_parameters_setting.py <<https://github.com/CEA-MetroCarac/fitspy/tree/main/examples/ex_nogui_peak_models_parameters_setting.py>`_
 
 Once defined, a `Fitspy` model saved in a '.json' file can be applied to a more consequent data set as follows::
 
