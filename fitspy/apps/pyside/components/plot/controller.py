@@ -152,7 +152,7 @@ class PlotController(QObject):
 
         if len(fnames) == 1 and fnames[0].endswith('.json'):
             spectrum = Spectrum.create_from_model(fnames[0])
-            self.model.current_spectra = [spectrum]
+            self.model.current_spectra = [spectrum] if spectrum is not None else []
         else:
             self.model.current_spectra = [self.model.spectra.get_objects(fname)[0] for fname in fnames]
         self.update_plot_title()
