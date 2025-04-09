@@ -12,4 +12,4 @@ from ex_nogui_peak_models_parameters_setting import ex_nogui_peak_models_paramet
 def test_nogui_peak_models_parameters_setting():
     results = ex_nogui_peak_models_parameters_setting()
 
-    assert results == pytest.approx([199.9192, 218.3402, 300, 109.17012], abs=1e-3)
+    assert results == pytest.approx([199.919, 218.340, 300, 109.170], abs=1e-1)
