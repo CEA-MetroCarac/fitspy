@@ -984,6 +984,6 @@ class Spectrum:
                     xmax = max(xmax, x0 + 3 * fwhm_r)
 
         spectrum.x = spectrum.x0 = np.linspace(xmin, xmax, num_points)
-        spectrum.y = spectrum.y0 = np.ones_like(spectrum.x)
+        spectrum.y = spectrum.y0 = np.zeros_like(spectrum.x)
 
         return spectrum
