@@ -18,7 +18,7 @@ GUI Mode
 
 .. figure::  ../_static/pyside/workflow.png
    :align:   center
-   :width:   80%
+   :width:   100%
 
 .. raw:: html
 
