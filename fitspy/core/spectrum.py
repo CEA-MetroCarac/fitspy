@@ -14,7 +14,7 @@ from scipy.ndimage import uniform_filter1d
 from lmfit import Model, fit_report
 from lmfit.model import ModelResult
 from lmfit.models import ConstantModel, LinearModel, ParabolicModel, \
-    ExponentialModel, ExpressionModel  # pylint:disable=unused-import
+    ExponentialModel, PowerLawModel, ExpressionModel  # pylint:disable=unused-import
 
 from fitspy import FIT_PARAMS, PEAK_PARAMS, PEAK_MODELS, BKG_MODELS
 from fitspy.core.utils import get_1d_profile
@@ -86,7 +86,7 @@ class Spectrum:
     bkg_model: lmfit.Model
         Background model to fit with the composite peaks models, among :
         [None, 'ConstantModel', 'LinearModel', 'ParabolicModel',
-        'ExponentialModel']
+        'ExponentialModel', 'PowerLaw']
     peak_models: list of lmfit.Model
         List of peak models
     peak_labels: list of str
@@ -504,7 +504,11 @@ class Spectrum:
             bkg_model = BKG_MODELS[bkg_name]
             if isinstance(bkg_model, type):
                 self.bkg_model = bkg_model()
-                params = self.bkg_model.guess(self.y, self.x)
+                if bkg_name == 'PowerLaw':
+                    mask = self.y > 0
+                    params = self.bkg_model.guess(self.y[mask], self.x[mask])
+                else:
+                    params = self.bkg_model.guess(self.y, self.x)
             elif isinstance(bkg_model, Model):
                 self.bkg_model = bkg_model
                 params = self.bkg_model.make_params()

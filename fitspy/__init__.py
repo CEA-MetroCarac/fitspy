@@ -1,6 +1,6 @@
 from pathlib import Path
 import shutil
-from lmfit.models import ConstantModel, LinearModel, ParabolicModel, ExponentialModel
+from lmfit.models import ConstantModel, LinearModel, ParabolicModel, ExponentialModel, PowerLawModel
 
 from fitspy.core.models import gaussian, lorentzian, gaussian_asym, lorentzian_asym, pseudovoigt
 from fitspy.core.utils import load_models_from_txt, load_models_from_py
@@ -19,7 +19,8 @@ BKG_MODELS = {'None': None,
               'Constant': ConstantModel,
               'Linear': LinearModel,
               'Parabolic': ParabolicModel,
-              'Exponential': ExponentialModel}
+              'Exponential': ExponentialModel,
+              'PowerLaw': PowerLawModel}
 
 FIT_METHODS = {'Leastsq': 'leastsq', 'Least_squares': 'least_squares',
                'Nelder-Mead': 'nelder', 'SLSQP': 'slsqp'}

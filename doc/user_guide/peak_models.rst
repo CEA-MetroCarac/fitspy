@@ -87,11 +87,13 @@ Similarly to the background models:
 Through the GUI, the corresponding *'.txt'* or *'.py'* files can be loaded via the button :code:`Load` located to the right of the **Peak model** combobox.
 
 In python, the users models can be loaded by the functions :func:`~fitspy.utils.load_models_from_txt` and :func:`~fitspy.utils.load_models_from_py`.
-*(See example in* `ex_gui_users_defined_models.py <https://github.com/CEA-MetroCarac/fitspy/tree/main/examples/ex_gui_users_defined_models.py>`_ *)*
+*(See example in* `ex_gui_users_defined_models_2d_map.py <https://github.com/CEA-MetroCarac/fitspy/tree/main/examples/ex_gui_users_defined_models_2d_map.py>`_ *)*
+
+
 
 .. note::
 
-    **For recurrent use**, the user-defined models can be defined in files named :code:`peak_models.txt` or :code:`peak_models.py` to put in :code:`%HOMEUSER%/Fitspy`.
+    **For recurrent use**, the user-defined models can be defined in files named :code:`peak_models.txt` or :code:`peak_models.py` to put in :code:`%HOMEUSER%/Fitspy` (typically C:\Users\my_account\Fitspy in windows and /home/Fitspy in Linux).
 
 Bichromatic models
 ------------------

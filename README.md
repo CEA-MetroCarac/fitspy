@@ -30,7 +30,7 @@ acquisitions.
 
 The predefined peak models considered in Fitspy are  `Gaussian`, `Lorentzian`, `Asymetric Gaussian`, `Asymetric Lorentzian` and `Pseudovoigt`.
 
-A `constant`, `linear`, `parabolic` or `exponential` background model can also be added in the fitting.
+A `Constant`, `Linear`, `Parabolic`, `Exponential` or `Power Law` background model can also be added in the fitting.
 
 In both cases, `user-defined models` can be added, for instance in XRD or XRF, to fit peaks resulting from `bichromatic` sources, as explained [here](https://cea-metrocarac.github.io/fitspy/user_guide/peak_models.html#bichromatic-models)
 
