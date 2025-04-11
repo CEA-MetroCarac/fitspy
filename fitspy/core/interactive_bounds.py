@@ -1,25 +1,63 @@
 """
 module description
 """
+import contextlib
+import numpy as np
+import matplotlib
 import matplotlib.pyplot as plt
 from matplotlib.lines import Line2D
 from matplotlib.patches import Rectangle
 
 from fitspy.core.utils import closest_index
-from fitspy.core.models import gaussian
+
+CMAP = matplotlib.colormaps['tab10']
+
+
+@contextlib.contextmanager
+def set_tmp_params(model, dfwhm):
+    try:
+        if 'fwhm_l' in model.param_hints.keys():
+            original_fwhm_l = model.param_hints['fwhm_l']['value']
+            original_fwhm_r = model.param_hints['fwhm_r']['value']
+            model.set_param_hint('fwhm_l', value=dfwhm[0])
+            model.set_param_hint('fwhm_r', value=dfwhm[1])
+        else:
+            original_fwhm = model.param_hints['fwhm']['value']
+            model.set_param_hint('fwhm', value=dfwhm[0])
+
+        original_expr = {key: val.get('expr', '') for key, val in model.param_hints.items()}
+        for key in model.param_hints:
+            model.param_hints[key]['expr'] = ''
+
+        yield model
+
+    finally:
+        if 'fwhm_l' in model.param_hints.keys():
+            model.set_param_hint('fwhm_l', value=original_fwhm_l)
+            model.set_param_hint('fwhm_r', value=original_fwhm_r)
+        else:
+            model.set_param_hint('fwhm', value=original_fwhm)
+
+        for key in model.param_hints:
+            model.param_hints[key]['expr'] = original_expr.get(key, '')
 
 
 class InteractiveBounds:
 
-    def __init__(self, ax, x, y, cmap):
+    def __init__(self, spectrum, ax=None, cmap=None, model=None):
+        self.spectrum = spectrum
         self.ax = ax
-        self.x = x
-        self.y = y
-        self.cmap = cmap
+        self.cmap = cmap or CMAP
+        self.model = model
 
         self.bboxes = []
-        self.canvas = self.ax.get_figure().canvas
 
+        if self.ax is not None:
+            self.set_ax(ax)
+
+    def set_ax(self, ax):
+        self.ax = ax
+        self.canvas = self.ax.get_figure().canvas
         self.cid = self.canvas.mpl_connect('button_press_event', self.on_press)
 
     def on_press(self, event):
@@ -37,56 +75,68 @@ class InteractiveBounds:
                 else:
                     bbox.disconnect()
             if not in_bbox:
-                bbox = BBox(self.ax, self.x, self.y,
-                            event.xdata, dx0=[20, 20], dfwhm=[30, 30])
+                self.spectrum.add_peak_model(self.model, event.xdata)
+                bbox = BBox(self.ax, self.spectrum)
                 bbox.set_color(self.cmap(len(self.bboxes)))
                 bbox.update_display()
                 self.bboxes.append(bbox)
 
-        # bbox deletion
-        elif event.button == 3:
-            for k, bbox in enumerate(self.bboxes):
-                if bbox.rect_x0.contains_point((event.x, event.y)) or \
-                        bbox.rect_fwhm.contains_point((event.x, event.y)):
-                    bbox.delete()
-                    self.bboxes.pop(k)
-            for k, bbox in enumerate(self.bboxes):
-                bbox.set_color(self.cmap(k))
+        # # bbox deletion
+        # elif event.button == 3:
+        #     for k, bbox in enumerate(self.bboxes):
+        #         if bbox.rect_x0.contains_point((event.x, event.y)) or \
+        #                 bbox.rect_fwhm.contains_point((event.x, event.y)):
+        #             bbox.delete()
+        #             self.bboxes.pop(k)
+        #     for k, bbox in enumerate(self.bboxes):
+        #         bbox.set_color(self.cmap(k))
+        #     self.canvas.draw_idle()
 
-            self.canvas.draw_idle()
+        # stop the process
+        elif event.button == 3:
+            self.canvas.mpl_disconnect(self.cid)
+            print("FINI")
 
 
 class BBox:
 
-    def __init__(self, ax, x, y, x0, dx0, dfwhm, color='blue', ratio=0.1):
+    def __init__(self, ax, spectrum, color='blue', ratio=0.4):
 
         self.ax = ax
-        self.x = x
-        self.y = y
+        self.spectrum = spectrum
+        self.color = color
+        self.ratio = ratio
+
+        self.peak_model = self.spectrum.peak_models[-1]
+
+        params = self.peak_model.param_hints
+
+        self.x0 = params['x0']['value']
+        self.dx0 = [self.x0 - params['x0']['min'], params['x0']['max'] - self.x0]
+        if 'fwhm_l' in params:
+            self.dfwhm = [params['fwhm_l']['max'], params['fwhm_r']['max']]
+            self.symetric = False
+        else:
+            self.dfwhm = [params['fwhm']['max'], params['fwhm']['max']]
+            self.symetric = True
 
         self.cids = None
         self.canvas = self.ax.get_figure().canvas
         self.connect()
 
-        self.x0 = x0
-        self.dx0 = dx0
-        self.dfwhm = dfwhm
-        self.color = color
-        self.ratio = ratio
-        self.symetric = True
-
         self.dragging = {'move': False, 'press_x': None}
-        self.dx = np.min(np.diff(x))
+        self.dx = np.min(np.diff(self.spectrum.x))
 
-        height = self.y[closest_index(self.x, self.x0)]
-        width_x0, height_x0 = dx0[0] + dx0[1], ratio * height
-        width_fwhm, height_fwhm = 0.5 * (dfwhm[0] + dfwhm[1]), (1 - ratio) * height
+        height = self.spectrum.y[closest_index(self.spectrum.x, self.x0)]
+        width_x0, height_x0 = self.dx0[0] + self.dx0[1], ratio * height
+        width_fwhm, height_fwhm = 0.5 * (self.dfwhm[0] + self.dfwhm[1]), (1 - ratio) * height
 
         self.tmp = None
-        self.line = Line2D([x0, x0], [0, height])
-        self.rect_x0 = Rectangle((x0 - dx0[0], 0), width_x0, height_x0, alpha=0.5)
-        self.rect_fwhm = Rectangle((x0 - dfwhm[0], ratio * height), width_fwhm, height_fwhm,
-                                   alpha=0.2)
+        self.line = Line2D([self.x0, self.x0], [0, height])
+        self.rect_x0 = Rectangle((self.x0 - self.dx0[0], 0),
+                                 width_x0, height_x0, alpha=0.5)
+        self.rect_fwhm = Rectangle((self.x0 - self.dfwhm[0], ratio * height),
+                                   width_fwhm, height_fwhm, alpha=0.2)
 
         self.ax.add_line(self.line)
         self.ax.add_patch(self.rect_x0)
@@ -109,7 +159,6 @@ class BBox:
 
     def disconnect(self):
         [self.canvas.mpl_disconnect(cid) for cid in self.cids]
-        self.cids.clear()
 
     def set_color(self, color):
         self.color = color
@@ -119,8 +168,21 @@ class BBox:
         if self.tmp is not None:
             self.tmp.set_color(color)
 
+    def update_params(self, ampli):
+        self.peak_model.set_param_hint('ampli', value=ampli)
+        self.peak_model.set_param_hint('x0', value=self.x0)
+        self.peak_model.set_param_hint('x0', min=self.x0 - self.dx0[0])
+        self.peak_model.set_param_hint('x0', max=self.x0 + self.dx0[0])
+        if 'fwhm_l' in self.peak_model.param_hints.keys():
+            self.peak_model.set_param_hint('fwhm_l', max=self.dfwhm[0])
+            self.peak_model.set_param_hint('fwhm_r', max=self.dfwhm[1])
+        else:
+            self.peak_model.set_param_hint('fwhm', max=self.dfwhm[0])
+
     def update_display(self):
-        height = self.y[closest_index(self.x, self.x0)]
+        x, y = self.spectrum.x, self.spectrum.y
+
+        height = ampli = y[closest_index(x, self.x0)]
 
         self.line.set_xdata([self.x0, self.x0])
         self.line.set_ydata([0, height])
@@ -134,11 +196,18 @@ class BBox:
         self.rect_fwhm.set_width(0.5 * (self.dfwhm[0] + self.dfwhm[1]))
         self.rect_fwhm.set_height((1 - self.ratio) * height)
 
+        self.update_params(ampli)
+
+        # Plot model with maximum fwhm
+
+        with set_tmp_params(self.peak_model, self.dfwhm):
+            tmp_params = self.peak_model.make_params()
+
+        x = x[(self.x0 - 0.5 * self.dfwhm[0] <= x) & (x <= self.x0 + 0.5 * self.dfwhm[1])]
+        y = self.peak_model.eval(tmp_params, x=x)
+
         if self.tmp is not None:
             self.tmp.remove()
-        mask = (self.x0 - 0.5 * self.dfwhm[0] <= self.x) & (self.x <= self.x0 + 0.5 * self.dfwhm[1])
-        x = self.x[mask]
-        y = gaussian(x, height, self.dfwhm[0], self.x0)
         self.tmp, = self.ax.plot(x, y, c=self.color, lw=0.5)
 
         self.canvas.draw_idle()
@@ -182,15 +251,11 @@ class BBox:
 
     def on_release(self, _):
         self.dragging['move'] = False
-        print(self.x0, self.dx0, self.dfwhm)
 
 
 if __name__ == "__main__":
-    import matplotlib
-    import numpy as np
     from fitspy.core.models import lorentzian, gaussian, lorentzian_asym
-
-    cmap = matplotlib.colormaps['tab10']
+    from fitspy.core.spectrum import Spectrum
 
     x = np.linspace(0, 600, 250)
     y = lorentzian(x, ampli=200, fwhm=30, x0=200)
@@ -200,9 +265,9 @@ if __name__ == "__main__":
     _, ax = plt.subplots()
     ax.plot(x, y)
 
-    # bbox = BoundingBox(ax, x, y, x0=300, dx0=[20, 20], dfwhm=[30, 30], color='blue')
-    # bbox.update_display()
-    # plt.show()
+    spectrum = Spectrum()
+    spectrum.x = x
+    spectrum.y = y
 
-    bboxes = InteractiveBounds(ax, x, y, cmap)
+    bboxes = InteractiveBounds(spectrum, ax, model='Gaussian')
     plt.show()

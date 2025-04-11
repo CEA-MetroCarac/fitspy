@@ -21,6 +21,7 @@ from fitspy.core.utils import get_1d_profile
 from fitspy.core.utils import closest_index, fileparts, check_or_rename
 from fitspy.core.utils import save_to_json, load_from_json, eval_noise_amplitude
 from fitspy.core.baseline import BaseLine
+from fitspy.core.interactive_bounds import InteractiveBounds
 
 CMAP_PEAKS = matplotlib.colormaps['tab10']
 
@@ -149,6 +150,7 @@ class Spectrum:
         self.peak_index = itertools.count(start=1)
         self.fit_params = FIT_PARAMS
         self.result_fit = lambda: None
+        self.ibounds = InteractiveBounds(self)
 
     def reinit(self):
         """ Reinitialize the main attributes """
