@@ -307,13 +307,13 @@ class ModelSelector(QWidget):
         h_layout.setStretch(4, 0)
 
         self.setLayout(h_layout)
-    
+
     def setDisabled(self, state):
         """Override setDisabled to keep preview checkbox enabled"""
         self.combo_box.setDisabled(state)
         self.set.setDisabled(state)
         self.add.setDisabled(state)
-        
+
     def setEnabled(self, state):
         self.setDisabled(not state)
 
@@ -329,6 +329,7 @@ class ModelBuilder(QWidget):
         self.setupTabWidget()
 
         self.bounds_chbox = QCheckBox("Bounds")
+        self.bounds_chbox.setChecked(True)
         self.expr_chbox = QCheckBox("Expressions")
         self.bounds_chbox.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
         self.expr_chbox.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)

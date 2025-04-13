@@ -11,7 +11,7 @@ class GenericTable(QTableWidget):
         self.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
         self.columns = columns
         self.setColumnCount(len(columns))
-        self.setHorizontalHeaderLabels(list(columns.keys()))
+        self.set_header_labels()
         self.row_count = 0
 
         self.setSelectionMode(QAbstractItemView.ExtendedSelection)
@@ -56,7 +56,7 @@ class GenericTable(QTableWidget):
         if column_name not in self.columns:
             self.columns[column_name] = widget_class
             self.setColumnCount(len(self.columns))
-            self.setHorizontalHeaderLabels(list(self.columns.keys()))
+            self.set_header_labels()
             self.set_header_resize_mode(QHeaderView.ResizeToContents)
 
     def remove_column(self, column_name):
@@ -65,8 +65,16 @@ class GenericTable(QTableWidget):
             self.removeColumn(column_index)
             del self.columns[column_name]
             self.setColumnCount(len(self.columns))
-            self.setHorizontalHeaderLabels(list(self.columns.keys()))
+            self.set_header_labels()
             self.set_header_resize_mode(QHeaderView.Stretch)
+
+    def set_header_labels(self, show_bounds=True):
+        labels = list(self.columns.keys())
+        labels = ['fixed' if '_fixed' in label else label for label in labels]
+        if not show_bounds:
+            labels = [label.replace('MIN |', '') for label in labels]
+            labels = [label.replace('| MAX', '') for label in labels]
+        self.setHorizontalHeaderLabels(labels)
 
     def get_column_index(self, column_name):
         return list(self.columns.keys()).index(column_name)
@@ -109,10 +117,10 @@ class GenericTable(QTableWidget):
         new_order = [col for col in order if col in current_columns]
         new_order += [col for col in current_columns if col not in new_order]
 
-        self.setHorizontalHeaderLabels(new_order)
+        # self.setHorizontalHeaderLabels(new_order)
         self.columns = {col: self.columns[col] for col in new_order}
         self.setColumnCount(len(self.columns))
-        self.setHorizontalHeaderLabels(list(self.columns.keys()))
+        self.set_header_labels()
         # self.set_header_resize_mode(QHeaderView.ResizeToContents)
 
     def get_selected_rows(self):
@@ -160,11 +168,14 @@ class GenericTable(QTableWidget):
         """Connect appropriate signals based on widget type"""
         signal_connections = {
             'stateChanged': lambda w: (
-            w.stateChanged, lambda state: self._handle_widget_change(row, col, w, w.isChecked())),
+                w.stateChanged,
+                lambda state: self._handle_widget_change(row, col, w, w.isChecked())),
             'textChanged': lambda w: (
-            w.textEdited, lambda text: self._handle_widget_change(row, col, w, text)),
+                w.textEdited,
+                lambda text: self._handle_widget_change(row, col, w, text)),
             'currentTextChanged': lambda w: (
-            w.currentTextChanged, lambda text: self._handle_widget_change(row, col, w, text)),
+                w.currentTextChanged,
+                lambda text: self._handle_widget_change(row, col, w, text)),
         }
 
         for signal_name, connector in signal_connections.items():

@@ -174,7 +174,7 @@ class PeaksTable(QWidget):
         if params_order is None:
             params_order = ['Prefix', 'Label', 'Model', 'x0']
         self.params_order = params_order
-        self.dx = 1.0
+        self.dx = 1.0  # TODO : inappropriate value - to revisit - np.median(np.diff(spectrum.x))
         self.initUI()
         self.show_bounds_state = None  # FIXME: bool instead ? What for show_bounds_state=True ?
         self.show_expr_state = None
@@ -186,7 +186,7 @@ class PeaksTable(QWidget):
         columns = {"Prefix": QLabel, "Label": QLineEdit, "Model": ComboBox}
         self.table = GenericTable(columns=columns)
         self.table.widgetsChanged.connect(self.emit_peaks_changed)
-        self.show_bounds(False)
+        self.show_bounds(True)
         main_layout.addWidget(self.table)
         self.table.rowsDeleted.connect(self.emit_peaks_changed)
         self.table.rowsDeleted.connect(self.update_prefix_colors)
@@ -394,6 +394,7 @@ class PeaksTable(QWidget):
                     if isinstance(widget, SpinBoxGroupWithExpression):
                         widget.show_bounds(show)
         self.show_bounds_state = show
+        self.table.set_header_labels(show_bounds=show)
         if show:
             self.table.set_header_resize_mode(QHeaderView.ResizeToContents)
         else:

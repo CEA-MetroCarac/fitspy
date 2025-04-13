@@ -20,7 +20,7 @@ class BkgTable(QWidget):
         super().__init__(parent)
         self.bkg_model = list(model_params().keys())[0]
         self.initUI()
-        self.show_bounds_state = False
+        self.show_bounds_state = True
         self.show_expr_state = False
 
     def initUI(self):
@@ -28,7 +28,7 @@ class BkgTable(QWidget):
         main_layout.setContentsMargins(0, 0, 0, 0)
 
         self.table = GenericTable(columns={})
-        self.show_bounds(False)
+        self.show_bounds(True)
         main_layout.addWidget(self.table)
         self.add_row(False, False, model_name=self.bkg_model)
         self.setLayout(main_layout)
@@ -211,6 +211,7 @@ class BkgTable(QWidget):
                     if isinstance(widget, SpinBoxGroupWithExpression):
                         widget.show_bounds(show)
         self.show_bounds_state = show
+        self.table.set_header_labels(show_bounds=show)
         if show:
             self.table.set_header_resize_mode(QHeaderView.ResizeToContents)
         else:
