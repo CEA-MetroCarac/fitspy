@@ -172,7 +172,8 @@ class PeaksTable(QWidget):
     def __init__(self, params_order=None, parent=None):
         super().__init__(parent)
         if params_order is None:
-            params_order = ['Prefix', 'Label', 'Model', 'x0']
+            params_order = ['Prefix', 'Label', 'Model',
+                            'x0', 'ampli', 'fwhm', 'fwhm_l', 'fwhm_r', 'alpha']
         self.params_order = params_order
         self.dx = 1.0  # TODO : inappropriate value - to revisit - np.median(np.diff(spectrum.x))
         self.initUI()
