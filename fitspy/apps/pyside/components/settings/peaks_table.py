@@ -11,14 +11,18 @@ from fitspy.apps.pyside.utils import get_icon_path
 from fitspy.apps.pyside.components.settings.generic_table import GenericTable
 from fitspy.apps.pyside.components.custom_widgets import DoubleSpinBox, ComboBox
 
+
 def model_params():
     return get_model_params(PEAK_MODELS)
+
 
 def is_bound_param(param):
     return "MIN |" and "| MAX" in param
 
+
 def extract_param_name(param):
     return param.split("|")[1].strip().lower()
+
 
 def cmap():
     return DEFAULTS["peaks_cmap"]
@@ -26,7 +30,7 @@ def cmap():
 
 class SpinBoxGroupWithExpression(QWidget):
     showToast = Signal(str, str, str)
-    
+
     def __init__(self, min_value=None, value=None, max_value=None, expr=None, parent=None):
         super().__init__(parent)
         self.layout = QVBoxLayout(self)
@@ -66,11 +70,11 @@ class SpinBoxGroupWithExpression(QWidget):
 
         self.layout.addLayout(self.spin_box_layout)
         self.layout.addWidget(self.expr_edit)
-    
+
     def _validate_bounds(self):
         min_val = self.min_spin_box.value()
         max_val = self.max_spin_box.value()
-        
+
         if min_val > max_val:
             # Reset to previous valid bounds
             if self.sender() == self.min_spin_box:
@@ -89,7 +93,7 @@ class SpinBoxGroupWithExpression(QWidget):
         if not self._validate_bounds():
             self.value_spin_box.setValue(self._previous_value)
             return
-            
+
         min_val = self.min_spin_box.value()
         max_val = self.max_spin_box.value()
         current_val = self.value_spin_box.value()
@@ -156,7 +160,7 @@ class CenteredCheckBox(QWidget):
 
     def setChecked(self, checked):
         self.checkbox.setChecked(checked)
-    
+
     def blockSignals(self, b):
         self.checkbox.blockSignals(b)
 
@@ -181,7 +185,7 @@ class PeaksTable(QWidget):
 
         columns = {"Prefix": QLabel, "Label": QLineEdit, "Model": ComboBox}
         self.table = GenericTable(columns=columns)
-        self.table.widgetsChanged.connect(self.emit_peaks_changed)  
+        self.table.widgetsChanged.connect(self.emit_peaks_changed)
         self.show_bounds(False)
         main_layout.addWidget(self.table)
         self.table.rowsDeleted.connect(self.emit_peaks_changed)
@@ -244,7 +248,7 @@ class PeaksTable(QWidget):
         self.peaksChanged.emit(self.get_peaks())
 
     def create_spin_box_group_with_expr(
-        self, min=None, value=None, max=None, expr="", param_name=None
+            self, min=None, value=None, max=None, expr="", param_name=None
     ):
         defaults = DEFAULTS.get(param_name, {
             "min": 0,
@@ -326,7 +330,7 @@ class PeaksTable(QWidget):
         self.show_bounds_state = show_bounds
         self.show_expr_state = show_expr
         prefix = QPushButton(text=params["prefix"], icon=QIcon(get_icon_path("close.png")),
-                                 toolTip="Delete peak")
+                             toolTip="Delete peak")
         color = rgb2hex(cmap()(self.row_count % cmap().N))
         prefix.setStyleSheet(f"color: {color};")
         prefix.clicked.connect(lambda: self.table.remove_widget_row(prefix))

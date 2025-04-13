@@ -22,7 +22,7 @@ class GenericTable(QTableWidget):
     def setDisabled(self, state):
         """Override setDisabled to keep scrollbars enabled while disabling cell widgets"""
         super().setEnabled(True)
-        
+
         for row in range(self.rowCount()):
             for col in range(self.columnCount()):
                 widget = self.cellWidget(row, col)
@@ -118,16 +118,16 @@ class GenericTable(QTableWidget):
     def get_selected_rows(self):
         """Return list of selected row indices"""
         return sorted(set(index.row() for index in self.selectedIndexes()))
-        
+
     def handleSelectionChanged(self):
         """Reset last editing widget when selection changes"""
         self.lastEditingWidget = None
-        
+
     def propagate_edit(self, row, col, value):
         """Propagate an edit to all selected rows for the same column"""
         selected_rows = self.get_selected_rows()
         self.widgetsChanged.emit()
-        
+
         if len(selected_rows) <= 1:
             return
 
@@ -138,46 +138,51 @@ class GenericTable(QTableWidget):
                     widget.blockSignals(True)
                     self.apply_value_to_widget(widget, value)
                     widget.blockSignals(False)
-                    
+
     def apply_value_to_widget(self, widget, value):
         """Apply a value to a widget based on its type"""
         if hasattr(widget, 'get_values') and hasattr(widget, 'set_values'):
             widget.set_values(value['min'], value['value'], value['max'], value['expr'])
-            
+
         elif hasattr(widget, 'setChecked'):
             widget.setChecked(value)
-            
+
         elif hasattr(widget, 'setCurrentText'):
             widget.setCurrentText(value)
 
         elif hasattr(widget, 'setText'):
             widget.setText(value)
-            
+
         elif hasattr(widget, 'setValue'):
             widget.setValue(value)
-    
+
     def register_widget_for_multi_edit(self, row, col, widget):
         """Connect appropriate signals based on widget type"""
         signal_connections = {
-            'stateChanged': lambda w: (w.stateChanged, lambda state: self._handle_widget_change(row, col, w, w.isChecked())),
-            'textChanged': lambda w: (w.textEdited, lambda text: self._handle_widget_change(row, col, w, text)),
-            'currentTextChanged': lambda w: (w.currentTextChanged, lambda text: self._handle_widget_change(row, col, w, text)),
+            'stateChanged': lambda w: (
+            w.stateChanged, lambda state: self._handle_widget_change(row, col, w, w.isChecked())),
+            'textChanged': lambda w: (
+            w.textEdited, lambda text: self._handle_widget_change(row, col, w, text)),
+            'currentTextChanged': lambda w: (
+            w.currentTextChanged, lambda text: self._handle_widget_change(row, col, w, text)),
         }
-        
+
         for signal_name, connector in signal_connections.items():
             if hasattr(widget, signal_name):
                 signal, handler = connector(widget)
                 signal.connect(handler)
                 return
-                
+
         # SpinBoxGroupWithExpression
         if hasattr(widget, 'get_values'):
             for child_name in ['value_spin_box', 'min_spin_box', 'max_spin_box', 'expr_edit']:
                 if hasattr(widget, child_name):
                     child = getattr(widget, child_name)
-                    signal = child.valueChanged if hasattr(child, 'valueChanged') else child.textChanged
-                    signal.connect(lambda: self._handle_widget_change(row, col, widget, widget.get_values()))
-    
+                    signal = child.valueChanged if hasattr(child,
+                                                           'valueChanged') else child.textChanged
+                    signal.connect(
+                        lambda: self._handle_widget_change(row, col, widget, widget.get_values()))
+
     def _handle_widget_change(self, row, col, widget, value):
         """Handle widget change and propagate to selected rows"""
         self.lastEditingWidget = widget
