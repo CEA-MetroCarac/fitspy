@@ -6,6 +6,7 @@ from pytest import approx
 import pytest
 
 from fitspy.core.spectrum import Spectrum
+from fitspy.core.models import gaussian
 
 
 @pytest.fixture
@@ -19,37 +20,58 @@ def basic_spectrum():
     spectrum.add_peak_model('Gaussian', x0=200)
     return spectrum
 
+@pytest.fixture
+def basic_spectrum2():
+    spectrum = Spectrum()
+    x = np.arange(0., 100.)
+    y = gaussian(x, ampli=20, fwhm=20, x0=40) + gaussian(x, ampli=30, fwhm=10, x0=60)
+    spectrum.x = x
+    spectrum.y = y
+    spectrum.x0 = spectrum.x.copy()
+    spectrum.y0 = spectrum.y.copy()
+    spectrum.add_peak_model('Gaussian', x0=30)
+    spectrum.add_peak_model('Gaussian', x0=70)
 
-def test_with_no_constraint(basic_spectrum):
-    basic_spectrum.fit()
+    # import matplotlib.pyplot as plt
+    # _, ax= plt.subplots()
+    # spectrum.fit()
+    #
+    # spectrum.plot(ax)
+    # plt.show()
 
-    assert basic_spectrum.peak_models[0].param_hints['ampli']['value'] == approx(82., abs=1)
-    assert basic_spectrum.peak_models[1].param_hints['ampli']['value'] == approx(82., abs=1)
-
-
-def test_with_fixed_ampli(basic_spectrum):
-    basic_spectrum.peak_models[0].param_hints['ampli']['vary'] = False
-    basic_spectrum.fit()
-
-    assert basic_spectrum.peak_models[0].param_hints['ampli']['value'] == 100.
-    assert basic_spectrum.peak_models[1].param_hints['ampli']['value'] == approx(81., abs=1)
-
-
-def test_with_expression(basic_spectrum):
-    basic_spectrum.peak_models[1].param_hints['ampli']['expr'] = 'm01_ampli*0.5'
-    basic_spectrum.fit()
-
-    assert basic_spectrum.peak_models[1].param_hints['ampli']['value'] == \
-           0.5 * basic_spectrum.peak_models[0].param_hints['ampli']['value']
+    return spectrum
 
 
-def test_with_fixed_ampli_and_expression(basic_spectrum):
-    basic_spectrum.peak_models[0].param_hints['ampli']['vary'] = False
-    basic_spectrum.peak_models[1].param_hints['ampli']['expr'] = 'm01_ampli*0.5'
-    basic_spectrum.fit()
+def test_with_no_constraint(basic_spectrum2):
+    basic_spectrum2.fit()
 
-    assert basic_spectrum.peak_models[0].param_hints['ampli']['value'] == 100.
-    assert basic_spectrum.peak_models[1].param_hints['ampli']['value'] == 50.
+    assert basic_spectrum2.peak_models[0].param_hints['ampli']['value'] == approx(20, abs=1)
+    assert basic_spectrum2.peak_models[1].param_hints['ampli']['value'] == approx(30, abs=1)
+
+
+def test_with_fixed_ampli(basic_spectrum2):
+    basic_spectrum2.peak_models[0].param_hints['ampli']['vary'] = False
+    basic_spectrum2.fit()
+
+    assert basic_spectrum2.peak_models[0].param_hints['ampli']['value'] == approx(10, abs=1)
+    assert basic_spectrum2.peak_models[1].param_hints['ampli']['value'] == approx(30, abs=1)
+
+
+def test_with_expression(basic_spectrum2):
+    basic_spectrum2.peak_models[1].param_hints['ampli']['expr'] = 'm01_ampli*0.5'
+    basic_spectrum2.fit()
+
+    assert basic_spectrum2.peak_models[1].param_hints['ampli']['value'] == \
+           0.5 * basic_spectrum2.peak_models[0].param_hints['ampli']['value']
+
+
+def test_with_fixed_ampli_and_expression(basic_spectrum2):
+    basic_spectrum2.peak_models[0].param_hints['ampli']['vary'] = False
+    basic_spectrum2.peak_models[1].param_hints['ampli']['expr'] = 'm01_ampli*0.5'
+    basic_spectrum2.fit()
+
+    assert basic_spectrum2.peak_models[0].param_hints['ampli']['value'] == approx(10, abs=1)
+    assert basic_spectrum2.peak_models[1].param_hints['ampli']['value'] == approx(5, abs=1)
 
 
 def test_apply_range(basic_spectrum):
