@@ -21,7 +21,6 @@ from fitspy.core.utils import get_1d_profile
 from fitspy.core.utils import closest_index, fileparts, check_or_rename
 from fitspy.core.utils import save_to_json, load_from_json, eval_noise_amplitude
 from fitspy.core.baseline import BaseLine
-from fitspy.core.interactive_bounds import InteractiveBounds
 
 CMAP_PEAKS = matplotlib.colormaps['tab10']
 
@@ -150,7 +149,6 @@ class Spectrum:
         self.peak_index = itertools.count(start=1)
         self.fit_params = FIT_PARAMS
         self.result_fit = lambda: None
-        self.ibounds = InteractiveBounds(self)
 
     def reinit(self):
         """ Reinitialize the main attributes """
@@ -420,7 +418,7 @@ class Spectrum:
 
     def add_peak_model(self, model_name, x0, ampli=None,
                        fwhm=None, fwhm_l=None, fwhm_r=None, alpha=0.5,
-                       dx0=20., dfwhm=200.):
+                       dx0=None, dfwhm=None):
         """
         Add a peak model passing model_name and indice position or parameters
 
@@ -432,27 +430,30 @@ class Spectrum:
         x0: float
             Position of the peak model
         ampli: float, Optional
-            Amplitude of the peak model. If None, consider the amplitude of the
-            spectrum profile at position x0
+            Amplitude of the peak model.
+            If None, consider the amplitude of the spectrum profile at position x0
         fwhm, fwhm_l, fwhm_r: floats, optional
             Optional parameters passed to the model related to the Full Width
-            at Half Maximum. Default values are the maximum x-step size Max(x[i+1]-x[i]).
+            at Half Maximum.
+            Default values are based on the median x-step size (dx) as 20 * dx.
         alpha: float, optional
             Optional parameter passed to the 'PseudoVoigt' model.
             Default value is 0.5.
         dx0: float, optional
             Variation allowed around x0, i.e. x0 should be in [x0-dx0; x0+dx0].
-            Default value is 20.
+            Default value is based on the median x-step size (dx) as 10 * dx.
         dfwhm: float, optional
             Variation (upper value) allowed for the fwhm's, i.e. the fwhm's should be in [0; dfwhm]
-            Default value is 200.
+            Default value is based on the median x-step size (dx) as 20 * dx.
         """
-        dx = max(np.diff(self.x))
+        dx = np.median(np.diff(self.x))
 
         ampli = ampli or self.y_no_outliers[closest_index(self.x, x0)]
-        fwhm = fwhm or dx
-        fwhm_l = fwhm_l or dx
-        fwhm_r = fwhm_r or dx
+        fwhm = fwhm or 20 * dx
+        fwhm_l = fwhm_l or 20 * dx
+        fwhm_r = fwhm_r or 20 * dx
+        dx0 = dx0 or 10 * dx
+        dfwhm = dfwhm or 20 * dx
 
         index = next(self.peak_index)
         peak_model = self.create_peak_model(index, model_name, x0, ampli,
