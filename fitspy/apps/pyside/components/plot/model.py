@@ -12,7 +12,7 @@ from PySide6.QtWidgets import QMessageBox
 from fitspy.core.spectra import Spectra
 from fitspy.core.spectrum import Spectrum
 from fitspy.core.spectra_map import SpectraMap
-from fitspy.core.utils import closest_index, measure_time
+from fitspy.core.utils import closest_index, closest_item, measure_time
 from fitspy.apps.pyside import DEFAULTS
 
 CMAP = matplotlib.colormaps['tab10']
@@ -234,24 +234,16 @@ class Model(QObject):
             self.current_spectra[0].baseline.points = points
             self.refreshPlot.emit()
 
-    def add_peak_point(self, ax, model, x, y):
-        first_spectrum = self.current_spectra[0]
-
-        # to take into account the strong aspect ratio in the axis represent.
-        ratio = 1.0 / ax.get_data_ratio() ** 2
-
-        inds = range(len(first_spectrum.x))
-        x_sp, y_sp = first_spectrum.x, first_spectrum.y
-        dist_min = np.inf
-        for ind in inds:
-            dist = (x_sp[ind] - x) ** 2 + ratio * (y_sp[ind] - y) ** 2
-            if dist < dist_min:
-                dist_min, ind_min = dist, ind
-
-        first_spectrum.add_peak_model(model, x0=x_sp[ind_min], dx0=DEFAULTS['dx0'],
-                                      dfwhm=DEFAULTS['dfwhm'])
-        self.PeaksChanged.emit(first_spectrum)
+    def add_peak_point(self, model, x):
+        spectrum = self.current_spectra[0]
+        x0 = closest_item(spectrum.x, x)
+        spectrum.add_peak_model(model, x0=x0, dx0=DEFAULTS['dx0'], dfwhm=DEFAULTS['dfwhm'])
+        self.PeaksChanged.emit(spectrum)
         self.refreshPlot.emit()
+
+    def refresh(self):
+        self.PeaksChanged.emit(self.current_spectra[0])
+        # self.refreshPlot.emit()
 
     def del_peak_point(self, x):
         first_spectrum = self.current_spectra[0]
@@ -580,6 +572,7 @@ class Model(QObject):
 
         self.lines = []
         first_spectrum = True
+        interactive_bounds = view_options["Interactive bounds"]
         cmap_peaks = DEFAULTS['peaks_cmap']
         for spectrum in self.current_spectra:
             self.lines += spectrum.plot(
@@ -588,7 +581,7 @@ class Model(QObject):
                 show_outliers=view_options["Outliers"],
                 show_outliers_limit=view_options["Outliers limits"] * first_spectrum,
                 show_negative_values=view_options["Negative values"] * first_spectrum,
-                show_peak_models=view_options["Peaks"] * first_spectrum,
+                show_peak_models=view_options["Peaks"] * (not interactive_bounds) * first_spectrum,
                 show_noise_level=view_options["Noise level"] * first_spectrum,
                 show_baseline=view_options["Baseline"] * first_spectrum,
                 show_background=view_options["Background"] * first_spectrum,
@@ -606,6 +599,12 @@ class Model(QObject):
 
         spectrum = self.current_spectra[0]
         self.line_bkg_visible = view_options.get("Background", False) and spectrum.bkg_model
+
+        if interactive_bounds:
+            self.ibounds.update()
+            # if view_options["Peaks"]:
+            #     peak_lines = [bbox.tmp[0] for bbox in self.ibounds.bboxes if bbox.tmp]
+            #     self.lines[:len(peak_lines)] = peak_lines
 
         # Add Peak labels annotations
         if view_options.get("Peak labels", True):

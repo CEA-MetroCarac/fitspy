@@ -1,9 +1,10 @@
 from pathlib import Path
 from PySide6.QtCore import QObject, Signal, QTimer
 
+from fitspy.core.spectrum import Spectrum
+from fitspy.apps.interactive_bounds import InteractiveBounds
 from fitspy.apps.pyside.utils import to_snake_case
 from fitspy.apps.pyside.components.plot.model import Model
-from fitspy.core.spectrum import Spectrum
 
 
 class PlotController(QObject):
@@ -154,7 +155,11 @@ class PlotController(QObject):
             spectrum = Spectrum.create_from_model(fnames[0])
             self.model.current_spectra = [spectrum] if spectrum is not None else []
         else:
-            self.model.current_spectra = [self.model.spectra.get_objects(fname)[0] for fname in fnames]
+            self.model.current_spectra = [self.model.spectra.get_objects(fname)[0]
+                                          for fname in fnames]
+            self.model.ibounds = InteractiveBounds(self.model.current_spectra[0],
+                                                   self.spectra_plot.ax,
+                                                   bind_func=self.model.refresh)
         self.update_plot_title()
 
     def update_plot_title(self):
@@ -216,10 +221,13 @@ class PlotController(QObject):
                 self.model.del_baseline_point(x)
 
         else:  # point_type == "peaks":
-            if event.button == 1:
-                self.model.add_peak_point(self.spectra_plot.ax, self.model.peak_model, x, y)
+            if self.model.ibounds.interact_with_bbox(event):
+                self.model.refresh()
             else:
-                self.model.del_peak_point(x)
+                if event.button == 1:
+                    self.model.add_peak_point(self.model.peak_model, x)
+                else:
+                    self.model.del_peak_point(x)
 
     def set_spectrum_attr(self, attr, value, fnames=None):
         if fnames is None:

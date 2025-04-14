@@ -26,6 +26,7 @@ DEFAULTS = {
         "residual": False,
         "peaks": True,
         "peak_labels": True,
+        "interactive_bounds": True,
         "annotations": True,
         'preserve_axes': False,
         'x-log': False,
