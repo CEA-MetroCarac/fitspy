@@ -14,16 +14,17 @@ CMAP = matplotlib.colormaps['tab10']
 
 
 @contextlib.contextmanager
-def set_tmp_params(model, dfwhm):
+def set_tmp_params(model, dfwhm=None):
     try:
-        if 'fwhm_l' in model.param_hints.keys():
-            original_fwhm_l = model.param_hints['fwhm_l']['value']
-            original_fwhm_r = model.param_hints['fwhm_r']['value']
-            model.set_param_hint('fwhm_l', value=dfwhm[0])
-            model.set_param_hint('fwhm_r', value=dfwhm[1])
-        else:
-            original_fwhm = model.param_hints['fwhm']['value']
-            model.set_param_hint('fwhm', value=dfwhm[0])
+        if dfwhm:
+            if 'fwhm_l' in model.param_hints.keys():
+                original_fwhm_l = model.param_hints['fwhm_l']['value']
+                original_fwhm_r = model.param_hints['fwhm_r']['value']
+                model.set_param_hint('fwhm_l', value=dfwhm[0])
+                model.set_param_hint('fwhm_r', value=dfwhm[1])
+            else:
+                original_fwhm = model.param_hints['fwhm']['value']
+                model.set_param_hint('fwhm', value=dfwhm[0])
 
         original_expr = {key: val.get('expr', '') for key, val in model.param_hints.items()}
         for key in model.param_hints:
@@ -32,11 +33,12 @@ def set_tmp_params(model, dfwhm):
         yield model
 
     finally:
-        if 'fwhm_l' in model.param_hints.keys():
-            model.set_param_hint('fwhm_l', value=original_fwhm_l)
-            model.set_param_hint('fwhm_r', value=original_fwhm_r)
-        else:
-            model.set_param_hint('fwhm', value=original_fwhm)
+        if dfwhm:
+            if 'fwhm_l' in model.param_hints.keys():
+                model.set_param_hint('fwhm_l', value=original_fwhm_l)
+                model.set_param_hint('fwhm_r', value=original_fwhm_r)
+            else:
+                model.set_param_hint('fwhm', value=original_fwhm)
 
         for key in model.param_hints:
             model.param_hints[key]['expr'] = original_expr.get(key, '')
@@ -44,7 +46,7 @@ def set_tmp_params(model, dfwhm):
 
 class InteractiveBounds:
 
-    def __init__(self, spectrum, ax=None, cmap=None, model=None):
+    def __init__(self, spectrum, ax, cmap=None, model=None, bind_func=None):
         self.spectrum = spectrum
         self.ax = ax
         self.cmap = cmap or CMAP
@@ -52,102 +54,115 @@ class InteractiveBounds:
 
         self.bboxes = []
 
-        if self.ax is not None:
-            self.set_ax(ax)
-
-    def set_ax(self, ax):
-        self.ax = ax
         self.canvas = self.ax.get_figure().canvas
-        self.cid = self.canvas.mpl_connect('button_press_event', self.on_press)
+        self.canvas.mpl_connect('button_press_event', self.on_press)
+        if bind_func is not None:
+            self.canvas.mpl_connect('button_release_event', lambda _: bind_func())
+
+    def update(self):
+        x, y = self.spectrum.x, self.spectrum.y
+        for k, peak_model in enumerate(self.spectrum.peak_models):
+            bbox = BBox(self.ax, x, y, peak_model)
+            bbox.set_color(self.cmap(k))
+            bbox.update()
+            self.bboxes.append(bbox)
+
+    def remove(self):
+        for bbox in self.bboxes:
+            bbox.remove()
+        self.bboxes = []
+        self.canvas.draw_idle()
+
+    def interact_with_bbox(self, event):
+        interact = False
+        for bbox in self.bboxes:
+            if bbox.rect_x0.contains(event)[0] or bbox.rect_fwhm.contains(event)[0]:
+                bbox.connect()
+                bbox.on_press(event)
+                interact = True
+            else:
+                bbox.disconnect()
+        return interact
 
     def on_press(self, event):
         if event.inaxes != self.ax:
             return
 
-        # bbox selection or creation
-        if event.button == 1:
-            in_bbox = False
-            for bbox in self.bboxes:
-                if bbox.rect_x0.contains_point((event.x, event.y)) or \
-                        bbox.rect_fwhm.contains_point((event.x, event.y)):
-                    bbox.connect()
-                    in_bbox = True
-                else:
-                    bbox.disconnect()
-            if not in_bbox:
-                self.spectrum.add_peak_model(self.model, event.xdata)
-                bbox = BBox(self.ax, self.spectrum)
+        if event.button == 3:
+
+            interact = self.interact_with_bbox(event)
+
+            if self.model and not interact:
+                spectrum = self.spectrum
+                spectrum.add_peak_model(self.model, event.xdata)
+                bbox = BBox(self.ax, spectrum.x, spectrum.y, spectrum.peak_models[-1])
                 bbox.set_color(self.cmap(len(self.bboxes)))
-                bbox.update_display()
+                bbox.update()
                 self.bboxes.append(bbox)
-
-        # # bbox deletion
-        # elif event.button == 3:
-        #     for k, bbox in enumerate(self.bboxes):
-        #         if bbox.rect_x0.contains_point((event.x, event.y)) or \
-        #                 bbox.rect_fwhm.contains_point((event.x, event.y)):
-        #             bbox.delete()
-        #             self.bboxes.pop(k)
-        #     for k, bbox in enumerate(self.bboxes):
-        #         bbox.set_color(self.cmap(k))
-        #     self.canvas.draw_idle()
-
-        # stop the process
-        elif event.button == 3:
-            self.canvas.mpl_disconnect(self.cid)
-            print("FINI")
 
 
 class BBox:
 
-    def __init__(self, ax, spectrum, color='blue', ratio=0.4):
+    def __init__(self, ax, x, y, peak_model, color='blue', ratio=0.5):
 
         self.ax = ax
-        self.spectrum = spectrum
+        self.x = x
+        self.y = y
+        self.peak_model = peak_model
         self.color = color
         self.ratio = ratio
 
-        self.peak_model = self.spectrum.peak_models[-1]
-
         params = self.peak_model.param_hints
-
-        self.x0 = params['x0']['value']
-        self.dx0 = [self.x0 - params['x0']['min'], params['x0']['max'] - self.x0]
+        ampli = params['ampli']['value']
+        x0 = params['x0']['value']
+        dx0 = [x0 - params['x0']['min'], params['x0']['max'] - x0]
         if 'fwhm_l' in params:
-            self.dfwhm = [params['fwhm_l']['max'], params['fwhm_r']['max']]
-            self.symetric = False
+            dfwhm = [params['fwhm_l']['max'], params['fwhm_r']['max']]
+            symetric = False
         else:
-            self.dfwhm = [params['fwhm']['max'], params['fwhm']['max']]
-            self.symetric = True
+            dfwhm = [params['fwhm']['max'], params['fwhm']['max']]
+            symetric = True
+
+        self.ampli = ampli
+        self.x0 = x0
+        self.dx0 = dx0
+        self.dfwhm = dfwhm
+        self.symetric = symetric
 
         self.cids = None
         self.canvas = self.ax.get_figure().canvas
         self.connect()
 
-        self.dragging = {'move': False, 'press_x': None}
-        self.dx = np.min(np.diff(self.spectrum.x))
+        self.dragging = {'move': None, 'press_x': None}
+        self.dx = np.median(np.diff(self.x))
 
-        height = self.spectrum.y[closest_index(self.spectrum.x, self.x0)]
-        width_x0, height_x0 = self.dx0[0] + self.dx0[1], ratio * height
-        width_fwhm, height_fwhm = 0.5 * (self.dfwhm[0] + self.dfwhm[1]), (1 - ratio) * height
+        height = ampli
+        width_x0, height_x0 = dx0[0] + dx0[1], ratio * height
+        width_fwhm, height_fwhm = 0.5 * (dfwhm[0] + dfwhm[1]), (1 - ratio) * height
 
         self.tmp = None
-        self.line = Line2D([self.x0, self.x0], [0, height])
-        self.rect_x0 = Rectangle((self.x0 - self.dx0[0], 0),
-                                 width_x0, height_x0, alpha=0.5)
-        self.rect_fwhm = Rectangle((self.x0 - self.dfwhm[0], ratio * height),
-                                   width_fwhm, height_fwhm, alpha=0.2)
+        self.line = Line2D([x0, x0], [0, height])
+        self.rect_x0 = Rectangle((x0 - dx0[0], 0), width_x0, height_x0, alpha=0.3)
+        self.rect_x0_inner = Rectangle((x0 - 0.5 * dx0[0], 0), 0.5 * width_x0, height_x0, alpha=0.3)
+        self.rect_fwhm = Rectangle((x0 - dfwhm[0], ratio * height),
+                                   width_fwhm, height_fwhm, alpha=0.3)
+        self.rect_fwhm_inner = Rectangle((x0 - 0.25 * dfwhm[0], ratio * height),
+                                         0.5 * width_fwhm, height_fwhm, alpha=0.3)
 
         self.ax.add_line(self.line)
         self.ax.add_patch(self.rect_x0)
+        self.ax.add_patch(self.rect_x0_inner)
         self.ax.add_patch(self.rect_fwhm)
+        self.ax.add_patch(self.rect_fwhm_inner)
 
         self.canvas.draw_idle()
 
-    def delete(self):
+    def remove(self):
         self.line.remove()
         self.rect_x0.remove()
+        self.rect_x0_inner.remove()
         self.rect_fwhm.remove()
+        self.rect_fwhm_inner.remove()
         self.tmp.remove()
 
     def connect(self):
@@ -164,15 +179,17 @@ class BBox:
         self.color = color
         self.line.set_color(color)
         self.rect_x0.set_facecolor(color)
+        self.rect_x0_inner.set_facecolor(color)
         self.rect_fwhm.set_facecolor(color)
+        self.rect_fwhm_inner.set_facecolor(color)
         if self.tmp is not None:
             self.tmp.set_color(color)
 
-    def update_params(self, ampli):
-        self.peak_model.set_param_hint('ampli', value=ampli)
+    def update_params(self):
+        self.peak_model.set_param_hint('ampli', value=self.ampli)
         self.peak_model.set_param_hint('x0', value=self.x0)
         self.peak_model.set_param_hint('x0', min=self.x0 - self.dx0[0])
-        self.peak_model.set_param_hint('x0', max=self.x0 + self.dx0[0])
+        self.peak_model.set_param_hint('x0', max=self.x0 + self.dx0[1])
         if 'fwhm_l' in self.peak_model.param_hints.keys():
             self.peak_model.set_param_hint('fwhm_l', max=self.dfwhm[0])
             self.peak_model.set_param_hint('fwhm_r', max=self.dfwhm[1])
@@ -180,44 +197,62 @@ class BBox:
             self.peak_model.set_param_hint('fwhm', max=self.dfwhm[0])
 
     def update_display(self):
-        x, y = self.spectrum.x, self.spectrum.y
-
-        height = ampli = y[closest_index(x, self.x0)]
 
         self.line.set_xdata([self.x0, self.x0])
-        self.line.set_ydata([0, height])
+        self.line.set_ydata([0, self.ampli])
 
         self.rect_x0.set_x(self.x0 - self.dx0[0])
         self.rect_x0.set_width(self.dx0[0] + self.dx0[1])
-        self.rect_x0.set_height(self.ratio * height)
+        self.rect_x0.set_height(self.ratio * self.ampli)
+
+        self.rect_x0_inner.set_x(self.x0 - 0.5 * self.dx0[0])
+        self.rect_x0_inner.set_width(0.5 * (self.dx0[0] + self.dx0[1]))
+        self.rect_x0_inner.set_height(self.ratio * self.ampli)
 
         self.rect_fwhm.set_x(self.x0 - 0.5 * self.dfwhm[0])
-        self.rect_fwhm.set_y(self.ratio * height)
+        self.rect_fwhm.set_y(self.ratio * self.ampli)
         self.rect_fwhm.set_width(0.5 * (self.dfwhm[0] + self.dfwhm[1]))
-        self.rect_fwhm.set_height((1 - self.ratio) * height)
+        self.rect_fwhm.set_height((1 - self.ratio) * self.ampli)
 
-        self.update_params(ampli)
+        self.rect_fwhm_inner.set_x(self.x0 - 0.25 * self.dfwhm[0])
+        self.rect_fwhm_inner.set_y(self.ratio * self.ampli)
+        self.rect_fwhm_inner.set_width(0.25 * (self.dfwhm[0] + self.dfwhm[1]))
+        self.rect_fwhm_inner.set_height((1 - self.ratio) * self.ampli)
 
-        # Plot model with maximum fwhm
-
-        with set_tmp_params(self.peak_model, self.dfwhm):
-            tmp_params = self.peak_model.make_params()
-
-        x = x[(self.x0 - 0.5 * self.dfwhm[0] <= x) & (x <= self.x0 + 0.5 * self.dfwhm[1])]
-        y = self.peak_model.eval(tmp_params, x=x)
+    def update_profiles(self):
 
         if self.tmp is not None:
-            self.tmp.remove()
-        self.tmp, = self.ax.plot(x, y, c=self.color, lw=0.5)
+            [x.remove() for x in self.tmp]
+        self.tmp = []
 
+        with set_tmp_params(self.peak_model):
+            tmp_params = self.peak_model.make_params()
+            y = self.peak_model.eval(tmp_params, x=self.x)
+            self.tmp.append(self.ax.plot(self.x, y, c=self.color, lw=0.5)[0])
+
+        mask = (self.x0 - 0.5 * self.dfwhm[0] <= self.x) & (self.x <= self.x0 + 0.5 * self.dfwhm[1])
+        with set_tmp_params(self.peak_model, self.dfwhm):
+            tmp_params = self.peak_model.make_params()
+            y = self.peak_model.eval(tmp_params, x=self.x[mask])
+            self.tmp.append(self.ax.plot(self.x[mask], y, c=self.color, lw=0.5)[0])
+
+    def update(self):
+        self.update_params()
+        self.update_display()
+        self.update_profiles()
         self.canvas.draw_idle()
 
     def on_press(self, event):
-        if event.inaxes != self.ax:
-            return
 
         self.dragging['press_x'] = event.xdata
-        self.dragging['move'] = self.rect_x0.contains_point((event.x, event.y))
+
+        self.dragging['move'] = 'all'
+        if self.rect_x0.contains(event)[0]:
+            if not self.rect_x0_inner.contains(event)[0]:
+                self.dragging['move'] = 'dx0[0]' if event.xdata < self.x0 else 'dx0[1]'
+        else:
+            if not self.rect_fwhm_inner.contains(event)[0]:
+                self.dragging['move'] = 'dfwhm[0]' if event.xdata < self.x0 else 'dfwhm[1]'
 
     def on_motion(self, event):
         if not self.dragging['move'] or event.inaxes != self.ax:
@@ -226,10 +261,27 @@ class BBox:
         dx = event.xdata - self.dragging['press_x']
         self.dragging['press_x'] = event.xdata
 
-        if self.dragging['move']:
+        if self.dragging['move'] == 'all':
             self.x0 += dx
+            self.ampli = self.y[closest_index(self.x, self.x0)]
 
-        self.update_display()
+        elif self.dragging['move'] == 'dx0[0]':
+            self.dx0[0] = max(0, self.dx0[0] - dx)
+
+        elif self.dragging['move'] == 'dx0[1]':
+            self.dx0[1] = max(0, self.dx0[1] + dx)
+
+        elif self.dragging['move'] == 'dfwhm[0]':
+            self.dfwhm[0] = max(0, self.dfwhm[0] - dx)
+            if self.symetric:
+                self.dfwhm[1] = self.dfwhm[0]
+
+        elif self.dragging['move'] == 'dfwhm[1]':
+            self.dfwhm[1] = max(0, self.dfwhm[1] + dx)
+            if self.symetric:
+                self.dfwhm[0] = self.dfwhm[1]
+
+        self.update()
 
     def on_scroll(self, event):
         if event.inaxes != self.ax:
@@ -238,16 +290,16 @@ class BBox:
         dx = self.dx if event.button == 'up' else -self.dx
         k = int(event.xdata > self.x0)
 
-        if self.rect_x0.contains_point((event.x, event.y)):
+        if self.rect_x0.contains(event)[0]:
             self.dx0[k] = max(0, self.dx0[k] + dx)
-        elif self.rect_fwhm.contains_point((event.x, event.y)):
+        elif self.rect_fwhm.contains(event)[0]:
             self.dfwhm[k] = max(0, self.dfwhm[k] + dx)
             if self.symetric:
                 self.dfwhm[1 - k] = self.dfwhm[k]
         else:
             return
 
-        self.update_display()
+        self.update()
 
     def on_release(self, _):
         self.dragging['move'] = False
