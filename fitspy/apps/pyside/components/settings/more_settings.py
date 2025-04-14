@@ -149,22 +149,6 @@ class OtherSettings(QGroupBox):
         hbox.addWidget(self.map_cmap)
         vbox.addLayout(hbox)
 
-        # dx0
-        hbox = QHBoxLayout()
-        hbox.addWidget(QLabel("X0 Bounds (±):"))
-        self.dx0 = DoubleSpinBox()
-        self.dx0.setValue(DEFAULTS["dx0"])
-        hbox.addWidget(self.dx0)
-        vbox.addLayout(hbox)
-
-        # dfwhm
-        hbox = QHBoxLayout()
-        hbox.addWidget(QLabel("FWHM Max:"))
-        self.dfwhm = DoubleSpinBox()
-        self.dfwhm.setValue(DEFAULTS["dfwhm"])
-        hbox.addWidget(self.dfwhm)
-        vbox.addLayout(hbox)
-
         self.setLayout(vbox)
 
 

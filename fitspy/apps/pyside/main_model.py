@@ -4,13 +4,12 @@ from PySide6.QtGui import QColor, QPalette
 from fitspy.apps.pyside import DEFAULTS, SETTINGS_KEY_MIGRATIONS, SETTINGS_VALUE_MIGRATIONS
 from fitspy import VERSION
 
+
 class MainModel(QObject):
     themeChanged = Signal()
     peaksCmapChanged = Signal()
     mapCmapChanged = Signal()
     defaultsRestored = Signal()
-    dx0Changed = Signal()
-    dfwhmChanged = Signal()
 
     def __init__(self):
         super().__init__()
@@ -24,10 +23,10 @@ class MainModel(QObject):
         stored_version = self.settings.value("version", None)
         if stored_version != VERSION:
             print(f"Version changed from {stored_version} to {VERSION}, updating settings...")
-            
+
             self._migrate_setting_keys()
             self._migrate_setting_values()
-            
+
             self.settings.setValue("version", VERSION)
             self.settings.sync()
 
@@ -56,8 +55,6 @@ class MainModel(QObject):
             "theme": self.themeChanged,
             "peaks_cmap": self.peaksCmapChanged,
             "map_cmap": self.mapCmapChanged,
-            "dx0": self.dx0Changed,
-            "dfwhm": self.dfwhmChanged,
         }
 
         def create_setting(default, type, signal=None):

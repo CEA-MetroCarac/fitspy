@@ -6,8 +6,6 @@ DEFAULTS = {
     'ncpus': 'Auto',
     'outliers_coef': 1.5,
     'click_mode': 'highlight',
-    'dx0': 20,
-    'dfwhm': 200,
     'alpha': {'min': 0, 'value': 0.5, 'max': 1},
     'peaks_cmap': 'tab10',
     'map_cmap': 'viridis',

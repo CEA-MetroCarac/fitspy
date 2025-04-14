@@ -136,10 +136,6 @@ class SettingsController(QObject):
             lambda cmap: self.settingChanged.emit("peaks_cmap", cmap.name.split(":")[1]))
         self.other_settings.map_cmap.currentColormapChanged.connect(
             lambda cmap: self.settingChanged.emit("map_cmap", cmap.name.split(":")[1]))
-        self.other_settings.dx0.valueChanged.connect(
-            lambda value: self.settingChanged.emit("dx0", value))
-        self.other_settings.dfwhm.valueChanged.connect(
-            lambda value: self.settingChanged.emit("dfwhm", value))
 
     def load_default_models(self):
         HOME = Path.home()
@@ -218,12 +214,12 @@ class SettingsController(QObject):
     def select_model(self, fname):
         models = load_from_json(fname)
         first_key = next(iter(models))
-        
-        if first_key in ['0',0]:
+
+        if first_key in ['0', 0]:
             first_model = models[first_key]  # Dict of models
         else:
             first_model = models  # Single model
-        
+
         first_model.pop("fname", None)
         self.setModel.emit(first_model)  # Applying in Spectrum objects first
 
@@ -373,7 +369,8 @@ class SettingsController(QObject):
             model = load_from_json(current_text)
             model = model[next(iter(model))]
             model.pop("fname", None)
-            self.setModel.emit(model)  # Applying before lock cause if peaks table is empty, nothing will be locked
+            self.setModel.emit(model)  # Applied before lock cause if peaks table is empty,
+            # nothing will be locked
             lock_inputs(True)
         else:
             # Restore the backup fit model

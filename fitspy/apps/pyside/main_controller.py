@@ -45,8 +45,6 @@ class MainController(QObject):
         self.model.defaultsRestored.connect(self.apply_settings)
         self.model.peaksCmapChanged.connect(self.update_peaks_cmap)
         self.model.mapCmapChanged.connect(self.update_map_cmap)
-        self.model.dx0Changed.connect(lambda: DEFAULTS.update({"dx0": self.model.dx0}))
-        self.model.dfwhmChanged.connect(lambda: DEFAULTS.update({"dfwhm": self.model.dfwhm}))
 
         self.files_controller.showToast.connect(self.show_toast)
         self.files_controller.askConfirmation.connect(self.show_confirmation_dialog)
@@ -120,8 +118,6 @@ class MainController(QObject):
         self.view.more_settings.other_settings.outliers_coef.setValue(self.model.outliers_coef)
         self.view.more_settings.other_settings.peaks_cmap.setCurrentText(self.model.peaks_cmap)
         self.view.more_settings.other_settings.map_cmap.setCurrentText(self.model.map_cmap)
-        self.view.more_settings.other_settings.dx0.setValue(self.model.dx0)
-        self.view.more_settings.other_settings.dfwhm.setValue(self.model.dfwhm)
 
         radio_button = getattr(self.view.toolbar, f"{self.model.click_mode}_radio")
         radio_button.setChecked(True)
@@ -130,7 +126,6 @@ class MainController(QObject):
             setting = f"view_options_{to_snake_case(label)}"
             state = getattr(self.model, setting)
             checkbox.setChecked(state)
-
 
     def load_state(self, models):
         # # Restore model attributes to each spectrum
@@ -150,7 +145,6 @@ class MainController(QObject):
             fnames = QFileDialog.getOpenFileNames(None, "Load File(s)")[0]
         fnames = [str(fname) for fname in fnames]
         self.files_controller.load_files(fnames)
-
 
     def save(self, save_data=False):
         fname_json = QFileDialog.getSaveFileName(None, "Save File", "",
@@ -246,7 +240,7 @@ class MainController(QObject):
             print("Operation aborted by the user.")
             return False
 
-    def show_toast(self, preset, title, text, duration=3000):  
+    def show_toast(self, preset, title, text, duration=3000):
         try:  # https://github.com/niklashenning/pyqttoast/issues/23
             from pyqttoast import Toast, ToastPreset
         except:

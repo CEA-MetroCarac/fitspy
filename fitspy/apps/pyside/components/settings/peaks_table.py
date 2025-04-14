@@ -175,7 +175,6 @@ class PeaksTable(QWidget):
             params_order = ['Prefix', 'Label', 'Model',
                             'x0', 'ampli', 'fwhm', 'fwhm_l', 'fwhm_r', 'alpha']
         self.params_order = params_order
-        self.dx = 1.0  # TODO : inappropriate value - to revisit - np.median(np.diff(spectrum.x))
         self.initUI()
         self.show_bounds_state = None  # FIXME: bool instead ? What for show_bounds_state=True ?
         self.show_expr_state = None
@@ -253,8 +252,8 @@ class PeaksTable(QWidget):
     ):
         defaults = DEFAULTS.get(param_name, {
             "min": 0,
-            "value": self.dx,
-            "max": DEFAULTS["dfwhm"]
+            "value": 1,
+            "max": 200
         })
         min = min or defaults["min"]
         value = value or defaults["value"]
