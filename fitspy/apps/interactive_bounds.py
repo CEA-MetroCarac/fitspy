@@ -163,7 +163,7 @@ class BBox:
         self.rect_x0_inner.remove()
         self.rect_fwhm.remove()
         self.rect_fwhm_inner.remove()
-        self.tmp.remove()
+        [x.remove() for x in self.tmp]
 
     def connect(self):
         self.cids = []
