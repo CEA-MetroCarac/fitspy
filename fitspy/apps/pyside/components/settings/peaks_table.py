@@ -5,6 +5,7 @@ from PySide6.QtWidgets import (QLabel, QVBoxLayout, QPushButton, QLineEdit, QChe
 from PySide6.QtGui import QIcon
 
 from fitspy import PEAK_MODELS
+from fitspy.core.spectrum import COEF_PARAMS
 from fitspy.core.utils import get_model_params
 from fitspy.apps.pyside import DEFAULTS
 from fitspy.apps.pyside.utils import get_icon_path
@@ -247,17 +248,18 @@ class PeaksTable(QWidget):
         self.update_columns_based_on_model()
         self.peaksChanged.emit(self.get_peaks())
 
-    def create_spin_box_group_with_expr(
-            self, min=None, value=None, max=None, expr="", param_name=None
-    ):
-        defaults = DEFAULTS.get(param_name, {
-            "min": 0,
-            "value": 1,
-            "max": 200
-        })
-        min = min or defaults["min"]
-        value = value or defaults["value"]
-        max = max or defaults["max"]
+    def create_spin_box_group_with_expr(self, min=None, value=None, max=None, expr="",
+                                        param_name=None):
+
+        if param_name in ['fwhm', 'fwhm_l', 'fwhm_r']:
+            min = 0
+            value = COEF_PARAMS['fwhm'] * self.dx
+            max = COEF_PARAMS['dfwhm'] * self.dx
+
+        elif param_name == 'alpha':
+            min = 0
+            value = 0.5
+            max = 1
 
         if min is None or value is None or max is None:
             raise ValueError("min, value, and max cannot be None")
