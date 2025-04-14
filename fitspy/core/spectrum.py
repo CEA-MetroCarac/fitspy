@@ -23,6 +23,7 @@ from fitspy.core.utils import save_to_json, load_from_json, eval_noise_amplitude
 from fitspy.core.baseline import BaseLine
 
 CMAP_PEAKS = matplotlib.colormaps['tab10']
+COEF_PARAMS = {'fwhm': 10, 'dx0': 10, 'dfwhm': 20}
 
 
 @contextlib.contextmanager
@@ -449,11 +450,11 @@ class Spectrum:
         dx = np.median(np.diff(self.x))
 
         ampli = ampli or self.y_no_outliers[closest_index(self.x, x0)]
-        fwhm = fwhm or 10 * dx
-        fwhm_l = fwhm_l or 10 * dx
-        fwhm_r = fwhm_r or 10 * dx
-        dx0 = dx0 or 10 * dx
-        dfwhm = dfwhm or 20 * dx
+        fwhm = fwhm or COEF_PARAMS['fwhm'] * dx
+        fwhm_l = fwhm_l or COEF_PARAMS['fwhm'] * dx
+        fwhm_r = fwhm_r or COEF_PARAMS['fwhm'] * dx
+        dx0 = dx0 or COEF_PARAMS['dx0'] * dx
+        dfwhm = dfwhm or COEF_PARAMS['dfwhm'] * dx
 
         index = next(self.peak_index)
         peak_model = self.create_peak_model(index, model_name, x0, ampli,
