@@ -601,6 +601,7 @@ class Model(QObject):
         self.line_bkg_visible = view_options.get("Background", False) and spectrum.bkg_model
 
         if interactive_bounds:
+            self.ibounds.remove()
             self.ibounds.update()
             # if view_options["Peaks"]:
             #     peak_lines = [bbox.tmp[0] for bbox in self.ibounds.bboxes if bbox.tmp]
