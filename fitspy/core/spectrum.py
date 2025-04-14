@@ -298,6 +298,10 @@ class Spectrum:
         if self.weights0 is not None:
             self.weights = self.weights0.copy()
 
+    def dx(self):
+        """ Return the median x-step size (dx) """
+        return np.median(np.diff(self.x)) if self.x is not None else None
+
     def apply_range(self, range_min=None, range_max=None):
         """ Apply range to the raw spectrum """
         self.range_min = range_min or self.range_min
@@ -447,8 +451,7 @@ class Spectrum:
             Variation (upper value) allowed for the fwhm's, i.e. the fwhm's should be in [0; dfwhm]
             Default value is based on the median x-step size (dx) as 20 * dx.
         """
-        dx = np.median(np.diff(self.x))
-
+        dx = self.dx()
         ampli = ampli or self.y_no_outliers[closest_index(self.x, x0)]
         fwhm = fwhm or COEF_PARAMS['fwhm'] * dx
         fwhm_l = fwhm_l or COEF_PARAMS['fwhm'] * dx
@@ -738,7 +741,10 @@ class Spectrum:
             5% of the maximum intensity peaks and nmax_nfev=400 """
         self.remove_models()
         y = y0 = self.y_no_outliers.copy()
-        dx = max(np.diff(self.x))
+        dx = self.dx()
+        fwhm = fwhm_l = fwhm_r = COEF_PARAMS['fwhm'] * dx
+        dx0 = COEF_PARAMS['dx0'] * dx
+        dfwhm = COEF_PARAMS['dfwhm'] * dx
 
         is_ok = True
         while is_ok:
@@ -747,7 +753,8 @@ class Spectrum:
             peak_model = self.create_peak_model(index, model_name,
                                                 x0=self.x[ind],
                                                 ampli=self.y[ind],
-                                                fwhm=dx, fwhm_l=dx, fwhm_r=dx)
+                                                fwhm=fwhm, fwhm_l=fwhm_l, fwhm_r=fwhm_r,
+                                                dx0=dx0, dfwhm=dfwhm)
             self.peak_models.append(peak_model)
             self.peak_labels.append(f"{index}")
             self.fit(reinit_guess=False)
