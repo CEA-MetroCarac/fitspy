@@ -435,7 +435,7 @@ class Spectrum:
         fwhm, fwhm_l, fwhm_r: floats, optional
             Optional parameters passed to the model related to the Full Width
             at Half Maximum.
-            Default values are based on the median x-step size (dx) as 20 * dx.
+            Default values are based on the median x-step size (dx) as 10 * dx.
         alpha: float, optional
             Optional parameter passed to the 'PseudoVoigt' model.
             Default value is 0.5.
@@ -449,9 +449,9 @@ class Spectrum:
         dx = np.median(np.diff(self.x))
 
         ampli = ampli or self.y_no_outliers[closest_index(self.x, x0)]
-        fwhm = fwhm or 20 * dx
-        fwhm_l = fwhm_l or 20 * dx
-        fwhm_r = fwhm_r or 20 * dx
+        fwhm = fwhm or 10 * dx
+        fwhm_l = fwhm_l or 10 * dx
+        fwhm_r = fwhm_r or 10 * dx
         dx0 = dx0 or 10 * dx
         dfwhm = dfwhm or 20 * dx
 
