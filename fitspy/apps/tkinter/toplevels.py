@@ -11,9 +11,9 @@ from matplotlib.colors import rgb2hex
 from lmfit import fit_report
 from lmfit.model import ModelResult
 
-from .utils import add, add_entry
+from fitspy.apps.tkinter.utils import add, add_entry
+from fitspy.apps.tkinter import CMAP, NCPUS
 from fitspy import PEAK_MODELS, BKG_MODELS, PEAK_PARAMS, FIT_METHODS, FIT_PARAMS
-from . import CMAP, NCPUS
 
 
 class ResultView:
@@ -118,6 +118,15 @@ class ParamsView(ResultView):
         self.spectrum.peak_labels[i] = self.peak_labels[i].get()
         self.plot()  # pylint:disable=not-callable
         self.update()
+
+    def params_has_changed(self):
+        for i, peak_model in enumerate(self.spectrum.peak_models):
+            params = peak_model.param_hints
+            for key in params.keys():
+                if key in ['x0', 'ampli', 'fwhm', 'fwhm_l', 'fwhm_r']:
+                    for arg in ['value', 'min', 'max']:
+                        if arg in self.params[i][key]:
+                            self.params[i][key][arg].set(value=params[key][arg])
 
     def param_has_changed(self, i, key, arg):
         """ Update the 'key'-param 'arg'-value related to the ith-model """
@@ -405,6 +414,7 @@ class FigureSettings(Settings):
                        'plot_residual': StringVar(value='Off'),
                        'coef_residual': IntVar(value=1),
                        'show_peaks_labels': StringVar(value='On'),
+                       'interactive_bounds': StringVar(value='On'),
                        'x-log': StringVar(value='Off'),
                        'y-log': StringVar(value='Off'),
                        'title': StringVar(value='DEFAULT'),
@@ -430,7 +440,7 @@ class FigureSettings(Settings):
 
 if __name__ == '__main__':
     import tkinter as tk
-    from fitspy.spectra import Spectrum
+    from fitspy.core.spectrum import Spectrum
 
     models = []
     for ind in range(5):

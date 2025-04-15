@@ -18,6 +18,7 @@ from fitspy.core.spectrum import Spectrum
 from fitspy.core.spectra_map import SpectraMap
 from fitspy.core.utils import get_dim, closest_index, check_or_rename
 from fitspy.core.utils import load_models_from_txt, load_models_from_py
+from fitspy.apps.interactive_bounds import InteractiveBounds
 
 from . import CMAP
 
@@ -360,6 +361,7 @@ class Callbacks:
         self.ax.set_xlabel(fig_settings['x_label'].get(), fontsize=18)
         self.ax.set_ylabel(fig_settings['y_label'].get(), fontsize=18)
 
+        show_interactive_bounds = fig_settings['interactive_bounds'].get() == 'On'
         if fig_settings['plot_fit'].get() == 'On':
             show_weights = fig_settings['plot_weights'].get() == 'On'
             show_outliers = fig_settings['plot_outliers'].get() == 'On'
@@ -375,6 +377,7 @@ class Callbacks:
                                        show_outliers_limit=show_outl_limit,
                                        show_negative_values=show_neg_values,
                                        show_noise_level=show_noise_level,
+                                       show_peak_models=show_interactive_bounds,
                                        show_baseline=show_baseline,
                                        show_background=show_background,
                                        subtract_baseline=subtract_baseline,
@@ -388,6 +391,10 @@ class Callbacks:
                 if baseline.attached or baseline.mode == 'Semi-Auto':
                     y = spectrum.y
                 baseline.plot(self.ax, x, y, attached=baseline.attached)
+
+            if show_interactive_bounds:
+                self.ibounds.remove()
+                self.ibounds.update()
 
             self.ax.legend()
             self.tmp = None
@@ -480,7 +487,8 @@ class Callbacks:
                 if frame == 'Baseline':
                     eval(f"self.{action}_baseline_point")(x, y)
                 elif frame == 'Fitting':
-                    eval(f"self.{action}_peaks_point")(x, y)
+                    if not self.ibounds.interact_with_bbox(event):
+                        eval(f"self.{action}_peaks_point")(x, y)
 
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
@@ -985,6 +993,7 @@ class Callbacks:
 
         self.current_spectrum, _ = self.spectra.get_objects(fname)
         self.current_spectrum.preprocess()
+        self.ibounds = InteractiveBounds(self.current_spectrum, self.ax, bind_func=self.refresh)
 
         self.show_plot = False
         self.set_range()
@@ -997,6 +1006,10 @@ class Callbacks:
         self.statsview.spectrum = self.current_spectrum
         self.statsview.update()
         self.show_plot = True
+        self.plot()
+
+    def refresh(self):
+        self.paramsview.params_has_changed()
         self.plot()
 
     def create_map(self, fname):
