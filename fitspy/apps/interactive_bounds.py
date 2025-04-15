@@ -77,7 +77,7 @@ class InteractiveBounds:
         [bbox.disconnect() for bbox in self.bboxes]
         interact = False
         for bbox in reversed(self.bboxes):
-            if bbox.rect_x0.contains(event)[0] or bbox.rect_fwhm.contains(event)[0]:
+            if bbox.rect_x0.contains(event)[0]:
                 bbox.connect()
                 interact = True
                 break
@@ -145,14 +145,14 @@ class BBox:
         self.rect_x0_inner = Rectangle((x0 - 0.5 * dx0[0], 0), 0.5 * width_x0, height_x0, alpha=0.3)
         self.rect_fwhm = Rectangle((x0 - dfwhm[0], ratio * height),
                                    width_fwhm, height_fwhm, alpha=0.3)
-        self.rect_fwhm_inner = Rectangle((x0 - 0.25 * dfwhm[0], ratio * height),
-                                         0.5 * width_fwhm, height_fwhm, alpha=0.3)
+        # self.rect_fwhm_inner = Rectangle((x0 - 0.25 * dfwhm[0], ratio * height),
+        #                                  0.5 * width_fwhm, height_fwhm, alpha=0.3)
 
         self.ax.add_line(self.line)
         self.ax.add_patch(self.rect_x0)
         self.ax.add_patch(self.rect_x0_inner)
         self.ax.add_patch(self.rect_fwhm)
-        self.ax.add_patch(self.rect_fwhm_inner)
+        # self.ax.add_patch(self.rect_fwhm_inner)
 
         self.canvas.draw_idle()
 
@@ -161,7 +161,7 @@ class BBox:
         self.rect_x0.remove()
         self.rect_x0_inner.remove()
         self.rect_fwhm.remove()
-        self.rect_fwhm_inner.remove()
+        # self.rect_fwhm_inner.remove()
         [x.remove() for x in self.tmp]
 
     def connect(self):
@@ -180,7 +180,7 @@ class BBox:
         self.rect_x0.set_facecolor(color)
         self.rect_x0_inner.set_facecolor(color)
         self.rect_fwhm.set_facecolor(color)
-        self.rect_fwhm_inner.set_facecolor(color)
+        # self.rect_fwhm_inner.set_facecolor(color)
         if self.tmp is not None:
             self.tmp.set_color(color)
 
@@ -213,10 +213,10 @@ class BBox:
         self.rect_fwhm.set_width(0.5 * (self.dfwhm[0] + self.dfwhm[1]))
         self.rect_fwhm.set_height((1 - self.ratio) * self.ampli)
 
-        self.rect_fwhm_inner.set_x(self.x0 - 0.25 * self.dfwhm[0])
-        self.rect_fwhm_inner.set_y(self.ratio * self.ampli)
-        self.rect_fwhm_inner.set_width(0.25 * (self.dfwhm[0] + self.dfwhm[1]))
-        self.rect_fwhm_inner.set_height((1 - self.ratio) * self.ampli)
+        # self.rect_fwhm_inner.set_x(self.x0 - 0.25 * self.dfwhm[0])
+        # self.rect_fwhm_inner.set_y(self.ratio * self.ampli)
+        # self.rect_fwhm_inner.set_width(0.25 * (self.dfwhm[0] + self.dfwhm[1]))
+        # self.rect_fwhm_inner.set_height((1 - self.ratio) * self.ampli)
 
     def update_profiles(self):
 
@@ -250,8 +250,8 @@ class BBox:
             if not self.rect_x0_inner.contains(event)[0]:
                 self.dragging['move'] = 'dx0[0]' if event.xdata < self.x0 else 'dx0[1]'
         else:
-            if not self.rect_fwhm_inner.contains(event)[0]:
-                self.dragging['move'] = 'dfwhm[0]' if event.xdata < self.x0 else 'dfwhm[1]'
+            # if not self.rect_fwhm_inner.contains(event)[0]:
+            self.dragging['move'] = 'dfwhm[0]' if event.xdata < self.x0 else 'dfwhm[1]'
 
     def on_motion(self, event):
         if not self.dragging['move'] or event.inaxes != self.ax:
