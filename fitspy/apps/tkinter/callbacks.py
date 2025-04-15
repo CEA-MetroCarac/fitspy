@@ -418,8 +418,9 @@ class Callbacks:
                 xy = (x0, min(y0, self.ax.get_ylim()[1]))
 
                 text = []
-                for name, val in model.param_hints.items():
-                    text.append(f"{name}: {val['value']:.4g}")
+                for key in ['x0', 'ampli', 'fwhm', 'fwhm_l', 'fwhm_r']:
+                    if key in model.param_hints:
+                        text.append(f"{key}: {model.param_hints[key]['value']:.4g}")
                 text = '\n'.join(text)
 
                 bbox = dict(facecolor='w', edgecolor=color, boxstyle='round')
