@@ -74,14 +74,13 @@ class InteractiveBounds:
         self.canvas.draw_idle()
 
     def interact_with_bbox(self, event):
+        [bbox.disconnect() for bbox in self.bboxes]
         interact = False
-        for bbox in self.bboxes:
+        for bbox in reversed(self.bboxes):
             if bbox.rect_x0.contains(event)[0] or bbox.rect_fwhm.contains(event)[0]:
                 bbox.connect()
-                bbox.on_press(event)
                 interact = True
-            else:
-                bbox.disconnect()
+                break
         return interact
 
     def on_press(self, event):
