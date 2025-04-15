@@ -369,6 +369,8 @@ class Model(QObject):
 
         if len(lines) > 0 and event.inaxes == ax:
             for i, line in enumerate(lines):
+                if line.axes is None or line.figure is None:
+                    continue
                 if line.contains(event)[0]:
                     x, y = line.get_xdata(), line.get_ydata()
                     color = line.get_color()
@@ -604,9 +606,8 @@ class Model(QObject):
         if interactive_bounds:
             self.ibounds.remove()
             self.ibounds.update()
-            # if view_options["Peaks"]:
-            #     peak_lines = [bbox.tmp[0] for bbox in self.ibounds.bboxes if bbox.tmp]
-            #     self.lines[:len(peak_lines)] = peak_lines
+            if view_options["Peaks"]:
+                self.lines += [bbox.tmp[0] for bbox in self.ibounds.bboxes if bbox.tmp]
 
         # Add Peak labels annotations
         if view_options.get("Peak labels", True):
