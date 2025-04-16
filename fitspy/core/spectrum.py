@@ -10,7 +10,9 @@ from copy import deepcopy
 import numpy as np
 import matplotlib
 from scipy.interpolate import interp1d
-from scipy.ndimage import uniform_filter1d
+from scipy.ndimage import uniform_filter1d, gaussian_filter1d
+from scipy.signal import argrelextrema
+
 from lmfit import Model, fit_report
 from lmfit.model import ModelResult
 from lmfit.models import ConstantModel, LinearModel, ParabolicModel, \
@@ -302,6 +304,16 @@ class Spectrum:
         """ Return the median x-step size (dx) """
         return np.median(np.diff(self.x)) if self.x is not None else None
 
+    def fwhm(self):
+        """ Return a local estimation of fwhm """
+        dx = self.dx()
+        fwhm = COEF_PARAMS['dfwhm'] * dx * np.ones_like(self.x)  # default values
+        y_smooth = gaussian_filter1d(self.y, 2 * dx)
+        inds = argrelextrema(y_smooth, np.less)[0]
+        for imin, imax in zip(inds[:-1], inds[1:]):
+            fwhm[imin:imax] = self.x[imax] - self.x[imin]
+        return fwhm
+
     def apply_range(self, range_min=None, range_max=None):
         """ Apply range to the raw spectrum """
         self.range_min = range_min or self.range_min
@@ -440,7 +452,8 @@ class Spectrum:
         fwhm, fwhm_l, fwhm_r: floats, optional
             Optional parameters passed to the model related to the Full Width
             at Half Maximum.
-            Default values are based on the median x-step size (dx) as 10 * dx.
+            Default values are based on local estimation of fwhm estimated from local minima after
+            spectrum smoothing.
         alpha: float, optional
             Optional parameter passed to the 'PseudoVoigt' model.
             Default value is 0.5.
@@ -449,15 +462,19 @@ class Spectrum:
             Default value is based on the median x-step size (dx) as 10 * dx.
         dfwhm: float, optional
             Variation (upper value) allowed for the fwhm's, i.e. the fwhm's should be in [0; dfwhm]
-            Default value is based on the median x-step size (dx) as 20 * dx.
+            Default value is based on local estimation of fwhm estimated from local minima after
+            spectrum smoothing.
         """
-        dx = self.dx()
-        ampli = ampli or self.y_no_outliers[closest_index(self.x, x0)]
-        fwhm = fwhm or COEF_PARAMS['fwhm'] * dx
-        fwhm_l = fwhm_l or COEF_PARAMS['fwhm'] * dx
-        fwhm_r = fwhm_r or COEF_PARAMS['fwhm'] * dx
-        dx0 = dx0 or COEF_PARAMS['dx0'] * dx
-        dfwhm = dfwhm or COEF_PARAMS['dfwhm'] * dx
+        ind = closest_index(self.x, x0)
+        fwhm_ = self.fwhm()[ind]
+        dfwhm_ = 2 * fwhm_
+
+        ampli = ampli or self.y_no_outliers[ind]
+        dx0 = dx0 or COEF_PARAMS['dx0'] * self.dx()
+        fwhm = fwhm or fwhm_
+        fwhm_l = fwhm_l or fwhm_
+        fwhm_r = fwhm_r or fwhm_
+        dfwhm = dfwhm or dfwhm_
 
         index = next(self.peak_index)
         peak_model = self.create_peak_model(index, model_name, x0, ampli,
