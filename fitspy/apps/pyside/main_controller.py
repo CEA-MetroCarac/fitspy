@@ -219,13 +219,14 @@ class MainController(QObject):
         self.plot_controller.outliers_calculation(self.model.outliers_coef)
 
     def apply_baseline(self):
-        mode = self.settings_controller.get_baseline_mode()
-        if mode == "Semi-Auto" and len(self.files_controller.get_selected_fnames()) > 20:
-            self.show_confirmation_dialog(
-                "Processing Semi-Auto on more than 20 spectra may take a long time. Continue ?",
-                self.plot_controller.apply_baseline)
-        else:
-            self.plot_controller.apply_baseline()
+        # mode = self.settings_controller.get_baseline_mode()
+        # if mode == "Semi-Auto" and len(self.files_controller.get_selected_fnames()) > 20:
+        #     self.show_confirmation_dialog(
+        #         "Processing Semi-Auto on more than 20 spectra may take a long time. Continue ?",
+        #         self.plot_controller.apply_baseline)
+        # else:
+        #     self.plot_controller.apply_baseline()
+        self.plot_controller.apply_baseline()
 
     def show_confirmation_dialog(self, message, callback=None, args=(), kwargs=None):
         reply = QMessageBox.question(None, "Confirmation", message,
