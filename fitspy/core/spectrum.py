@@ -765,14 +765,16 @@ class Spectrum:
         self.remove_models()
         y = y0 = self.y_no_outliers.copy()
         dx = self.dx()
-        fwhm = fwhm_l = fwhm_r = COEF_PARAMS['fwhm'] * dx
+        fwhm_ = self.fwhm()
         dx0 = COEF_PARAMS['dx0'] * dx
-        dfwhm = COEF_PARAMS['dfwhm'] * dx
 
         is_ok = True
         while is_ok:
             index = next(self.peak_index)
             ind = np.argmax(y)
+            fwhm = fwhm_l = fwhm_r = fwhm_[ind]
+            dfwhm = 2 * fwhm
+
             peak_model = self.create_peak_model(index, model_name,
                                                 x0=self.x[ind],
                                                 ampli=self.y[ind],
