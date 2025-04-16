@@ -606,6 +606,9 @@ class Model(QObject):
         if interactive_bounds:
             self.ibounds.remove()
             self.ibounds.update()
+            inds = spectrum.inds_local_minima()
+            for ind in inds:
+                ax.axvline(spectrum.x[ind], ls=':', lw=0.3)
             if view_options["Peaks"]:
                 self.lines += [bbox.tmp[0] for bbox in self.ibounds.bboxes if bbox.tmp]
 
