@@ -76,7 +76,7 @@ class InteractiveBounds:
         [bbox.disconnect() for bbox in self.bboxes]
         interact = False
         for bbox in reversed(self.bboxes):
-            if bbox.rect_x0.contains(event)[0]:
+            if bbox.rect_x0.contains(event)[0] or bbox.rect_fwhm.contains(event)[0]:
                 bbox.connect()
                 interact = True
                 break
