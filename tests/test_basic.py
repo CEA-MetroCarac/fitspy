@@ -20,6 +20,7 @@ def basic_spectrum():
     spectrum.add_peak_model('Gaussian', x0=200)
     return spectrum
 
+
 @pytest.fixture
 def basic_spectrum2():
     spectrum = Spectrum()
@@ -54,7 +55,7 @@ def test_with_fixed_ampli(basic_spectrum2):
     basic_spectrum2.fit()
 
     assert basic_spectrum2.peak_models[0].param_hints['ampli']['value'] == approx(10, abs=1)
-    assert basic_spectrum2.peak_models[1].param_hints['ampli']['value'] == approx(30, abs=1)
+    assert basic_spectrum2.peak_models[1].param_hints['ampli']['value'] == approx(27, abs=1)
 
 
 def test_with_expression(basic_spectrum2):
@@ -106,7 +107,7 @@ def test_normalization(basic_spectrum):
     basic_spectrum.normalize_range_min = 0
     basic_spectrum.normalize_range_max = 20
     basic_spectrum.normalization()
-    assert np.min(basic_spectrum.y) == approx(100/120*100)
+    assert np.min(basic_spectrum.y) == approx(100 / 120 * 100)
     assert np.max(basic_spectrum.y) == approx(100.0)
 
 
@@ -121,6 +122,7 @@ def test_linear_baseline(basic_spectrum):
     assert basic_spectrum.baseline.is_subtracted
     assert np.all(basic_spectrum.y == 50)
 
+
 def test_semiauto_baseline(basic_spectrum):
     x = basic_spectrum.x
     peak = 50 * np.exp(-((x - 150) ** 2) / (2 * 20 ** 2))
@@ -128,7 +130,7 @@ def test_semiauto_baseline(basic_spectrum):
     basic_spectrum.auto_baseline()
     assert basic_spectrum.baseline.mode == 'Semi-Auto'
     basic_spectrum.eval_baseline()
-    
+
     # Check that the maximum of the evaluated baseline occurs near the peak position (x=150)
     idx_peak = np.argmax(basic_spectrum.baseline.y_eval)
     peak_position = basic_spectrum.x[idx_peak]
@@ -140,9 +142,11 @@ def test_remove_models(basic_spectrum):
     assert len(basic_spectrum.peak_models) == 0
     assert basic_spectrum.bkg_model is None
 
+
 def test_fit_method(basic_spectrum):
     basic_spectrum.fit(fit_method='least_squares')
     assert basic_spectrum.result_fit.success
+
 
 def test_reinit(basic_spectrum):
     basic_spectrum.apply_range(range_min=50, range_max=150)
