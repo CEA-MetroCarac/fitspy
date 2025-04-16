@@ -60,9 +60,8 @@ class InteractiveBounds:
             self.canvas.mpl_connect('button_release_event', lambda _: bind_func())
 
     def update(self):
-        x, y = self.spectrum.x, self.spectrum.y
         for k, peak_model in enumerate(self.spectrum.peak_models):
-            bbox = BBox(self.ax, x, y, peak_model)
+            bbox = BBox(self.ax, self.spectrum, peak_model)
             bbox.set_color(self.cmap(k))
             bbox.update()
             self.bboxes.append(bbox)
@@ -92,9 +91,8 @@ class InteractiveBounds:
             interact = self.interact_with_bbox(event)
 
             if self.model and not interact:
-                spectrum = self.spectrum
-                spectrum.add_peak_model(self.model, event.xdata)
-                bbox = BBox(self.ax, spectrum.x, spectrum.y, spectrum.peak_models[-1])
+                self.spectrum.add_peak_model(self.model, event.xdata)
+                bbox = BBox(self.ax, self.spectrum, self.spectrum.peak_models[-1])
                 bbox.set_color(self.cmap(len(self.bboxes)))
                 bbox.update()
                 self.bboxes.append(bbox)
@@ -102,11 +100,13 @@ class InteractiveBounds:
 
 class BBox:
 
-    def __init__(self, ax, x, y, peak_model, color='blue', ratio=0.5):
+    def __init__(self, ax, spectrum, peak_model, color='blue', ratio=0.5):
 
         self.ax = ax
-        self.x = x
-        self.y = y
+        self.spectrum = spectrum
+        self.x = spectrum.x
+        self.y = spectrum.y
+        self.dx = spectrum.dx()
         self.peak_model = peak_model
         self.color = color
         self.ratio = ratio
@@ -116,15 +116,18 @@ class BBox:
         x0 = params['x0']['value']
         dx0 = [x0 - params['x0']['min'], params['x0']['max'] - x0]
         if 'fwhm_l' in params:
+            fwhm = 0.5 * (params['fwhm_l']['value'] + params['fwhm_r']['value'])
             dfwhm = [params['fwhm_l']['max'], params['fwhm_r']['max']]
             symetric = False
         else:
+            fwhm = params['fwhm']['value']
             dfwhm = [params['fwhm']['max'], params['fwhm']['max']]
             symetric = True
 
         self.ampli = ampli
         self.x0 = x0
         self.dx0 = dx0
+        self.fwhm = fwhm
         self.dfwhm = dfwhm
         self.symetric = symetric
 
@@ -133,7 +136,6 @@ class BBox:
         self.connect()
 
         self.dragging = {'move': None, 'press_x': None}
-        self.dx = np.median(np.diff(self.x))
 
         height = ampli
         width_x0, height_x0 = dx0[0] + dx0[1], ratio * height
@@ -190,9 +192,12 @@ class BBox:
         self.peak_model.set_param_hint('x0', min=self.x0 - self.dx0[0])
         self.peak_model.set_param_hint('x0', max=self.x0 + self.dx0[1])
         if 'fwhm_l' in self.peak_model.param_hints.keys():
+            self.peak_model.set_param_hint('fwhm_l', value=self.fwhm)
+            self.peak_model.set_param_hint('fwhm_r', value=self.fwhm)
             self.peak_model.set_param_hint('fwhm_l', max=self.dfwhm[0])
             self.peak_model.set_param_hint('fwhm_r', max=self.dfwhm[1])
         else:
+            self.peak_model.set_param_hint('fwhm', value=self.fwhm)
             self.peak_model.set_param_hint('fwhm', max=self.dfwhm[0])
 
     def update_display(self):
@@ -224,16 +229,18 @@ class BBox:
             [x.remove() for x in self.tmp]
         self.tmp = []
 
+        x = self.spectrum.x
+
         with set_tmp_params(self.peak_model):
             tmp_params = self.peak_model.make_params()
-            y = self.peak_model.eval(tmp_params, x=self.x)
-            self.tmp.append(self.ax.plot(self.x, y, c=self.color, lw=0.5)[0])
+            y = self.peak_model.eval(tmp_params, x=x)
+            self.tmp.append(self.ax.plot(x, y, c=self.color, lw=0.5)[0])
 
-        mask = (self.x0 - 0.5 * self.dfwhm[0] <= self.x) & (self.x <= self.x0 + 0.5 * self.dfwhm[1])
+        mask = (self.x0 - 0.5 * self.dfwhm[0] <= x) & (x <= self.x0 + 0.5 * self.dfwhm[1])
         with set_tmp_params(self.peak_model, self.dfwhm):
             tmp_params = self.peak_model.make_params()
-            y = self.peak_model.eval(tmp_params, x=self.x[mask])
-            self.tmp.append(self.ax.plot(self.x[mask], y, c=self.color, lw=0.5)[0])
+            y = self.peak_model.eval(tmp_params, x=x[mask])
+            self.tmp.append(self.ax.plot(x[mask], y, c=self.color, lw=0.5)[0])
 
     def update(self):
         self.update_params()
@@ -262,7 +269,10 @@ class BBox:
 
         if self.dragging['move'] == 'all':
             self.x0 += dx
-            self.ampli = self.y[closest_index(self.x, self.x0)]
+            ind = closest_index(self.spectrum.x, self.x0)
+            self.ampli = self.spectrum.y[ind]
+            self.fwhm = self.spectrum.fwhm()[ind]
+            self.dfwhm[0] = self.dfwhm[1] = 2 * self.fwhm
 
         elif self.dragging['move'] == 'dx0[0]':
             self.dx0[0] = max(0, self.dx0[0] - dx)
@@ -305,20 +315,18 @@ class BBox:
 
 
 if __name__ == "__main__":
-    from fitspy.core.models import lorentzian, gaussian, lorentzian_asym
+    from pathlib import Path
     from fitspy.core.spectrum import Spectrum
 
-    x = np.linspace(0, 600, 250)
-    y = lorentzian(x, ampli=200, fwhm=30, x0=200)
-    y += gaussian(x, ampli=120, fwhm=70, x0=300)
-    y += lorentzian_asym(x, ampli=300, fwhm_l=40, fwhm_r=20, x0=500)
-
-    _, ax = plt.subplots()
-    ax.plot(x, y)
+    DATA = Path(__file__).parents[2] / "examples" / "data"
+    fname = DATA / 'spectra_2' / 'spectrum_2_1.txt'
 
     spectrum = Spectrum()
-    spectrum.x = x
-    spectrum.y = y
+    spectrum.load_profile(fname=fname)
+
+    _, ax = plt.subplots()
+    ax.plot(spectrum.x, spectrum.y)
+    ax.plot(spectrum.x, spectrum.fwhm())
 
     bboxes = InteractiveBounds(spectrum, ax, model='Gaussian')
     plt.show()
