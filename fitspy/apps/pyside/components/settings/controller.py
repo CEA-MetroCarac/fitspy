@@ -212,16 +212,26 @@ class SettingsController(QObject):
             self.model_builder.model_selector.combo_box.setCurrentIndex(index)
 
     def select_model(self, fname):
-        models = load_from_json(fname)
-        first_key = next(iter(models))
+        if fname == "":
+            return
 
-        if first_key in ['0', 0]:
-            first_model = models[first_key]  # Dict of models
-        else:
-            first_model = models  # Single model
+        try:
+            models = load_from_json(fname)
+            first_key = next(iter(models))
 
-        first_model.pop("fname", None)
-        self.setModel.emit(first_model)  # Applying in Spectrum objects first
+            if first_key in ['0', 0]:
+                first_model = models[first_key]  # Dict of models
+            else:
+                first_model = models  # Single model
+
+            first_model.pop("fname", None)
+            self.setModel.emit(first_model)  # Applying in Spectrum objects first
+        except Exception:
+            self.showToast.emit(
+                "error",
+                "Invalid model",
+                "Model can not be loaded",
+            )
 
     def apply_model(self, fit_model):
         """Reflects the changes in the model to the GUI"""
