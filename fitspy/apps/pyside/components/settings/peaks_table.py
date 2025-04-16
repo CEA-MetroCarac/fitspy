@@ -253,6 +253,7 @@ class PeaksTable(QWidget):
 
         if param_name in ['fwhm', 'fwhm_l', 'fwhm_r']:
             min = 0
+            # TODO: should refer to spectrum.fwhm()[ind] but how to estimate 'ind' ?
             value = COEF_PARAMS['fwhm'] * self.dx
             max = COEF_PARAMS['dfwhm'] * self.dx
 
