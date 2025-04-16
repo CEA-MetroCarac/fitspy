@@ -304,12 +304,18 @@ class Spectrum:
         """ Return the median x-step size (dx) """
         return np.median(np.diff(self.x)) if self.x is not None else None
 
+    def inds_local_minima(self):
+        """ Return indexes of local minima obtained after smoothing """
+        sigma = 3 * self.dx()
+        y_smooth = gaussian_filter1d(self.y, sigma)
+        inds = argrelextrema(y_smooth, np.less)[0]
+        return inds
+
     def fwhm(self):
         """ Return a local estimation of fwhm """
         dx = self.dx()
         fwhm = COEF_PARAMS['dfwhm'] * dx * np.ones_like(self.x)  # default values
-        y_smooth = gaussian_filter1d(self.y, 2 * dx)
-        inds = argrelextrema(y_smooth, np.less)[0]
+        inds = self.inds_local_minima()
         for imin, imax in zip(inds[:-1], inds[1:]):
             fwhm[imin:imax] = self.x[imax] - self.x[imin]
         return fwhm
