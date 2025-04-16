@@ -116,11 +116,11 @@ class BBox:
         x0 = params['x0']['value']
         dx0 = [x0 - params['x0']['min'], params['x0']['max'] - x0]
         if 'fwhm_l' in params:
-            fwhm = 0.5 * (params['fwhm_l']['value'] + params['fwhm_r']['value'])
+            fwhm = [params['fwhm_l']['value'], params['fwhm_r']['value']]
             dfwhm = [params['fwhm_l']['max'], params['fwhm_r']['max']]
             symetric = False
         else:
-            fwhm = params['fwhm']['value']
+            fwhm = [params['fwhm']['value'], params['fwhm']['value']]
             dfwhm = [params['fwhm']['max'], params['fwhm']['max']]
             symetric = True
 
@@ -192,12 +192,12 @@ class BBox:
         self.peak_model.set_param_hint('x0', min=self.x0 - self.dx0[0])
         self.peak_model.set_param_hint('x0', max=self.x0 + self.dx0[1])
         if 'fwhm_l' in self.peak_model.param_hints.keys():
-            self.peak_model.set_param_hint('fwhm_l', value=self.fwhm)
-            self.peak_model.set_param_hint('fwhm_r', value=self.fwhm)
+            self.peak_model.set_param_hint('fwhm_l', value=self.fwhm[0])
+            self.peak_model.set_param_hint('fwhm_r', value=self.fwhm[1])
             self.peak_model.set_param_hint('fwhm_l', max=self.dfwhm[0])
             self.peak_model.set_param_hint('fwhm_r', max=self.dfwhm[1])
         else:
-            self.peak_model.set_param_hint('fwhm', value=self.fwhm)
+            self.peak_model.set_param_hint('fwhm', value=self.fwhm[0])
             self.peak_model.set_param_hint('fwhm', max=self.dfwhm[0])
 
     def update_display(self):
@@ -271,7 +271,7 @@ class BBox:
             self.x0 += dx
             ind = closest_index(self.spectrum.x, self.x0)
             self.ampli = self.spectrum.y[ind]
-            self.fwhm = self.spectrum.fwhm()[ind]
+            self.fwhm[0] = self.fwhm[1] = self.spectrum.fwhm()[ind]
             self.dfwhm[0] = self.dfwhm[1] = 2 * self.fwhm
 
         elif self.dragging['move'] == 'dx0[0]':
