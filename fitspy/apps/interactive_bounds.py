@@ -252,13 +252,14 @@ class BBox:
 
         self.dragging['press_x'] = event.xdata
 
-        self.dragging['move'] = 'all'
-        if self.rect_x0.contains(event)[0]:
-            if not self.rect_x0_inner.contains(event)[0]:
-                self.dragging['move'] = 'dx0[0]' if event.xdata < self.x0 else 'dx0[1]'
-        else:
-            # if not self.rect_fwhm_inner.contains(event)[0]:
+        if self.rect_x0_inner.contains(event)[0]:
+            self.dragging['move'] = 'all'
+        elif self.rect_x0.contains(event)[0]:
+            self.dragging['move'] = 'dx0[0]' if event.xdata < self.x0 else 'dx0[1]'
+        elif self.rect_fwhm.contains(event)[0]:
             self.dragging['move'] = 'dfwhm[0]' if event.xdata < self.x0 else 'dfwhm[1]'
+        else:
+            pass
 
     def on_motion(self, event):
         if not self.dragging['move'] or event.inaxes != self.ax:
