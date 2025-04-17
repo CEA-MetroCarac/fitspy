@@ -28,6 +28,8 @@ acquisitions.
     <em>Example of fitspy 2D-map frame interacting with the main GUI.</em> 
 </p>
 
+![Demo](assets/demo.gif)
+
 The predefined peak models considered in Fitspy are  `Gaussian`, `Lorentzian`, `Asymetric Gaussian`, `Asymetric Lorentzian` and `Pseudovoigt`.
 
 A `Constant`, `Linear`, `Parabolic`, `Exponential` or `Power Law` background model can also be added in the fitting.
