@@ -25,7 +25,7 @@ def auto_decomposition(verbosity=True, show_plots=False):
     for fname in fnames:
         spectrum = Spectrum()
         spectrum.load_profile(fname)
-        spectrum.apply_range(range_min=55)
+        spectrum.apply_range(range_min=60)
         spectrum.baseline.mode = 'Semi-Auto'
         spectrum.eval_baseline()
         spectrum.subtract_baseline()
