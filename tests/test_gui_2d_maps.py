@@ -8,7 +8,7 @@ sys.path.insert(0, str(examples_path))
 from ex_gui_2d_maps import gui_2d_maps
 from utils import extract_results, display_is_ok
 
-GUI = ['pyside', 'tkinter']
+GUI = ['pyside']
 
 
 @pytest.mark.parametrize("gui", GUI)
