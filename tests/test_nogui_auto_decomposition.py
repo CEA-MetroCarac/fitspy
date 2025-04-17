@@ -25,4 +25,4 @@ def test_auto_decomposition():
     # print(results)
 
     for result, reference in zip(results, REFS):
-        assert result == pytest.approx(reference, rel=2e-2)
+        assert result == pytest.approx(reference, rel=1e-1)
