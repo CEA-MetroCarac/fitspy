@@ -635,7 +635,8 @@ class Callbacks:
                 dist_min, ind_min = dist, ind
 
         model_name = self.model.get()
-        self.current_spectrum.add_peak_model(model_name, x0=x_sp[ind_min])
+        self.current_spectrum.add_peak_model(model_name, x0=x_sp[ind_min],
+                                             params_from_local_profile=True)
         self.current_spectrum.result_fit = lambda: None
 
         self.paramsview.update()
