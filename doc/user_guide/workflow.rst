@@ -14,7 +14,8 @@ However, although python scripts can be very practical when working with repetit
 GUI Mode
 --------
 
-** PySide GUI:**
+PySide GUI:
+~~~~~~~~~~~
 
 .. figure::  ../_static/pyside/workflow.png
    :align:   center
@@ -54,7 +55,8 @@ Or, after removing all spectra in the file selector widget (:code:`Remove All`),
 - (`10 <fitting.html>`_) **Save results** (**fitted parameters** and **statistics**)
 
 
-** Tkinter GUI:**
+Tkinter GUI:
+~~~~~~~~~~~
 
 .. figure::  ../_static/tkinter/workflow.png
    :align:   center
@@ -91,6 +93,24 @@ Or, after removing all spectra in the file selector widget (:code:`Remove All`),
 - (`14 <gui.html?models>`_) :code:`Load Model` *(associated to the first `spectra` if several)
 - (`15 <gui.html?models>`_) :code:`Apply to Sel.` *or* :code:`Apply to All`
 - (`11 <fitting.html>`_) :code:`Save Results` (**fitted parameters** and **statistics**)
+
+
+interactive bounds:
+~~~~~~~~~~~~~~~~~~~
+
+Since version 2025.4, bounds can be adjusted interactively using the mouse.
+
+When a new peak is added, model parameters are estimated based on the local profile of the spectrum.
+
+The user can then move the entire set of bounding boxes by clicking and dragging the dark blue area, which updates the values of both **x0** and **ampli**.
+
+The **bounds** related to **x0** and **fwhm** can be modified by dragging the left/right edges of the lower and upper bounding boxes, respectively.
+
+Note that for **symmetric** models, the left and right **fwhm bounds** are synchronized, contrarily to **asymmetric** models that allow independent control of the left and right fwhm values.
+
+.. figure::  ../_static/interactive_bounds.png
+   :align:   center
+   :width:   60%
 
 
 Scripting Mode
