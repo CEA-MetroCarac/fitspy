@@ -464,15 +464,14 @@ class Spectrum:
 
     def add_peak_model(self, model_name, x0, ampli=None,
                        fwhm=None, fwhm_l=None, fwhm_r=None, alpha=0.5,
-                       dx0=None, dfwhm=None, params_from_local_profile=False):
+                       dx0=None, dfwhm=None, params_from_profile=False):
         """
         Add a peak model passing model_name and indice position or parameters
 
         Parameters
         ----------
         model_name: str
-            Model name among 'Gaussian', 'Lorentzian', 'GaussianAsym',
-            'LorentzianAsym'
+            Model name among 'Gaussian', 'Lorentzian', 'GaussianAsym', 'LorentzianAsym', ...
         x0: float
             Position of the peak model
         ampli: float, Optional
@@ -494,9 +493,14 @@ class Spectrum:
             Variation (upper value) allowed for the fwhm's, i.e. the fwhm's should be in [0; dfwhm]
             Default value is based on local estimation of fwhm estimated from local minima after
             spectrum smoothing or local spectrum profile (if activated).
-        params_from_local_profile: bool, optional
+        params_from_profile: bool, optional
             Activation key for model parameters estimation from the local spectrum profile.
         """
+        if params_from_profile and \
+                not all(var is None for var in [ampli, fwhm, fwhm_l, fwhm_r, dx0, dfwhm]):
+            raise IOError("params_from_file can not be activated with 'ampli', 'fwhm', 'fwhm_l', "
+                          "'fwhm_r', 'dx0' or 'dfwhm' values passed to add_peak_model()")
+
         ind = closest_index(self.x, x0)
         fwhm_ = self.fwhm()[ind]
         dfwhm_ = 2 * fwhm_
@@ -511,7 +515,7 @@ class Spectrum:
         index = next(self.peak_index)
         peak_model = self.create_peak_model(index, model_name, x0, ampli,
                                             fwhm, fwhm_l, fwhm_r, alpha, dx0, dfwhm)
-        if params_from_local_profile:
+        if params_from_profile:
             peak_model = self.params_from_local_profile(peak_model, x0, dx0)
 
         self.peak_models.append(peak_model)

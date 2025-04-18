@@ -237,7 +237,7 @@ class Model(QObject):
     def add_peak_point(self, model, x):
         spectrum = self.current_spectra[0]
         x0 = closest_item(spectrum.x, x)
-        spectrum.add_peak_model(model, x0=x0, params_from_local_profile=True)
+        spectrum.add_peak_model(model, x0=x0, params_from_profile=True)
         self.PeaksChanged.emit(spectrum)
         self.refreshPlot.emit()
 
