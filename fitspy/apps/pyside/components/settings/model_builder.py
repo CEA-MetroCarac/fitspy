@@ -173,7 +173,7 @@ class Fitting(QCollapsible):
 
         self.peak_model = self.create_section(vbox_layout, "Peak model:",
                                               PEAK_MODELS.keys(), model_type="peak")
-        self.bkg_model = self.create_section(vbox_layout, "Background model:",
+        self.bkg_model = self.create_section(vbox_layout, "BKG model:",
                                              BKG_MODELS.keys(), model_type="bkg")
 
         self.setContent(content_widget)
