@@ -130,6 +130,12 @@ class Callbacks:
         if self.current_spectrum.outliers_limit is not None:
             self.ax.plot(x0, self.current_spectrum.outliers_limit, 'r-', lw=2)
 
+        if self.figure_settings.params['x-log'].get() == 'On':
+            self.ax.set_xscale("log")
+
+        if self.figure_settings.params['y-log'].get() == 'On':
+            self.ax.set_yscale("log")
+
         self.canvas.draw()
 
         def on_press(event):
