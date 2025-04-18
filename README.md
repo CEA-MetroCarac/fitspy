@@ -28,7 +28,7 @@ acquisitions.
     <em>Example of fitspy 2D-map frame interacting with the main GUI.</em> 
 </p>
 
-![Demo](assets/demo.gif)
+![Demo](https://cea-metrocarac.github.io/fitspy/demo.gif)
 
 The predefined peak models considered in Fitspy are  `Gaussian`, `Lorentzian`, `Asymetric Gaussian`, `Asymetric Lorentzian` and `Pseudovoigt`.
 
