@@ -164,8 +164,10 @@ class PlotController(QObject):
 
     def update_plot_title(self):
         if self.model.current_spectra:
-            model_name = Path(self.model.current_spectra[0].fname).name
-            self.spectra_plot.ax.set_title(f"Model: {model_name}")
+            model_name = None
+            if self.model.current_spectra[0]:
+                model_name = Path(self.model.current_spectra[0].fname).name
+            self.spectra_plot.ax.set_title(model_name)
 
     def update_spectraplot(self):
         ax = self.spectra_plot.ax
