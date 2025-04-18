@@ -95,7 +95,7 @@ Or, after removing all spectra in the file selector widget (:code:`Remove All`),
 - (`11 <fitting.html>`_) :code:`Save Results` (**fitted parameters** and **statistics**)
 
 
-interactive bounds:
+Interactive bounds:
 ~~~~~~~~~~~~~~~~~~~
 
 Since version 2025.4, bounds can be adjusted interactively using the mouse.
