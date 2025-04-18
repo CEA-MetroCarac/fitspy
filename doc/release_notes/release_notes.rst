@@ -1,6 +1,27 @@
 Release Notes
 =============
 
+Version 2025.4 (April 18, 2025)
+----------------------------------
+
+**New features:**
+
+- Parameters bounds (min and max) can now be defined interactively in the GUI with click buttons (interactive bounds)
+- 'PowerLaw' has been added in the list of predefined background models
+- Log axes are now available for profiles visualization
+- Weights can be supplied to the fit model via the input data files (through a 3rd and optional column in .txt file)
+- .hdf input data files following the NXcanSAS standard can now be read
+
+**Enhancements:**
+
+- The "Semi-Auto" baseline algorithm is now ~x60-90 faster
+
+**Bug fixes:**
+
+- Fixed #52: Input file with special characters can not be read
+- Fixed #56: Model pre-visualization is not adapted
+
+
 Version 2025.3 (March 14, 2025)
 ----------------------------------
 
