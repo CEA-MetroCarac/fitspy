@@ -130,12 +130,6 @@ class Callbacks:
         if self.current_spectrum.outliers_limit is not None:
             self.ax.plot(x0, self.current_spectrum.outliers_limit, 'r-', lw=2)
 
-        if self.figure_settings.params['x-log'].get() == 'On':
-            self.ax.set_xscale("log")
-
-        if self.figure_settings.params['y-log'].get() == 'On':
-            self.ax.set_yscale("log")
-
         self.canvas.draw()
 
         def on_press(event):
@@ -464,12 +458,6 @@ class Callbacks:
                 xytext = (x0, y + 4 * dy)
                 self.ax.annotate(label, xy=xy, xytext=xytext, xycoords='data',
                                  ha='center', size=14, arrowprops=dict(fc='k'))
-
-        if fig_settings['x-log'].get() == 'On':
-            self.ax.set_xscale("log")
-
-        if fig_settings['y-log'].get() == 'On':
-            self.ax.set_yscale("log")
 
         def on_press(event):
             """ Callback function associated to the mouse press event """
