@@ -653,6 +653,12 @@ class Model(QObject):
         if view_options.get("Preserve axes", False):
             self.set_view_limits(ax, xlim, ylim)
 
+        if view_options.get("X-log", False):
+            ax.set_xscale("log")
+
+        if view_options.get("Y-log", False):
+            ax.set_yscale("log")
+
         # refresh the plot
         ax.figure.canvas.draw_idle()
 
