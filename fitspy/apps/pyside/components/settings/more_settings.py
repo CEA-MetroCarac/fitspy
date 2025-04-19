@@ -1,11 +1,13 @@
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (QSizePolicy, QGroupBox, QPushButton, QWidget, QVBoxLayout,
-                               QHBoxLayout, QCheckBox, QLabel, QSpacerItem)
+                               QHBoxLayout, QCheckBox, QLabel, QSpacerItem, QRadioButton,
+                               QButtonGroup)
 from superqt.cmap import CmapCatalogComboBox
 
 from fitspy.apps.pyside.components.custom_widgets import SpinBox, DoubleSpinBox, ComboBox
-from fitspy import FIT_METHODS, FIT_PARAMS
 from fitspy.apps.pyside import DEFAULTS
+from fitspy.core import models_bichromatic
+from fitspy import FIT_METHODS, FIT_PARAMS
 
 
 class SolverSettings(QGroupBox):
@@ -93,7 +95,8 @@ class SolverSettings(QGroupBox):
         self.blockSignals(True)
         self.fit_negative.setChecked(fit_params["fit_negative"])
         self.fit_outliers.setChecked(fit_params["fit_outliers"])
-        self.independent_models.setChecked(fit_params.get("independent_models", False))  # Retrocompatibility
+        self.independent_models.setChecked(
+            fit_params.get("independent_models", False))  # Retrocompatibility
         self.coef_noise.setValue(fit_params["coef_noise"])
         self.max_ite.setValue(fit_params["max_ite"])
         self.method.setCurrentText(fit_params["method"])
@@ -112,6 +115,28 @@ class OtherSettings(QGroupBox):
 
         vbox = QVBoxLayout()
         vbox.setAlignment(Qt.AlignTop)
+
+        # Bichromatic Model
+        bichromatic_dict = DEFAULTS['bichromatic_models']
+        hbox = QHBoxLayout()
+        self.cb_bichromatic = QCheckBox("Bichromatic model:")
+        self.cb_bichromatic.setChecked(bichromatic_dict["enable"])
+        self.cb_bichromatic.toggled.connect(self.update_bichromatic)
+
+        qx_radio = QRadioButton("qx")
+        qx_radio.setChecked(bichromatic_dict["mode"] == "qx")
+        theta_radio = QRadioButton("2theta")
+        theta_radio.setChecked(bichromatic_dict["mode"] == "2theta")
+
+        self.bichromatic_group = QButtonGroup(self)
+        self.bichromatic_group.addButton(qx_radio)
+        self.bichromatic_group.addButton(theta_radio)
+        self.bichromatic_group.buttonClicked.connect(self.update_bichromatic)
+
+        hbox.addWidget(self.cb_bichromatic)
+        hbox.addWidget(qx_radio)
+        hbox.addWidget(theta_radio)
+        vbox.addLayout(hbox)
 
         # Outliers Removal
         hbox = QHBoxLayout()
@@ -151,6 +176,15 @@ class OtherSettings(QGroupBox):
 
         self.setLayout(vbox)
 
+    def update_bichromatic(self):
+        models_bichromatic.MODE = self.bichromatic_group.checkedButton().text()
+        if self.cb_bichromatic.isChecked():
+            models_bichromatic.add_models()
+        else:
+            models_bichromatic.remove_models()
+        DEFAULTS['bichromatic_models']['enable'] = self.cb_bichromatic.isChecked()
+        DEFAULTS['bichromatic_models']['mode'] = self.bichromatic_group.checkedButton().text()
+
 
 class MoreSettings(QWidget):
     def __init__(self):
@@ -174,8 +208,8 @@ if __name__ == "__main__":
     from PySide6.QtWidgets import QApplication
 
     app = QApplication(sys.argv)
-    obj = SolverSettings()
+    # obj = SolverSettings()
     # obj = OtherSettings()
-    # obj = MoreSettings()
+    obj = MoreSettings()
     obj.show()
     sys.exit(app.exec())

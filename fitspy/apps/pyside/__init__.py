@@ -10,6 +10,7 @@ DEFAULTS = {
     'peaks_cmap': 'tab10',
     'map_cmap': 'viridis',
     'figure_options': {'title': 'DEFAULT_TITLE (edit in toolbar)'},
+    'bichromatic_models': {"enable": False, "mode": 'qx'},
     'view_options': {
         "legend": True,
         "weights": True,
