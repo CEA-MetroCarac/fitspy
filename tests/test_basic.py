@@ -31,7 +31,7 @@ def basic_spectrum2():
     spectrum.x0 = spectrum.x.copy()
     spectrum.y0 = spectrum.y.copy()
     spectrum.add_peak_model('Gaussian', x0=30)
-    spectrum.add_peak_model('Gaussian', x0=70)
+    spectrum.add_peak_model('Gaussian', x0=65)
 
     # import matplotlib.pyplot as plt
     # _, ax= plt.subplots()
@@ -55,7 +55,7 @@ def test_with_fixed_ampli(basic_spectrum2):
     basic_spectrum2.fit()
 
     assert basic_spectrum2.peak_models[0].param_hints['ampli']['value'] == approx(10, abs=1)
-    assert basic_spectrum2.peak_models[1].param_hints['ampli']['value'] == approx(27, abs=1)
+    assert basic_spectrum2.peak_models[1].param_hints['ampli']['value'] == approx(22, abs=1)
 
 
 def test_with_expression(basic_spectrum2):
