@@ -297,7 +297,8 @@ class BBox:
         if event.inaxes != self.ax:
             return
 
-        dx = self.dx if event.button == 'up' else -self.dx
+        ind = closest_index(self.x, self.x0)
+        dx = self.dx[ind] if event.button == 'up' else -self.dx[ind]
         k = int(event.xdata > self.x0)
 
         if self.rect_x0.contains(event)[0]:

@@ -10,8 +10,8 @@ from copy import deepcopy
 import numpy as np
 import matplotlib
 from scipy.interpolate import interp1d
-from scipy.ndimage import uniform_filter1d, gaussian_filter1d
-from scipy.signal import argrelextrema
+from scipy.ndimage import uniform_filter1d
+from scipy.signal import find_peaks
 
 from lmfit import Model, fit_report
 from lmfit.model import ModelResult
@@ -301,23 +301,23 @@ class Spectrum:
             self.weights = self.weights0.copy()
 
     def dx(self):
-        """ Return the median x-step size (dx) """
-        return np.median(np.diff(self.x)) if self.x is not None else None
+        """ Return the local mean step size (dx) according to uniform_filter1d() """
+        x = self.x
+        return uniform_filter1d(np.diff(x, prepend=x[0]), size=11) if x is not None else None
 
     def inds_local_minima(self):
         """ Return indexes of local minima obtained after smoothing """
-        sigma = 3 * self.dx()
-        y_smooth = gaussian_filter1d(self.y, sigma)
-        inds = argrelextrema(y_smooth, np.less)[0]
+        inds = find_peaks(-self.y / self.y.max(), prominence=0.05)[0]
         return inds
 
     def fwhm(self):
         """ Return a local estimation of fwhm """
-        dx = self.dx()
-        fwhm = COEF_PARAMS['dfwhm'] * dx * np.ones_like(self.x)  # default values
+        fwhm = np.zeros_like(self.x)  # default values
         inds = self.inds_local_minima()
         for imin, imax in zip(inds[:-1], inds[1:]):
             fwhm[imin:imax] = self.x[imax] - self.x[imin]
+        fwhm[:inds[0]] = fwhm[inds[0]]
+        fwhm[inds[-1]:] = fwhm[inds[-1] - 1]
         return fwhm
 
     def apply_range(self, range_min=None, range_max=None):
@@ -439,7 +439,7 @@ class Spectrum:
                 param = self.result_fit.params[key]
                 self.bkg_model.set_param_hint(key, value=param.value)
 
-    def params_from_local_profile(self, model, x0, dx0):
+    def params_from_profile(self, model, x0):
         """ Return model with parameters estimated from the local spectrum profile """
         inds = self.inds_local_minima()
         inds = sorted(set([0] + list(inds) + [len(self.x) - 1]))  # add extrema indices
@@ -455,10 +455,7 @@ class Spectrum:
             param = result.params[key]
             name = key[4:]  # remove prefix 'mXX_'
             model.set_param_hint(name, value=param.value)
-            if name == 'x0':
-                model.set_param_hint(name, min=param.value - dx0)
-                model.set_param_hint(name, max=param.value + dx0)
-            elif 'fwhm' in name:
+            if 'fwhm' in name:
                 model.set_param_hint(name, max=1.5 * param.value)
         return model
 
@@ -502,21 +499,21 @@ class Spectrum:
                           "'fwhm_r', 'dx0' or 'dfwhm' values passed to add_peak_model()")
 
         ind = closest_index(self.x, x0)
-        fwhm_ = self.fwhm()[ind]
+        fwhm_ = dx0_ = self.fwhm()[ind]
         dfwhm_ = 2 * fwhm_
 
         ampli = ampli or self.y_no_outliers[ind]
-        dx0 = dx0 or COEF_PARAMS['dx0'] * self.dx()
         fwhm = fwhm or fwhm_
         fwhm_l = fwhm_l or fwhm_
         fwhm_r = fwhm_r or fwhm_
+        dx0 = dx0 or dx0_
         dfwhm = dfwhm or dfwhm_
 
         index = next(self.peak_index)
         peak_model = self.create_peak_model(index, model_name, x0, ampli,
                                             fwhm, fwhm_l, fwhm_r, alpha, dx0, dfwhm)
         if params_from_profile:
-            peak_model = self.params_from_local_profile(peak_model, x0, dx0)
+            peak_model = self.params_from_profile(peak_model, x0)
 
         self.peak_models.append(peak_model)
         self.peak_labels.append(f"{index}")
@@ -797,24 +794,10 @@ class Spectrum:
             5% of the maximum intensity peaks and nmax_nfev=400 """
         self.remove_models()
         y = y0 = self.y_no_outliers.copy()
-        dx = self.dx()
-        fwhm_ = self.fwhm()
-        dx0 = COEF_PARAMS['dx0'] * dx
-
         is_ok = True
         while is_ok:
-            index = next(self.peak_index)
-            ind = np.argmax(y)
-            fwhm = fwhm_l = fwhm_r = fwhm_[ind]
-            dfwhm = 2 * fwhm
-
-            peak_model = self.create_peak_model(index, model_name,
-                                                x0=self.x[ind],
-                                                ampli=self.y[ind],
-                                                fwhm=fwhm, fwhm_l=fwhm_l, fwhm_r=fwhm_r,
-                                                dx0=dx0, dfwhm=dfwhm)
-            self.peak_models.append(peak_model)
-            self.peak_labels.append(f"{index}")
+            x0 = self.x[np.argmax(y)]
+            self.add_peak_model(model_name, x0, params_from_profile=True)
             self.fit(reinit_guess=False)
             is_ok = self.result_fit.success
             y = y0 - self.result_fit.best_fit

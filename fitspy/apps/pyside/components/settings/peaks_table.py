@@ -5,7 +5,6 @@ from PySide6.QtWidgets import (QLabel, QVBoxLayout, QPushButton, QLineEdit, QChe
 from PySide6.QtGui import QIcon
 
 from fitspy import PEAK_MODELS
-from fitspy.core.spectrum import COEF_PARAMS
 from fitspy.core.utils import get_model_params
 from fitspy.apps.pyside import DEFAULTS
 from fitspy.apps.pyside.utils import get_icon_path
@@ -253,9 +252,8 @@ class PeaksTable(QWidget):
 
         if param_name in ['fwhm', 'fwhm_l', 'fwhm_r']:
             min = 0
-            # TODO: should refer to spectrum.fwhm()[ind] but how to estimate 'ind' ?
-            value = COEF_PARAMS['fwhm'] * self.dx
-            max = COEF_PARAMS['dfwhm'] * self.dx
+            value = self.fwhm[0] # TODO : index should refer to x0
+            max = 1.5 * value
 
         elif param_name == 'alpha':
             min = 0
