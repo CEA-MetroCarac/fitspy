@@ -125,8 +125,8 @@ class OtherSettings(QGroupBox):
 
         qx_radio = QRadioButton("qx")
         qx_radio.setChecked(bichromatic_dict["mode"] == "qx")
-        theta_radio = QRadioButton("2theta")
-        theta_radio.setChecked(bichromatic_dict["mode"] == "2theta")
+        theta_radio = QRadioButton("2θ")
+        theta_radio.setChecked(bichromatic_dict["mode"] == "2θ")
 
         self.bichromatic_group = QButtonGroup(self)
         self.bichromatic_group.addButton(qx_radio)

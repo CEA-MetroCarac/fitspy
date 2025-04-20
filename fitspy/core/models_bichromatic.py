@@ -6,7 +6,7 @@ import numpy as np
 from fitspy.core.models import pseudovoigt
 from fitspy import PEAK_MODELS
 
-MODE = '2Theta'  # or 'qx'
+MODE = '2θ'  # or 'qx'
 
 # KL3/KL2 fluorescence energy ratio
 WAVELENGTH_RATIO = {'Cu': 1.0024847494284688,
@@ -40,7 +40,7 @@ def pseudovoigt_ka12(x, ampli, fwhm, x0, alpha=0.5, cathode='Cu'):
     Parameters
     ----------
     x: ndarray
-       '2Theta' angle in degree or 'qx' (depending on 'MODE')
+       '2θ' angles in degree or 'qx' (depending on 'MODE')
     ampli: float
       amplitude of the pseudo-Voigt
     fwhm: float
@@ -52,10 +52,12 @@ def pseudovoigt_ka12(x, ampli, fwhm, x0, alpha=0.5, cathode='Cu'):
     cathode: str
        element of the X-ray source cathode
     """
+    assert MODE in ['2θ', 'qx']
+
     ampli2 = ampli / AMPLITUDE_RATIO[cathode]
     ratio = WAVELENGTH_RATIO[cathode]
 
-    if MODE == '2Theta':
+    if MODE == '2θ':
         x02 = 2 * np.degrees(np.arcsin(ratio * np.sin(np.radians(x0 / 2.))))
     else:  # 'qx'
         x02 = ratio * x0
@@ -94,3 +96,20 @@ def remove_models():
     """ Remove bichromatic models in the PEAK_MODELS list """
     for cathode in CATHODES:
         PEAK_MODELS.pop(f"PseudoVoigtKa12_{cathode}", None)
+
+
+if __name__ == "__main__":
+    import matplotlib.pyplot as plt
+
+    MODE = '2θ'
+    # MODE = 'qx'
+
+    x = np.linspace(-10, 10, 201)
+    plt.figure()
+    plt.plot(x, pseudovoigt_ka12_Cu(x, ampli=100, fwhm=.5, x0=69.14, alpha=0.5))
+    plt.show()
+
+    x = np.linspace(1.8, 2.2, 2000)
+    plt.figure()
+    plt.plot(x, pseudovoigt_ka12_Ag(x, ampli=10, fwhm=0.01, x0=2))
+    plt.show()

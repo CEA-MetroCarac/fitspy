@@ -101,7 +101,7 @@ Bichromatic models
 In the case of bichromatic sources, as used for example in **XRD** or **XRF**, double-peak models can be defined and applied using the **recurrent use** approach notified in the **User-defined** section above.
 Here is an example of a peak_models.py file to be placed in :code:`%HOMEUSER%/Fitspy`, considering:
 
-:math:`x0` : the peak position as 2Theta angle in degree
+:math:`x0` : the peak position as 2θ angle in degree
 
 and
 
