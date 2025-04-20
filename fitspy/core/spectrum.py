@@ -314,10 +314,9 @@ class Spectrum:
         """ Return a local estimation of fwhm """
         fwhm = np.zeros_like(self.x)  # default values
         inds = self.inds_local_minima()
+        inds = sorted(set([0] + list(inds) + [len(self.x) - 1]))  # add extrema indices
         for imin, imax in zip(inds[:-1], inds[1:]):
-            fwhm[imin:imax] = self.x[imax] - self.x[imin]
-        fwhm[:inds[0]] = fwhm[inds[0]]
-        fwhm[inds[-1]:] = fwhm[inds[-1] - 1]
+            fwhm[imin:imax + 1] = self.x[imax] - self.x[imin]
         return fwhm
 
     def apply_range(self, range_min=None, range_max=None):
