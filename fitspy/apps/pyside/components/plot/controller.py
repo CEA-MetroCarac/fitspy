@@ -5,6 +5,7 @@ from fitspy.core.spectrum import Spectrum
 from fitspy.apps.interactive_bounds import InteractiveBounds
 from fitspy.apps.pyside.utils import to_snake_case
 from fitspy.apps.pyside.components.plot.model import Model
+from fitspy.apps.pyside import DEFAULTS
 
 
 class PlotController(QObject):
@@ -167,6 +168,7 @@ class PlotController(QObject):
             if len(self.model.current_spectra) > 0:
                 self.model.ibounds = InteractiveBounds(self.model.current_spectra[0],
                                                        self.spectra_plot.ax,
+                                                       cmap=DEFAULTS["peaks_cmap"],
                                                        bind_func=self.model.refresh)
                 self.update_plot_title()
             else:
