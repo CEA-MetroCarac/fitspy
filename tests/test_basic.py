@@ -55,7 +55,7 @@ def test_with_fixed_ampli(basic_spectrum2):
     basic_spectrum2.fit()
 
     assert basic_spectrum2.peak_models[0].param_hints['ampli']['value'] == approx(10, abs=1)
-    assert basic_spectrum2.peak_models[1].param_hints['ampli']['value'] == approx(22, abs=1)
+    assert basic_spectrum2.peak_models[1].param_hints['ampli']['value'] == approx(27, abs=1)
 
 
 def test_with_expression(basic_spectrum2):

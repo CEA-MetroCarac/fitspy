@@ -394,11 +394,11 @@ class Spectrum:
         alpha: float, optional
             Optional parameter passed to the 'PseudoVoigt' model.
             Default value is 0.5.
-        dx0: float, optional
-            Variation allowed around x0. x0 in [x0-dx0; x0+dx0].
+        dx0: tuple of 2 floats, optional
+            Bounds associated with x0 such as x0 is in [x0-dx0[0]; x0+dx0[1]].
             Default value is 20.
         dfwhm: float, optional
-            Variation (upper value) allowed for fwhm / fwhm_l /fwhm_r. fwhm_ in [0; dfwhm]
+            Upper bound allowed for fwhm / fwhm_l /fwhm_r. fwhm_ in [0; dfwhm]
 
         Returns
         -------
@@ -412,7 +412,7 @@ class Spectrum:
         kwargs_ = {'min': -np.inf, 'max': np.inf, 'vary': True, 'expr': None}
         kwargs_ampli = {'min': 0, 'max': np.inf, 'vary': True, 'expr': None}
         kwargs_fwhm = {'min': 0, 'max': dfwhm, 'vary': True, 'expr': None}
-        kwargs_x0 = {'min': x0 - dx0, 'max': x0 + dx0, 'vary': True, 'expr': None}
+        kwargs_x0 = {'min': x0 - dx0[0], 'max': x0 + dx0[1], 'vary': True, 'expr': None}
         kwargs_alpha = {'min': 0, 'max': 1, 'vary': True, 'expr': None}
 
         for name in peak_model.param_names:
@@ -438,29 +438,45 @@ class Spectrum:
                 param = self.result_fit.params[key]
                 self.bkg_model.set_param_hint(key, value=param.value)
 
-    def params_from_profile(self, model, x0):
+    def params_from_profile(self, x0):
         """ Return model with parameters estimated from the local spectrum profile """
         inds = self.inds_local_minima()
         inds = sorted(set([0] + list(inds) + [len(self.x) - 1]))  # add extrema indices
         i = np.searchsorted(self.x[inds], x0, side='right') - 1
-        mask = (self.x >= self.x[inds[i]]) & (self.x <= self.x[inds[i + 1]])
-        x, y = self.x[mask], self.y[mask]
-        model.set_param_hint('x0', min=x[0])
-        model.set_param_hint('x0', max=x[-1])
-        imax = np.argmax(y)
-        params = model.make_params(ampli=y[imax], x0=x[imax])
-        result = model.fit(y, params, x=x)
-        for key in model.param_names:
-            param = result.params[key]
-            name = key[4:]  # remove prefix 'mXX_'
-            model.set_param_hint(name, value=param.value)
-            if 'fwhm' in name:
-                model.set_param_hint(name, max=1.5 * param.value)
-        return model
+        x0min, x0max = self.x[inds[i]], self.x[inds[i + 1]]
+        dx0 = (x0 - x0min, x0max - x0)
+        dfwhm = x0max - x0min
+        # fwhm, fwhm_l, fwhm_r = max(dx0), dx0[0], dx0[1]
+
+        ind_x0 = closest_index(self.x, x0)
+        ampli = self.y_no_outliers[ind_x0]
+        fwhm = fwhm_l = fwhm_r = self.dx()[ind_x0]
+
+        return ampli, fwhm, fwhm_l, fwhm_r, dx0, dfwhm
+
+    # def params_from_profile(self, model, x0):
+    #     """ Return model with parameters estimated from the local spectrum profile """
+    #     inds = self.inds_local_minima()
+    #     inds = sorted(set([0] + list(inds) + [len(self.x) - 1]))  # add extrema indices
+    #     i = np.searchsorted(self.x[inds], x0, side='right') - 1
+    #     mask = (self.x >= self.x[inds[i]]) & (self.x <= self.x[inds[i + 1]])
+    #     x, y = self.x[mask], self.y[mask]
+    #     model.set_param_hint('x0', min=x[0])
+    #     model.set_param_hint('x0', max=x[-1])
+    #     imax = np.argmax(y)
+    #     params = model.make_params(ampli=y[imax], x0=x[imax])
+    #     result = model.fit(y, params, x=x)
+    #     for key in model.param_names:
+    #         param = result.params[key]
+    #         name = key[4:]  # remove prefix 'mXX_'
+    #         model.set_param_hint(name, value=param.value)
+    #         if 'fwhm' in name:
+    #             model.set_param_hint(name, max=1.5 * param.value)
+    #     return model
 
     def add_peak_model(self, model_name, x0, ampli=None,
                        fwhm=None, fwhm_l=None, fwhm_r=None, alpha=0.5,
-                       dx0=None, dfwhm=None, params_from_profile=False):
+                       dx0=None, dfwhm=None):
         """
         Add a peak model passing model_name and indice position or parameters
 
@@ -472,47 +488,31 @@ class Spectrum:
             Position of the peak model
         ampli: float, Optional
             Amplitude of the peak model.
-            If None, consider the amplitude of the spectrum profile at position x0 or local spectrum
-             profile (if activated)
+            If None, consider the amplitude of the spectrum profile at position x0.
         fwhm, fwhm_l, fwhm_r: floats, optional
-            Optional parameters passed to the model related to the Full Width
-            at Half Maximum.
-            Default values are based on local estimation of fwhm estimated from local minima after
-            spectrum smoothing or local spectrum profile (if activated).
+            Full Width(s) at Half Maximum passed to the model.
+            Default value are based on local estimations related to the spectrum profile.
         alpha: float, optional
             Optional parameter passed to the 'PseudoVoigt' model.
             Default value is 0.5.
-        dx0: float, optional
-            Variation allowed around x0, i.e. x0 should be in [x0-dx0; x0+dx0].
-            Default value is based on the median x-step size (dx) as 10 * dx.
+        dx0: tuple of 2 floats, optional
+            Bounds associated with x0 such as x0 is in [x0-dx0[0]; x0+dx0[1]].
+            Default value is based on a local estimation related to the spectrum profile.
         dfwhm: float, optional
-            Variation (upper value) allowed for the fwhm's, i.e. the fwhm's should be in [0; dfwhm]
-            Default value is based on local estimation of fwhm estimated from local minima after
-            spectrum smoothing or local spectrum profile (if activated).
-        params_from_profile: bool, optional
-            Activation key for model parameters estimation from the local spectrum profile.
+            Upper bound allowed for fwhm / fwhm_l /fwhm_r. fwhm_ in [0; dfwhm]
+            Default value are based on local estimations related to the spectrum profile.
         """
-        if params_from_profile and \
-                not all(var is None for var in [ampli, fwhm, fwhm_l, fwhm_r, dx0, dfwhm]):
-            raise IOError("params_from_file can not be activated with 'ampli', 'fwhm', 'fwhm_l', "
-                          "'fwhm_r', 'dx0' or 'dfwhm' values passed to add_peak_model()")
-
-        ind = closest_index(self.x, x0)
-        fwhm_ = dx0_ = self.fwhm()[ind]
-        dfwhm_ = 2 * fwhm_
-
-        ampli = ampli or self.y_no_outliers[ind]
+        ampli_, fwhm_, fwhm_l_, fwhm_r_, dx0_, dfwhm_ = self.params_from_profile(x0)
+        ampli = ampli or ampli_
         fwhm = fwhm or fwhm_
-        fwhm_l = fwhm_l or fwhm_
-        fwhm_r = fwhm_r or fwhm_
+        fwhm_l = fwhm_l or fwhm_l_
+        fwhm_r = fwhm_r or fwhm_r_
         dx0 = dx0 or dx0_
         dfwhm = dfwhm or dfwhm_
 
         index = next(self.peak_index)
         peak_model = self.create_peak_model(index, model_name, x0, ampli,
                                             fwhm, fwhm_l, fwhm_r, alpha, dx0, dfwhm)
-        if params_from_profile:
-            peak_model = self.params_from_profile(peak_model, x0)
 
         self.peak_models.append(peak_model)
         self.peak_labels.append(f"{index}")
@@ -796,7 +796,7 @@ class Spectrum:
         is_ok = True
         while is_ok:
             x0 = self.x[np.argmax(y)]
-            self.add_peak_model(model_name, x0, params_from_profile=True)
+            self.add_peak_model(model_name, x0)
             self.fit(reinit_guess=False)
             is_ok = self.result_fit.success
             y = y0 - self.result_fit.best_fit
