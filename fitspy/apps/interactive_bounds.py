@@ -62,7 +62,7 @@ class InteractiveBounds:
     def update(self):
         for k, peak_model in enumerate(self.spectrum.peak_models):
             bbox = BBox(self.ax, self.spectrum, peak_model)
-            bbox.set_color(self.cmap(k))
+            bbox.set_color(self.cmap(k % self.cmap.N))
             bbox.update()
             self.bboxes.append(bbox)
 
@@ -93,7 +93,7 @@ class InteractiveBounds:
             if self.model and not interact:
                 self.spectrum.add_peak_model(self.model, event.xdata)
                 bbox = BBox(self.ax, self.spectrum, self.spectrum.peak_models[-1])
-                bbox.set_color(self.cmap(len(self.bboxes)))
+                bbox.set_color(self.cmap(len(self.bboxes) % self.cmap.N))
                 bbox.update()
                 self.bboxes.append(bbox)
 
