@@ -25,7 +25,6 @@ from fitspy.core.utils import save_to_json, load_from_json, eval_noise_amplitude
 from fitspy.core.baseline import BaseLine
 
 CMAP_PEAKS = matplotlib.colormaps['tab10']
-COEF_PARAMS = {'fwhm': 10, 'dx0': 10, 'dfwhm': 20}
 
 
 @contextlib.contextmanager
