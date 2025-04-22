@@ -604,7 +604,6 @@ class Model(QObject):
         self.line_bkg_visible = view_options.get("Background", False) and spectrum.bkg_model
 
         if interactive_bounds:
-            self.ibounds.remove()
             self.ibounds.update()
             inds = spectrum.inds_local_minima()
             for ind in inds:

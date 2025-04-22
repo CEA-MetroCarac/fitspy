@@ -393,7 +393,6 @@ class Callbacks:
                 baseline.plot(self.ax, x, y, attached=baseline.attached)
 
             if show_interactive_bounds:
-                self.ibounds.remove()
                 self.ibounds.update()
 
             self.ax.legend()

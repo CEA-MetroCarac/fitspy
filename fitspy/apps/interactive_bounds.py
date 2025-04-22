@@ -60,17 +60,12 @@ class InteractiveBounds:
             self.canvas.mpl_connect('button_release_event', lambda _: bind_func())
 
     def update(self):
+        self.bboxes = []
         for k, peak_model in enumerate(self.spectrum.peak_models):
             bbox = BBox(self.ax, self.spectrum, peak_model)
             bbox.set_color(self.cmap(k % self.cmap.N))
             bbox.update()
             self.bboxes.append(bbox)
-
-    def remove(self):
-        for bbox in self.bboxes:
-            bbox.remove()
-        self.bboxes = []
-        self.canvas.draw_idle()
 
     def interact_with_bbox(self, event):
         [bbox.disconnect() for bbox in self.bboxes]
