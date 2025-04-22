@@ -152,6 +152,8 @@ class PlotController(QObject):
         if isinstance(fnames, str):
             fnames = [fnames]
 
+        self.model.ibounds = None
+
         if len(fnames) == 1 and fnames[0].endswith('.json'):
             spectrum = Spectrum.create_from_model(fnames[0])
             self.model.current_spectra = [spectrum] if spectrum is not None else []
@@ -236,7 +238,7 @@ class PlotController(QObject):
                 self.model.del_baseline_point(x)
 
         else:  # point_type == "peaks":
-            if self.model.ibounds.interact_with_bbox(event):
+            if self.model.ibounds is not None and self.model.ibounds.interact_with_bbox(event):
                 self.model.refresh()
             else:
                 if event.button == 1:

@@ -575,7 +575,7 @@ class Model(QObject):
 
         self.lines = []
         first_spectrum = True
-        interactive_bounds = view_options["Interactive bounds"]
+        interactive_bounds = view_options["Interactive bounds"] * (self.ibounds is not None)
         cmap_peaks = DEFAULTS['peaks_cmap']
         for spectrum in self.current_spectra:
             self.lines += spectrum.plot(
