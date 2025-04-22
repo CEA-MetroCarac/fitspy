@@ -9,6 +9,8 @@ class DoubleSpinBox(QDoubleSpinBox):
         self.empty_value = empty_value
         self.setMaximum(float("inf"))
         self.setMinimum(-float("inf"))
+        self.setDecimals(16)
+        self.setSingleStep(1e-16)
         self.setFocusPolicy(Qt.StrongFocus)
         self.lineEdit().textChanged.connect(self.handle_empty_text)
 

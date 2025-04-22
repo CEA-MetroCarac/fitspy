@@ -28,10 +28,7 @@ class SpectralRange(QCollapsible):
         label = QLabel("X min/max:")
 
         self.range_min = DoubleSpinBox()
-        self.range_min.setDecimals(2)
-
         self.range_max = DoubleSpinBox()
-        self.range_max.setDecimals(2)
 
         self.apply = QPushButton("Apply")
 
@@ -136,10 +133,7 @@ class Normalization(QCollapsible):
         h_layout.setContentsMargins(0, 0, 0, 0)
 
         self.range_min = DoubleSpinBox()
-        self.range_min.setDecimals(2)
-
         self.range_max = DoubleSpinBox()
-        self.range_max.setDecimals(2)
 
         self.normalize = QCheckBox("Normalize")
 

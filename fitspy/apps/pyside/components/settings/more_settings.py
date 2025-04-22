@@ -45,7 +45,6 @@ class SolverSettings(QGroupBox):
 
         self.xtol_label = QLabel("x-tolerance:")
         self.xtol = DoubleSpinBox()
-        self.xtol.setDecimals(6)
         self.xtol.setValue(FIT_PARAMS["xtol"])
 
         vbox.addWidget(self.fit_negative)
