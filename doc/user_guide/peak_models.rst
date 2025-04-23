@@ -49,13 +49,14 @@ Pseudovoigt
 Bichromatic models
 ------------------
 
-In the case of bichromatic sources, as used for example in **XRD** or **XRF**, predefined double-peak models has been set for Cu, Mo, Ag and Co cathodes (see `here <https://cea-metrocarac.github.io/fitspy/api/fitspy.core.html#fitspy.core.models_bichromatic>`_), considering:
+In the case of bichromatic sources, as used for example in **XRD** or **XRF**, predefined double-peak models has been set for Cu, Mo, Ag and Co cathodes (see `here <https://cea-metrocarac.github.io/fitspy/api/fitspy.core.html#module-fitspy.core.models_bichromatic>`_), considering:
 
 :math:`x`, `x0` : the x-support and the peak position in consistent coordinates (2θ angle in degrees or qx)
 
 .. figure::  ../_static/pyside/bichromatic_models.png
    :align:   center
    :width:   50%
+
 
 For other cathodes, the users can define their own models through the approach described below.
 

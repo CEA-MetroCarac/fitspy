@@ -31,8 +31,8 @@ def pseudovoigt_ka12(x, ampli, fwhm, x0, alpha=0.5, cathode='Cu'):
 
     .. math::
 
-       2d_{hkl} \sin \theta_{1} = \lambda_{Ka1}
-       2d_{hkl} \sin \theta_{2} = \lambda_{Ka2}
+       2d_{hkl} \sin \theta_{1} = \lambda_{Ka1} \quad
+       2d_{hkl} \sin \theta_{2} = \lambda_{Ka2} \quad
        \sin \theta_{2}  =  \frac{\lambda_{Ka2}}{\lambda_{Ka1}} \sin \theta_{1}
 
     The ratio between wavelengths depends on the cathode element (Cu, Mo, Ag, Co...).
@@ -52,6 +52,7 @@ def pseudovoigt_ka12(x, ampli, fwhm, x0, alpha=0.5, cathode='Cu'):
     cathode: str
        element of the X-ray source cathode
 
+
     Example
     -------
 
@@ -66,7 +67,6 @@ def pseudovoigt_ka12(x, ampli, fwhm, x0, alpha=0.5, cathode='Cu'):
         plt.figure()
         plt.grid()
         plt.plot(x, y)
-        plt.show()
     """
     assert MODE in ['2θ', 'qx']
 
