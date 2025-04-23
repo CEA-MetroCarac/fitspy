@@ -115,11 +115,25 @@ class MainController(QObject):
     def apply_settings(self):
         self.view.statusBox.ncpus.setCurrentText(self.model.ncpus)
         self.view.spectra_plot.ax.set_title(self.model.figure_options_title)
-        self.view.more_settings.other_settings.outliers_coef.setValue(self.model.outliers_coef)
-        self.view.more_settings.other_settings.peaks_cmap.setCurrentText(self.model.peaks_cmap)
-        self.view.more_settings.other_settings.map_cmap.setCurrentText(self.model.map_cmap)
-
-        radio_button = getattr(self.view.toolbar, f"{self.model.click_mode}_radio")
+        self.view.more_settings.other_settings.cb_bichromatic.setChecked(
+            self.model.bichromatic_models_enable
+        )
+        for button in self.view.more_settings.other_settings.bichromatic_group.buttons():
+            if button.text() == self.model.bichromatic_models_mode:
+                button.setChecked(True)
+                break
+        self.view.more_settings.other_settings.outliers_coef.setValue(
+            self.model.outliers_coef
+        )
+        self.view.more_settings.other_settings.peaks_cmap.setCurrentText(
+            self.model.peaks_cmap
+        )
+        self.view.more_settings.other_settings.map_cmap.setCurrentText(
+            self.model.map_cmap
+        )
+        radio_button = getattr(
+            self.view.toolbar, f"{self.model.click_mode}_radio"
+        )
         radio_button.setChecked(True)
 
         for label, checkbox in self.view.toolbar.view_options.checkboxes.items():
@@ -157,9 +171,9 @@ class MainController(QObject):
         if len(self.plot_controller.model.spectra) > 0:
             if not self.show_confirmation_dialog("Current work will be cleared. Continue ?"):
                 return
-
-        # Remove all spectra and maps
-        self.files_controller.clear()
+ 
+        self.files_controller.clear()  # Remove all spectra and maps
+        self.settings_controller.clear_models()  # remove all loaded models
 
     def apply_theme(self):
         app = QApplication.instance()
