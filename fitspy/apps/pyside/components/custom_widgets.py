@@ -1,6 +1,6 @@
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import QDoubleSpinBox, QSpinBox, QComboBox
-from PySide6.QtGui import QAction, QDragEnterEvent, QDragLeaveEvent, QDropEvent, QPainter, QPalette
+from PySide6.QtGui import QAction, QDragEnterEvent, QDragLeaveEvent, QDropEvent, QPainter, QPalette, QValidator
 
 
 class DoubleSpinBox(QDoubleSpinBox):
@@ -59,6 +59,25 @@ class DoubleSpinBox(QDoubleSpinBox):
     def set_to_default(self):
         self.setValue(self.empty_value)
 
+    def validate(self, text, pos):
+        import re
+        sci_pattern = r'^[-+]?((\d+\.?\d*)|(\.\d+))([eE][-+]?\d+)?$'
+        if re.match(sci_pattern, text.strip()) or text.strip() == '':
+            return (QValidator.Acceptable, text, pos)
+        return (QValidator.Invalid, text, pos)
+
+    def valueFromText(self, text):
+        try:
+            return float(text)
+        except Exception:
+            return 0.0
+
+    def textFromValue(self, value):
+        if abs(value) < 1e-3 or abs(value) >= 1e3:
+            return f"{value:.4g}"
+        return str(value)
+
+
 class SpinBox(QSpinBox):
     def __init__(self, parent=None, empty_value=None):
         super().__init__(parent)
@@ -104,6 +123,19 @@ class SpinBox(QSpinBox):
 
     def set_to_default(self):
         self.setValue(self.empty_value)
+
+    def validate(self, text, pos):
+        import re
+        sci_pattern = r'^[-+]?((\d+\.?\d*)|(\.\d+))([eE][-+]?\d+)?$'
+        if re.match(sci_pattern, text.strip()) or text.strip() == '':
+            return (QValidator.Acceptable, text, pos)
+        return (QValidator.Invalid, text, pos)
+
+    def valueFromText(self, text):
+        try:
+            return int(float(text))
+        except Exception:
+            return 0
 
 
 class ComboBox(QComboBox):
