@@ -1,7 +1,7 @@
 Release Notes
 =============
 
-Version 2025.4 (April 18, 2025)
+Version 2025.4 (April 2, 2025)
 ----------------------------------
 
 **New features:**
@@ -11,6 +11,7 @@ Version 2025.4 (April 18, 2025)
 - Log axes are now available for profiles visualization
 - Weights can be supplied to the fit model via the input data files (through a 3rd and optional column in .txt file)
 - .hdf input data files following the NXcanSAS standard can now be read
+- Optional bichromatic models have been added in "More Settings"
 
 **Enhancements:**
 

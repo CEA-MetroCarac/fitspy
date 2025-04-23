@@ -118,7 +118,7 @@ class OtherSettings(QGroupBox):
         # Bichromatic Model
         bichromatic_dict = DEFAULTS['bichromatic_models']
         hbox = QHBoxLayout()
-        self.cb_bichromatic = QCheckBox("Bichromatic model:")
+        self.cb_bichromatic = QCheckBox("Bichromatic models:")
         self.cb_bichromatic.setChecked(bichromatic_dict["enable"])
         self.cb_bichromatic.toggled.connect(self.update_bichromatic)
 

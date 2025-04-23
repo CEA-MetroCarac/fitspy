@@ -89,7 +89,7 @@ Through the GUI, the corresponding *'.txt'* or *'.py'* files can be loaded via t
 In python, the users models can be loaded by the related functions :func:`~fitspy.utils.load_models_from_txt` and :func:`~fitspy.utils.load_models_from_py`.
 *(See example in* `ex_gui_users_defined_models_2d_map.py <https://github.com/CEA-MetroCarac/fitspy/tree/main/examples/ex_gui_users_defined_models_2d_map.py>`_ *)*
 
-For recurrent use, the user-defined models can be defined in files named :code:`bkg_models.txt` or :code:`bkg_models.py` to put in :code:`%HOMEUSER%/Fitspy` (typically C:\Users\my_account\Fitspy in windows and /home/Fitspy in Linux).
+For recurrent use, the user-defined models can be defined in files named :code:`bkg_models.txt` or :code:`bkg_models.py` to put in :code:`%HOMEUSER%/Fitspy` (typically C:\\Users\\my_account\\Fitspy in Windows and /home/Fitspy in Linux).
 
 The variable associated with the support must necessarily be used in expressions under the term :code:`x` and the mathematical functions must be designated according to the terminology defined in the `asteval <https://newville.github.io/asteval/basics.html#built-in-functions>`_ package.
 
