@@ -158,13 +158,6 @@ class PlotController(QObject):
             spectrum = Spectrum.create_from_model(fnames[0])
             self.model.current_spectra = [spectrum] if spectrum is not None else []
         else:
-            #     self.model.current_spectra = [self.model.spectra.get_objects(fname)[0]
-            #                                   for fname in fnames]
-            #     self.model.ibounds = InteractiveBounds(self.model.current_spectra[0],
-            #                                            self.spectra_plot.ax,
-            #                                            bind_func=self.model.refresh)
-            # self.update_plot_title()
-            # FIXME: spectra cleaning is not correctly managed elsewhere ?
             self.model.current_spectra = [self.model.spectra.get_objects(fname)[0]
                                           for fname in fnames if fname != '']
             if len(self.model.current_spectra) > 0:
