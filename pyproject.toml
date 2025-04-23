@@ -42,7 +42,7 @@ dependencies = [
     "pyside6",
     "numpy",
     "pandas",
-    "matplotlib<3.10",
+    "matplotlib",
     "scipy",
     "lmfit",
     "parse",

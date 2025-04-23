@@ -129,6 +129,14 @@ class SettingsController(QObject):
         self.solver_settings.xtol.valueChanged.connect(
             lambda value: self.update_and_emit("fit_params.xtol", value))
 
+        self.other_settings.cb_bichromatic.toggled.connect(
+            lambda checked: self.settingChanged.emit(
+                "bichromatic_models_enable", checked
+        ))
+        self.other_settings.bichromatic_group.buttonClicked.connect(
+            lambda button: self.settingChanged.emit(
+                "bichromatic_models_mode", button.text()
+        ))
         self.other_settings.outliers_coef.valueChanged.connect(
             lambda value: self.settingChanged.emit("outliers_coef", value))
         self.other_settings.outliers_calculation.clicked.connect(self.calculateOutliers)
@@ -195,8 +203,15 @@ class SettingsController(QObject):
         if "bkg_model" in model_dict:
             self.setBkg.emit(model_dict)
 
-    def clear_model(self):
+    def clear_current_model(self):
         self.model.current_fit_model = {}
+
+    def clear_models(self):
+        """Clear all loaded models from the model selector combo box and the loaded_models list."""
+        combo_box = self.model_builder.model_selector.combo_box
+        combo_box.clear()
+        self.model.loaded_models.clear()
+        self.clear_current_model()
 
     def load_model(self, fname=None):
         if not fname:
