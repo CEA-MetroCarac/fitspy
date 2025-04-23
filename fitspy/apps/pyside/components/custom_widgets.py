@@ -1,6 +1,19 @@
 from PySide6.QtCore import Qt, Signal
-from PySide6.QtWidgets import QDoubleSpinBox, QSpinBox, QComboBox
-from PySide6.QtGui import QAction, QDragEnterEvent, QDragLeaveEvent, QDropEvent, QPainter, QPalette, QValidator
+from PySide6.QtWidgets import (
+    QDoubleSpinBox,
+    QSpinBox,
+    QComboBox,
+    QAbstractSpinBox,
+)
+from PySide6.QtGui import (
+    QAction,
+    QDragEnterEvent,
+    QDragLeaveEvent,
+    QDropEvent,
+    QPainter,
+    QPalette,
+    QValidator,
+)
 
 
 class DoubleSpinBox(QDoubleSpinBox):
@@ -10,7 +23,8 @@ class DoubleSpinBox(QDoubleSpinBox):
         self.setMaximum(float("inf"))
         self.setMinimum(-float("inf"))
         self.setDecimals(16)
-        self.setSingleStep(1e-16)
+        self.setStepType(QAbstractSpinBox.AdaptiveDecimalStepType)
+        self.setAccelerated(True)
         self.setFocusPolicy(Qt.StrongFocus)
         self.lineEdit().textChanged.connect(self.handle_empty_text)
 
@@ -35,11 +49,6 @@ class DoubleSpinBox(QDoubleSpinBox):
         else:
             super().setValue(value)
 
-    def stepBy(self, steps):
-        base = self.value() or 0
-        new_value = base + steps * self.singleStep()
-        self.setValue(new_value)
-
     def contextMenuEvent(self, event):
         menu = self.lineEdit().createStandardContextMenu()
 
@@ -61,8 +70,9 @@ class DoubleSpinBox(QDoubleSpinBox):
 
     def validate(self, text, pos):
         import re
-        sci_pattern = r'^[-+]?((\d+\.?\d*)|(\.\d+))([eE][-+]?\d+)?$'
-        if re.match(sci_pattern, text.strip()) or text.strip() == '':
+
+        sci_pattern = r"^[-+]?((\d+\.?\d*)|(\.\d+))([eE][-+]?\d+)?$"
+        if re.match(sci_pattern, text.strip()) or text.strip() == "":
             return (QValidator.Acceptable, text, pos)
         return (QValidator.Invalid, text, pos)
 
@@ -106,11 +116,6 @@ class SpinBox(QSpinBox):
             self.clear()
         else:
             super().setValue(value)
-    
-    def stepBy(self, steps):
-        base = self.value() or 0
-        new_value = base + steps * self.singleStep()
-        self.setValue(new_value)
 
     def contextMenuEvent(self, event):
         menu = self.lineEdit().createStandardContextMenu()
@@ -126,8 +131,9 @@ class SpinBox(QSpinBox):
 
     def validate(self, text, pos):
         import re
-        sci_pattern = r'^[-+]?((\d+\.?\d*)|(\.\d+))([eE][-+]?\d+)?$'
-        if re.match(sci_pattern, text.strip()) or text.strip() == '':
+
+        sci_pattern = r"^[-+]?((\d+\.?\d*)|(\.\d+))([eE][-+]?\d+)?$"
+        if re.match(sci_pattern, text.strip()) or text.strip() == "":
             return (QValidator.Acceptable, text, pos)
         return (QValidator.Invalid, text, pos)
 
@@ -142,9 +148,10 @@ class ComboBox(QComboBox):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setFocusPolicy(Qt.StrongFocus)
-    
+
     def wheelEvent(self, event):
         event.ignore()
+
 
 class DragNDropCombo(ComboBox):
     itemAdded = Signal(str)
@@ -191,7 +198,9 @@ class DragNDropCombo(ComboBox):
                 painter.setPen(self.palette().color(QPalette.Highlight))
                 text = "Release to load file(s)"
             else:
-                painter.setPen(self.palette().color(QPalette.Disabled, QPalette.Text))
+                painter.setPen(
+                    self.palette().color(QPalette.Disabled, QPalette.Text)
+                )
                 text = "Fitting Models: Drag and Drop File(s) Here"
 
             rect = self.rect()
