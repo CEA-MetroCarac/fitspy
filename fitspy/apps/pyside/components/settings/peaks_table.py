@@ -42,10 +42,8 @@ class SpinBoxGroupWithExpression(QWidget):
         self.value_spin_box = DoubleSpinBox(empty_value=float("inf"))
         self.max_spin_box = DoubleSpinBox(empty_value=float("inf"))
 
-        min_width = 55
-        self.min_spin_box.setMinimumWidth(min_width)
-        self.value_spin_box.setMinimumWidth(min_width)
-        self.max_spin_box.setMinimumWidth(min_width)
+        for sb in (self.min_spin_box, self.value_spin_box, self.max_spin_box):
+            sb.setMinimumWidth(75)
 
         self.min_spin_box.editingFinished.connect(self._validate_bounds)
         self.max_spin_box.valueChanged.connect(self._validate_bounds)
@@ -185,6 +183,7 @@ class PeaksTable(QWidget):
 
         columns = {"Prefix": QLabel, "Label": QLineEdit, "Model": ComboBox}
         self.table = GenericTable(columns=columns)
+        self.table.horizontalHeader().setMinimumSectionSize(75)
         self.table.widgetsChanged.connect(self.emit_peaks_changed)
         self.show_bounds(True)
         main_layout.addWidget(self.table)
