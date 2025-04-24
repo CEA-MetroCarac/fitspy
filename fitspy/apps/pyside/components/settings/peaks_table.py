@@ -164,6 +164,7 @@ class CenteredCheckBox(QWidget):
 
 
 class PeaksTable(QWidget):
+    peakSelected = Signal(int)
     peaksChanged = Signal(dict)
     showToast = Signal(str, str, str)
 
@@ -189,6 +190,13 @@ class PeaksTable(QWidget):
         main_layout.addWidget(self.table)
         self.table.rowsDeleted.connect(self.emit_peaks_changed)
         self.table.rowsDeleted.connect(self.update_prefix_colors)
+        self.table.itemSelectionChanged.connect(
+            lambda: self.peakSelected.emit(
+                self.table.get_selected_rows()[0]
+                if self.table.get_selected_rows()
+                else -1
+            )
+        )
         self.setLayout(main_layout)
 
     @property

@@ -340,26 +340,51 @@ class Model(QObject):
     #
     #         ax.figure.canvas.draw_idle()
 
-    def on_motion(self, ax, event):
+    def highlight_peak(self, ax, peak_index, xdata=None, ydata=None):
+        """Highlight a peak by its index (for table hover/click)."""
+        # Remove previous highlights
+        if self.tmp is not None:
+            [x.remove() for x in self.tmp]
+            self.tmp = None
+        nspectra = len(self.current_spectra)
+        lines = self.lines[1:-(nspectra - 1)] if nspectra > 1 else self.lines[1:]
+        if not (0 <= peak_index < len(lines)):
+            ax.figure.canvas.draw_idle()
+            return
+        line = lines[peak_index]
+        if line.axes is None or line.figure is None:
+            return
+        
+        # Highlight the line
+        x = line.get_xdata()
+        y = line.get_ydata()
+        color = line.get_color()
+        linestyle = line.get_linestyle()
+        self.tmp = [ax.plot(x, y, c=color, ls=linestyle, lw=3)[0]]
 
-        def annotate_params(x, y, i, color):
-            """Annotate figure with fit parameters"""
+        def annotate_params(x_annot, y_annot, i, color):
             spectrum = self.current_spectra[0]
             if self.line_bkg_visible:
                 model = spectrum.bkg_model if i == 0 else spectrum.peak_models[i - 1]
             else:
                 model = spectrum.peak_models[i]
-
             text = []
             for key in ['x0', 'ampli', 'fwhm', 'fwhm_l', 'fwhm_r']:
                 if key in model.param_hints:
                     text.append(f"{key}: {model.param_hints[key]['value']:.4g}")
             text = "\n".join(text)
-
             bbox = {"facecolor": 'w', "edgecolor": color, "boxstyle": 'round'}
-            self.tmp.append(ax.annotate(text, xy=(x, y), xycoords="data",
+            self.tmp.append(ax.annotate(text, xy=(x_annot, y_annot), xycoords="data",
                                         bbox=bbox, verticalalignment="bottom"))
 
+        # Default annotation position to center
+        if xdata is None or ydata is None:
+            xdata = x[len(x)//2] if len(x) else 0
+            ydata = y[len(y)//2] if len(y) else 0
+        annotate_params(xdata, ydata, peak_index, color)
+        ax.figure.canvas.draw_idle()
+
+    def on_motion(self, ax, event):
         if self.tmp is not None:
             [x.remove() for x in self.tmp]
             self.tmp = None
@@ -372,11 +397,7 @@ class Model(QObject):
                 if line.axes is None or line.figure is None:
                     continue
                 if line.contains(event)[0]:
-                    x, y = line.get_xdata(), line.get_ydata()
-                    color = line.get_color()
-                    linestyle = line.get_linestyle()
-                    self.tmp = [ax.plot(x, y, c=color, ls=linestyle, lw=3)[0]]
-                    annotate_params(event.xdata, event.ydata, i, color)
+                    self.highlight_peak(ax, i, event.xdata, event.ydata)
                     break
             ax.figure.canvas.draw_idle()
 
