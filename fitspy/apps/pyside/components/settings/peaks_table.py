@@ -252,7 +252,7 @@ class PeaksTable(QWidget):
 
         if param_name in ['fwhm', 'fwhm_l', 'fwhm_r']:
             min = 0
-            value = self.fwhm[0] # TODO : index should refer to x0
+            value = self.fwhm
             max = 1.5 * value
 
         elif param_name == 'alpha':

@@ -355,8 +355,8 @@ class SettingsController(QObject):
 
             self.update_model_dict(fit_model)
         else:
-            self.model_builder.peaks_table.fwhm = spectrum.fwhm()
             for label, model in zip(spectrum.peak_labels, spectrum.peak_models):
+                self.model_builder.peaks_table.fwhm = spectrum.dx_at(model.param_hints['x0']['value'])
                 add_row_from_params(model._prefix, label, model.name2, model.param_hints)
             self.set_model(spectrum)
 
