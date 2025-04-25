@@ -1,3 +1,4 @@
+from os.path import normpath
 from PySide6.QtCore import QObject, Signal
 
 from fitspy.core.utils import get_dim, load_from_json
@@ -180,9 +181,9 @@ class Model(QObject):
 
         for file in files:
             if get_dim(file) == 2:  # 2D map
-                spectramap_files.append(file)
+                spectramap_files.append(normpath(file))
             else:
-                spectrum_files.append(file)
+                spectrum_files.append(normpath(file))
 
         if spectrum_files:
             self.load_spectrum_files(spectrum_files)
