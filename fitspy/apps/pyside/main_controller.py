@@ -108,6 +108,7 @@ class MainController(QObject):
         self.settings_controller.saveModels.connect(self.save_models)
         self.settings_controller.fitRequested.connect(self.fit)
         self.settings_controller.modelSelectionChanged.connect(self.on_model_selection_changed)
+        self.settings_controller.peakSelected.connect(self.plot_controller.highlight_peak)
         app = QApplication.instance()
         app.aboutToQuit.connect(
             lambda: self.set_setting("figure_options_title", self.view.spectra_plot.ax.get_title()))

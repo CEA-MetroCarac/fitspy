@@ -304,6 +304,11 @@ class Spectrum:
         x = self.x
         return uniform_filter1d(np.diff(x, prepend=x[0]), size=11) if x is not None else None
 
+    def dx_at(self, x0):
+        """ Return the local mean step size (dx) at x0 """
+        ind = closest_index(self.x, x0)
+        return self.dx()[ind]
+
     def inds_local_minima(self):
         """ Return indexes of local minima obtained after smoothing """
         inds = find_peaks(-self.y / self.y.max(), prominence=0.05)[0]

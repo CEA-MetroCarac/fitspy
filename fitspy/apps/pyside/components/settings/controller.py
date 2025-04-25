@@ -29,6 +29,7 @@ class SettingsController(QObject):
     replayModels = Signal(object)  # dict doesnt work with json serialization
     showToast = Signal(str, str, str)
     modelSelectionChanged = Signal(str)
+    peakSelected = Signal(int)
 
     def __init__(self, model_builder, more_settings):
         super().__init__()
@@ -100,6 +101,7 @@ class SettingsController(QObject):
         model_builder.expr_chbox.stateChanged.connect(model_builder.bkg_table.show_expr)
         model_builder.peaks_table.peaksChanged.connect(self.update_model_dict)
         model_builder.peaks_table.showToast.connect(self.showToast)
+        model_builder.peaks_table.peakSelected.connect(self.peakSelected)
         model_builder.bkg_table.bkgChanged.connect(self.update_model_dict)
         model_builder.bkg_table.showToast.connect(self.showToast)
         self.model.baselinePointsChanged.connect(self.baselinePointsChanged)
@@ -355,8 +357,8 @@ class SettingsController(QObject):
 
             self.update_model_dict(fit_model)
         else:
-            self.model_builder.peaks_table.fwhm = spectrum.fwhm()
             for label, model in zip(spectrum.peak_labels, spectrum.peak_models):
+                self.model_builder.peaks_table.fwhm = spectrum.dx_at(model.param_hints['x0']['value'])
                 add_row_from_params(model._prefix, label, model.name2, model.param_hints)
             self.set_model(spectrum)
 

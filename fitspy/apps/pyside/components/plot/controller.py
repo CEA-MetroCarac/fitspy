@@ -95,19 +95,10 @@ class PlotController(QObject):
         for checkbox in self.view_options.checkboxes.values():
             checkbox.stateChanged.connect(lambda state, cb=checkbox: self.view_option_changed(cb))
 
-    # def on_motion(self, event):
-    #     ax = self.spectra_plot.ax
-    #     if len(ax.get_lines()) > 100:
-    #         if not self.too_many_objects_shown:
-    #             self.showToast.emit(
-    #                 "INFO",
-    #                 "Too many objects",
-    #                 "Annotations during motion have been disabled to prevent lagging.",
-    #             )
-    #             self.too_many_objects_shown = True
-    #         return
-    #     self.too_many_objects_shown = False
-    #     self.model.on_motion(ax, event)
+    def highlight_peak(self, index):
+        """Highlight the peak at the given index in the spectrum plot."""
+        ax = self.spectra_plot.ax
+        self.model.highlight_peak(ax, index)
 
     def on_motion(self, event):
         view_options = self.view_options.get_view_options()
