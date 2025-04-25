@@ -31,7 +31,7 @@ class SolverSettings(QGroupBox):
         self.independent_models.setChecked(FIT_PARAMS["independent_models"])
 
         self.coef_noise_label = QLabel("Coefficient noise:")
-        self.coef_noise = DoubleSpinBox()
+        self.coef_noise = DoubleSpinBox(notation="fixed")
         self.coef_noise.setValue(FIT_PARAMS["coef_noise"])
 
         self.max_ite_label = QLabel("Maximum iterations:")
@@ -44,7 +44,7 @@ class SolverSettings(QGroupBox):
         self.method.setCurrentText(FIT_PARAMS["method"])
 
         self.xtol_label = QLabel("x-tolerance:")
-        self.xtol = DoubleSpinBox()
+        self.xtol = DoubleSpinBox(notation='scientific')
         self.xtol.setValue(FIT_PARAMS["xtol"])
 
         vbox.addWidget(self.fit_negative)

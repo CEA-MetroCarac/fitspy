@@ -1,3 +1,4 @@
+from typing import Literal
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import (
     QDoubleSpinBox,
@@ -17,9 +18,17 @@ from PySide6.QtGui import (
 
 
 class DoubleSpinBox(QDoubleSpinBox):
-    def __init__(self, parent=None, empty_value=None):
+    def __init__(
+        self,
+        parent=None,
+        empty_value=None,
+        significant_digits: int = 4,
+        notation: Literal["auto", "fixed", "scientific"] = "auto"
+    ):
         super().__init__(parent)
         self.empty_value = empty_value
+        self.significant_digits = significant_digits
+        self.notation = notation
         self.setMaximum(float("inf"))
         self.setMinimum(-float("inf"))
         self.setDecimals(16)
@@ -83,9 +92,13 @@ class DoubleSpinBox(QDoubleSpinBox):
             return 0.0
 
     def textFromValue(self, value):
-        if abs(value) < 1e-3 or abs(value) >= 1e3:
-            return f"{value:.4g}"
-        return str(value)
+        digits = self.significant_digits
+        if self.notation == "fixed":
+            return f"{value:.{digits}f}"
+        elif self.notation == "scientific":
+            return f"{value:.{digits}e}"
+        else:
+            return f"{value:.{digits}g}"
 
 
 class SpinBox(QSpinBox):
