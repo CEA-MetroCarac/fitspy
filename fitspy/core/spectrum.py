@@ -302,7 +302,7 @@ class Spectrum:
     def dx(self, x0=None):
         """ Return the local mean step size (dx) according to uniform_filter1d() """
         if self.x is not None:
-            dx = uniform_filter1d(np.diff(self.x, prepend=x[0]), size=11)
+            dx = uniform_filter1d(np.diff(self.x, prepend=self.x[0]), size=11)
             if x0 is not None:
                 return dx[closest_index(self.x, x0)]
             else:
@@ -315,7 +315,6 @@ class Spectrum:
         inds = find_peaks(-self.y / self.y.max(), prominence=0.05)[0]
         inds = sorted(set([0] + list(inds) + [len(self.x) - 1]))  # add extrema indices
         return inds
-
 
     def apply_range(self, range_min=None, range_max=None):
         """ Apply range to the raw spectrum """
