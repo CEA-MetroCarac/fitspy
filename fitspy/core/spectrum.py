@@ -299,29 +299,23 @@ class Spectrum:
         if self.weights0 is not None:
             self.weights = self.weights0.copy()
 
-    def dx(self):
+    def dx(self, x0=None):
         """ Return the local mean step size (dx) according to uniform_filter1d() """
-        x = self.x
-        return uniform_filter1d(np.diff(x, prepend=x[0]), size=11) if x is not None else None
-
-    def dx_at(self, x0):
-        """ Return the local mean step size (dx) at x0 """
-        ind = closest_index(self.x, x0)
-        return self.dx()[ind]
+        if self.x is not None:
+            dx = uniform_filter1d(np.diff(self.x, prepend=x[0]), size=11)
+            if x0 is not None:
+                return dx[closest_index(self.x, x0)]
+            else:
+                return dx
+        else:
+            return None
 
     def inds_local_minima(self):
         """ Return indexes of local minima obtained after smoothing """
         inds = find_peaks(-self.y / self.y.max(), prominence=0.05)[0]
+        inds = sorted(set([0] + list(inds) + [len(self.x) - 1]))  # add extrema indices
         return inds
 
-    def fwhm(self):
-        """ Return a local estimation of fwhm """
-        fwhm = np.zeros_like(self.x)  # default values
-        inds = self.inds_local_minima()
-        inds = sorted(set([0] + list(inds) + [len(self.x) - 1]))  # add extrema indices
-        for imin, imax in zip(inds[:-1], inds[1:]):
-            fwhm[imin:imax + 1] = self.x[imax] - self.x[imin]
-        return fwhm
 
     def apply_range(self, range_min=None, range_max=None):
         """ Apply range to the raw spectrum """
@@ -445,16 +439,14 @@ class Spectrum:
     def params_from_profile(self, x0):
         """ Return model with parameters estimated from the local spectrum profile """
         inds = self.inds_local_minima()
-        inds = sorted(set([0] + list(inds) + [len(self.x) - 1]))  # add extrema indices
         i = np.searchsorted(self.x[inds], x0, side='right') - 1
         x0min, x0max = self.x[inds[i]], self.x[inds[i + 1]]
         dx0 = (x0 - x0min, x0max - x0)
         dfwhm = x0max - x0min
         # fwhm, fwhm_l, fwhm_r = max(dx0), dx0[0], dx0[1]
 
-        ind_x0 = closest_index(self.x, x0)
-        ampli = self.y_no_outliers[ind_x0]
-        fwhm = fwhm_l = fwhm_r = self.dx()[ind_x0]
+        ampli = self.y_no_outliers[closest_index(self.x, x0)]
+        fwhm = fwhm_l = fwhm_r = self.dx(x0=x0)
 
         return ampli, fwhm, fwhm_l, fwhm_r, dx0, dfwhm
 
