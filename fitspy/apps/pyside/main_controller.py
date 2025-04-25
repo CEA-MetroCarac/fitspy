@@ -352,7 +352,7 @@ class MainController(QObject):
             # self.show_toast("SUCCESS", "Saved", f"Figures saved into {directory}")
 
     def open_manual(self):
-        url = QUrl("https://cea-metrocarac.github.io/fitspy/doc/index.html")
+        url = QUrl("https://cea-metrocarac.github.io/fitspy/index.html")
         QDesktopServices.openUrl(url)
 
     def update_peaks_cmap(self):

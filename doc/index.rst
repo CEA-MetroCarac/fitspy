@@ -1,7 +1,7 @@
 |docs|_  |github|_  |pypi|_  |doi|_  |joss|_
 
 .. |docs| image:: https://img.shields.io/badge/%F0%9F%95%AE-docs-green.svg
-.. _docs: https://cea-metrocarac.github.io/fitspy/doc/index.html
+.. _docs: https://cea-metrocarac.github.io/fitspy/index.html
 
 .. |github| image:: https://img.shields.io/badge/GitHub-GPL--3.0-informational
 .. _github: https://github.com/CEA-MetroCarac/fitspy

@@ -348,7 +348,7 @@ def get_1d_profile(fname):
 def get_2d_map(fname):
     r""" Return the array related to a 2D-map.
         For more details about the array shape, see:
-        https://cea-metrocarac.github.io/fitspy/doc/user_guide/input_data.html#d-map-spectra"
+        https://cea-metrocarac.github.io/fitspy/user_guide/input_data.html#d-map-spectra"
         """
     if Path(fname).suffix in ['.txt', '.csv']:
         dfr = pd.read_csv(fname, sep='\t', header=None)

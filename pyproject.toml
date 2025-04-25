@@ -78,7 +78,7 @@ testpaths = ["tests"]
 
 [project.urls]
 Homepage = "https://github.com/CEA-MetroCarac/fitspy"
-Documentation = "https://cea-metrocarac.github.io/fitspy/doc/index.html"
+Documentation = "https://cea-metrocarac.github.io/fitspy/index.html"
 
 [project.optional-dependencies]
 dev = [
