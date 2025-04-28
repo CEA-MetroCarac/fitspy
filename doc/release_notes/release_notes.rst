@@ -1,6 +1,27 @@
 Release Notes
 =============
 
+Version 2025.5 (April 28, 2025)
+----------------------------------
+
+**New features:**
+
+- `#55 <https://github.com/cea-metrocarac/fitspy/issues/55>`_ Added Fit Statistics (PySide).
+
+**Enhancements:**
+
+- `#67 <https://github.com/cea-metrocarac/fitspy/issues/67>`_ Added Peaks Highlighting when selecting a Peak in the Peaks Table (PySide).
+
+**Bug fixes:**
+
+- Fixed `#53 <https://github.com/cea-metrocarac/fitspy/issues/53>`_ and `#54 <https://github.com/cea-metrocarac/fitspy/issues/54>`_ SpinBoxes now uses scientific notation and dynamic step.
+- Fixed `#66 <https://github.com/cea-metrocarac/fitspy/issues/66>`_ Save bichromatic settings between sessions
+- Fixed `#68 <https://github.com/cea-metrocarac/fitspy/issues/68>`_ Can't preview model when no spectrum are loaded in pyside 2025.4
+- Fixed `#69 <https://github.com/cea-metrocarac/fitspy/issues/69>`_ Peaks dissapear from plot
+- Fixed `#72 <https://github.com/cea-metrocarac/fitspy/issues/72>`_ Peaks table's columns can be too short
+- FWHM default value when changing model in Peaks Table is now the same as when adding a new peak
+
+
 Version 2025.4 (April 2, 2025)
 ----------------------------------
 
