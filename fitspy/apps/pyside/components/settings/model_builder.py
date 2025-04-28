@@ -7,6 +7,7 @@ from superqt import QCollapsible
 
 from fitspy import PEAK_MODELS, BKG_MODELS
 from fitspy.apps.pyside.utils import get_icon_path
+from fitspy.apps.pyside.components import FitStats
 from fitspy.apps.pyside.components.custom_widgets import SpinBox, DoubleSpinBox, DragNDropCombo
 from fitspy.apps.pyside.components.settings.peaks_table import PeaksTable
 from fitspy.apps.pyside.components.settings.bkg_table import BkgTable
@@ -352,6 +353,7 @@ class ModelBuilder(QWidget):
         tab_content = QWidget()
         self.peaks_table = PeaksTable(parent=self)
         self.bkg_table = BkgTable(parent=self)
+        self.fit_stats = FitStats(self)
 
         vbox_layout = QVBoxLayout()
         vbox_layout.setContentsMargins(0, 0, 0, 0)
@@ -362,6 +364,7 @@ class ModelBuilder(QWidget):
 
         self.tab_widget.addTab(tab_content, "Peaks")
         self.tab_widget.addTab(self.bkg_table, "Background")
+        self.tab_widget.addTab(self.fit_stats, "Fit statistics")
 
     def update_model(self, model):
         # Spectral range

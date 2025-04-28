@@ -3,7 +3,7 @@ from PySide6.QtCore import QSize, Qt
 from PySide6.QtWidgets import (QMainWindow, QFrame, QGridLayout, QHBoxLayout, QSplitter, QTabWidget,
                                QVBoxLayout, QWidget, QMessageBox)
 
-from fitspy.apps.pyside.components import MenuBar, About, FitStats
+from fitspy.apps.pyside.components import MenuBar, About
 from fitspy.apps.pyside.components.plot import SpectraPlot, Map2DPlot, Toolbar
 from fitspy.apps.pyside.components.settings import StatusBox, ModelBuilder, MoreSettings
 from fitspy.apps.pyside.components.files import MapsList, SpectrumList
@@ -20,7 +20,6 @@ class MainView(QMainWindow):
     def init_ui(self):
         self.setWindowTitle("Fitspy")
         self.resize(1500, 900)
-        self.fit_stats = FitStats(self)
 
         self.centralwidget = QWidget(self)
         self.verticalLayout = QVBoxLayout(self.centralwidget)
@@ -89,6 +88,7 @@ class MainView(QMainWindow):
         self.tabWidget_2.setEnabled(True)
 
         self.fit_model_editor = ModelBuilder()
+        self.fit_stats = self.fit_model_editor.fit_stats
         self.tabWidget_2.addTab(self.fit_model_editor, "Model")
 
         self.more_settings = MoreSettings()

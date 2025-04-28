@@ -30,8 +30,6 @@ class MenuBar(QToolBar):
                                       shortcut="Ctrl+Shift+C")
         self.actionRestoreDefaults = QAction(self, icon=QIcon(get_icon_path("reinit_settings.png")),
                                              toolTip="Restore default settings")
-        self.actionFitStats = QAction(self, icon=QIcon(get_icon_path("fit_stats.png")),
-                                      toolTip="Fit statistics")
 
         self.setMinimumSize(QSize(0, 0))
         self.setMaximumSize(QSize(16777215, 50))
@@ -45,7 +43,6 @@ class MenuBar(QToolBar):
             self.actionSaveData,
             self.actionClearEnv,
             self.actionRestoreDefaults,
-            self.actionFitStats,
             None,  # Separator
             QWidget(self),  # Spacer
             self.actionTheme,

@@ -48,7 +48,6 @@ class MainController(QObject):
         self.view.menuBar.actionRestoreDefaults.triggered.connect(
             self.model.restore_defaults
         )
-        self.view.menuBar.actionFitStats.triggered.connect(self.show_fit_stats)
         self.view.menuBar.actionTheme.triggered.connect(
             lambda: self.set_setting(
                 "theme", "light" if self.model.theme == "dark" else "dark"
