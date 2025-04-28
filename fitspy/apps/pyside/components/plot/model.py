@@ -255,7 +255,6 @@ class Model(QObject):
                 if dist < dist_min:
                     dist_min, ind_min = dist, i
             first_spectrum.del_peak_model(ind_min)
-            first_spectrum.result_fit = lambda: None
         self.PeaksChanged.emit(first_spectrum)
         self.refreshPlot.emit()
 

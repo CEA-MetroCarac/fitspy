@@ -178,9 +178,6 @@ class PlotController(QObject):
             return self.model.current_spectra
         return self.model.spectra.get_objects(fname)[0]
 
-    # def get_fit_models(self, delimiter):
-    #     return self.model.get_fit_models(delimiter)
-
     def outliers_calculation(self, coef):
         self.model.spectra.outliers_limit_calculation(coef=coef)
         self.update_spectraplot()
@@ -278,7 +275,6 @@ class PlotController(QObject):
         if not self.model.current_spectra:
             return
         spectrum = self.model.current_spectra[0]
-        spectrum.result_fit = lambda: None
         spectrum.set_attributes(peaks)
         self.update_spectraplot()
 
