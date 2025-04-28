@@ -190,12 +190,12 @@ class Fitting(QCollapsible):
 
         h_layout = QHBoxLayout()
         h_layout.setSpacing(5)
-        h_layout.setStretch(2, 65)
         h_layout.setContentsMargins(0, 0, 0, 0)
         h_layout.addWidget(label)
         h_layout.addItem(spacer)
         h_layout.addWidget(combo_box)
         h_layout.addWidget(add)
+        h_layout.setStretch(2, 1)
 
         layout.addLayout(h_layout)
 
