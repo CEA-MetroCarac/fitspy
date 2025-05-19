@@ -449,26 +449,6 @@ class Spectrum:
 
         return ampli, fwhm, fwhm_l, fwhm_r, dx0, dfwhm
 
-    # def params_from_profile(self, model, x0):
-    #     """ Return model with parameters estimated from the local spectrum profile """
-    #     inds = self.inds_local_minima()
-    #     inds = sorted(set([0] + list(inds) + [len(self.x) - 1]))  # add extrema indices
-    #     i = np.searchsorted(self.x[inds], x0, side='right') - 1
-    #     mask = (self.x >= self.x[inds[i]]) & (self.x <= self.x[inds[i + 1]])
-    #     x, y = self.x[mask], self.y[mask]
-    #     model.set_param_hint('x0', min=x[0])
-    #     model.set_param_hint('x0', max=x[-1])
-    #     imax = np.argmax(y)
-    #     params = model.make_params(ampli=y[imax], x0=x[imax])
-    #     result = model.fit(y, params, x=x)
-    #     for key in model.param_names:
-    #         param = result.params[key]
-    #         name = key[4:]  # remove prefix 'mXX_'
-    #         model.set_param_hint(name, value=param.value)
-    #         if 'fwhm' in name:
-    #             model.set_param_hint(name, max=1.5 * param.value)
-    #     return model
-
     def add_peak_model(self, model_name, x0, ampli=None,
                        fwhm=None, fwhm_l=None, fwhm_r=None, alpha=0.5,
                        dx0=None, dfwhm=None):

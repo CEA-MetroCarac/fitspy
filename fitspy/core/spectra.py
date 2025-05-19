@@ -67,15 +67,15 @@ class Spectra(list):
         # Get all y0 values
         intensities = [spectrum.y0 for spectrum in self.all]
         max_len = max(len(y0) for y0 in intensities)
-        
+
         # Pad shorter arrays with NaN to match max length
         padded = [
             np.pad(y0, (0, max_len - len(y0)),
-                mode='constant',
-                constant_values=np.nan) if len(y0) < max_len else y0
+                   mode='constant',
+                   constant_values=np.nan) if len(y0) < max_len else y0
             for y0 in intensities
         ]
-        
+
         return np.asarray(padded)
 
     def get_spectrum(self, fname):
@@ -102,11 +102,11 @@ class Spectra(list):
     def outliers_limit_calculation(self, coef=1.5, nmax=5):
         """ Calculate the outliers limit from 'coef' * intensity_ref """
         intensity = self.intensity()
-        
+
         # Get mean of top nmax values for each wavelength point
         sorted_values = -np.sort(-intensity, axis=0)
         intensity_ref = np.nanmean(sorted_values[:nmax], axis=0)
-        
+
         outliers_limit = coef * intensity_ref
         for spectrum in self.all:
             spectrum.outliers_limit = outliers_limit[:len(spectrum.y0)]
@@ -281,38 +281,6 @@ class Spectra(list):
                 sys.stdout.write(msg)
         if show_progressbar:
             print()
-
-    # def set_attributes(self, models, delimiter="", map_name="None"):
-    #     # Determine if models have integer keys
-    #     keys_are_int = all(isinstance(key, int) for key in models.keys())
-    #
-    #     if keys_are_int:
-    #         # Handle old JSON structure where keys are integers
-    #         fname_to_model = {
-    #             os.path.normpath(model.get("fname")): model
-    #             for model in models.values()
-    #             if model.get("fname")
-    #         }
-    #     else:
-    #         fname_to_model = models
-    #
-    #     # For each spectrum, find and apply the corresponding model
-    #     for spectrum in self:
-    #         normalized_fname = os.path.normpath(spectrum.fname)
-    #         if keys_are_int:
-    #             key = normalized_fname
-    #         else:
-    #             key = f"{map_name}{DELIMITER}{normalized_fname}"
-    #
-    #         model = fname_to_model.get(key)
-    #         if model:
-    #             spectrum.set_attributes(model)
-    #
-    #     # recursively set attributes for spectra maps
-    #     if hasattr(self, "spectra_maps"):
-    #         for spectramap in self.spectra_maps:
-    #             normalized_fname = os.path.normpath(spectramap.fname)
-    #             spectramap.set_attributes(fname_to_model, DELIMITER, normalized_fname)
 
     def save(self, fname_json=None, fnames=None, save_data=False):
         """

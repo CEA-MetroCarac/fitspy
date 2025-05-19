@@ -198,7 +198,7 @@ class MainController(QObject):
             self.model.bichromatic_models_enable
         )
         for (
-            button
+                button
         ) in self.view.more_settings.other_settings.bichromatic_group.buttons():
             if button.text() == self.model.bichromatic_models_mode:
                 button.setChecked(True)
@@ -218,8 +218,8 @@ class MainController(QObject):
         radio_button.setChecked(True)
 
         for (
-            label,
-            checkbox,
+                label,
+                checkbox,
         ) in self.view.toolbar.view_options.checkboxes.items():
             setting = f"view_options_{to_snake_case(label)}"
             state = getattr(self.model, setting)
@@ -260,7 +260,7 @@ class MainController(QObject):
         # if self.files_controller.get_all_spectrum_ids(DELIMITER):
         if len(self.plot_controller.model.spectra) > 0:
             if not self.show_confirmation_dialog(
-                "Current work will be cleared. Continue ?"
+                    "Current work will be cleared. Continue ?"
             ):
                 return
 
@@ -337,17 +337,10 @@ class MainController(QObject):
         self.plot_controller.outliers_calculation(self.model.outliers_coef)
 
     def apply_baseline(self):
-        # mode = self.settings_controller.get_baseline_mode()
-        # if mode == "Semi-Auto" and len(self.files_controller.get_selected_fnames()) > 20:
-        #     self.show_confirmation_dialog(
-        #         "Processing Semi-Auto on more than 20 spectra may take a long time. Continue ?",
-        #         self.plot_controller.apply_baseline)
-        # else:
-        #     self.plot_controller.apply_baseline()
         self.plot_controller.apply_baseline()
 
     def show_confirmation_dialog(
-        self, message, callback=None, args=(), kwargs=None
+            self, message, callback=None, args=(), kwargs=None
     ):
         reply = QMessageBox.question(
             None,

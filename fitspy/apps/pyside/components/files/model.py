@@ -73,51 +73,6 @@ class Model(QObject):
         # Emit the signal once for the modified spectramap
         self.spectrumListChanged.emit(spectramap)
 
-    # def load_saved_work(self, files):
-    #     """Load saved work if a .fspy file is present."""
-    #
-    #     def handle_loading(data):
-    #         self.clear.emit()
-    #         self.load_files(
-    #             data["files"]["spectrum_list"] + data["files"]["maps_list"]
-    #         )
-    #         self.loadState.emit(data["selected"], data["models"])
-    #         self.showToast.emit("SUCCESS", "Work loaded.", "")
-    #
-    #     if isinstance(files, str):
-    #         files = [files]
-    #     elif not isinstance(files, list):
-    #         raise TypeError(
-    #             "files must be a list of file paths or a single file path as a string"
-    #         )
-    #
-    #     fitspy_files = [f for f in files if f.endswith(".fspy")]
-    #
-    #     if len(fitspy_files) == 1:
-    #         fitspy_file = fitspy_files[0]
-    #         files.remove(fitspy_file)
-    #         data = load_from_json(fitspy_file)
-    #         # No confirmation needed if workspace is empty
-    #         if not self.spectramaps_fnames and not self.spectrum_fnames:
-    #             handle_loading(data)
-    #         else:
-    #             self.askConfirmation.emit(
-    #                 "Loading .fspy work will replace current work. Continue ?",
-    #                 lambda: handle_loading(data),
-    #                 (),
-    #                 {},
-    #             )
-    #
-    #     if len(fitspy_files) > 1:
-    #         self.showToast.emit(
-    #             "WARNING",
-    #             "Only one work can be loaded at a time.",
-    #             "Please select only one .fspy file or .json/.txt files.",
-    #         )
-    #         files = [f for f in files if f not in fitspy_files]
-    #
-    #     return files
-
     def load_saved_work(self, files):
         """ Load saved work from a .json file """
 

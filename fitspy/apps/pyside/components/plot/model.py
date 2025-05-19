@@ -62,9 +62,6 @@ class Model(QObject):
     def spectra(self):
         return self._spectra
 
-    # def parent(self):
-    #     return self.current_map or self.spectra
-
     def load_spectra(self, models):
         """ Load spectra from 'models' related to a .json file """
         self._spectra = Spectra.load(dict_spectra=models, preprocess=True)
@@ -88,37 +85,6 @@ class Model(QObject):
                 self.spectrumLoaded.emit(fname)
             except:
                 self.showToast.emit("ERROR", "Failed to load spectrum", fname)
-
-    # def del_spectrum(self, items):
-    #     """Remove the spectrum(s) with the given file name(s).
-    #
-    #     Args:
-    #         items (dict): A dictionary where keys can be None or a spectramap fname,
-    #                     and values are always a list of fname.
-    #     """
-    #     deleted_spectra = defaultdict(list)
-    #
-    #     for map_fname, fnames in items.items():
-    #         if map_fname:
-    #             parent = next(
-    #                 (
-    #                     sm
-    #                     for sm in self.spectra.spectra_maps
-    #                     if sm.fname == map_fname
-    #                 ),
-    #                 None,
-    #             )
-    #         else:
-    #             parent = self.spectra
-    #
-    #         for fname in fnames:
-    #             spectrum = self.spectra.get_objects(fname)[0]
-    #             parent.remove(spectrum)
-    #
-    #             parent_fname = getattr(parent, "fname", None)
-    #             deleted_spectra[parent_fname].append(fname)
-    #
-    #     self.spectrumDeleted.emit(deleted_spectra)
 
     def del_spectrum(self, items):
         """
@@ -291,54 +257,6 @@ class Model(QObject):
             ax.get_figure().canvas.draw_idle()
             return fnames
 
-    # def on_motion(self, ax, event):
-    #     def annotate_params(i, color="k"):
-    #         """Annotate figure with fit parameters"""
-    #         spectrum = self.current_spectra[0]
-    #         x = spectrum.x
-    #         if not self.line_bkg_visible:
-    #             model = spectrum.peak_models[i]
-    #             x0 = model.param_hints["x0"]["value"]
-    #         elif i == 0:
-    #             model = spectrum.bkg_model
-    #             x0 = 0.5 * (x[0] + x[-1])
-    #         else:
-    #             model = spectrum.peak_models[i - 1]
-    #             x0 = model.param_hints["x0"]["value"]
-    #
-    #         y0 = model.eval(model.make_params(), x=x0)
-    #         xy = (x0, min(y0, ax.get_ylim()[1]))
-    #
-    #         text = []
-    #         for name, val in model.param_hints.items():
-    #             text.append(f"{name}: {val['value']:.4g}")
-    #         text = "\n".join(text)
-    #
-    #         bbox = dict(facecolor="w", edgecolor=color, boxstyle="round")
-    #         self.tmp = ax.annotate(
-    #             text, xy=xy, xycoords="data", bbox=bbox, verticalalignment="top"
-    #         )
-    #     if len(self.lines) > len(self.current_spectra) and event.inaxes == ax:
-    #         # self.lines is like so: [spectrum1, ...(peaks...), spectrumN]
-    #         # this func need to only highlight [...(peaks...)] (without first and secondaries
-    #         spectra)
-    #         num_secondary = len(self.current_spectra) - 1
-    #         highlight_lines = (
-    #             self.lines[1:]
-    #             if num_secondary == 0
-    #             else self.lines[1:-num_secondary]
-    #         )
-    #         for i, line in enumerate(highlight_lines):
-    #             if line.contains(event)[0]:
-    #                 line.set_linewidth(3)
-    #                 if self.tmp is not None:
-    #                     self.tmp.remove()
-    #                 annotate_params(i, color=line.get_c())
-    #             else:
-    #                 line.set_linewidth(self.linewidth)
-    #
-    #         ax.figure.canvas.draw_idle()
-
     def highlight_peak(self, ax, peak_index, xdata=None, ydata=None):
         """Highlight a peak by its index (for table hover/click)."""
         # Remove previous highlights
@@ -353,7 +271,7 @@ class Model(QObject):
         line = lines[peak_index]
         if line.axes is None or line.figure is None:
             return
-        
+
         # Highlight the line
         x = line.get_xdata()
         y = line.get_ydata()
@@ -378,8 +296,8 @@ class Model(QObject):
 
         # Default annotation position to center
         if xdata is None or ydata is None:
-            xdata = x[len(x)//2] if len(x) else 0
-            ydata = y[len(y)//2] if len(y) else 0
+            xdata = x[len(x) // 2] if len(x) else 0
+            ydata = y[len(y) // 2] if len(y) else 0
         annotate_params(xdata, ydata, peak_index, color)
         ax.figure.canvas.draw_idle()
 
@@ -419,154 +337,6 @@ class Model(QObject):
 
     def store_original_view_limits(self, ax):
         self.original_xlim, self.original_ylim = self.get_view_limits(ax)
-
-    # @measure_time
-    # def update_spectraplot(self, ax, view_options):
-    #     """Update the plot with the current spectra"""
-    #     xlim, ylim = self.get_view_limits(ax)
-    #     if not hasattr(self, "original_xlim") or not hasattr(
-    #         self, "original_ylim"
-    #     ):
-    #         self.store_original_view_limits(ax)
-    #
-    #     current_title = ax.get_title()
-    #     ax.clear()
-    #     ax.set_title(current_title)
-    #
-    #     if not self.current_spectra:
-    #         ax.get_figure().canvas.draw_idle()
-    #         return
-    #
-    #     first_spectrum = True
-    #     for spectrum in self.current_spectra:
-    #         x0 = spectrum.x0.copy()
-    #
-    #         # Plot outliers in green
-    #         x_outliers, y_outliers = spectrum.calculate_outliers()
-    #         if x_outliers is not None:
-    #             ax.plot(x_outliers, y_outliers, "o", c="lime")
-    #
-    #         if first_spectrum and not view_options.get("Raw", False):
-    #             result_fit = spectrum.result_fit
-    #             baseline = spectrum.baseline
-    #
-    #             # baseline plotting
-    #             if not baseline.is_subtracted:
-    #                 x, y = spectrum.x, None
-    #                 if baseline.attached or baseline.mode == "Semi-Auto":
-    #                     y = spectrum.y
-    #                 baseline.plot(ax, x, y, attached=baseline.attached)
-    #
-    #             # Main spectrum plotting
-    #             self.lines = spectrum.plot(
-    #                 ax,
-    #                 show_outliers=view_options["Outliers"],
-    #                 show_outliers_limit=view_options["Outliers limits"],
-    #                 show_negative_values=view_options["Negative values"],
-    #                 show_peak_models=view_options["Peaks"],
-    #                 show_noise_level=view_options["Noise level"],
-    #                 show_baseline=view_options["Baseline"],
-    #                 show_background=view_options["Background"],
-    #                 subtract_baseline=view_options["Subtract bkg+baseline"],
-    #                 subtract_bkg=view_options["Subtract bkg+baseline"],
-    #                 show_result=view_options["Fit"],
-    #             )
-    #             self.line_bkg_visible = (
-    #                 view_options.get("Background", False) and spectrum.bkg_model
-    #             )
-    #
-    #             # Peak labels
-    #             if view_options.get("Peak labels", True):
-    #                 from fitspy.core import closest_index
-    #
-    #                 LABEL_OFFSET_RATIO = (
-    #                     0.005  # Ratio to offset label above the peak
-    #                 )
-    #                 YLIM_BUFFER_RATIO = 0.05  # Ratio to extend y-axis limit
-    #
-    #                 dy = LABEL_OFFSET_RATIO * spectrum.y.max()
-    #                 annotation_y = []
-    #                 for i, label in enumerate(spectrum.peak_labels):
-    #                     if not label:
-    #                         continue
-    #                     model = spectrum.peak_models[i]
-    #                     x0 = model.param_hints["x0"]["value"]
-    #                     y = spectrum.y[closest_index(spectrum.x, x0)]
-    #
-    #                     if (
-    #                             view_options.get("Subtract bkg+baseline")
-    #                             and spectrum.bkg_model is not None
-    #                     ):
-    #                         bkg_model = spectrum.bkg_model
-    #                         y_bkg = bkg_model.eval(bkg_model.make_params(), x=spectrum.x)
-    #                         y -= y_bkg[closest_index(spectrum.x, x0)]
-    #
-    #                     xy = (x0, y + dy)
-    #                     annotation_y.append(
-    #                         y + dy + LABEL_OFFSET_RATIO * spectrum.y.max()
-    #                     )
-    #
-    #                     ax.annotate(
-    #                         label,
-    #                         xy=xy,
-    #                         xytext=(0, 20),
-    #                         xycoords="data",
-    #                         textcoords="offset points",
-    #                         ha="center",
-    #                         size=14,
-    #                         arrowprops=dict(fc="k", arrowstyle="->"),
-    #                         verticalalignment="bottom",
-    #                         annotation_clip=True,
-    #                     )
-    #
-    #                 # Adjust y-axis to contain peak labels
-    #                 if annotation_y:
-    #                     max_annotation_y = max(annotation_y)
-    #                     current_ylim = ax.get_ylim()
-    #                     if max_annotation_y > current_ylim[1]:
-    #                         ax.set_ylim(
-    #                             top=max_annotation_y
-    #                             + YLIM_BUFFER_RATIO * spectrum.y.max()
-    #                         )
-    #
-    #             if hasattr(result_fit, "success") and result_fit.success:
-    #                 self.linewidth = 1
-    #
-    #             first_spectrum = False
-    #         else:
-    #             x, y = spectrum.x.copy(), spectrum.y.copy()
-    #
-    #             # Subtract baseline
-    #             if spectrum.baseline.y_eval is not None:
-    #                 if view_options["Subtract bkg+baseline"] and not
-    #                 spectrum.baseline.is_subtracted:
-    #                     y -= spectrum.baseline.y_eval
-    #                 elif not view_options["Subtract bkg+baseline"] and
-    #                 spectrum.baseline.is_subtracted:
-    #                     y += spectrum.baseline.y_eval
-    #
-    #             # Subtract background model
-    #             if (
-    #                 spectrum.bkg_model is not None
-    #                 and view_options["Subtract bkg+baseline"]
-    #             ):
-    #                 y_bkg = spectrum.bkg_model.eval(
-    #                     spectrum.bkg_model.make_params(), x=x
-    #                 )
-    #                 y -= y_bkg
-    #             self.lines += ax.plot(x, y, "k-", lw=0.2, zorder=0)
-    #
-    #     if view_options.get("Legend", False):
-    #         ax.legend()
-    #
-    #     self.tmp = None
-    #     self.linewidth = 0.5
-    #
-    #     if view_options.get("Preserve axes", False):
-    #         self.set_view_limits(ax, xlim, ylim)
-    #
-    #     # refresh the plot
-    #     ax.get_figure().canvas.draw_idle()
 
     # @measure_time
     def update_spectraplot(self, ax, view_options):
@@ -706,23 +476,6 @@ class Model(QObject):
         self.colorizeFromFitStatus.emit(fit_status)
         self.PeaksChanged.emit(self.current_spectra[0])
         self.refreshPlot.emit()
-
-    # def get_fit_models(self, delimiter):
-    #     def process_spectrum(spectrum, prefix=""):
-    #         model_dict = spectrum.save()
-    #         model_dict["baseline"].pop("y_eval", None)
-    #         # model_dict.pop("y_bkg", None)
-    #         fit_models[f"{prefix}{spectrum.fname}"] = model_dict
-    #
-    #     fit_models = {}
-    #     for spectramap in self.spectra.spectra_maps:
-    #         for spectrum in spectramap:
-    #             process_spectrum(spectrum, f"{spectramap.fname}{delimiter}")
-    #
-    #     for spectrum in self.spectra:
-    #         process_spectrum(spectrum, f"None{delimiter}")
-    #
-    #     return fit_models
 
     def save_models(self, fname_json, fnames=None):
         self.spectra.save(fname_json, fnames=fnames)

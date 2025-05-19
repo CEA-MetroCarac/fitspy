@@ -228,17 +228,6 @@ class SpectraMap(Spectra):
 
         self.ax.get_figure().canvas.draw_idle()
 
-    # def remove_marker(self, canvas=None):
-    #     """ Remove the marker in the 2D-map """
-    #     if canvas is None:
-    #         fig = self.ax.get_figure()
-    #         canvas = fig.canvas
-    #
-    #     if self.marker is not None:
-    #         [x.remove() for x in self.marker]
-    #         canvas.draw_idle()
-    #         self.marker = None
-
     def set_marker(self, spectrum_id, canvas=None):
         """
         Set a marker on the plot.

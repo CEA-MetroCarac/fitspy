@@ -1,6 +1,5 @@
 import re
 from pathlib import Path
-# import importlib.resources as pkg_resources
 import numpy as np
 
 from PySide6.QtWidgets import QWidget
@@ -43,7 +42,6 @@ def to_title_case(any_case_str):
 
 def get_icon_path(icon_name):
     """ Return the QIcon object from the icon name """
-    # icon_path = pkg_resources.files('fitspy.resources.iconpack') / icon_name
     icon_path = Path(__file__).parents[2] / "resources" / "iconpack" / icon_name
     return str(icon_path)
 
