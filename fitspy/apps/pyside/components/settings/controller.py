@@ -81,12 +81,11 @@ class SettingsController(QObject):
         normalization.range_max.editingFinished.connect(self.apply_normalization)
 
         # Fitting settings
-        model_settings.fitting.peak_model.currentTextChanged.connect(self.switch_peak_model)
-        model_settings.fitting.bkg_model.currentTextChanged.connect(self.switch_bkg_model)
-        model_settings.fitting.loadPeakModel.connect(
-            lambda fname: self.load_user_models(PEAK_MODELS, fname))
-        model_settings.fitting.loadBkgModel.connect(
-            lambda fname: self.load_user_models(BKG_MODELS, fname))
+        fitting = model_settings.fitting
+        fitting.peak_model.currentTextChanged.connect(self.switch_peak_model)
+        fitting.bkg_model.currentTextChanged.connect(self.switch_bkg_model)
+        fitting.loadPeakModel.connect(lambda fname: self.load_user_models(PEAK_MODELS, fname))
+        fitting.loadBkgModel.connect(lambda fname: self.load_user_models(BKG_MODELS, fname))
 
         # Save model
         model_settings.save.clicked.connect(self.saveModels)
@@ -131,14 +130,12 @@ class SettingsController(QObject):
         self.solver_settings.xtol.valueChanged.connect(
             lambda value: self.update_and_emit("fit_params.xtol", value))
 
+        self.other_settings.cb_bichromatic.toggled.connect(fitting.update_combo_boxes)
+
         self.other_settings.cb_bichromatic.toggled.connect(
-            lambda checked: self.settingChanged.emit(
-                "bichromatic_models_enable", checked
-        ))
+            lambda checked: self.settingChanged.emit("bichromatic_models_enable", checked))
         self.other_settings.bichromatic_group.buttonClicked.connect(
-            lambda button: self.settingChanged.emit(
-                "bichromatic_models_mode", button.text()
-        ))
+            lambda button: self.settingChanged.emit("bichromatic_models_mode", button.text()))
         self.other_settings.outliers_coef.valueChanged.connect(
             lambda value: self.settingChanged.emit("outliers_coef", value))
         self.other_settings.outliers_calculation.clicked.connect(self.calculateOutliers)
