@@ -267,8 +267,6 @@ class BBox:
             self.x0 += dx
             ind = closest_index(self.spectrum.x, self.x0)
             self.ampli = self.spectrum.y[ind]
-            # self.fwhm[0] = self.fwhm[1] = self.spectrum.fwhm()[ind]
-            # self.dfwhm[0] = self.dfwhm[1] = 2 * self.fwhm[0]
 
         elif self.dragging['move'] == 'dx0[0]':
             self.dx0[0] = max(0, self.dx0[0] - dx)
@@ -323,7 +321,9 @@ if __name__ == "__main__":
 
     _, ax = plt.subplots()
     ax.plot(spectrum.x, spectrum.y)
-    ax.plot(spectrum.x, spectrum.fwhm())
+    inds = spectrum.inds_local_minima()
+    for ind in inds:
+        ax.axvline(spectrum.x[ind], ls=':', lw=0.3)
 
     bboxes = InteractiveBounds(spectrum, ax, model='Gaussian')
     plt.show()
