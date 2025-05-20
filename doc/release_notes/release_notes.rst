@@ -1,8 +1,16 @@
 Release Notes
 =============
 
+Version 2025.6 (May 19, 2025)
+-----------------------------
+
+**Bug fixes:**
+
+- Fixed `#76 <https://github.com/cea-metrocarac/fitspy/issues/76>`_  Bichromatic models appear now in 'Peak model' combobox.
+
+
 Version 2025.5 (April 28, 2025)
-----------------------------------
+-------------------------------
 
 **New features:**
 
@@ -23,7 +31,7 @@ Version 2025.5 (April 28, 2025)
 
 
 Version 2025.4 (April 2, 2025)
-----------------------------------
+------------------------------
 
 **New features:**
 
@@ -45,7 +53,7 @@ Version 2025.4 (April 2, 2025)
 
 
 Version 2025.3 (March 14, 2025)
-----------------------------------
+-------------------------------
 
 **Enhancements:**
 
