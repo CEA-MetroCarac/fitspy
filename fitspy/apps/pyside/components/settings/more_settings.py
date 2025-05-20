@@ -179,8 +179,9 @@ class OtherSettings(QGroupBox):
         models_bichromatic.MODE = self.bichromatic_group.checkedButton().text()
         if self.cb_bichromatic.isChecked():
             models_bichromatic.add_models()
-        else:
-            models_bichromatic.remove_models()
+        # WARNING : to maintain consistency, models cannot be removed once added
+        # else:
+        #     models_bichromatic.remove_models()
         DEFAULTS['bichromatic_models']['enable'] = self.cb_bichromatic.isChecked()
         DEFAULTS['bichromatic_models']['mode'] = self.bichromatic_group.checkedButton().text()
 
