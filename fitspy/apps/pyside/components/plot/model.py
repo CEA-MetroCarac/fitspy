@@ -339,7 +339,7 @@ class Model(QObject):
         self.original_xlim, self.original_ylim = self.get_view_limits(ax)
 
     # @measure_time
-    def update_spectraplot(self, ax, view_options):
+    def update_spectraplot(self, ax, view_options, toolbar):
         """Update the plot with the current spectra"""
         xlim, ylim = self.get_view_limits(ax)
         if not hasattr(self, "original_xlim") or not hasattr(self, "original_ylim"):
@@ -448,8 +448,10 @@ class Model(QObject):
         if view_options.get("Y-log", False):
             ax.set_yscale("log")
 
-        # refresh the plot
+        # refresh the plot and the toolbar
         ax.figure.canvas.draw_idle()
+        toolbar.update()
+        toolbar.push_current()
 
     def apply_model(self, model_dict=None, fnames=None, ncpus=None):
         """Apply model to the selected spectra"""

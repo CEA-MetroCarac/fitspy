@@ -171,7 +171,7 @@ class PlotController(QObject):
     def update_spectraplot(self):
         ax = self.spectra_plot.ax
         view_options = self.view_options.get_view_options()
-        self.model.update_spectraplot(ax, view_options)
+        self.model.update_spectraplot(ax, view_options, self.toolbar.mpl_toolbar)
 
     def get_spectra(self, fname=None):
         if fname is None:
