@@ -375,6 +375,7 @@ class Model(QObject):
                 show_outliers_limit=view_options["Outliers limits"] * first_spectrum,
                 show_negative_values=view_options["Negative values"] * first_spectrum,
                 show_peak_models=view_options["Peaks"] * (not interactive_bounds) * first_spectrum,
+                show_peak_decomposition=view_options["Peak decomposition"] * first_spectrum,
                 show_noise_level=view_options["Noise level"] * first_spectrum,
                 show_baseline=view_options["Baseline"] * first_spectrum,
                 show_background=view_options["Background"] * first_spectrum,

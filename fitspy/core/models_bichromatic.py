@@ -19,9 +19,14 @@ AMPLITUDE_RATIO = {'Cu': .558282 / .29913,
                    'Ag': .5411 / .2865,
                    'Co': .58292 / .29807}
 CATHODES = WAVELENGTH_RATIO.keys()
+COEFS = (1, 1)
 
 
-def pseudovoigt_ka12(x, ampli, fwhm, x0, alpha=0.5, cathode='Cu'):
+def is_bichromatic(name):
+    return 'PseudoVoigtKa12' in name
+
+
+def pseudovoigt_ka12(x, ampli, fwhm, x0, alpha=0.5, cathode='Cu', coefs=COEFS):
     r"""
     Return a double Pseudovoigt function often used in X-Ray Diffraction when
     using a lab source delivering a bichromatic beam.
@@ -51,6 +56,8 @@ def pseudovoigt_ka12(x, ampli, fwhm, x0, alpha=0.5, cathode='Cu'):
        gaussian weight of the pseudo-Voigt
     cathode: str
        element of the X-ray source cathode
+    coefs: iterable of 2 floats
+        coefficients applied to each peak contribution. default values are (1, 1)
 
     Example
     -------
@@ -78,54 +85,66 @@ def pseudovoigt_ka12(x, ampli, fwhm, x0, alpha=0.5, cathode='Cu'):
     else:  # 'qx'
         x02 = ratio * x0
     fwhm2 = fwhm  # small approx
-    return pseudovoigt(x, ampli, fwhm, x0, alpha=alpha) + \
-        pseudovoigt(x, ampli2, fwhm2, x02, alpha=alpha)
+
+    return coefs[0] * pseudovoigt(x, ampli, fwhm, x0, alpha=alpha) + \
+        coefs[1] * pseudovoigt(x, ampli2, fwhm2, x02, alpha=alpha)
 
 
-def pseudovoigt_ka12_Cu(x, ampli, fwhm, x0, alpha=0.5):
-    """ PseudoVoigt Bi-chromatic related to 'Cu' cathode """
-    return pseudovoigt_ka12(x, ampli, fwhm, x0, alpha, cathode='Cu')
+def make_pseudovoigt_ka12_for(cathode):
+    """ Return function associated with the 'given' cathode """
+    assert cathode in CATHODES
 
+    from fitspy.core import models_bichromatic
 
-def pseudovoigt_ka12_Mo(x, ampli, fwhm, x0, alpha=0.5):
-    """ PseudoVoigt Bi-chromatic related to 'Mo' cathode """
-    return pseudovoigt_ka12(x, ampli, fwhm, x0, alpha, cathode='Mo')
+    def func(x, ampli, fwhm, x0, alpha=0.5):
+        return pseudovoigt_ka12(x, ampli, fwhm, x0, alpha,
+                                cathode=cathode,
+                                coefs=models_bichromatic.COEFS)
 
-
-def pseudovoigt_ka12_Ag(x, ampli, fwhm, x0, alpha=0.5):
-    """ PseudoVoigt Bi-chromatic related to 'Ag' cathode """
-    return pseudovoigt_ka12(x, ampli, fwhm, x0, alpha, cathode='Ag')
-
-
-def pseudovoigt_ka12_Co(x, ampli, fwhm, x0, alpha=0.5):
-    """ PseudoVoigt Bi-chromatic related to 'Co' cathode """
-    return pseudovoigt_ka12(x, ampli, fwhm, x0, alpha, cathode='Co')
+    func.__name__ = f"pseudovoigt_ka12_{cathode}"
+    func.__doc__ = f"PseudoVoigt Bi-chromatic related to '{cathode}' cathode"
+    return func
 
 
 def add_models():
     """ Add bichromatic models in the PEAK_MODELS list """
     for cathode in CATHODES:
-        PEAK_MODELS.update({f"PseudoVoigtKa12_{cathode}": eval(f"pseudovoigt_ka12_{cathode}")})
+        PEAK_MODELS.update({f"PseudoVoigtKa12_{cathode}": make_pseudovoigt_ka12_for(cathode)})
 
 
-def remove_models():
-    """ Remove bichromatic models in the PEAK_MODELS list """
-    for cathode in CATHODES:
-        PEAK_MODELS.pop(f"PseudoVoigtKa12_{cathode}", None)
+# WARNING : to maintain consistency, it is normally recommended not to remove models once added
+# def remove_models():
+#     """ Remove bichromatic models in the PEAK_MODELS list """
+#     for cathode in CATHODES:
+#         PEAK_MODELS.pop(f"PseudoVoigtKa12_{cathode}", None)
+
+def plot_decomposition(ax, model, x, params, lw=None, color=None):
+    """ Plot each peak contribution """
+    if is_bichromatic(model.name2):
+        from fitspy.core import models_bichromatic
+        models_bichromatic.COEFS = (1, 0)
+        ax.plot(x, model.eval(params, x=x), lw=lw, color=color)
+        models_bichromatic.COEFS = (0, 1)
+        ax.plot(x, model.eval(params, x=x), lw=lw, color=color)
+        models_bichromatic.COEFS = (1, 1)
 
 
 if __name__ == "__main__":
+    from fitspy.core.spectrum import Spectrum
     import matplotlib.pyplot as plt
 
     MODE = '2θ'
     # MODE = 'qx'
 
-    x = np.linspace(-10, 10, 201)
-    plt.figure()
-    plt.plot(x, pseudovoigt_ka12_Cu(x, ampli=100, fwhm=.5, x0=69.14, alpha=0.5))
-    plt.show()
+    add_models()
+    model_name = "PseudoVoigtKa12_Ag"
 
-    x = np.linspace(1.8, 2.2, 2000)
-    plt.figure()
-    plt.plot(x, pseudovoigt_ka12_Ag(x, ampli=10, fwhm=0.01, x0=2))
+    spectrum = Spectrum()
+    spectrum.x = np.linspace(1.8, 2.2, 2000)
+    spectrum.y = PEAK_MODELS[model_name](spectrum.x, ampli=10, fwhm=0.01, x0=2)
+    spectrum.add_peak_model(model_name, x0=2)
+    spectrum.fit()
+
+    _, ax = plt.subplots()
+    spectrum.plot(ax)
     plt.show()

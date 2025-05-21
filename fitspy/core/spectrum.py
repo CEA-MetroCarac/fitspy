@@ -23,6 +23,7 @@ from fitspy.core.utils import get_1d_profile
 from fitspy.core.utils import closest_index, fileparts, check_or_rename
 from fitspy.core.utils import save_to_json, load_from_json, eval_noise_amplitude
 from fitspy.core.baseline import BaseLine
+from fitspy.core.models_bichromatic import plot_decomposition
 
 CMAP_PEAKS = matplotlib.colormaps['tab10']
 
@@ -783,7 +784,7 @@ class Spectrum:
              show_outliers=True, show_outliers_limit=True,
              show_negative_values=True, show_noise_level=True,
              show_baseline=True, show_background=True,
-             show_peak_models=True, show_result=True,
+             show_peak_models=True, show_peak_decomposition=True, show_result=True,
              subtract_baseline=True, subtract_bkg=True,
              label=None, kwargs=None, cmap_peaks=None):
         """ Plot the spectrum with the peak models """
@@ -863,10 +864,14 @@ class Spectrum:
                 y_peaks += y_peak
 
                 if show_peak_models:
-                    line, = ax.plot(x, y_peak, lw=linewidth, color=cmap_peaks(i % cmap_peaks.N),
-                                    # color=cmap(i % num_colors) if cmap else 'k',
-                                    label=f'{label}_Peak_{i}' if label else None)
+                    color = cmap_peaks(i % cmap_peaks.N)
+                    label = f'{label}_Peak_{i}' if label else None
+
+                    line, = ax.plot(x, y_peak, lw=linewidth, color=color, label=label)
                     lines.append(line)
+
+                    if show_peak_decomposition:
+                        plot_decomposition(ax, peak_model, x, params, lw=linewidth, color=color)
 
         if show_result and hasattr(self.result_fit, 'success'):
             y_fit = y_bkg + y_peaks
