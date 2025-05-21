@@ -6,6 +6,7 @@ import re
 import csv
 import itertools
 import contextlib
+import warnings
 from copy import deepcopy
 import numpy as np
 import matplotlib
@@ -55,7 +56,8 @@ def create_model(model, model_name, prefix=None):
     elif isinstance(model, type):
         model = model()
     else:
-        model = Model(model, independent_vars=['x'], prefix=prefix)
+        independent_vars = getattr(model, '_independent_vars', ['x'])
+        model = Model(model, independent_vars=independent_vars, prefix=prefix)
     model.name2 = model_name
     return model
 
@@ -701,6 +703,12 @@ class Spectrum:
         if weights is not None:
             weights = weights[mask]
 
+        independent_vars = set()
+        for compo in comp_model.components:
+            independent_vars.update(compo.independent_vars)
+        independent_vars.discard('x')
+        extra_vars = {var: None for var in independent_vars}
+
         if not self.fit_params['independent_models']:
 
             self.result_fit = comp_model.fit(y[mask], params, x=x[mask],
@@ -708,6 +716,7 @@ class Spectrum:
                                              method=self.fit_params['method'],
                                              max_nfev=max_nfev,
                                              fit_kws=fit_kws,
+                                             **extra_vars,
                                              **kwargs)
             self.reassign_params()
 
@@ -721,6 +730,7 @@ class Spectrum:
                                        method=self.fit_params['method'],
                                        max_nfev=max_nfev,
                                        fit_kws=fit_kws,
+                                       **extra_vars,
                                        **kwargs)
                 success *= result_fit.success
                 best_fits.append(result_fit.best_fit)

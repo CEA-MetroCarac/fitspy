@@ -4,6 +4,7 @@ Module related to bichromatic models
 import numpy as np
 
 from fitspy.core.models import pseudovoigt
+from fitspy.core.utils import with_independent_vars
 from fitspy import PEAK_MODELS
 
 MODE = '2θ'  # or 'qx'
@@ -19,14 +20,13 @@ AMPLITUDE_RATIO = {'Cu': .558282 / .29913,
                    'Ag': .5411 / .2865,
                    'Co': .58292 / .29807}
 CATHODES = WAVELENGTH_RATIO.keys()
-COEFS = (1, 1)
 
 
 def is_bichromatic(name):
     return 'PseudoVoigtKa12' in name
 
 
-def pseudovoigt_ka12(x, ampli, fwhm, x0, alpha=0.5, cathode='Cu', coefs=COEFS):
+def pseudovoigt_ka12(x, ampli, fwhm, x0, alpha=0.5, cathode='Cu', coefs=None):
     r"""
     Return a double Pseudovoigt function often used in X-Ray Diffraction when
     using a lab source delivering a bichromatic beam.
@@ -56,8 +56,8 @@ def pseudovoigt_ka12(x, ampli, fwhm, x0, alpha=0.5, cathode='Cu', coefs=COEFS):
        gaussian weight of the pseudo-Voigt
     cathode: str
        element of the X-ray source cathode
-    coefs: iterable of 2 floats
-        coefficients applied to each peak contribution. default values are (1, 1)
+    coefs: iterable of 2 floats, optional
+        coefficients applied to each peak contribution. Default values are (1, 1)
 
     Example
     -------
@@ -76,6 +76,7 @@ def pseudovoigt_ka12(x, ampli, fwhm, x0, alpha=0.5, cathode='Cu', coefs=COEFS):
         plt.plot(x, y)
     """
     assert MODE in ['2θ', 'qx']
+    coefs = coefs or (1., 1.)
 
     ampli2 = ampli / AMPLITUDE_RATIO[cathode]
     ratio = WAVELENGTH_RATIO[cathode]
@@ -94,12 +95,9 @@ def make_pseudovoigt_ka12_for(cathode):
     """ Return function associated with the 'given' cathode """
     assert cathode in CATHODES
 
-    from fitspy.core import models_bichromatic
-
-    def func(x, ampli, fwhm, x0, alpha=0.5):
-        return pseudovoigt_ka12(x, ampli, fwhm, x0, alpha,
-                                cathode=cathode,
-                                coefs=models_bichromatic.COEFS)
+    @with_independent_vars('x', 'coefs')
+    def func(x, ampli, fwhm, x0, alpha=0.5, coefs=None):
+        return pseudovoigt_ka12(x, ampli, fwhm, x0, alpha, cathode=cathode, coefs=coefs)
 
     func.__name__ = f"pseudovoigt_ka12_{cathode}"
     func.__doc__ = f"PseudoVoigt Bi-chromatic related to '{cathode}' cathode"
@@ -121,12 +119,8 @@ def add_models():
 def plot_decomposition(ax, model, x, params, lw=None, color=None):
     """ Plot each peak contribution """
     if is_bichromatic(model.name2):
-        from fitspy.core import models_bichromatic
-        models_bichromatic.COEFS = (1, 0)
-        ax.plot(x, model.eval(params, x=x), lw=lw, color=color)
-        models_bichromatic.COEFS = (0, 1)
-        ax.plot(x, model.eval(params, x=x), lw=lw, color=color)
-        models_bichromatic.COEFS = (1, 1)
+        ax.plot(x, model.eval(params, x=x, coefs=(1, 0)), lw=lw, color=color)
+        ax.plot(x, model.eval(params, x=x, coefs=(0, 1)), lw=lw, color=color)
 
 
 if __name__ == "__main__":

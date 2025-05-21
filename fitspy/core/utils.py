@@ -376,6 +376,16 @@ def eval_noise_amplitude(y):
     return ampli_noise
 
 
+def with_independent_vars(*vars):
+    """ Attach _independent_vars to a function as decorator """
+
+    def decorator(func):
+        func._independent_vars = vars
+        return func
+
+    return decorator
+
+
 def get_func_args(func):
     signature = inspect.signature(func)
     args = list(signature.parameters.keys())
@@ -399,8 +409,9 @@ def get_model_params(MODELS):
                     params.append(f"{param}_fixed")
             else:  # custom python functions
                 func_args = get_func_args(instance)
+                independent_vars = getattr(instance, '_independent_vars', ['x'])
                 for arg in func_args:
-                    if arg != 'x':
+                    if arg not in independent_vars:
                         params.append(f"MIN | {arg} | MAX")
                         params.append(f"{arg}_fixed")
 
