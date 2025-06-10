@@ -380,7 +380,7 @@ def with_independent_vars(*vars):
     """ Attach _independent_vars to a function as decorator """
 
     def decorator(func):
-        func._independent_vars = vars
+        func._independent_vars = list(vars)
         return func
 
     return decorator
