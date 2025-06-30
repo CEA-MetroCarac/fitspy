@@ -5,6 +5,7 @@ from PySide6.QtGui import QColor, QDesktopServices
 from PySide6.QtWidgets import QApplication, QFileDialog, QMessageBox
 
 from fitspy.core.utils import load_from_json, save_to_json
+from fitspy.core import models_bichromatic
 from fitspy.apps.pyside import DEFAULTS
 from fitspy.apps.pyside.main_model import MainModel
 from fitspy.apps.pyside.main_view import MainView
@@ -202,6 +203,7 @@ class MainController(QObject):
         ) in self.view.more_settings.other_settings.bichromatic_group.buttons():
             if button.text() == self.model.bichromatic_models_mode:
                 button.setChecked(True)
+                models_bichromatic.MODE = button.text()
                 break
         self.view.more_settings.other_settings.outliers_coef.setValue(
             self.model.outliers_coef

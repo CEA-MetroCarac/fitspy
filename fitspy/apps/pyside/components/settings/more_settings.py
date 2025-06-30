@@ -1,10 +1,24 @@
 from PySide6.QtCore import Qt
-from PySide6.QtWidgets import (QSizePolicy, QGroupBox, QPushButton, QWidget, QVBoxLayout,
-                               QHBoxLayout, QCheckBox, QLabel, QSpacerItem, QRadioButton,
-                               QButtonGroup)
+from PySide6.QtWidgets import (
+    QSizePolicy,
+    QGroupBox,
+    QPushButton,
+    QWidget,
+    QVBoxLayout,
+    QHBoxLayout,
+    QCheckBox,
+    QLabel,
+    QSpacerItem,
+    QRadioButton,
+    QButtonGroup,
+)
 from superqt.cmap import CmapCatalogComboBox
 
-from fitspy.apps.pyside.components.custom_widgets import SpinBox, DoubleSpinBox, ComboBox
+from fitspy.apps.pyside.components.custom_widgets import (
+    SpinBox,
+    DoubleSpinBox,
+    ComboBox,
+)
 from fitspy.apps.pyside import DEFAULTS
 from fitspy.core import models_bichromatic
 from fitspy import FIT_METHODS, FIT_PARAMS
@@ -44,7 +58,7 @@ class SolverSettings(QGroupBox):
         self.method.setCurrentText(FIT_PARAMS["method"])
 
         self.xtol_label = QLabel("x-tolerance:")
-        self.xtol = DoubleSpinBox(notation='scientific')
+        self.xtol = DoubleSpinBox(notation="scientific")
         self.xtol.setValue(FIT_PARAMS["xtol"])
 
         vbox.addWidget(self.fit_negative)
@@ -79,7 +93,9 @@ class SolverSettings(QGroupBox):
         hbox3.addItem(spacer3)
         vbox.addLayout(hbox3)
 
-        vbox.addItem(QSpacerItem(0, 20, QSizePolicy.Minimum, QSizePolicy.Expanding))
+        vbox.addItem(
+            QSpacerItem(0, 20, QSizePolicy.Minimum, QSizePolicy.Expanding)
+        )
 
         self.setLayout(vbox)
 
@@ -95,7 +111,8 @@ class SolverSettings(QGroupBox):
         self.fit_negative.setChecked(fit_params["fit_negative"])
         self.fit_outliers.setChecked(fit_params["fit_outliers"])
         self.independent_models.setChecked(
-            fit_params.get("independent_models", False))  # Retrocompatibility
+            fit_params.get("independent_models", False)
+        )  # Retrocompatibility
         self.coef_noise.setValue(fit_params["coef_noise"])
         self.max_ite.setValue(fit_params["max_ite"])
         self.method.setCurrentText(fit_params["method"])
@@ -116,21 +133,15 @@ class OtherSettings(QGroupBox):
         vbox.setAlignment(Qt.AlignTop)
 
         # Bichromatic Model
-        bichromatic_dict = DEFAULTS['bichromatic_models']
         hbox = QHBoxLayout()
         self.cb_bichromatic = QCheckBox("Bichromatic models:")
-        self.cb_bichromatic.setChecked(bichromatic_dict["enable"])
-        self.cb_bichromatic.toggled.connect(self.update_bichromatic)
 
         qx_radio = QRadioButton("qx")
-        qx_radio.setChecked(bichromatic_dict["mode"] == "qx")
         theta_radio = QRadioButton("2θ")
-        theta_radio.setChecked(bichromatic_dict["mode"] == "2θ")
 
         self.bichromatic_group = QButtonGroup(self)
         self.bichromatic_group.addButton(qx_radio)
         self.bichromatic_group.addButton(theta_radio)
-        self.bichromatic_group.buttonClicked.connect(self.update_bichromatic)
 
         hbox.addWidget(self.cb_bichromatic)
         hbox.addWidget(qx_radio)
@@ -147,13 +158,15 @@ class OtherSettings(QGroupBox):
         container.setSpacing(0)
         container.addWidget(QLabel("Coef. bounding limit:"))
         self.outliers_coef = DoubleSpinBox()
-        self.outliers_coef.setRange(0., 10.)
+        self.outliers_coef.setRange(0.0, 10.0)
         self.outliers_coef.setSingleStep(0.1)
         container.addWidget(self.outliers_coef)
         hbox.addLayout(container)
 
         self.outliers_calculation = QPushButton("Apply")
-        self.outliers_calculation.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        self.outliers_calculation.setSizePolicy(
+            QSizePolicy.Fixed, QSizePolicy.Fixed
+        )
         hbox.addWidget(self.outliers_calculation)
         vbox.addLayout(hbox)
 
@@ -174,16 +187,6 @@ class OtherSettings(QGroupBox):
         vbox.addLayout(hbox)
 
         self.setLayout(vbox)
-
-    def update_bichromatic(self):
-        models_bichromatic.MODE = self.bichromatic_group.checkedButton().text()
-        if self.cb_bichromatic.isChecked():
-            models_bichromatic.add_models()
-        # WARNING : to maintain consistency, models cannot be removed once added
-        # else:
-        #     models_bichromatic.remove_models()
-        DEFAULTS['bichromatic_models']['enable'] = self.cb_bichromatic.isChecked()
-        DEFAULTS['bichromatic_models']['mode'] = self.bichromatic_group.checkedButton().text()
 
 
 class MoreSettings(QWidget):

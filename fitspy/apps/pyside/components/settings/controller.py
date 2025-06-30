@@ -1,10 +1,10 @@
 import copy
-import numpy as np
 from pathlib import Path
 from PySide6.QtCore import QObject, Signal
 from PySide6.QtWidgets import QFileDialog
 
 from fitspy import FIT_METHODS, BKG_MODELS, PEAK_MODELS
+from fitspy.core import models_bichromatic
 from fitspy.core.utils import load_from_json, load_models_from_txt, load_models_from_py
 from fitspy.apps.pyside.components.settings.model import Model
 
@@ -130,12 +130,8 @@ class SettingsController(QObject):
         self.solver_settings.xtol.valueChanged.connect(
             lambda value: self.update_and_emit("fit_params.xtol", value))
 
-        self.other_settings.cb_bichromatic.toggled.connect(fitting.update_combo_boxes)
-
-        self.other_settings.cb_bichromatic.toggled.connect(
-            lambda checked: self.settingChanged.emit("bichromatic_models_enable", checked))
-        self.other_settings.bichromatic_group.buttonClicked.connect(
-            lambda button: self.settingChanged.emit("bichromatic_models_mode", button.text()))
+        self.other_settings.cb_bichromatic.toggled.connect(self.toggle_bichromatic_models)
+        self.other_settings.bichromatic_group.buttonClicked.connect(self.update_bichromatic_mode)
         self.other_settings.outliers_coef.valueChanged.connect(
             lambda value: self.settingChanged.emit("outliers_coef", value))
         self.other_settings.outliers_calculation.clicked.connect(self.calculateOutliers)
@@ -446,3 +442,23 @@ class SettingsController(QObject):
 
     def get_model_fname(self):
         return self.model_builder.model_selector.combo_box.currentText()
+    
+    def toggle_bichromatic_models(self, checked):
+        """Handle bichromatic models enable/disable"""
+        if checked:
+            models_bichromatic.add_models()
+        # WARNING : to maintain consistency, models cannot be removed once added
+        # else:
+        #     models_bichromatic.remove_models()
+        
+        fitting = self.model_builder.model_settings.fitting
+        fitting.update_combo_boxes()
+        
+        self.settingChanged.emit("bichromatic_models_enable", checked)
+
+    def update_bichromatic_mode(self, button):
+        """Update bichromatic mode when button is clicked"""
+        mode = button.text()
+        models_bichromatic.MODE = mode
+        self.settingChanged.emit("bichromatic_models_mode", mode)
+
