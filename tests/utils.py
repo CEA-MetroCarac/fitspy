@@ -34,7 +34,7 @@ def extract_results(dirname_res):
     results = []
     print(fnames)
     for fname in fnames:
-        dfr = pd.read_csv(fname, sep=';', header=1)
+        dfr = pd.read_csv(fname, sep=';', skiprows=1)
         results.append([safe_float(x) for x in dfr.iloc[:, 2:]
                         if safe_float(x) is not None])
     return results
@@ -47,3 +47,7 @@ def display_is_ok():
         return True
     except tkinter.TclError:
         return False
+
+
+# dirname = r"C:\Users\PQ177701\PycharmProjects\fitspy\examples\results2"
+# extract_results(dirname)
