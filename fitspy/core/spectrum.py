@@ -373,7 +373,7 @@ class Spectrum:
 
     @staticmethod
     def create_peak_model(index, model_name, x0, ampli,
-                          fwhm=1., fwhm_l=1., fwhm_r=1., alpha=0.5, dx0=20., dfwhm=200.):
+                          fwhm=1., fwhm_l=1., fwhm_r=1., alpha=0.5, dx0=[-20., 20.], dfwhm=200.):
         """
         Create a 'lmfit' model associated to one peak
 
