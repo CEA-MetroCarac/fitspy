@@ -20,8 +20,10 @@ def safe_float(x):
 def safe_float(x):
     """ Convert string to float """
     try:
+        print('safe_float', x, float(x))
         return float(x)
     except ValueError:
+        print('safe_float', x, 'None')
         return None
 
 
