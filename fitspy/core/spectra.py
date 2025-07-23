@@ -135,6 +135,7 @@ class Spectra(list):
         for fname in fnames:
             spectrum, spectra = self.get_objects(fname)
             if hasattr(spectrum.result_fit, "success"):
+                spectrum.save_profiles(dirname_res)
                 spectrum.save_params(dirname_res)
                 spectrum.save_stats(dirname_res)
                 name = Path(spectrum.fname).name

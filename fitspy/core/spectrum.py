@@ -9,6 +9,7 @@ import contextlib
 import warnings
 from copy import deepcopy
 import numpy as np
+import pandas as pd
 import matplotlib
 from scipy.interpolate import interp1d
 from scipy.ndimage import uniform_filter1d
@@ -910,6 +911,53 @@ class Spectrum:
         label = "residual" if factor == 1 else f"residual (x{factor})"
         ax.plot(x, factor * residual, 'r', label=label)
         ax.legend()
+
+    def save_profiles(self, dirname_profiles):
+        """ Save profiles in a '.csv' file located in 'dirname_params' """
+
+        _, name, _ = fileparts(self.fname)
+        fname_profiles = os.path.join(dirname_profiles, name + '_profiles.csv')
+        fname_profiles = check_or_rename(fname_profiles)
+
+        x, y_subtract = self.x.copy(), self.y.copy()
+
+        baseline = np.zeros_like(x)
+        if self.baseline.y_eval is not None:
+            baseline = self.baseline.y_eval
+
+        bkg = np.zeros_like(x)
+        if self.bkg_model is not None:
+            with empty_expr(self.bkg_model):
+                bkg = self.bkg_model.eval(self.bkg_model.make_params(), x=x)
+
+        y_raw = y_subtract + bkg if not self.baseline.is_subtracted else y_subtract + baseline
+
+        profiles = {'x': x,
+                    'y_raw': y_raw,
+                    'y_subtract': y_subtract,
+                    'baseline': baseline,
+                    'bkg': bkg}
+
+        y_fit = np.zeros_like(x)
+        for i, peak_model in enumerate(self.peak_models):
+            with empty_expr(peak_model):
+                params = peak_model.make_params()
+
+            y_peak = peak_model.eval(params, x=x)
+            y_fit += y_peak
+
+            peak_label = f"model_{i}"
+            if len(self.peak_models) > 0 and self.peak_labels[i] != '':
+                peak_label = self.peak_labels[i]
+
+            profiles.update({peak_label: y_peak})
+
+        profiles.update({'y_fit': y_fit})
+
+        first_keys = ['x', 'y_raw', 'y_subtract', 'y_fit', 'baseline', 'bkg']
+        last_keys = [k for k in profiles.keys() if k not in first_keys]
+        dfr = pd.DataFrame({k: profiles[k] for k in first_keys + last_keys})
+        dfr.to_csv(fname_profiles, index=False, sep=';')
 
     def save_params(self, dirname_params):
         """ Save fit parameters in a '.csv' file located in 'dirname_params' """

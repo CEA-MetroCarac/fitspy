@@ -57,7 +57,26 @@ def model_reconstruction_from_csv():
     plot_spectrum_peak_models(spectrum, title='from .csv')
 
 
+def profiles_visualisation_from_csv():
+    """ Example of 'inline' spectrum profiles plotting from 'xxx_profiles.csv' """
+
+    fname_csv = DATA / 'spectra_2' / 'spectrum_2_1_profiles.csv'
+
+    dfr = pd.read_csv(fname_csv, sep=';')
+
+    first_keys = ['x', 'y_raw', 'y_subtract', 'y_fit', 'baseline', 'bkg']
+    model_keys = [k for k in dfr.columns if k not in first_keys]
+    y_keys = ['y_subtract', 'y_fit']
+
+    for key in y_keys + model_keys:
+        plt.plot(dfr['x'], dfr[key], lw=2 if key in y_keys else 0.7, label=key)
+    plt.legend()
+    plt.tight_layout()
+    plt.show()
+
+
 if __name__ == "__main__":
     model_reconstruction_from_json()
     model_reconstruction_from_csv()
+    profiles_visualisation_from_csv()
     plt.show()
