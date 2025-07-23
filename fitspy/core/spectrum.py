@@ -915,6 +915,11 @@ class Spectrum:
     def save_profiles(self, dirname_profiles):
         """ Save profiles in a '.csv' file located in 'dirname_params' """
 
+        # In Tkinter, reload() only applies update() to the 1rst spectrum,
+        # leaving the other spectra uninitialized.
+        if self.x is None:
+            return
+
         _, name, _ = fileparts(self.fname)
         fname_profiles = os.path.join(dirname_profiles, name + '_profiles.csv')
         fname_profiles = check_or_rename(fname_profiles)
