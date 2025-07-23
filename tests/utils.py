@@ -28,7 +28,7 @@ def safe_float(x):
 def extract_results(dirname_res):
     """ Return results extracted from fit parameters .csv files """
     fnames = glob.glob(os.path.join(dirname_res, "*.csv"))
-    fnames = hsorted([x for x in fnames if "results.csv" not in x])
+    fnames = hsorted([x for x in fnames if "results.csv" not in x or "_profiles.csv" not in x])
     results = []
     print(fnames)
     for fname in fnames:
