@@ -9,24 +9,6 @@ import pandas as pd
 from fitspy.core.utils import hsorted
 
 
-def safe_float(x):
-    """ Convert string to float """
-    try:
-        return float(x)
-    except ValueError:
-        return None
-
-
-def safe_float(x):
-    """ Convert string to float """
-    try:
-        print('safe_float', x, float(x))
-        return float(x)
-    except ValueError:
-        print('safe_float', x, 'None')
-        return None
-
-
 def extract_results(dirname_res):
     """ Return results extracted from fit parameters .csv files """
     fnames = glob.glob(os.path.join(dirname_res, "*.csv"))
@@ -34,9 +16,8 @@ def extract_results(dirname_res):
     results = []
     print(fnames)
     for fname in fnames:
-        dfr = pd.read_csv(fname, sep=';', skiprows=1)
-        results.append([safe_float(x) for x in dfr.iloc[:, 2:]
-                        if safe_float(x) is not None])
+        dfr = pd.read_csv(fname, sep=';', skiprows=1, header=None)
+        results.append([val for val in dfr.iloc[0, 2:].values if not pd.isna(val)])
     return results
 
 
@@ -47,7 +28,3 @@ def display_is_ok():
         return True
     except tkinter.TclError:
         return False
-
-
-# dirname = r"C:\Users\PQ177701\PycharmProjects\fitspy\examples\results2"
-# extract_results(dirname)
