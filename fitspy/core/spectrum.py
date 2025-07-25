@@ -896,18 +896,15 @@ class Spectrum:
     def plot_residual(self, ax, factor=1):
         """ Plot the residual x factor obtained after fitting """
         x, y = self.x, self.y
-        if hasattr(self.result_fit, 'residual'):
-            residual = self.result_fit.residual
-        else:
-            y_fit = np.zeros_like(x)
-            for peak_model in self.peak_models:
-                with empty_expr(peak_model):
-                    y_fit += peak_model.eval(peak_model.make_params(), x=x)
-            if self.bkg_model is not None:
-                bkg_model = self.bkg_model
-                with empty_expr(bkg_model):
-                    y_fit += bkg_model.eval(bkg_model.make_params(), x=x)
-            residual = y - y_fit
+        y_fit = np.zeros_like(x)
+        for peak_model in self.peak_models:
+            with empty_expr(peak_model):
+                y_fit += peak_model.eval(peak_model.make_params(), x=x)
+        if self.bkg_model is not None:
+            bkg_model = self.bkg_model
+            with empty_expr(bkg_model):
+                y_fit += bkg_model.eval(bkg_model.make_params(), x=x)
+        residual = y - y_fit
         label = "residual" if factor == 1 else f"residual (x{factor})"
         ax.plot(x, factor * residual, 'r', label=label)
         ax.legend()
