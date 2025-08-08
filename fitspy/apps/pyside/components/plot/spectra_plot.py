@@ -26,7 +26,7 @@ class SpectraPlot(QWidget):
         self.setLayout(layout)
 
     def copy_figure(self):
-        """Copy the figure to the clipboard using Pyside6 QCliboard"""
+        """Copy the figure to the clipboard using Pyside6 QClipboard"""
         clipboard = QClipboard()
 
         # Get the figure as a QPixmap
