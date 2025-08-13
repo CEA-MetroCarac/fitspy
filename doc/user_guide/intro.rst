@@ -49,8 +49,8 @@ in a command prompt (like **cmd** or **powershell**, accessible from the Windows
 * For a **basic install/upgrade** and launching::
 
     pip install fitspy --upgrade
-    fitspy # advanced GUI based on PySide
-    fitspy-tk # primary GUI based on Tkinter
+    fitspy # to launch the advanced GUI based on PySide
+    fitspy-tk # to launch the primary GUI based on Tkinter
 
 *(If an error message is returned upon executing the first line, it likely indicates that python.exe is not included in your PATHs. In this case, (re)launch your python.exe and choose "modify" to select* **Add python.exe to PATH**)
 
