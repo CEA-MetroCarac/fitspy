@@ -118,11 +118,11 @@ The same for the **fitted parameters** attached to each spectrum: {spectrum base
     C(m05_fwhm, m05_x0)     = -0.5191
     ...
 
-* Example of the **profiles** in *ordered_map.txt  X=1757.0  Y=65.7_profiles.csv*:
+* Example of the **profiles** in *ordered_map.txt  X=1757.0  Y=65.7_profiles.csv* (extract):
 
 .. figure::  ../_static/params_profiles_csv.png
    :align:   left
-   :width:   75%
+   :width:   100%
 
 .. raw:: html
 
