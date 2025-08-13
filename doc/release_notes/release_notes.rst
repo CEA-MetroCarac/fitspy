@@ -1,6 +1,26 @@
 Release Notes
 =============
 
+Version 2025.7 (August 13, 2025)
+-----------------------------
+
+**New features:**
+
+- `#83 <https://github.com/cea-metrocarac/fitspy/issues/83>`_ Save profiles (raw and fitted spectrum, background, baseline and peak decomposition) in a .csv file.
+- `#79 <https://github.com/cea-metrocarac/fitspy/issues/79>`_ Visualisation of the two wavelengths for the bichromatic model.
+
+
+**Bug fixes:**
+
+- Fixed `#86 <https://github.com/cea-metrocarac/fitspy/issues/86>`_  Truncated filenames when saving 2D maps results.
+- Fixed `#84 <https://github.com/cea-metrocarac/fitspy/issues/84>`_  dx0 in create_peak_model() has not the correct dimension.
+- Fixed `#82 <https://github.com/cea-metrocarac/fitspy/issues/82>`_  ValueError when plotting the 'residual'.
+- Fixed `#81 <https://github.com/cea-metrocarac/fitspy/issues/81>`_  Mode 2θ not correctly taken into account as users default value.
+- Fixed `#80 <https://github.com/cea-metrocarac/fitspy/issues/80>`_  Bichromatic fitting not working with background.
+- Fixed `#78 <https://github.com/cea-metrocarac/fitspy/issues/78>`_  Bichromatic Models not synchronized in the Peaks Table combobox.
+- Fixed `#77 <https://github.com/cea-metrocarac/fitspy/issues/77>`_  "Reset original view" button resets to another scale.
+
+
 Version 2025.6 (May 19, 2025)
 -----------------------------
 
