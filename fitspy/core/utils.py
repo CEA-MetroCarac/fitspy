@@ -62,9 +62,22 @@ def hsorted(list_):
 
 
 def fileparts(filename):
-    """ Returns different file parts of a file  """
-    folder, name_with_ext = os.path.split(filename)
-    name, ext = os.path.splitext(name_with_ext)
+    """
+    Returns different file parts of a file
+
+    fileparts(r"toto/tata/tutu.xyz")
+    >> ('toto\\tata', 'tutu', '.xyz')
+    fileparts(r"toto/tata/tutu X=12.3 Y=56.7")
+    >> ('toto\\tata', 'tutu X=12.3 Y=56.7', None)
+    """
+    filename = Path(filename)
+    folder = str(filename.parent)
+    name = filename.name
+    if filename.suffix and re.fullmatch(r'\.[A-Za-z]+', filename.suffix):
+        name = filename.stem
+        ext = filename.suffix
+    else:
+        ext = None
     return folder, name, ext
 
 
