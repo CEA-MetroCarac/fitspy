@@ -5,7 +5,7 @@ Fitspy provides two types of outputs:
 
 * those related to the **models**,
 
-* and those related to the fits (**parameters** of the fitted models and **statistics**).
+* and those related to the fits (**parameters** of the fitted models, **statistics** and **profiles** (raw and fitted spectrum, baseline, background and peak decomposition).
 
 
 Outputs models
@@ -84,11 +84,11 @@ Fit results
 
 Once fitted, a spectra data set can generate several files related to the fitting statistics and the fitted parameters.
 
-In a 'results' directory (to be specified by the user), the **statistics** files are built when clicking on :code:`Save Results` in the GUI, according to the following model: {spectrum basename}**_stats.txt** file).
+In a 'results' directory (to be specified by the user), the **statistics** and **profiles** files are built when clicking on :code:`Save Results` in the GUI, according to the following model: {spectrum basename}**_stats.txt** and {spectrum basename}**_profiles.txt** file respectively).
 
 The same for the **fitted parameters** attached to each spectrum: {spectrum basename}**.csv** file)
 
-* Example of **statistics** returned in *ordered_map.txt  X=1757.0  Y=65_stats.txt* (obtained from *examples/ex_gui_users_defined_models_2d_map.py*)::
+* Example of **statistics** returned in *ordered_map.txt  X=1757.0  Y=65.7_stats.txt* (obtained from *examples/ex_gui_users_defined_models_2d_map.py*)::
 
     [[Fit Statistics]]
     # fitting method   = leastsq
@@ -118,7 +118,17 @@ The same for the **fitted parameters** attached to each spectrum: {spectrum base
     C(m05_fwhm, m05_x0)     = -0.5191
     ...
 
-* Example of the **fitted parameters** in *ordered_map.txt  X=1757.0  Y=65.csv*:
+* Example of the **profiles** in *ordered_map.txt  X=1757.0  Y=65.7_profiles.csv*:
+
+.. figure::  ../_static/params_profiles_csv.png
+   :align:   left
+   :width:   75%
+
+.. raw:: html
+
+   <br>
+
+* Example of the **fitted parameters** in *ordered_map.txt  X=1757.0  Y=65.7.csv*:
 
 .. figure::  ../_static/params_csv.png
    :align:   left
