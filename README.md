@@ -63,6 +63,21 @@ pip install git+https://github.com/CEA-MetroCarac/fitspy
 
 *(See the [documentation](https://cea-metrocarac.github.io/fitspy/user_guide/intro.html#install-and-launching) for more details)*
 
+## Upgrade
+
+In the case of 'just' a **Fitspy** upgrade:
+
+```bash
+pip uninstall fitspy
+pip install fistspy # considering here the install from Pypi 
+```
+
+For a full upgrade (**Fitspy** and its dependencies):
+
+```bash
+pip install fitspy --upgrade # considering here the install from Pypi
+```
+
 ## Tests and examples execution
 
 ```
