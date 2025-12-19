@@ -146,7 +146,7 @@ class Spectra(list):
                 res.update({'name': name, 'success': success, 'x': x, 'y': y})
                 results.append(res)
 
-        dfr = pd.DataFrame(results).round(3)
+        dfr = pd.DataFrame(results)
 
         # reindex columns according to the parameters names
         dfr = dfr.reindex(sorted(dfr.columns), axis=1)
