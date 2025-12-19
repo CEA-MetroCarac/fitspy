@@ -2,7 +2,7 @@ from matplotlib.figure import Figure
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
 
 from PySide6.QtCore import Signal
-from PySide6.QtWidgets import QWidget, QHBoxLayout
+from PySide6.QtWidgets import QApplication, QWidget, QHBoxLayout
 from PySide6.QtGui import QClipboard, QImage, QPixmap
 
 
@@ -27,7 +27,7 @@ class SpectraPlot(QWidget):
 
     def copy_figure(self):
         """Copy the figure to the clipboard using Pyside6 QClipboard"""
-        clipboard = QClipboard()
+        clipboard = QApplication.clipboard()
 
         # Get the figure as a QPixmap
         buffer = self.canvas.buffer_rgba()
@@ -40,7 +40,6 @@ class SpectraPlot(QWidget):
 
 if __name__ == "__main__":
     import sys
-    from PySide6.QtWidgets import QApplication
 
     app = QApplication(sys.argv)
     spectra_plot = SpectraPlot()
