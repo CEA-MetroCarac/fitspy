@@ -1,7 +1,6 @@
 """
 Example of spectra processing using users-defined model through the application
 """
-import sys
 from pathlib import Path
 
 from fitspy.apps import init_app, end_app

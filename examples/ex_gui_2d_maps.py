@@ -1,7 +1,6 @@
 """
 Example of 2D maps loading
 """
-import sys
 from pathlib import Path
 
 from fitspy.apps import init_app, end_app

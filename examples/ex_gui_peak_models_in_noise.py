@@ -2,8 +2,6 @@
 Example illustrating the application of a 'Fitspy' model whose peak models for
 the 2nd spectrum cover areas entirely defined by noise (peaks: 1, 11, 13, 14, 15)
 """
-
-import sys
 from pathlib import Path
 
 from fitspy.apps import init_app, end_app
