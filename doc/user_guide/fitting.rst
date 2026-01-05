@@ -19,13 +19,16 @@ All peaks models located in areas below this noise level (multiplied by a user c
 Outliers
 --------
 
-To determine outliers, a certain number of spectra of the same nature are required in order to be able to deduce numerically abnormal amplitude variations. This is well-suited particularly for 2D-map spectra.
+To determine outliers **automatically**, a certain number of spectra of the same nature are required in order to be able to deduce numerically abnormal amplitude variations. This is well-suited particularly for 2D-map spectra.
 
 First, a 'normal spectra' envelop is determined from the values of the 5th maximum intensity of all the spectra at any point (considering a null probability of having more than 5 outliers at the same point).
 
 Outliers are then determined as points exceeding this envelope by a certain coefficient.
 
 In the fit processing, outliers have a null weight associated with them (see below), and at the preceding baseline definition step, linear interpolations of the signal with respect to the points surrounding these outliers are performed.
+
+.. note::
+    From the v2026.1, outliers can be defined **manually** by selecting **Outliers** in :code:`Click Mode` and then left- or right-clicking in the figure to add or remove outliers, respectively.
 
 .. figure::  ../_static/outliers.png
    :align:   center
