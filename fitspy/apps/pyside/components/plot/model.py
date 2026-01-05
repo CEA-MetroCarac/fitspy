@@ -150,6 +150,24 @@ class Model(QObject):
                 self.mapSwitched.emit(spectramap)
                 break
 
+    def add_outlier(self, x):
+        spectrum = self.current_spectra[0]
+        ind = closest_index(spectrum.x0, x)
+        spectrum.outliers_inds += [ind]
+        self.refreshPlot.emit()
+
+    def del_outlier(self, x):
+        spectrum = self.current_spectra[0]
+        if len(spectrum.outliers_inds) == 0:
+            return
+        dist_min = np.inf
+        for i, ind in enumerate(spectrum.outliers_inds):
+            dist = abs(spectrum.x0[ind] - x)
+            if dist < dist_min:
+                dist_min, ind_min = dist, i
+        spectrum.outliers_inds.pop(ind_min)
+        self.refreshPlot.emit()
+
     def add_baseline_point(self, x, y):
         first_spectrum = self.current_spectra[0]
         if first_spectrum.baseline.mode not in ["Linear", "Polynomial"]:

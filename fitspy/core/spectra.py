@@ -103,9 +103,9 @@ class Spectra(list):
         """ Calculate the outliers limit from 'coef' * intensity_ref """
         intensity = self.intensity()
 
-        # Get mean of top nmax values for each wavelength point
+        # Get the 'nmax'-th value as reference for each wavelength point
         sorted_values = -np.sort(-intensity, axis=0)
-        intensity_ref = np.nanmean(sorted_values[:nmax], axis=0)
+        intensity_ref = sorted_values[nmax]
 
         outliers_limit = coef * intensity_ref
         for spectrum in self.all:

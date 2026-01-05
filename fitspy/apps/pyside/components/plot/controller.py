@@ -84,9 +84,7 @@ class PlotController(QObject):
         self.model.colorizeFromFitStatus.connect(self.colorizeFromFitStatus)
         self.model.askConfirmation.connect(self.askConfirmation)
 
-        self.toolbar.baseline_radio.toggled.connect(self.on_click_mode_changed)
-        self.toolbar.peaks_radio.toggled.connect(self.on_click_mode_changed)
-        self.toolbar.highlight_radio.toggled.connect(self.on_click_mode_changed)
+        self.toolbar.click_mode_combo.currentTextChanged.connect(self.on_click_mode_changed)
 
         self.spectra_plot.canvas.mpl_connect("motion_notify_event", self.on_motion)
         self.spectra_plot.canvas.mpl_connect("button_press_event", self.on_spectra_plot_click)
@@ -184,14 +182,14 @@ class PlotController(QObject):
 
     def on_click_mode_changed(self):
         """Callback for radio button state changes."""
-        selected_mode = self.toolbar.get_selected_radio()
+        selected_mode = self.toolbar.get_selected_click_mode()
         if selected_mode and selected_mode != self.model.current_mode:
             self.model.current_mode = selected_mode
             self.settingChanged.emit("click_mode", selected_mode)
 
     def on_spectra_plot_click(self, event):
         """Callback for click events on the spectra plot."""
-        # Do not add baseline or peak points when pan or zoom are selected
+        # Do not add baseline, peak points or outliers when pan or zoom are selected
         if self.toolbar.mpl_toolbar.is_pan_active() or self.toolbar.mpl_toolbar.is_zoom_active():
             self.consecutive_clicks += 1
             self.click_timer.start()
@@ -199,18 +197,24 @@ class PlotController(QObject):
                 self.showToast.emit(
                     "INFO",
                     "Pan/Zoom Mode",
-                    "If you want to add baseline or peak points, disable pan/zoom mode.",
+                    "If you want to add baseline, peak points or outliers, disable pan/zoom mode.",
                 )
             return
         else:
             self.consecutive_clicks = 0
 
         x, y = event.xdata, event.ydata
-        point_type = self.toolbar.get_selected_radio()
+        point_type = self.toolbar.get_selected_click_mode()
 
         if point_type == "highlight":
             fnames = self.model.highlight_spectrum(self.spectra_plot.ax, event)
             self.highlightSpectrum.emit(fnames, False)
+
+        elif point_type == "outliers":
+            if event.button == 1:
+                self.model.add_outlier(x)
+            else:
+                self.model.del_outlier(x)
 
         elif point_type == "baseline":
             if event.button == 1:

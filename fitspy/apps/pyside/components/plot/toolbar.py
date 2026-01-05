@@ -3,7 +3,7 @@ from matplotlib import cbook
 
 from PySide6.QtCore import QSize, Qt
 from PySide6.QtGui import QIcon, QPixmap, QColor, QKeySequence, QShortcut
-from PySide6.QtWidgets import (QToolButton, QMenu, QCheckBox, QWidgetAction, QRadioButton,
+from PySide6.QtWidgets import (QToolButton, QMenu, QCheckBox, QWidgetAction, QComboBox,
                                QPushButton, QSpacerItem, QSizePolicy, QHBoxLayout, QWidget, QLabel)
 
 from fitspy.apps.pyside.utils import to_title_case, get_icon_path
@@ -97,9 +97,12 @@ class Toolbar(QWidget):
     def initUI(self):
         hbox = QHBoxLayout()
         self.mpl_toolbar = CustomNavigationToolbar(self.canvas)
-        self.baseline_radio = QRadioButton("Baseline points")
-        self.peaks_radio = QRadioButton("Peaks points")
-        self.highlight_radio = QRadioButton("Spectrum Sel.")
+        self.click_mode_combo = QComboBox()
+        self.click_mode_combo.addItem("Baseline points", "baseline")
+        self.click_mode_combo.addItem("Peaks points", "peaks")
+        self.click_mode_combo.addItem("Outliers", "outliers")
+        self.click_mode_combo.addItem("Spectrum Selection", "highlight")
+        self.click_mode_combo.setCurrentIndex(0)
         self.copy_btn = QPushButton(icon=QIcon(get_icon_path("clipboard-copy.png")),
                                     toolTip="Copy Figure to Clipboard")
         self.copy_btn.setIconSize(QSize(24, 24))
@@ -109,10 +112,8 @@ class Toolbar(QWidget):
 
         hbox.addWidget(self.mpl_toolbar)
         hbox.addItem(spacer1)
-        hbox.addWidget(QLabel('Click Mode:'))
-        hbox.addWidget(self.baseline_radio)
-        hbox.addWidget(self.peaks_radio)
-        hbox.addWidget(self.highlight_radio)
+        hbox.addWidget(QLabel('Click Mode :'))
+        hbox.addWidget(self.click_mode_combo)
         hbox.addItem(spacer2)
         if self.view_options:
             hbox.addWidget(self.view_options)
@@ -124,14 +125,8 @@ class Toolbar(QWidget):
         copy_shortcut = QShortcut(QKeySequence("Ctrl+C"), self)
         copy_shortcut.activated.connect(self.copy_btn.click)
 
-    def get_selected_radio(self):
-        if self.baseline_radio.isChecked():
-            return "baseline"
-        elif self.peaks_radio.isChecked():
-            return "peaks"
-        elif self.highlight_radio.isChecked():
-            return "highlight"
-        return None
+    def get_selected_click_mode(self):
+        return self.click_mode_combo.currentData()
 
     def update_toolbar_icons(self):
         self.mpl_toolbar.update_icons()

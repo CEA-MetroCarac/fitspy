@@ -214,10 +214,8 @@ class MainController(QObject):
         self.view.more_settings.other_settings.map_cmap.setCurrentText(
             self.model.map_cmap
         )
-        radio_button = getattr(
-            self.view.toolbar, f"{self.model.click_mode}_radio"
-        )
-        radio_button.setChecked(True)
+
+        self.view.toolbar.click_mode_combo.setCurrentText(self.model.click_mode)
 
         for (
                 label,

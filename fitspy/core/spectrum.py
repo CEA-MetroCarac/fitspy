@@ -17,8 +17,10 @@ from scipy.signal import find_peaks
 
 from lmfit import Model, fit_report
 from lmfit.model import ModelResult
-from lmfit.models import ConstantModel, LinearModel, ParabolicModel, \
-    ExponentialModel, PowerLawModel, ExpressionModel  # pylint:disable=unused-import
+from lmfit.models import (ConstantModel, LinearModel, ParabolicModel,
+                          ExponentialModel, PowerLawModel,
+                          ExpressionModel  # pylint:disable=unused-import
+                          )
 
 from fitspy import FIT_PARAMS, PEAK_PARAMS, PEAK_MODELS, BKG_MODELS
 from fitspy.core.utils import get_1d_profile
@@ -83,6 +85,8 @@ class Spectrum:
         Ranges for searching the maximum value used in the normalization
     outliers_limit: numpy.array((n0))
         Array related to the outliers limit associated to the raw data (x0, y0)
+    outliers_inds: list of int
+        Indices related to (extra) users-defined outliers
     baseline: Baseline object
         Baseline associated to the spectrum (to subract)
     baseline_history: list of list - DEPRECATED from v2024.2
@@ -145,6 +149,7 @@ class Spectrum:
         self.y = None
         self.weights = None
         self.outliers_limit = None
+        self.outliers_inds = []
         self.baseline = BaseLine()
         self.normalize = False
         self.normalize_range_min = None
@@ -164,6 +169,7 @@ class Spectrum:
         self.y = self.y0.copy()
         self.weights = self.weights0.copy() if self.weights0 is not None else None
         self.outliers_limit = None
+        self.outliers_inds = []
         self.normalize = False
         self.normalize_range_min = None
         self.normalize_range_max = None
@@ -344,6 +350,21 @@ class Spectrum:
                 inds = inds[mask]
                 x_outliers, y_outliers = x0[inds], y0[inds]
         return x_outliers, y_outliers
+
+    # def calculate_outliers(self):
+    #     """ Return outliers points (x,y) coordinates """
+    #     x_outliers, y_outliers = None, None
+    #     inds = []
+    #     if self.outliers_limit is not None:
+    #         inds = np.where(self.y0 > self.outliers_limit)[0].tolist()
+    #     inds += self.outliers_inds
+    #     if len(inds) > 0:
+    #         inds = np.asarray(inds)
+    #         mask = (self.x.min() <= self.x0[inds]) * (self.x0[inds] <= self.x.max())
+    #         if np.any(mask):
+    #             inds = inds[mask]
+    #             x_outliers, y_outliers = self.x0[inds], self.y0[inds]
+    #     return x_outliers, y_outliers
 
     @property
     def y_no_outliers(self):
