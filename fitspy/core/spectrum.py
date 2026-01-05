@@ -824,7 +824,7 @@ class Spectrum:
 
         if kwargs is None:
             kwargs = {'c': 'k', 'lw': 0.5, 'marker': 'o', 'ms': 1}
-        lines = [ax.plot(x, y, label=label, **kwargs)[0]]
+        lines = [ax.plot(x, y, label=f'{label}_Spectrum' if label else "_Spectrum", **kwargs)[0]]
 
         if show_weights and self.weights is not None:
             ax.plot(x, self.weights, 'b', lw=2, label=f'{label}_Weights' if label else 'Weights')
@@ -885,7 +885,7 @@ class Spectrum:
 
                 if show_peak_models:
                     color = cmap_peaks(i % cmap_peaks.N)
-                    label = f'{label}_Peak_{i}' if label else None
+                    label = f'{label}_Peak_{i}' if label else f'Peak_{i}'
 
                     line, = ax.plot(x, y_peak, lw=linewidth, color=color, label=label)
                     lines.append(line)
