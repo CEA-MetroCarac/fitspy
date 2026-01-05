@@ -342,29 +342,17 @@ class Spectrum:
     def calculate_outliers(self):
         """ Return outliers points (x,y) coordinates """
         x_outliers, y_outliers = None, None
+        inds = []
         if self.outliers_limit is not None:
-            x0, y0 = self.x0, self.y0
-            inds = np.where(y0 > self.outliers_limit)[0]
-            mask = (self.x.min() <= x0[inds]) * (x0[inds] <= self.x.max())
+            inds = np.where(self.y0 > self.outliers_limit)[0].tolist()
+        inds += self.outliers_inds
+        if len(inds) > 0:
+            inds = np.asarray(inds)
+            mask = (self.x.min() <= self.x0[inds]) * (self.x0[inds] <= self.x.max())
             if np.any(mask):
                 inds = inds[mask]
-                x_outliers, y_outliers = x0[inds], y0[inds]
+                x_outliers, y_outliers = self.x0[inds], self.y0[inds]
         return x_outliers, y_outliers
-
-    # def calculate_outliers(self):
-    #     """ Return outliers points (x,y) coordinates """
-    #     x_outliers, y_outliers = None, None
-    #     inds = []
-    #     if self.outliers_limit is not None:
-    #         inds = np.where(self.y0 > self.outliers_limit)[0].tolist()
-    #     inds += self.outliers_inds
-    #     if len(inds) > 0:
-    #         inds = np.asarray(inds)
-    #         mask = (self.x.min() <= self.x0[inds]) * (self.x0[inds] <= self.x.max())
-    #         if np.any(mask):
-    #             inds = inds[mask]
-    #             x_outliers, y_outliers = self.x0[inds], self.y0[inds]
-    #     return x_outliers, y_outliers
 
     @property
     def y_no_outliers(self):
