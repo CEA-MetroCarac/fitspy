@@ -1,8 +1,24 @@
 Release Notes
 =============
 
+Version 2026.1 (January 6, 2026)
+--------------------------------
+
+Remove deprecated files (spectrum.py, spectra.py, ...) from :code:`fitspy` (please, use now the corresponding files located in :code:`fitspy.core`).
+
+
+**New features:**
+
+- `#90 <https://github.com/cea-metrocarac/fitspy/issues/90>`_ Manual outliers removal by clicking in the GUI.
+
+
+**Bug fixes:**
+
+- Fixed `#91 <https://github.com/cea-metrocarac/fitspy/issues/91>`_ Remove digit limitation when saving results.csv.
+
+
 Version 2025.7 (August 13, 2025)
------------------------------
+--------------------------------
 
 **New features:**
 
