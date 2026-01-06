@@ -1,5 +1,5 @@
 from pathlib import Path
-from PySide6.QtCore import QObject, Signal, QTimer
+from PySide6.QtCore import QObject, Signal, QTimer, QSignalBlocker
 
 from fitspy.core.spectrum import Spectrum
 from fitspy.apps.interactive_bounds import InteractiveBounds
@@ -88,6 +88,7 @@ class PlotController(QObject):
 
         self.spectra_plot.canvas.mpl_connect("motion_notify_event", self.on_motion)
         self.spectra_plot.canvas.mpl_connect("button_press_event", self.on_spectra_plot_click)
+        self.spectra_plot.canvas.mpl_connect("draw_event", self.sync_plot_widgets)
 
         # for label, checkbox in self.view_options.checkboxes.items():
         for checkbox in self.view_options.checkboxes.values():
@@ -115,6 +116,22 @@ class PlotController(QObject):
         state = checkbox.isChecked()
         self.settingChanged.emit(label, state)
         self.update_spectraplot()
+
+    def sync_plot_widgets(self, event):
+        """Synchronize some widgets with the current plot state to reflect changes made within matplotlib internal toolbar."""
+        if not self.view_options:
+            return
+
+        ax = self.spectra_plot.ax
+
+        x_is_log = ax.get_xscale() == 'log'
+        y_is_log = ax.get_yscale() == 'log'
+
+        for key, val in (('X-log', x_is_log), ('Y-log', y_is_log)):
+            cb = self.view_options.checkboxes.get(key)
+            if cb:
+                with QSignalBlocker(cb):
+                    cb.setChecked(val)
 
     def load_map(self, fname):
         self.model.load_map(fname)

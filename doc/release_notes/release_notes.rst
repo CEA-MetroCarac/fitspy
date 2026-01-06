@@ -14,6 +14,8 @@ Remove deprecated files (spectrum.py, spectra.py, ...) from :code:`fitspy` (plea
 
 **Bug fixes:**
 
+- Fixed `#89 <https://github.com/cea-metrocarac/fitspy/issues/89>`_ View options checkboxes are now synced with matplotlib toolbar actions.
+- Fixed `#88 <https://github.com/cea-metrocarac/fitspy/issues/88>`_ View options checkboxes are now synced with matplotlib toolbar actions.
 - Fixed `#91 <https://github.com/cea-metrocarac/fitspy/issues/91>`_ Remove digit limitation when saving results.csv.
 
 
