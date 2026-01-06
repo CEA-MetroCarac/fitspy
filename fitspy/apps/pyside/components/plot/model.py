@@ -356,6 +356,15 @@ class Model(QObject):
     def store_original_view_limits(self, ax):
         self.original_xlim, self.original_ylim = self.get_view_limits(ax)
 
+    def _apply_log_ylimits(self, ax):
+        y_data = np.concatenate([
+            line.get_ydata()[line.get_ydata() > 0]
+            for line in ax.lines
+            if "_Spectrum" in (line.get_label() or "")
+        ])
+        if len(y_data):
+            ax.set_ylim(y_data.min() * 0.1, y_data.max() * 10)
+
     # @measure_time
     def update_spectraplot(self, ax, view_options, toolbar):
         """Update the plot with the current spectra"""
@@ -458,14 +467,16 @@ class Model(QObject):
                 if max_annotation_y > current_ylim[1]:
                     ax.set_ylim(top=max_annotation_y + YLIM_BUFFER_RATIO * spectrum.y.max())
 
-        if view_options.get("Preserve axes", False):
-            self.set_view_limits(ax, xlim, ylim)
-
         if view_options.get("X-log", False):
             ax.set_xscale("log")
 
         if view_options.get("Y-log", False):
             ax.set_yscale("log")
+
+        if view_options.get("Preserve axes", False):
+            self.set_view_limits(ax, xlim, ylim)
+        elif view_options.get("Y-log", False):
+            self._apply_log_ylimits(ax)
 
         # refresh the plot and the toolbar
         ax.figure.canvas.draw_idle()
