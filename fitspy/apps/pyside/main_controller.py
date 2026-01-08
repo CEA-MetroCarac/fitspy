@@ -215,7 +215,7 @@ class MainController(QObject):
             self.model.map_cmap
         )
 
-        self.view.toolbar.click_mode_combo.setCurrentText(self.model.click_mode)
+        self.view.toolbar.set_click_mode(self.model.click_mode)
 
         for (
                 label,

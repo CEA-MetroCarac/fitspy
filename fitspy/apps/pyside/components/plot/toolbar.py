@@ -128,5 +128,12 @@ class Toolbar(QWidget):
     def get_selected_click_mode(self):
         return self.click_mode_combo.currentData()
 
+    def set_click_mode(self, mode):
+        idx = self.click_mode_combo.findData(mode)
+        if idx != -1:
+            self.click_mode_combo.setCurrentIndex(idx)
+        else:
+            print(f"Warning: Click mode '{mode}' not found in combo box.")
+
     def update_toolbar_icons(self):
         self.mpl_toolbar.update_icons()
