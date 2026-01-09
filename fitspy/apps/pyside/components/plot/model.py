@@ -3,7 +3,6 @@ from threading import Thread
 from collections import defaultdict
 from pathlib import Path
 import numpy as np
-import matplotlib
 
 from PySide6.QtCore import QObject, Signal
 from PySide6.QtWidgets import QMessageBox
@@ -15,7 +14,22 @@ from fitspy.core.spectra_map import SpectraMap
 from fitspy.core.utils import closest_index, closest_item, measure_time
 from fitspy.apps.pyside import DEFAULTS
 
-CMAP = matplotlib.colormaps['tab10']
+_TAB10 = (
+    "#1f77b4",
+    "#ff7f0e",
+    "#2ca02c",
+    "#d62728",
+    "#9467bd",
+    "#8c564b",
+    "#e377c2",
+    "#7f7f7f",
+    "#bcbd22",
+    "#17becf",
+)
+
+
+def _tab10_color(index: int) -> str:
+    return _TAB10[index % len(_TAB10)]
 LABEL_OFFSET_RATIO = 0.005  # Ratio to offset label above the peak
 YLIM_BUFFER_RATIO = 0.05  # Ratio to extend y-axis limit
 
@@ -243,7 +257,7 @@ class Model(QObject):
             for i, line in enumerate(spectrum_lines):
                 if line.contains(event)[0]:
                     if len(self.nearest_lines) < 10:
-                        color = CMAP(len(self.nearest_lines))
+                        color = _tab10_color(len(self.nearest_lines))
                         line.set(linewidth=1, color=color, zorder=1)
                         self.nearest_lines.append(line)
                         fname = self.current_spectra[i].fname

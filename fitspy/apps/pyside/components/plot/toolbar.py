@@ -1,13 +1,11 @@
-from matplotlib.backends.backend_qtagg import NavigationToolbar2QT
-from matplotlib import cbook
-
 from PySide6.QtCore import QSize, Qt
-from PySide6.QtGui import QIcon, QPixmap, QColor, QKeySequence, QShortcut
+from PySide6.QtGui import QIcon, QKeySequence, QShortcut
 from PySide6.QtWidgets import (QToolButton, QMenu, QCheckBox, QWidgetAction, QRadioButton,
                                QPushButton, QSpacerItem, QSizePolicy, QHBoxLayout, QWidget, QLabel)
 
 from fitspy.apps.pyside.utils import to_title_case, get_icon_path
 from fitspy.apps.pyside import DEFAULTS
+from fitspy.apps.pyside.components.plot.abstractions import PlotNavigation
 
 
 class ViewOptions(QToolButton):
@@ -35,56 +33,10 @@ class ViewOptions(QToolButton):
         return {text: checkbox.isChecked() for text, checkbox in self.checkboxes.items()}
 
 
-class CustomNavigationToolbar(NavigationToolbar2QT):
-    def _icon(self, name):
-        path_regular = cbook._get_data_path("images", name)
-        path_large = path_regular.with_name(path_regular.name.replace(".png", "_large.png"))
-        filename = str(path_large if path_large.exists() else path_regular)
-
-        pm = QPixmap(filename)
-        pm.setDevicePixelRatio(self.devicePixelRatioF() or 1)  # rarely, devicePixelRatioF=0
-        if self.palette().color(self.backgroundRole()).value() < 128:
-            icon_color = self.palette().color(self.foregroundRole())
-            mask = pm.createMaskFromColor(QColor("black"), Qt.MaskMode.MaskOutColor)
-            pm.fill(icon_color)
-            pm.setMask(mask)
-        return QIcon(pm)
-
-    def update_icons(self):
-        icon_map = {
-            "Home": "home.png",
-            "Back": "back.png",
-            "Forward": "forward.png",
-            "Pan": "move.png",
-            "Zoom": "zoom_to_rect.png",
-            "Subplots": "subplots.png",
-            "Customize": "qt4_editor_options.png",
-            "Save": "filesave.png",
-        }
-
-        # Update all icons in the toolbar
-        for action in self.actions():
-            icon_name = icon_map.get(action.text(), "").lower()
-            if icon_name:
-                action.setIcon(self._icon(icon_name))
-
-    def is_pan_active(self):
-        for action in self.actions():
-            if action.text() == "Pan":
-                return action.isChecked()
-        return False
-
-    def is_zoom_active(self):
-        for action in self.actions():
-            if action.text() == "Zoom":
-                return action.isChecked()
-        return False
-
-
 class Toolbar(QWidget):
-    def __init__(self, canvas, view_options=ViewOptions, parent=None):
+    def __init__(self, navigation: PlotNavigation | None, view_options=ViewOptions, parent=None):
         super().__init__(parent)
-        self.canvas = canvas
+        self.navigation = navigation
 
         # Generate checkboxes dynamically from DEFAULTS
         checkboxes = [(to_title_case(key), to_title_case(key))
@@ -96,7 +48,7 @@ class Toolbar(QWidget):
 
     def initUI(self):
         hbox = QHBoxLayout()
-        self.mpl_toolbar = CustomNavigationToolbar(self.canvas)
+        navigation_widget = None if self.navigation is None else self.navigation.widget()
         self.baseline_radio = QRadioButton("Baseline points")
         self.peaks_radio = QRadioButton("Peaks points")
         self.highlight_radio = QRadioButton("Spectrum Sel.")
@@ -107,7 +59,8 @@ class Toolbar(QWidget):
         spacer1 = QSpacerItem(0, 0, QSizePolicy.Expanding, QSizePolicy.Minimum)
         spacer2 = QSpacerItem(50, 0, QSizePolicy.Fixed, QSizePolicy.Minimum)
 
-        hbox.addWidget(self.mpl_toolbar)
+        if navigation_widget is not None:
+            hbox.addWidget(navigation_widget)
         hbox.addItem(spacer1)
         hbox.addWidget(QLabel('Click Mode:'))
         hbox.addWidget(self.baseline_radio)
@@ -134,4 +87,9 @@ class Toolbar(QWidget):
         return None
 
     def update_toolbar_icons(self):
-        self.mpl_toolbar.update_icons()
+        if self.navigation is None:
+            return
+
+        widget = self.navigation.widget()
+        if hasattr(widget, "update_icons"):
+            widget.update_icons()

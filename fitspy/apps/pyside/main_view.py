@@ -4,7 +4,7 @@ from PySide6.QtWidgets import (QMainWindow, QFrame, QGridLayout, QHBoxLayout, QS
                                QVBoxLayout, QWidget, QMessageBox)
 
 from fitspy.apps.pyside.components import MenuBar, About
-from fitspy.apps.pyside.components.plot import SpectraPlot, Map2DPlot, Toolbar
+from fitspy.apps.pyside.components.plot import Toolbar, create_plot_backend
 from fitspy.apps.pyside.components.settings import StatusBox, ModelBuilder, MoreSettings
 from fitspy.apps.pyside.components.files import MapsList, SpectrumList
 
@@ -74,6 +74,8 @@ class MainView(QMainWindow):
         self.Upper_zone = QHBoxLayout()
         self.Upper_zone.setSpacing(0)
 
+        self._plot_backend = create_plot_backend()
+
         self.init_spectra_plot()
         self.init_2dmap()
 
@@ -100,10 +102,10 @@ class MainView(QMainWindow):
         self.verticalLayout_26 = QVBoxLayout()
         self.verticalLayout_26.setContentsMargins(0, -1, 10, -1)
 
-        self.spectra_plot = SpectraPlot()
+        self.spectra_plot = self._plot_backend.spectra_plot
         self.verticalLayout_26.addWidget(self.spectra_plot)
 
-        self.toolbar = Toolbar(self.spectra_plot.canvas)
+        self.toolbar = Toolbar(self._plot_backend.navigation)
         self.verticalLayout_26.addWidget(self.toolbar)
 
         self.verticalLayout_26.setStretch(0, 100)
@@ -117,7 +119,7 @@ class MainView(QMainWindow):
         self.verticalLayout_13 = QVBoxLayout(self.widget_7)
         self.verticalLayout_13.setContentsMargins(2, 0, 2, 0)
 
-        self.measurement_sites = Map2DPlot()
+        self.measurement_sites = self._plot_backend.map2d_plot
         self.verticalLayout_13.addWidget(self.measurement_sites)
 
         self.Upper_zone.addWidget(self.widget_7)

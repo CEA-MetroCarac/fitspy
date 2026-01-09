@@ -2,10 +2,9 @@ from pathlib import Path
 from PySide6.QtCore import QObject, Signal, QTimer
 
 from fitspy.core.spectrum import Spectrum
-from fitspy.apps.interactive_bounds import InteractiveBounds
 from fitspy.apps.pyside.utils import to_snake_case
 from fitspy.apps.pyside.components.plot.model import Model
-from fitspy.apps.pyside import DEFAULTS
+from fitspy.apps.pyside.components.plot.abstractions import PlotNavigation, PointerEvent
 
 
 class PlotController(QObject):
@@ -30,6 +29,8 @@ class PlotController(QObject):
         self.spectra_plot = spectra_plot
         self.map2d_plot = map2d_plot
         self.toolbar = toolbar
+        self.navigation: PlotNavigation | None = getattr(toolbar, "navigation", None)
+        self.presenter = self.spectra_plot.create_presenter(self.model, self.navigation)
         self.view_options = toolbar.view_options
         # self.too_many_objects_shown = False
         self.init_click_timer()
@@ -51,7 +52,6 @@ class PlotController(QObject):
         self.toolbar.copy_btn.clicked.connect(self.spectra_plot.copy_figure)
         self.spectra_plot.showToast.connect(self.showToast)
 
-        self.map2d_plot.canvas.mpl_connect("button_press_event", self.map2d_plot.on_click)
         self.map2d_plot.dock_widget.topLevelChanged.connect(
             self.map2d_plot.onDockWidgetTopLevelChanged)
         self.map2d_plot.tab_widget.currentChanged.connect(
@@ -88,8 +88,8 @@ class PlotController(QObject):
         self.toolbar.peaks_radio.toggled.connect(self.on_click_mode_changed)
         self.toolbar.highlight_radio.toggled.connect(self.on_click_mode_changed)
 
-        self.spectra_plot.canvas.mpl_connect("motion_notify_event", self.on_motion)
-        self.spectra_plot.canvas.mpl_connect("button_press_event", self.on_spectra_plot_click)
+        self.spectra_plot.connect_motion(self.on_motion)
+        self.spectra_plot.connect_click(self.on_spectra_plot_click)
 
         # for label, checkbox in self.view_options.checkboxes.items():
         for checkbox in self.view_options.checkboxes.values():
@@ -97,14 +97,11 @@ class PlotController(QObject):
 
     def highlight_peak(self, index):
         """Highlight the peak at the given index in the spectrum plot."""
-        ax = self.spectra_plot.ax
-        self.model.highlight_peak(ax, index)
+        self.presenter.highlight_peak(index)
 
-    def on_motion(self, event):
+    def on_motion(self, event: PointerEvent):
         view_options = self.view_options.get_view_options()
-        if view_options["Annotations"]:
-            ax = self.spectra_plot.ax
-            self.model.on_motion(ax, event)
+        self.presenter.on_motion(event, view_options)
 
     def set_marker(self, spectrum_or_fname_or_coords):
         if self.model.current_map:
@@ -151,27 +148,19 @@ class PlotController(QObject):
         else:
             self.model.current_spectra = [self.model.spectra.get_objects(fname)[0]
                                           for fname in fnames if fname != '']
-            if len(self.model.current_spectra) > 0:
-                self.model.ibounds = InteractiveBounds(self.model.current_spectra[0],
-                                                       self.spectra_plot.ax,
-                                                       cmap=DEFAULTS["peaks_cmap"],
-                                                       bind_func=self.model.refresh)
-                self.update_plot_title()
-            else:
-                self.spectra_plot.ax.clear()
-                self.spectra_plot.ax.figure.canvas.draw_idle()
+
+        self.presenter.on_current_spectra_changed()
 
     def update_plot_title(self):
         if self.model.current_spectra:
             model_name = None
             if self.model.current_spectra[0]:
                 model_name = Path(self.model.current_spectra[0].fname).name
-            self.spectra_plot.ax.set_title(model_name)
+            self.spectra_plot.set_title(model_name)
 
     def update_spectraplot(self):
-        ax = self.spectra_plot.ax
         view_options = self.view_options.get_view_options()
-        self.model.update_spectraplot(ax, view_options, self.toolbar.mpl_toolbar)
+        self.presenter.update(view_options)
 
     def get_spectra(self, fname=None):
         if fname is None:
@@ -189,10 +178,10 @@ class PlotController(QObject):
             self.model.current_mode = selected_mode
             self.settingChanged.emit("click_mode", selected_mode)
 
-    def on_spectra_plot_click(self, event):
+    def on_spectra_plot_click(self, event: PointerEvent):
         """Callback for click events on the spectra plot."""
         # Do not add baseline or peak points when pan or zoom are selected
-        if self.toolbar.mpl_toolbar.is_pan_active() or self.toolbar.mpl_toolbar.is_zoom_active():
+        if self.navigation and (self.navigation.is_pan_active() or self.navigation.is_zoom_active()):
             self.consecutive_clicks += 1
             self.click_timer.start()
             if self.consecutive_clicks > self.click_threshold:
@@ -205,27 +194,10 @@ class PlotController(QObject):
         else:
             self.consecutive_clicks = 0
 
-        x, y = event.xdata, event.ydata
         point_type = self.toolbar.get_selected_radio()
-
-        if point_type == "highlight":
-            fnames = self.model.highlight_spectrum(self.spectra_plot.ax, event)
-            self.highlightSpectrum.emit(fnames, False)
-
-        elif point_type == "baseline":
-            if event.button == 1:
-                self.model.add_baseline_point(x, y)
-            else:
-                self.model.del_baseline_point(x)
-
-        else:  # point_type == "peaks":
-            if self.model.ibounds is not None and self.model.ibounds.interact_with_bbox(event):
-                self.model.refresh()
-            else:
-                if event.button == 1:
-                    self.model.add_peak_point(self.model.peak_model, x)
-                else:
-                    self.model.del_peak_point(x)
+        highlighted = self.presenter.on_click(event, point_type)
+        if highlighted:
+            self.highlightSpectrum.emit(highlighted, False)
 
     def set_spectrum_attr(self, attr, value, fnames=None):
         if fnames is None:

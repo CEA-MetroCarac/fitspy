@@ -1,6 +1,4 @@
 import numpy as np
-from matplotlib.figure import Figure
-from matplotlib.backends.backend_qtagg import FigureCanvas
 
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import (QMainWindow, QWidget, QVBoxLayout, QLabel, QHBoxLayout,
@@ -10,6 +8,7 @@ from superqt import QLabeledDoubleRangeSlider as QRangeSlider
 
 from fitspy.apps.pyside.components.custom_widgets import ComboBox
 from fitspy.apps.pyside import DEFAULTS
+from fitspy.apps.pyside.components.plot.abstractions import PointerEvent
 
 
 class CommonTab(QWidget):
@@ -98,10 +97,10 @@ class Settings(QTabWidget):
 class Map2DPlot(QMainWindow):
     addMarker = Signal(tuple)
 
-    def __init__(self, parent=None):
+    def __init__(self, surface, parent=None):
         super().__init__(parent)
+        self._surface = surface
         self.initUI()
-        self.colorbar = None
 
     def initUI(self):
         self.dock_widget = QDockWidget("Measurement sites (Drag to undock)", self)
@@ -117,30 +116,26 @@ class Map2DPlot(QMainWindow):
         self.tab_widget = Settings()
         self.dock_layout.addWidget(self.tab_widget)
 
-        # Spectra 2D Map
-        self.figure = Figure(layout="compressed")
-        self.ax = self.figure.add_subplot(111)
-        self.canvas = FigureCanvas(self.figure)
-        self.dock_layout.addWidget(self.canvas)
+        # 2D Map surface (plot area) (backend-provided)
+        self.dock_layout.addWidget(self._surface.widget())
+        self._surface.connect_click(self._on_surface_click)
 
         self.dock_widget.setWidget(self.dock_container)
         self.addDockWidget(Qt.RightDockWidgetArea, self.dock_widget)
 
     # Event Handlers
-    def on_click(self, event):
-        """Callback for mouse click event."""
-        x, y = event.xdata, event.ydata
-        self.addMarker.emit((x, y))
+    def _on_surface_click(self, event: PointerEvent) -> None:
+        self.addMarker.emit((event.xdata, event.ydata))
 
     def onDockWidgetTopLevelChanged(self, floating):
         if floating:
             self.dock_widget.resize(600, 600)
             self.tab_widget.setVisible(True)
-            self.add_colorbar()
+            self._surface.add_colorbar()
         else:
             self.dock_widget.resize(300, 300)
             self.tab_widget.setVisible(False)
-            self.remove_colorbar()
+            self._surface.remove_colorbar()
 
     def onTabWidgetCurrentChanged(self, spectramap):
         self.update_labels(spectramap)
@@ -152,18 +147,18 @@ class Map2DPlot(QMainWindow):
             self.clear_map()
         else:
             self.plot_spectramap(spectramap)
-            self.update_colorbar()
+            self._surface.update_colorbar(self.dock_widget.isFloating())
             self.update_vrange_slider(spectramap)
 
     def clear_map(self):
-        self.ax.clear()
-        self.canvas.draw_idle()
-        self.remove_colorbar()
+        self._surface.clear()
 
     def plot_spectramap(self, spectramap):
-        spectramap.plot_map(self.ax,
-                            range_slider=self.tab_widget.intensity_tab.range_slider,
-                            cmap=DEFAULTS["map_cmap"])
+        self._surface.plot_spectramap(
+            spectramap,
+            range_slider=self.tab_widget.intensity_tab.range_slider,
+            cmap=DEFAULTS["map_cmap"],
+        )
 
     def update_plot(self, spectramap):
         xrange = self.tab_widget.intensity_tab.range_slider.value()
@@ -178,11 +173,24 @@ class Map2DPlot(QMainWindow):
             current_tab.vrange_slider.blockSignals(False)
 
         vmin, vmax = current_tab.vrange_slider.value()
-        spectramap.plot_map_update(vmin=vmin, vmax=vmax, xrange=xrange, var=var, label=label,
-                                   cmap=DEFAULTS["map_cmap"])
+        self._surface.plot_update(
+            spectramap,
+            vmin=vmin,
+            vmax=vmax,
+            xrange=xrange,
+            var=var,
+            label=label,
+            cmap=DEFAULTS["map_cmap"],
+        )
 
     def update_plot_map(self, spectramap, xrange, var, label, current_tab):
-        spectramap.plot_map_update(xrange=xrange, var=var, label=label, cmap=DEFAULTS["map_cmap"])
+        self._surface.plot_prepare_vrange(
+            spectramap,
+            xrange=xrange,
+            var=var,
+            label=label,
+            cmap=DEFAULTS["map_cmap"],
+        )
         vmin, vmax = current_tab.vrange_slider.minimum(), current_tab.vrange_slider.maximum()
 
         if not np.all(np.isnan(spectramap.arr)):
@@ -192,23 +200,6 @@ class Map2DPlot(QMainWindow):
                 current_tab.vrange_slider.setRange(rvmin, rvmax)
                 current_tab.vrange_slider.setValue((rvmin, rvmax))
 
-    # Colorbar Functions
-    def add_colorbar(self):
-        if not self.colorbar and self.ax.images:
-            self.colorbar = self.figure.colorbar(self.ax.images[0], ax=self.ax)
-            self.canvas.draw_idle()
-
-    def remove_colorbar(self):
-        if self.colorbar:
-            self.colorbar.remove()
-            self.colorbar = None
-            self.canvas.draw_idle()
-
-    def update_colorbar(self):
-        if self.dock_widget.isFloating():
-            self.add_colorbar()
-        else:
-            self.remove_colorbar()
 
     # Utility Functions
     def collect_unique_labels(self, spectramap):
@@ -253,7 +244,10 @@ if __name__ == "__main__":
     app = QApplication(sys.argv)
     main = QMainWindow()
     main.setCentralWidget(QLabel("Central Widget"))
-    map2d_plot = Map2DPlot(main)
+    from fitspy.apps.pyside.components.plot.backend_factory import create_plot_backend
+
+    backend = create_plot_backend()
+    map2d_plot = backend.map2d_plot
     main.setCentralWidget(map2d_plot)
     main.show()
     sys.exit(app.exec())
