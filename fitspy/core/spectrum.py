@@ -1018,7 +1018,7 @@ class Spectrum:
         if save_data:
             model_dict['x0'] = list(self.x0)
             model_dict['y0'] = list(self.y0)
-            model_dict['weights0'] = list(self.weights0)
+            model_dict['weights0'] = list(self.weights0) if self.weights0 is not None else None
 
         model_dict['baseline'] = dict(vars(self.baseline).items())
 
