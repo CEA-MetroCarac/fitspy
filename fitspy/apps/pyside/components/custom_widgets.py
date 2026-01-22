@@ -5,9 +5,11 @@ from PySide6.QtWidgets import (
     QSpinBox,
     QComboBox,
     QAbstractSpinBox,
+    QMenu,
 )
 from PySide6.QtGui import (
     QAction,
+    QActionGroup,
     QDragEnterEvent,
     QDragLeaveEvent,
     QDropEvent,
@@ -220,6 +222,69 @@ class DragNDropCombo(ComboBox):
             painter.drawText(rect, Qt.AlignCenter, text)
 
             painter.restore()
+
+
+class CategorizedComboBox(ComboBox):
+    CATEGORY_ROLE = Qt.UserRole + 1
+
+    def showPopup(self):
+        if self.count() == 0:
+            return
+
+        menu = QMenu(self)
+        menu.setToolTipsVisible(True)
+        action_group = QActionGroup(menu)
+        action_group.setExclusive(True)
+
+        top_level_indices = []
+        categories = {}
+        category_order = []
+
+        for i in range(self.count()):
+            category = self.itemData(i, self.CATEGORY_ROLE)  # may be None
+            if category in (None, ""):
+                top_level_indices.append(i)
+                continue
+
+            if category not in categories:
+                categories[category] = []
+                category_order.append(category)
+            categories[category].append(i)
+
+        current_index = self.currentIndex()
+
+        for i in top_level_indices:
+            label = self.itemText(i)
+            action = menu.addAction(label)
+            action.setCheckable(True)
+            action.setData(i)
+            action.setToolTip(self.itemData(i, Qt.ToolTipRole))
+            action_group.addAction(action)
+            if i == current_index:
+                action.setChecked(True)
+                menu.setActiveAction(action)
+
+        if top_level_indices and category_order:
+            menu.addSeparator()
+
+        for category in category_order:
+            submenu = menu.addMenu(str(category))
+            submenu.setToolTipsVisible(True)
+            for i in categories[category]:
+                label = self.itemText(i)
+                action = submenu.addAction(label)
+                action.setCheckable(True)
+                action.setData(i)
+                action.setToolTip(self.itemData(i, Qt.ToolTipRole))
+                action_group.addAction(action)
+
+        def _on_action_triggered(action):
+            index = action.data()
+            if isinstance(index, int):
+                self.setCurrentIndex(index)
+
+        action_group.triggered.connect(_on_action_triggered)
+        menu.exec(self.mapToGlobal(self.rect().bottomLeft()))
 
 
 if __name__ == "__main__":
