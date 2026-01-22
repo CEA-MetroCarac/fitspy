@@ -1,17 +1,23 @@
 from PySide6.QtCore import Qt, Signal, QSize
 from PySide6.QtGui import QIcon
-from PySide6.QtWidgets import (QRadioButton, QSlider, QVBoxLayout, QHBoxLayout, QScrollArea,
+from PySide6.QtWidgets import (QSlider, QVBoxLayout, QHBoxLayout, QScrollArea,
                                QPushButton, QCheckBox, QLabel, QWidget, QSpacerItem,
-                               QSizePolicy, QButtonGroup, QTabWidget)
+                               QSizePolicy, QTabWidget)
 from superqt import QCollapsible
 
 from fitspy import PEAK_MODELS, BKG_MODELS
 from fitspy.apps.pyside.utils import get_icon_path
 from fitspy.apps.pyside.components import FitStats
-from fitspy.apps.pyside.components.custom_widgets import SpinBox, DoubleSpinBox, DragNDropCombo
+from fitspy.apps.pyside.components.custom_widgets import (
+    SpinBox,
+    DoubleSpinBox,
+    DragNDropCombo,
+    CategorizedComboBox,
+)
 from fitspy.apps.pyside.components.settings.peaks_table import PeaksTable
 from fitspy.apps.pyside.components.settings.bkg_table import BkgTable
 from fitspy.apps.pyside.components.settings.baseline_table import BaselineTable
+from fitspy.core.baseline_methods import BASELINE_METHODS, get_baseline_method_meta
 
 
 class SpectralRange(QCollapsible):
@@ -62,15 +68,19 @@ class Baseline(QCollapsible):
         self.HLayout1.setSpacing(5)
         self.HLayout1.setContentsMargins(0, 0, 0, 0)
 
-        self.none = QRadioButton("None")
-        self.semi_auto = QRadioButton("Semi-Auto :")
+        self.label_method = QLabel("Method:")
+        self.method = CategorizedComboBox()
+        self.method.wheelEvent = lambda event: event.ignore()
+        self.method.setMaximumWidth(70)
+        self.label_coef = QLabel("Coef:")
         self.slider = QSlider(Qt.Horizontal)
         self.slider.setRange(0, 10)
         self.slider.wheelEvent = lambda event: event.ignore()
         self.import_btn = QPushButton("Import")
 
-        self.HLayout1.addWidget(self.none)
-        self.HLayout1.addWidget(self.semi_auto)
+        self.HLayout1.addWidget(self.label_method)
+        self.HLayout1.addWidget(self.method)
+        self.HLayout1.addWidget(self.label_coef)
         self.HLayout1.addWidget(self.slider)
         self.HLayout1.addWidget(self.import_btn)
 
@@ -78,25 +88,13 @@ class Baseline(QCollapsible):
         self.HLayout2.setSpacing(5)
         self.HLayout2.setContentsMargins(0, 0, 0, 0)
 
-        self.linear = QRadioButton("Linear")
-        self.polynomial = QRadioButton("Polynomial")
         self.label_order = QLabel("Order:")
         self.order = SpinBox()
 
-        self.HLayout2.addWidget(self.linear)
-        spacer1 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
-        self.HLayout2.addItem(spacer1)
-        self.HLayout2.addWidget(self.polynomial)
-        spacer2 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
-        self.HLayout2.addItem(spacer2)
         self.HLayout2.addWidget(self.label_order)
         self.HLayout2.addWidget(self.order)
-
-        self.button_group = QButtonGroup(self)
-        self.button_group.addButton(self.none)
-        self.button_group.addButton(self.semi_auto)
-        self.button_group.addButton(self.linear)
-        self.button_group.addButton(self.polynomial)
+        spacer2 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+        self.HLayout2.addItem(spacer2)
 
         self.HLayout3 = QHBoxLayout()
         self.HLayout3.setSpacing(5)
@@ -122,6 +120,53 @@ class Baseline(QCollapsible):
         self.setContent(content_widget)
         self.expand(animate=False)
 
+        self.populate_methods()
+        self.method.currentIndexChanged.connect(self._on_method_changed)
+
+    def populate_methods(self, current_method_id=None):
+        self.method.blockSignals(True)
+        self.method.clear()
+        for method_id in BASELINE_METHODS:
+            meta = get_baseline_method_meta(method_id)
+            self.method.addItem(meta["label"], method_id)
+            
+            idx = self.method.count() - 1
+            if "help" in meta:
+                self.method.setItemData(idx, meta["help"], Qt.ToolTipRole)
+
+            if method_id is not None:
+                category = meta.get("category", "Other")
+                self.method.setItemData(
+                    self.method.count() - 1,
+                    category,
+                    CategorizedComboBox.CATEGORY_ROLE,
+                )
+
+        if current_method_id is None:
+            self.method.setCurrentIndex(0)
+        else:
+            idx = self.method.findData(current_method_id)
+            self.method.setCurrentIndex(idx if idx >= 0 else 0)
+        self.method.blockSignals(False)
+        self.apply_method_controls(self.method.currentData())
+
+    def apply_method_controls(self, method_id):
+        meta = get_baseline_method_meta(method_id)
+        use_coef = "coef_kwarg" in meta
+        use_order = "order_kwarg" in meta
+        use_sigma = "sigma_kwarg" in meta
+        use_points = meta.get("use_points", False)
+
+        self.label_coef.setEnabled(use_coef)
+        self.slider.setEnabled(use_coef)
+        self.label_order.setEnabled(use_order)
+        self.order.setEnabled(use_order)
+        self.attached.setEnabled(use_points)
+        self.label_sigma.setEnabled(use_sigma)
+        self.sigma.setEnabled(use_sigma)
+
+    def _on_method_changed(self, _index):
+        self.apply_method_controls(self.method.currentData())
 
 class Normalization(QCollapsible):
     def __init__(self, parent=None):
@@ -375,10 +420,12 @@ class ModelBuilder(QWidget):
         baseline = self.model_settings.baseline
         baseline_model = model.get("baseline", {})
 
-        baseline.none.setChecked(baseline_model.get("mode", None) is None)
-        baseline.semi_auto.setChecked(baseline_model.get("mode", None) == "Semi-Auto")
-        baseline.linear.setChecked(baseline_model.get("mode", None) == "Linear")
-        baseline.polynomial.setChecked(baseline_model.get("mode", None) == "Polynomial")
+        method_id = baseline_model.get("mode", None)
+        baseline.method.blockSignals(True)
+        index = baseline.method.findData(method_id)
+        baseline.method.setCurrentIndex(index if index >= 0 else 0)
+        baseline.method.blockSignals(False)
+        baseline.apply_method_controls(method_id)
 
         baseline.attached.setChecked(baseline_model.get("attached", False))
         baseline.order.setValue(baseline_model.get("order_max", 0))
