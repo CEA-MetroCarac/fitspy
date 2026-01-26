@@ -128,7 +128,7 @@ def test_semiauto_baseline(basic_spectrum):
     peak = 50 * np.exp(-((x - 150) ** 2) / (2 * 20 ** 2))
     basic_spectrum.y = basic_spectrum.y + peak
     basic_spectrum.auto_baseline()
-    assert basic_spectrum.baseline.mode == 'Semi-Auto'
+    assert basic_spectrum.baseline.mode == 'arpls'
     basic_spectrum.eval_baseline()
 
     # Check that the maximum of the evaluated baseline occurs near the peak position (x=150)

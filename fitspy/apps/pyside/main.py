@@ -62,7 +62,7 @@ class Appli:
 
         spectra = self.controller.plot_controller.get_spectra()
         for spectrum in spectra:
-            spectrum.baseline.mode = "Semi-Auto"
+            spectrum.baseline.mode = "arpls"
             spectrum.eval_baseline()
             spectrum.subtract_baseline()
             spectrum.auto_peaks(model_name)

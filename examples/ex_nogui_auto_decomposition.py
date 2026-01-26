@@ -26,7 +26,7 @@ def auto_decomposition(verbosity=True, show_plots=False):
         spectrum = Spectrum()
         spectrum.load_profile(fname)
         spectrum.apply_range(range_min=60)
-        spectrum.baseline.mode = 'Semi-Auto'
+        spectrum.baseline.mode = 'arpls'
         spectrum.eval_baseline()
         spectrum.subtract_baseline()
         spectrum.auto_peaks(model_name="Lorentzian")

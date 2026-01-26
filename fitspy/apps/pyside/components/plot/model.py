@@ -390,7 +390,7 @@ class Model(QObject):
         baseline = spectrum.baseline
         if not baseline.is_subtracted:
             x, y = spectrum.x, None
-            if baseline.attached or baseline.mode == "Semi-Auto":
+            if baseline.attached or baseline.mode == "arpls":
                 y = spectrum.y
             baseline.plot(ax, x, y, attached=baseline.attached)
 

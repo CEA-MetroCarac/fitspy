@@ -28,11 +28,11 @@ class BaseLine:
     points: list of 2 lists
         List of the (x,y) baseline points coordinates
     mode: str or None
-        Mode used to determine the baseline, among None, 'Semi-Auto' (semi-automatic
+        Mode used to determine the baseline, among None, 'arpls' (semi-automatic
         baseline determination), 'Linear' (piecewise linear decomposition based
         on users points definition) and 'Polynomial'. Default mode is None
     coef: int
-        Smoothing coefficient used in the 'Semi-Auto' mode.
+        Smoothing coefficient used in the 'arpls' mode.
         The larger coef is, the smoother the resulting baseline
     order_max: int
         Maximum order of the baseline polynomial evaluation
@@ -389,7 +389,7 @@ if __name__ == "__main__":
     # spectramap.create_map(fname=DATA / "2D_maps" / "ordered_map.txt")
     # t0 = time.time()
     # for spectrum in spectramap:
-    #     spectrum.baseline.mode = 'Semi-Auto'
+    #     spectrum.baseline.mode = 'arpls'
     #     spectrum.eval_baseline()
     # print(f"TCPU: {time.time() - t0}")
     #

@@ -388,7 +388,7 @@ class Callbacks:
             baseline = spectrum.baseline
             if not baseline.is_subtracted:
                 x, y = spectrum.x, None
-                if baseline.attached or baseline.mode == 'Semi-Auto':
+                if baseline.attached or baseline.mode == 'arpls':
                     y = spectrum.y
                 baseline.plot(self.ax, x, y, attached=baseline.attached)
 
@@ -848,7 +848,7 @@ class Callbacks:
         for fname in fnames:
             self.current_spectrum, _ = self.spectra.get_objects(fname)
             self.current_spectrum.apply_range()
-            self.current_spectrum.baseline.mode = 'Semi-Auto'
+            self.current_spectrum.baseline.mode = 'arpls'
             self.current_spectrum.eval_baseline()
             self.current_spectrum.subtract_baseline()
             self.auto_peaks(model_name=model_name)
