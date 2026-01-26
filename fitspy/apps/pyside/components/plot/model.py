@@ -13,6 +13,7 @@ from fitspy.core.spectra import Spectra
 from fitspy.core.spectrum import Spectrum
 from fitspy.core.spectra_map import SpectraMap
 from fitspy.core.utils import closest_index, closest_item, measure_time
+from fitspy.core.baseline_methods import get_baseline_method_meta
 from fitspy.apps.pyside import DEFAULTS
 
 CMAP = matplotlib.colormaps['tab10']
@@ -170,11 +171,14 @@ class Model(QObject):
 
     def add_baseline_point(self, x, y):
         first_spectrum = self.current_spectra[0]
-        if first_spectrum.baseline.mode not in ["Linear", "Polynomial"]:
+        use_points = get_baseline_method_meta(first_spectrum.baseline.mode).get(
+            "use_points", False
+        )
+        if not use_points:
             self.showToast.emit(
                 "info",
                 "Baseline Mode",
-                "Baseline mode must be 'Linear' or 'Polynomial' to add points.",
+                "Selected baseline method does not support points.",
             )
             return
 
@@ -386,7 +390,7 @@ class Model(QObject):
         baseline = spectrum.baseline
         if not baseline.is_subtracted:
             x, y = spectrum.x, None
-            if baseline.attached or baseline.mode == "Semi-Auto":
+            if baseline.attached or baseline.mode == "arpls":
                 y = spectrum.y
             baseline.plot(ax, x, y, attached=baseline.attached)
 

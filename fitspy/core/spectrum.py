@@ -770,8 +770,8 @@ class Spectrum:
                     param['vary'] = vary_init[next(i)]
 
     def auto_baseline(self):
-        """ set baseline.mode to 'Semi-Auto """
-        self.baseline.mode = 'Semi-Auto'
+        """ set baseline.mode to 'arpls """
+        self.baseline.mode = 'arpls'
 
     def eval_baseline(self):
         """ Evaluate baseline profile """

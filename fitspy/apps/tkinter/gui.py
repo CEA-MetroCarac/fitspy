@@ -59,11 +59,11 @@ class GUI(Callbacks):
     outliers_coef: Tkinter.DoubleVar
         Coefficient applied to the outliers limits
     baseline_mode: Tkinter.StringVar
-        Method associated with the baseline determination method ('Semi-Auto',
+        Method associated with the baseline determination method ('arpls',
         'Linear' or 'Polynomial')
     baseline_coef: Tkinter.IntVar
         Smoothing coefficient used when calculating the baseline with the
-        'Semi-Auto' algorithm
+        'arpls' algorithm
     baseline_attached: Tkinter.BooleanVar
         Activation keyword for baseline points attachment to the spectra
     baseline_sigma: Tkinter.IntVar
@@ -113,7 +113,7 @@ class GUI(Callbacks):
         self.baseline_attached = BooleanVar(value=True)
         self.baseline_sigma = IntVar(value=0)
         self.baseline_distance = IntVar(value=500)
-        self.baseline_mode = StringVar(value="Semi-Auto")
+        self.baseline_mode = StringVar(value="arpls")
         self.baseline_coef = IntVar(value=5)
         self.baseline_order_max = IntVar(value=2)
 
@@ -235,8 +235,8 @@ class GUI(Callbacks):
 
         var_mode = self.baseline_mode
         var_coef = self.baseline_coef
-        modes = ["Semi-Auto", "Linear", "Polynomial"]
-        texts = ["Semi-Auto :", "Linear", "Polynomial - Order :"]
+        modes = ["arpls", "Linear", "Polynomial"]
+        texts = ["arpls :", "Linear", "Polynomial - Order :"]
         add(Radiobutton(fr, text=texts[0], variable=var_mode, value=modes[0],
                         command=self.apply_baseline_settings), 0, 0)
         scale = Scale(fr, variable=var_coef, from_=0, to=10, showvalue=False,

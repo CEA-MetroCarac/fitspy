@@ -52,17 +52,7 @@ class SettingsController(QObject):
 
         # Baseline settings
         baseline = model_settings.baseline
-        baseline_modes = {
-            baseline.none: None,
-            baseline.semi_auto: "Semi-Auto",
-            baseline.linear: "Linear",
-            baseline.polynomial: "Polynomial",
-        }
-
-        for button, mode in baseline_modes.items():
-            button.toggled.connect(
-                lambda checked, mode=mode: (self.update_and_emit("baseline.mode", mode)
-                                            if checked else None))
+        baseline.method.currentIndexChanged.connect(self._on_baseline_method_changed)
 
         baseline.slider.valueChanged.connect(
             lambda value: self.update_and_emit("baseline.coef", value))
@@ -416,6 +406,11 @@ class SettingsController(QObject):
 
     def get_baseline_mode(self):
         return self.model.current_fit_model["baseline"]["mode"]
+    
+    def _on_baseline_method_changed(self, index):
+        baseline = self.model_builder.model_settings.baseline
+        method_id = baseline.method.currentData()
+        self.update_and_emit("baseline.mode", method_id)
 
     def load_user_models(self, models: dict, fname=None):
         if fname is None:

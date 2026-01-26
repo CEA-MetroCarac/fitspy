@@ -11,6 +11,12 @@ from scipy import sparse
 from scipy.linalg import cholesky
 
 from fitspy.core.utils import closest_index
+from fitspy.core.baseline_methods import (
+    BASELINE_METHODS,
+    PYBASELINES_METHODS,
+    get_baseline_method_meta,
+)
+from pybaselines import Baseline as PyBaseline
 
 
 class BaseLine:
@@ -22,11 +28,11 @@ class BaseLine:
     points: list of 2 lists
         List of the (x,y) baseline points coordinates
     mode: str or None
-        Mode used to determine the baseline, among None, 'Semi-Auto' (semi-automatic
+        Mode used to determine the baseline, among None, 'arpls' (semi-automatic
         baseline determination), 'Linear' (piecewise linear decomposition based
         on users points definition) and 'Polynomial'. Default mode is None
     coef: int
-        Smoothing coefficient used in the 'Semi-Auto' mode.
+        Smoothing coefficient used in the 'arpls' mode.
         The larger coef is, the smoother the resulting baseline
     order_max: int
         Maximum order of the baseline polynomial evaluation
@@ -97,12 +103,30 @@ class BaseLine:
     def eval(self, x, y, attached=False):
         """ Evaluate the baseline on a 'x' support and a 'y' profile
             possibly smoothed with a gaussian filter """
-        assert self.mode in [None, 'Semi-Auto', 'Linear', 'Polynomial']
+        if self.mode not in BASELINE_METHODS:
+            raise ValueError(f"Unsupported baseline mode: {self.mode}")
+
+        meta = get_baseline_method_meta(self.mode)
 
         if self.mode is None:
             self.y_eval = None
 
-        elif self.mode == 'Semi-Auto':
+        elif self.mode in PYBASELINES_METHODS:
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore")
+                method = getattr(PyBaseline(x_data=x), self.mode)
+
+                kwargs = {}
+                if (key := meta.get("coef_kwarg")):
+                    kwargs[key] = 10 ** self.coef
+                if (key := meta.get("order_kwarg")):
+                    kwargs[key] = int(self.order_max)
+                if (key := meta.get("sigma_kwarg")):
+                    kwargs[key] = self.sigma
+
+                self.y_eval = method(y, **kwargs)[0]
+
+        elif self.mode == 'arpls':
             with warnings.catch_warnings():
                 warnings.simplefilter("ignore")
                 mask = np.zeros_like(y, dtype=bool)
@@ -165,14 +189,15 @@ class BaseLine:
         if self.mode is None:
             return
 
-        if self.mode != 'Semi-Auto' and len(self.points[0]) == 0:
+        use_points = get_baseline_method_meta(self.mode).get("use_points", False)
+        if use_points and len(self.points[0]) == 0:
             return
 
         # use the original points or the attached points to an y-profile
         points = self.points if not attached else self.attached_points(x, y)
 
         ax.plot(x, self.eval(x, y, attached=attached), 'g', label=label)
-        if show_all:
+        if show_all and use_points:
             ax.plot(self.points[0], self.points[1], 'ko--', mfc='none')
             ax.plot(points[0], points[1], 'go', mfc='none')
 
@@ -364,7 +389,7 @@ if __name__ == "__main__":
     # spectramap.create_map(fname=DATA / "2D_maps" / "ordered_map.txt")
     # t0 = time.time()
     # for spectrum in spectramap:
-    #     spectrum.baseline.mode = 'Semi-Auto'
+    #     spectrum.baseline.mode = 'arpls'
     #     spectrum.eval_baseline()
     # print(f"TCPU: {time.time() - t0}")
     #
