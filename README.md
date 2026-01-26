@@ -132,6 +132,20 @@ From the top to the bottom of the right panel:
 
 *(See the [documentation](https://cea-metrocarac.github.io/fitspy/user_guide/workflow.html) for more details)*
 
+
+## Reset GUI settings
+For PySide GUI, settings are stored using QSettings (in registry on Windows, .ini files on Linux and MacOS). Fitspy provides a command line tool to list or reset these settings.
+
+### List current settings
+```sh
+python -m fitspy reset-settings --list
+```
+
+### Reset settings to default values
+```sh
+python -m fitspy reset-settings
+```
+
 ## Acknowledgements
 
 This work, carried out on the CEA - Platform for Nanocharacterisation (PFNC), was supported by the “Recherche Technologique de Base” program of the French National Research Agency (ANR).
