@@ -353,44 +353,6 @@ class SettingsController(QObject):
         model_dict = self.model.current_fit_model
         self.fitRequested.emit(model_dict)
 
-    def preview_model(self, checked):
-        combo_box = self.model_builder.model_selector.combo_box
-        current_index = combo_box.currentIndex()
-        current_text = combo_box.currentText().replace(" (Preview)", "")
-
-        def lock_inputs(state):
-            widgets_to_disable = [
-                self.model_builder.model_settings.container,
-                self.model_builder.model_selector,
-                self.model_builder.baseline_table,
-                self.model_builder.bkg_table.table,
-                self.model_builder.peaks_table.table,
-                self.solver_settings,
-            ]
-
-            for widget in widgets_to_disable:
-                widget.setDisabled(state)
-
-        if checked:
-            # Backup the current fit model
-            self.model.backup_fit_model = copy.deepcopy(
-                self.model.current_fit_model
-            )
-            combo_box.setItemText(current_index, current_text + " (Preview)")
-            model = load_from_json(current_text)
-            model = model[next(iter(model))]
-            model.pop("fname", None)
-            self.setModel.emit(model)  # Applied before lock cause if peaks table is empty,
-            # nothing will be locked
-            lock_inputs(True)
-        else:
-            # Restore the backup fit model
-            if self.model.backup_fit_model is not None:
-                model = copy.deepcopy(self.model.backup_fit_model)
-            combo_box.setItemText(current_index, current_text)
-            lock_inputs(False)
-            self.setModel.emit(model)
-
     def switch_peak_model(self, model_name):
         self.model_builder.tab_widget.setCurrentIndex(0)
         self.updatePeakModel.emit(model_name)

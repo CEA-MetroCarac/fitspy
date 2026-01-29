@@ -161,7 +161,7 @@ class PlotController(QObject):
         self.model.ibounds = None
 
         if len(fnames) == 1 and fnames[0].endswith('.json'):
-            spectrum = Spectrum.create_from_model(fnames[0])
+            spectrum = Spectrum.create_from_model(fnames[0])  # .json model preview
             self.model.current_spectra = [spectrum] if spectrum is not None else []
         else:
             self.model.current_spectra = [self.model.spectra.get_objects(fname)[0]

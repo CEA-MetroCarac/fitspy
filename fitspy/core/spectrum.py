@@ -840,7 +840,7 @@ class Spectrum:
 
                 if show_peak_models:
                     color = cmap_peaks(i % cmap_peaks.N)
-                    label = f'{label}_Peak_{i}' if label else f'Peak_{i}'
+                    label = f'{label}_Peak_{i}' if label else None
 
                     line, = ax.plot(x, y_peak, lw=linewidth, color=color, label=label)
                     lines.append(line)
