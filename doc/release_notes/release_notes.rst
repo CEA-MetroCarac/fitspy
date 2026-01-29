@@ -1,6 +1,28 @@
 Release Notes
 =============
 
+Version 2026.2 (January 29, 2026)
+--------------------------------
+
+**Enhancements:**
+
+- Better centralized handling of retro-compatibility (old .json models + old GUI settings)
+- Adjusted behavior of peaks table header when switching models (previously, switching models from Asym to Sym thus removing fwhm_l and fwhm_r columns would compact the columns making it hard to read; now, the header fits to contents, making the table less compact but more readable)
+
+**New features:**
+
+- New CLI to list and reset Fitspy GUI session settings 
+- `#94 <https://github.com/CEA-MetroCarac/fitspy/issues/94>`_ Extended baseline methods with pybaselines package and Sonneveld-Vesser method
+
+**Bug fixes:**
+
+- Fixed `#93 <https://github.com/CEA-MetroCarac/fitspy/issues/93>`_ click_mode combo now persist between sessions
+- Fixed `#95 <https://github.com/CEA-MetroCarac/fitspy/issues/95>`_ "Save with data" now works
+- Fixed wrong legend when previewing model from .json file
+- Fixed multi-row edits and whole column selection for model change in peaks table
+
+
+
 Version 2026.1 (January 6, 2026)
 --------------------------------
 

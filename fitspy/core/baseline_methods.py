@@ -23,6 +23,12 @@ _INTERNAL_METHODS: Dict[object, Dict[str, Any]] = {
         "sigma_kwarg": "sigma",
         "category": "Manual",
     },
+    "sonneveld_vesser": {
+        "label": "Sonneveld-Vesser",
+        "coef_kwarg": "niter",
+        "category": "Smoothing",
+        "help": "Sonneveld-Vesser baseline correction algorithm.",
+    },
 }
 
 

@@ -142,6 +142,9 @@ class BaseLine:
                     func_interp = interp1d(x[mask], self.y_eval,
                                            fill_value="extrapolate")
                     self.y_eval = func_interp(x)
+        elif self.mode == 'sonneveld_vesser':
+            self.y_eval = sonneveld_vesser(y=y,
+                                          niter=self.coef,)
 
         else:
             points = self.points if not attached else self.attached_points(x, y)
@@ -332,6 +335,44 @@ def arpls(y, edge_padding=100, differentiation_order=2, smoothing_factor=1E4,
     y_smooth = baseline[edge_padding:-edge_padding]
 
     return y_smooth
+
+def sonneveld_vesser(y, step=20, c=0.008, niter=10):
+    """
+    Sonneveld–Visser automatic background estimation
+
+    Parameters
+    ----------
+    y : numpy.ndarray
+        Input spectrum intensity.
+    step : int, optional
+        Subsampling step (default keeps ~5% of points, like Match).
+    c : float, optional
+        Relative clipping threshold (percentage of max background).
+    niter : int, optional
+        Number of clipping iterations.
+
+    Returns
+    -------
+    baseline : numpy.ndarray
+        Estimated baseline, interpolated to full resolution.
+    """
+    y = np.asarray(y, dtype=float)
+    n = y.size
+
+    idx = np.arange(0, n, step)
+    bgr_y = y[idx].copy()
+
+    maxbgrdiff = np.max(bgr_y) * c / 100.0
+
+    for _ in range(niter):
+        for i in range(1, bgr_y.size - 1):
+            m = 0.5 * (bgr_y[i - 1] + bgr_y[i + 1])
+            if bgr_y[i] > m + maxbgrdiff:
+                bgr_y[i] = m
+
+    baseline = np.interp(np.arange(n), idx, bgr_y)
+
+    return baseline
 
 
 @lru_cache(maxsize=2)
