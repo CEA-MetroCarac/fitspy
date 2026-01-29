@@ -66,7 +66,7 @@ class GenericTable(QTableWidget):
             del self.columns[column_name]
             self.setColumnCount(len(self.columns))
             self.set_header_labels()
-            self.set_header_resize_mode(QHeaderView.Stretch)
+            self.set_header_resize_mode(QHeaderView.ResizeToContents)
 
     def set_header_labels(self, show_bounds=True):
         labels = list(self.columns.keys())

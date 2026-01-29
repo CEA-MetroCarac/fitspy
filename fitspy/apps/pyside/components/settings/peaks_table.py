@@ -177,6 +177,7 @@ class PeaksTable(QWidget):
         self.initUI()
         self.show_bounds_state = None  # FIXME: bool instead ? What for show_bounds_state=True ?
         self.show_expr_state = None
+        self.fwhm = 1.0
 
     def initUI(self):
         main_layout = QVBoxLayout(self)

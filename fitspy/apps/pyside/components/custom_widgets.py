@@ -162,7 +162,7 @@ class SpinBox(QSpinBox):
 class ComboBox(QComboBox):
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.setFocusPolicy(Qt.StrongFocus)
+        self.setFocusPolicy(Qt.NoFocus)
 
     def wheelEvent(self, event):
         event.ignore()
