@@ -1,8 +1,8 @@
 from PySide6.QtCore import QObject, Signal, Qt, QSettings
 from PySide6.QtGui import QColor, QPalette
 
-from fitspy.apps.pyside import DEFAULTS, SETTINGS_KEY_MIGRATIONS, SETTINGS_VALUE_MIGRATIONS
-from fitspy import VERSION
+from fitspy.apps.pyside import DEFAULTS
+from fitspy.core.migrations import migrate_qsettings
 
 
 class MainModel(QObject):
@@ -19,35 +19,7 @@ class MainModel(QObject):
         self._initialize_settings()
 
     def _migrate_settings(self):
-        """Check if stored version matches current version and migrate settings if needed"""
-        stored_version = self.settings.value("version", None)
-        if stored_version != VERSION:
-            print(f"Version changed from {stored_version} to {VERSION}, updating settings...")
-
-            self._migrate_setting_keys()
-            self._migrate_setting_values()
-
-            self.settings.setValue("version", VERSION)
-            self.settings.sync()
-
-    def _migrate_setting_keys(self):
-        """Migrate old setting keys to new keys"""
-        for new_key, old_keys in SETTINGS_KEY_MIGRATIONS.items():
-            for old_key in old_keys:
-                if self.settings.contains(old_key):
-                    value = self.settings.value(old_key)
-                    self.settings.setValue(new_key, value)
-                    self.settings.remove(old_key)
-
-    def _migrate_setting_values(self):
-        """Migrate values for existing settings"""
-        for key, value_map in SETTINGS_VALUE_MIGRATIONS.items():
-            if self.settings.contains(key):
-                current_value = self.settings.value(key)
-                if current_value in value_map:
-                    new_value = value_map[current_value]
-                    print(f"Migrating setting {key} from '{current_value}' to '{new_value}'")
-                    self.settings.setValue(key, new_value)
+        migrate_qsettings(self.settings)
 
     def _initialize_settings(self):
         """Initialize settings from DEFAULTS and QSettings."""

@@ -28,6 +28,7 @@ from fitspy.core.utils import closest_index, fileparts, check_or_rename
 from fitspy.core.utils import save_to_json, load_from_json, eval_noise_amplitude
 from fitspy.core.baseline import BaseLine
 from fitspy.core.models_bichromatic import plot_decomposition
+from fitspy.core.migrations import migrate_model_dict, CURRENT_MODEL_SCHEMA_VERSION
 
 CMAP_PEAKS = matplotlib.colormaps['tab10']
 
@@ -179,25 +180,8 @@ class Spectrum:
 
     def set_attributes(self, model_dict):
         """Set attributes from a dictionary (obtained from a .json reloading)"""
+        model_dict = migrate_model_dict(model_dict, spectrum=self)
         keys = model_dict.keys()
-
-        # compatibility with 'old' key names
-        if 'models' in keys:
-            model_dict['peak_models'] = model_dict.pop('models')
-        if 'models_labels' in keys:
-            model_dict['peak_labels'] = model_dict.pop('models_labels')
-        if 'models_index' in keys:
-            model_dict['peak_index'] = model_dict.pop('models_index')
-        if 'fit_method' in keys:
-            self.fit_params['method'] = model_dict.pop('fit_method')
-        if 'fit_negative' in keys:
-            self.fit_params['fit_negative'] = model_dict.pop('fit_negative')
-        if 'max_ite' in keys:
-            self.fit_params['max_ite'] = model_dict.pop('max_ite')
-        if 'xtol' in keys:
-            self.fit_params['xtol'] = model_dict.pop('xtol')
-        if 'independent_models' in keys:
-            self.fit_params['independent_models'] = model_dict.pop('independent_models')
 
         for key, val in vars(self).items():
             if key in keys and key != 'baseline':
@@ -249,35 +233,6 @@ class Spectrum:
             npeaks = len(self.peak_models)
             self.peak_labels = list(map(str, range(1, npeaks + 1)))
 
-        if "baseline_history" in keys:
-            baseline_history = model_dict["baseline_history"]
-            if len(baseline_history) > 1:
-                msg = "baseline_history with more than 1 item are no more valid"
-                raise IOError(msg)
-            if len(baseline_history) == 1:
-                self.baseline.mode = baseline_history[0][0]
-                self.baseline.order_max = baseline_history[0][1]
-                self.baseline.points = baseline_history[0][2]
-                if len(baseline_history[0]) == 4:
-                    sigma = baseline_history[0][3]
-                    self.baseline.sigma = sigma if sigma is not None else 0
-                self.baseline.is_subtracted = True
-
-        if "attached" in keys:
-            self.baseline.attached = model_dict["attached"]
-
-        if "norm_mode" in keys:
-            if model_dict["norm_mode"] == 'Maximum':
-                self.normalize = True
-            elif "norm_position_ref" in keys:  # 'Attractors'
-                norm_position_ref = model_dict["norm_position_ref"]
-                if norm_position_ref is not None:
-                    x = get_1d_profile(self.fname)[0]
-                    # consider 10 pts around 'norm_position_ref' (to simplify)
-                    delta = np.abs(10 * (x[1] - x[0]))
-                    self.normalize = True
-                    self.normalize_range_min = norm_position_ref - delta
-                    self.normalize_range_max = norm_position_ref + delta
 
     def preprocess(self):
         """ Preprocess the spectrum: call successively load_profile(),
@@ -1021,6 +976,7 @@ class Spectrum:
             model_dict['weights0'] = list(self.weights0) if self.weights0 is not None else None
 
         model_dict['baseline'] = dict(vars(self.baseline).items())
+        model_dict['schema_version'] = CURRENT_MODEL_SCHEMA_VERSION
 
         bkg_model = self.bkg_model
         if bkg_model is not None:
@@ -1060,6 +1016,7 @@ class Spectrum:
     def create_from_model(fname, num_points=1000):
         """Create a dummy spectrum with appropriate x-range based on model parameters"""
         model_dict = load_from_json(fname)[0]
+        model_dict = migrate_model_dict(model_dict)
 
         if 'peak_models' not in model_dict:
             return None
