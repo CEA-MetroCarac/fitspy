@@ -131,7 +131,7 @@ class BaseLine:
                 warnings.simplefilter("ignore")
                 mask = np.zeros_like(y, dtype=bool)
                 mask[::max(1, mask.size // 1024)] = True
-                mask[y <= 0] = False
+                mask[y < 0] = False
                 self.y_eval = arpls(y=y[mask],
                                     edge_padding=100,
                                     differentiation_order=2,
@@ -144,7 +144,7 @@ class BaseLine:
                     self.y_eval = func_interp(x)
         elif self.mode == 'sonneveld_vesser':
             self.y_eval = sonneveld_vesser(y=y,
-                                          niter=self.coef,)
+                                           niter=self.coef, )
 
         else:
             points = self.points if not attached else self.attached_points(x, y)
@@ -335,6 +335,7 @@ def arpls(y, edge_padding=100, differentiation_order=2, smoothing_factor=1E4,
     y_smooth = baseline[edge_padding:-edge_padding]
 
     return y_smooth
+
 
 def sonneveld_vesser(y, step=20, c=0.008, niter=10):
     """
