@@ -16,6 +16,11 @@ from fitspy.core.baseline_methods import (
     PYBASELINES_METHODS,
     get_baseline_method_meta,
 )
+
+# Temp fix for numba trying to write into __pycache__ without permission, see https://github.com/numba/numba/issues/8755
+import os
+import tempfile
+os.environ["NUMBA_CACHE_DIR"] = tempfile.gettempdir()
 from pybaselines import Baseline as PyBaseline
 
 
