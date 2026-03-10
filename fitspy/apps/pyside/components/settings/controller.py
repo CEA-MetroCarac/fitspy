@@ -17,6 +17,7 @@ class SettingsController(QObject):
     setSpectrumAttr = Signal(str, object)
     baselinePointsChanged = Signal(list)
     setModel = Signal(object)
+    importBaseline = Signal()
     applyBaseline = Signal()
     applySpectralRange = Signal(object, object)
     applyNormalization = Signal(bool, object, object)
@@ -62,6 +63,7 @@ class SettingsController(QObject):
             lambda value: self.update_and_emit("baseline.sigma", value))
         baseline.order.valueChanged.connect(
             lambda value: self.update_and_emit("baseline.order_max", value))
+        baseline.import_btn.clicked.connect(self.importBaseline)
         baseline.apply.clicked.connect(self.applyBaseline)
 
         # Normalization settings
@@ -368,7 +370,7 @@ class SettingsController(QObject):
 
     def get_baseline_mode(self):
         return self.model.current_fit_model["baseline"]["mode"]
-    
+
     def _on_baseline_method_changed(self, index):
         baseline = self.model_builder.model_settings.baseline
         method_id = baseline.method.currentData()
@@ -399,7 +401,7 @@ class SettingsController(QObject):
 
     def get_model_fname(self):
         return self.model_builder.model_selector.combo_box.currentText()
-    
+
     def toggle_bichromatic_models(self, checked):
         """Handle bichromatic models enable/disable"""
         if checked:
@@ -407,10 +409,10 @@ class SettingsController(QObject):
         # WARNING : to maintain consistency, models cannot be removed once added
         # else:
         #     models_bichromatic.remove_models()
-        
+
         fitting = self.model_builder.model_settings.fitting
         fitting.update_combo_boxes()
-        
+
         self.settingChanged.emit("bichromatic_models_enable", checked)
 
     def update_bichromatic_mode(self, button):
@@ -418,4 +420,3 @@ class SettingsController(QObject):
         mode = button.text()
         models_bichromatic.MODE = mode
         self.settingChanged.emit("bichromatic_models_mode", mode)
-

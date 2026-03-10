@@ -157,6 +157,7 @@ class MainController(QObject):
             self.plot_controller.set_baseline_points
         )
         self.settings_controller.setModel.connect(self.apply_model)
+        self.settings_controller.importBaseline.connect(self.import_baseline)
         self.settings_controller.applyBaseline.connect(self.apply_baseline)
         self.settings_controller.applySpectralRange.connect(
             self.plot_controller.apply_spectral_range
@@ -335,6 +336,10 @@ class MainController(QObject):
 
     def outliers_calculation(self):
         self.plot_controller.outliers_calculation(self.model.outliers_coef)
+
+    def import_baseline(self):
+        fname = QFileDialog.getOpenFileName(None, "Load File")[0]
+        self.plot_controller.import_baseline(fname)
 
     def apply_baseline(self):
         self.plot_controller.apply_baseline()

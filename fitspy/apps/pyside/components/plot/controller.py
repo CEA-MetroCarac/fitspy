@@ -118,7 +118,8 @@ class PlotController(QObject):
         self.update_spectraplot()
 
     def sync_plot_widgets(self, event):
-        """Synchronize some widgets with the current plot state to reflect changes made within matplotlib internal toolbar."""
+        """Synchronize some widgets with the current plot state to reflect changes made within
+        matplotlib internal toolbar."""
         if not self.view_options:
             return
 
@@ -260,6 +261,9 @@ class PlotController(QObject):
 
     def set_baseline_points(self, points):
         self.model.set_baseline_points(points)
+
+    def import_baseline(self, fname):
+        self.model.load_baseline(fname)
 
     def apply_baseline(self):
         self.colorizeFromFitStatus.emit({s.fname: None for s in self.model.current_spectra})

@@ -222,6 +222,11 @@ class Model(QObject):
             self.current_spectra[0].baseline.points = points
             self.refreshPlot.emit()
 
+    def load_baseline(self, fname):
+        if self.current_spectra:
+            self.current_spectra[0].baseline.load_baseline(fname)
+            self.refreshPlot.emit()
+
     def add_peak_point(self, model, x):
         spectrum = self.current_spectra[0]
         x0 = closest_item(spectrum.x, x)
