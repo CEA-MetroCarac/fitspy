@@ -233,7 +233,6 @@ class Spectrum:
             npeaks = len(self.peak_models)
             self.peak_labels = list(map(str, range(1, npeaks + 1)))
 
-
     def preprocess(self):
         """ Preprocess the spectrum: call successively load_profile(),
             apply_range(), eval_baseline(), subtract_baseline() and
@@ -736,7 +735,7 @@ class Spectrum:
     def subtract_baseline(self):
         """ Subtract the baseline to the spectrum profile """
         if self.baseline.y_eval is not None:
-            self.y -= self.baseline.y_eval
+            self.y = self.y - self.baseline.y_eval
             self.baseline.is_subtracted = True
 
     def auto_peaks(self, model_name):
@@ -767,13 +766,13 @@ class Spectrum:
 
         if self.baseline.y_eval is not None:
             if subtract_baseline and not self.baseline.is_subtracted:
-                y -= self.baseline.y_eval
+                y = y - self.baseline.y_eval
             elif not subtract_baseline and self.baseline.is_subtracted:
-                y += self.baseline.y_eval
+                y = y + self.baseline.y_eval
 
         if subtract_bkg and self.bkg_model is not None:
             with empty_expr(self.bkg_model):
-                y -= self.bkg_model.eval(self.bkg_model.make_params(), x=x)
+                y = y - self.bkg_model.eval(self.bkg_model.make_params(), x=x)
 
         linewidth = 1 if getattr(self.result_fit, "success", False) else 0.5
 
@@ -789,7 +788,7 @@ class Spectrum:
             if x_outliers is not None:
                 inds = [list(x).index(x_outlier) for x_outlier in x_outliers]
                 if subtract_baseline and self.baseline.y_eval is not None:
-                    y_outliers -= self.baseline.y_eval[inds]
+                    y_outliers = y_outliers - self.baseline.y_eval[inds]
             else:
                 x_outliers = y_outliers = []
             ax.plot(x_outliers, y_outliers, 'o',
