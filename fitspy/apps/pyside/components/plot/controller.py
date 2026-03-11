@@ -122,6 +122,8 @@ class PlotController(QObject):
         matplotlib internal toolbar."""
         if not self.view_options:
             return
+        if not self.model.current_spectra:
+            return
 
         ax = self.spectra_plot.ax
 
