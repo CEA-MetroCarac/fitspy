@@ -3,36 +3,61 @@ from matplotlib import cbook
 
 from PySide6.QtCore import QSize, Qt
 from PySide6.QtGui import QIcon, QPixmap, QColor, QKeySequence, QShortcut
-from PySide6.QtWidgets import (QToolButton, QMenu, QCheckBox, QWidgetAction, QComboBox,
-                               QPushButton, QSpacerItem, QSizePolicy, QHBoxLayout, QWidget, QLabel)
+from PySide6.QtWidgets import (QToolButton, QCheckBox, QComboBox,
+                               QPushButton, QSpacerItem, QSizePolicy,
+                               QHBoxLayout, QVBoxLayout, QWidget, QLabel, QFrame)
 
 from fitspy.apps.pyside.utils import to_title_case, get_icon_path
 from fitspy.apps.pyside import DEFAULTS
 
 
-class ViewOptions(QToolButton):
-    def __init__(self, checkboxes, parent=None):
-        super(ViewOptions, self).__init__(parent)
-        self.setText("View Options")
-        self.setPopupMode(QToolButton.InstantPopup)
-        self.checkboxes_definitions = checkboxes
-        self.initUI()
+class ViewOptionsPanel(QFrame):
+    """Floating non-modal panel, does not grab the mouse, so the plot keeps receiving hover events."""
+    def __init__(self, checkboxes_definitions, parent=None):
+        super().__init__(parent, Qt.Tool | Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint)
+        self.setFrameShape(QFrame.StyledPanel)
+        self.setFrameShadow(QFrame.Raised)
 
-    def initUI(self):
-        self.menu = QMenu(self)
-        self.setMenu(self.menu)
+        layout = QVBoxLayout(self)
+        layout.setContentsMargins(3, 3, 3, 3)
+        layout.setSpacing(2)
 
         self.checkboxes = {}
-        for text, tooltip in self.checkboxes_definitions:
+        for text, tooltip in checkboxes_definitions:
             checkbox = QCheckBox(text)
             checkbox.setToolTip(tooltip)
-            action = QWidgetAction(self)
-            action.setDefaultWidget(checkbox)
-            self.menu.addAction(action)
+            layout.addWidget(checkbox)
             self.checkboxes[text] = checkbox
+
+        self.adjustSize()
 
     def get_view_options(self):
         return {text: checkbox.isChecked() for text, checkbox in self.checkboxes.items()}
+
+
+class ViewOptions(QToolButton):
+    def __init__(self, checkboxes, parent=None):
+        super().__init__(parent)
+        self.setText("View Options")
+        self.setCheckable(True)
+        self._panel = ViewOptionsPanel(checkboxes_definitions=checkboxes, parent=self)
+        self._panel.hide()
+        self.clicked.connect(self._toggle_panel)
+
+    def _toggle_panel(self, checked):
+        if checked:
+            pos = self.mapToGlobal(self.rect().bottomLeft())
+            self._panel.move(pos)
+            self._panel.show()
+        else:
+            self._panel.hide()
+
+    @property
+    def checkboxes(self):
+        return self._panel.checkboxes
+
+    def get_view_options(self):
+        return self._panel.get_view_options()
 
 
 class CustomNavigationToolbar(NavigationToolbar2QT):
