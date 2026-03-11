@@ -244,10 +244,13 @@ class Spectrum:
         self.normalization()
 
     def load_profile(self, fname):
-        """ Load profile from 'fname' with 1 header line and 2 (x,y) columns"""
+        """ Load profile from 'fname' with 1 header line and 2 (x,y) columns """
 
         if self.x0 is None:
             x0, y0, weights0 = get_1d_profile(fname)
+
+            if x0 is None:
+                return
 
             # reordering
             inds = np.argsort(x0)
