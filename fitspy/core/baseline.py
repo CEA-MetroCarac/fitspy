@@ -17,9 +17,11 @@ from fitspy.core.baseline_methods import (
     get_baseline_method_meta,
 )
 
-# Temp fix for numba trying to write into __pycache__ without permission, see https://github.com/numba/numba/issues/8755
+# Temp fix for numba trying to write into __pycache__ without permission,
+# see https://github.com/numba/numba/issues/8755
 import os
 import tempfile
+
 os.environ["NUMBA_CACHE_DIR"] = tempfile.gettempdir()
 from pybaselines import Baseline as PyBaseline
 
@@ -161,9 +163,13 @@ class BaseLine:
                 self.y_eval = points[1] * np.ones_like(x)
 
             elif self.mode == 'Linear':
-                func_interp = interp1d(points[0], points[1],
-                                       fill_value="extrapolate")
-                self.y_eval = func_interp(x)
+                # to avoid interpolation on same data-support
+                if set(list(x)).issubset(set(points[0])):
+                    d = dict(zip(points[0], points[1]))
+                    self.y_eval = np.array([d[xi] for xi in x])
+                else:
+                    func_interp = interp1d(points[0], points[1], fill_value="extrapolate")
+                    self.y_eval = func_interp(x)
 
             else:  # self.mode == 'Polynomial'
                 with warnings.catch_warnings():
@@ -443,4 +449,20 @@ if __name__ == "__main__":
     # _, ax = plt.subplots()
     # ax.plot(spectrum.x, spectrum.y)
     # ax.plot(spectrum.x, spectrum.baseline.y_eval)
+    # plt.show()
+
+    # BASELINE CALCULATION ON PARTIAL RANGE
+
+    # data = np.column_stack((x, y))
+    # np.savetxt("baseline.txt", np.column_stack((x, arpls(y))))
+    # spectrum.baseline.load_baseline("baseline.txt")
+    # spectrum.baseline.mode = 'Linear'
+    # spectrum.baseline.eval(x, y)
+    #
+    # _, ax = plt.subplots(1, 2, figsize=(8, 4))
+    # spectrum.plot(ax[0], show_baseline=False, subtract_baseline=False)
+    # spectrum.apply_range(range_min=0, range_max=400)
+    # x, y = spectrum.x, spectrum.y
+    # spectrum.baseline.eval(x, y)
+    # spectrum.plot(ax[1], show_baseline=False, subtract_baseline=False)
     # plt.show()
