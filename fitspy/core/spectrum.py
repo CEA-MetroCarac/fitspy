@@ -811,7 +811,7 @@ class Spectrum:
                       linestyles='dashed', lw=0.5,
                       label=f'{label}_Noise level' if label else "Noise level")
 
-        if show_baseline and self.baseline.y_eval is not None and self.baseline.is_subtracted:
+        if show_baseline and self.baseline.y_eval is not None:
             ax.plot(x, self.baseline.y_eval, 'g',
                     label=f'{label}_Baseline' if label else "Baseline")
 
