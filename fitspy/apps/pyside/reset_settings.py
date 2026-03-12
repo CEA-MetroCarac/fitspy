@@ -1,4 +1,5 @@
 import argparse
+from typing import List, Optional
 from PySide6.QtCore import QSettings
 
 
@@ -51,7 +52,7 @@ def list_settings(org: str = "CEA-MetroCarac", app: str = "Fitspy") -> None:
         print(f"{k} = {value!r}")
 
 
-def main(argv: list[str] | None = None) -> int:
+def main(argv: Optional[List[str]] = None) -> int:
     parser = _build_parser()
     args = parser.parse_args(argv)
 

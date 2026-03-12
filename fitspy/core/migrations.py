@@ -1,5 +1,5 @@
 from copy import deepcopy
-from typing import Any, Dict, Iterable
+from typing import Any, Dict, Iterable, Optional, Tuple
 
 from fitspy import FIT_PARAMS, FIT_METHODS, VERSION
 
@@ -90,7 +90,7 @@ def _rename_path(data: Dict[str, Any], old_path: str, new_path: str) -> None:
     new_parent[new_key] = old_parent.pop(old_key)
 
 
-def _ensure_parent(data: Dict[str, Any], path: Iterable[str], create: bool) -> tuple[dict | None, str | None]:
+def _ensure_parent(data: Dict[str, Any], path: Iterable[str], create: bool) -> Tuple[Optional[Dict], Optional[str]]:
     keys = list(path)
     if not keys:
         return None, None
