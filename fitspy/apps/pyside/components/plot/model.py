@@ -254,7 +254,7 @@ class Model(QObject):
     def highlight_spectrum(self, ax, event):
         """Highlight all spectrum under the cursor"""
 
-        if self.lines and event.inaxes == ax:
+        if self.lines:
             # reassign standard properties to the previous nearest lines
             for line in self.nearest_lines:
                 line.set(linewidth=0.2, color='k', zorder=0)
@@ -288,62 +288,47 @@ class Model(QObject):
         """Highlight a peak by its index (for table hover/click)."""
         # Remove previous highlights
         if self.tmp is not None:
-            [x.remove() for x in self.tmp]
+            [ax.plot_item.removeItem(x) for x in self.tmp]
             self.tmp = None
+
         nspectra = len(self.current_spectra)
         lines = self.lines[1:-(nspectra - 1)] if nspectra > 1 else self.lines[1:]
-        if not (0 <= peak_index < len(lines)):
-            ax.figure.canvas.draw_idle()
-            return
         line = lines[peak_index]
-        if line.axes is None or line.figure is None:
-            return
+        pen = line.opts['pen']
+        color = pen.color().name()
 
         # Highlight the line
-        x = line.get_xdata()
-        y = line.get_ydata()
-        color = line.get_color()
-        linestyle = line.get_linestyle()
-        self.tmp = [ax.plot(x, y, c=color, ls=linestyle, lw=3)[0]]
+        self.tmp = [ax.plot(*line.getData(), c=color, ls=pen.style(), lw=3)[1]]
 
-        def annotate_params(x_annot, y_annot, i, color):
-            spectrum = self.current_spectra[0]
-            if self.line_bkg_visible:
-                model = spectrum.bkg_model if i == 0 else spectrum.peak_models[i - 1]
-            else:
-                model = spectrum.peak_models[i]
-            text = []
-            for key in ['x0', 'ampli', 'fwhm', 'fwhm_l', 'fwhm_r']:
-                if key in model.param_hints:
-                    text.append(f"{key}: {model.param_hints[key]['value']:.4g}")
-            text = "\n".join(text)
-            bbox = {"facecolor": 'w', "edgecolor": color, "boxstyle": 'round'}
-            self.tmp.append(ax.annotate(text, xy=(x_annot, y_annot), xycoords="data",
-                                        bbox=bbox, verticalalignment="bottom"))
+        spectrum = self.current_spectra[0]
+        if self.line_bkg_visible:
+            model = spectrum.bkg_model if peak_index == 0 else spectrum.peak_models[peak_index - 1]
+        else:
+            model = spectrum.peak_models[peak_index]
+        text = []
+        for key in ['x0', 'ampli', 'fwhm', 'fwhm_l', 'fwhm_r']:
+            if key in model.param_hints:
+                text.append(f"{key}: {model.param_hints[key]['value']:.4g}")
+        text = "\n".join(text)
 
-        # Default annotation position to center
-        if xdata is None or ydata is None:
-            xdata = x[len(x) // 2] if len(x) else 0
-            ydata = y[len(y) // 2] if len(y) else 0
-        annotate_params(xdata, ydata, peak_index, color)
-        ax.figure.canvas.draw_idle()
+        x, y = model.param_hints['x0']['value'], model.param_hints['ampli']['value']
+        bbox = {"facecolor": 'w', "edgecolor": color}
+        self.tmp.append(ax.annotate(text, xy=(x, y), xycoords="data", bbox=bbox, va="bottom"))
+
+        ax.draw_idle()
 
     def on_motion(self, ax, event):
         if self.tmp is not None:
-            [x.remove() for x in self.tmp]
+            [ax.plot_item.removeItem(x) for x in self.tmp]
             self.tmp = None
 
         nspectra = len(self.current_spectra)
         lines = self.lines[1:-(nspectra - 1)] if nspectra > 1 else self.lines[1:]
-
-        if len(lines) > 0 and event.inaxes == ax:
-            for i, line in enumerate(lines):
-                if line.axes is None or line.figure is None:
-                    continue
-                if line.contains(event)[0]:
-                    self.highlight_peak(ax, i, event.xdata, event.ydata)
-                    break
-            ax.figure.canvas.draw_idle()
+        items = ax.plot_item.scene().items(event)
+        for item in items:
+            if item in lines:
+                self.highlight_peak(ax, lines.index(item))
+                return
 
     def preprocess(self):
         for spectrum in self.current_spectra:
@@ -375,19 +360,17 @@ class Model(QObject):
             ax.set_ylim(y_data.min() * 0.1, y_data.max() * 10)
 
     # @measure_time
-    def update_spectraplot(self, ax, view_options, toolbar):
+    def update_spectraplot(self, ax, view_options):
         """Update the plot with the current spectra"""
         xlim, ylim = self.get_view_limits(ax)
         if not hasattr(self, "original_xlim") or not hasattr(self, "original_ylim"):
             self.store_original_view_limits(ax)
 
-        current_title = ax.get_title()
         ax.clear()
-        ax.set_title(current_title)
         self.tmp = None
 
         if not self.current_spectra:
-            ax.get_figure().canvas.draw_idle()
+            ax.draw_idle()
             return
 
         # 'interactive' baseline points management
@@ -430,13 +413,14 @@ class Model(QObject):
         spectrum = self.current_spectra[0]
         self.line_bkg_visible = view_options.get("Background", False) and spectrum.bkg_model
 
-        if interactive_bounds:
-            self.ibounds.update()
-            inds = spectrum.inds_local_minima()
-            for ind in inds:
-                ax.axvline(spectrum.x[ind], ls=':', lw=0.3)
-            if view_options["Peaks"]:
-                self.lines += [bbox.tmp[0] for bbox in self.ibounds.bboxes if bbox.tmp]
+        # TODO
+        # if interactive_bounds:
+        #     self.ibounds.update()
+        #     inds = spectrum.inds_local_minima()
+        #     for ind in inds:
+        #         ax.axvline(spectrum.x[ind], ls=':', lw=0.3)
+        #     if view_options["Peaks"]:
+        #         self.lines += [bbox.tmp[0] for bbox in self.ibounds.bboxes if bbox.tmp]
 
         # Add Peak labels annotations
         if view_options.get("Peak labels", True):
@@ -463,9 +447,9 @@ class Model(QObject):
                     xycoords="data",
                     textcoords="offset points",
                     ha="center",
+                    va="top",
                     size=14,
                     arrowprops={"fc": 'k', "arrowstyle": '->'},
-                    verticalalignment="bottom",
                     annotation_clip=True,
                 )
 
@@ -476,21 +460,16 @@ class Model(QObject):
                 if max_annotation_y > current_ylim[1]:
                     ax.set_ylim(top=max_annotation_y + YLIM_BUFFER_RATIO * spectrum.y.max())
 
-        if view_options.get("X-log", False):
-            ax.set_xscale("log")
+        ax.plot_item.setLogMode(x=view_options.get("X-log", False),
+                                y=view_options.get("Y-log", False))
 
-        if view_options.get("Y-log", False):
-            ax.set_yscale("log")
+        # TODO
+        # if view_options.get("Preserve axes", False):
+        #     self.set_view_limits(ax, xlim, ylim)
+        # elif view_options.get("Y-log", False):
+        #     self._apply_log_ylimits(ax)
 
-        if view_options.get("Preserve axes", False):
-            self.set_view_limits(ax, xlim, ylim)
-        elif view_options.get("Y-log", False):
-            self._apply_log_ylimits(ax)
-
-        # refresh the plot and the toolbar
-        ax.figure.canvas.draw_idle()
-        toolbar.update()
-        toolbar.push_current()
+        ax.draw_idle()
 
     def apply_model(self, model_dict=None, fnames=None, ncpus=None):
         """Apply model to the selected spectra"""

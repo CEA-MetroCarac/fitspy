@@ -1,5 +1,6 @@
 from pathlib import Path
 from PySide6.QtCore import QObject, Signal, QTimer, QSignalBlocker
+from PySide6.QtCore import Qt
 
 from fitspy.core.spectrum import Spectrum
 from fitspy.apps.interactive_bounds import InteractiveBounds
@@ -28,6 +29,8 @@ class PlotController(QObject):
         super().__init__()
         self.model = Model()
         self.spectra_plot = spectra_plot
+        self.plot_item = self.spectra_plot.plot_widget.getPlotItem()
+        self.view_box = self.plot_item.vb
         self.map2d_plot = map2d_plot
         self.toolbar = toolbar
         self.view_options = toolbar.view_options
@@ -86,11 +89,9 @@ class PlotController(QObject):
 
         self.toolbar.click_mode_combo.currentTextChanged.connect(self.on_click_mode_changed)
 
-        self.spectra_plot.canvas.mpl_connect("motion_notify_event", self.on_motion)
-        self.spectra_plot.canvas.mpl_connect("button_press_event", self.on_spectra_plot_click)
-        self.spectra_plot.canvas.mpl_connect("draw_event", self.sync_plot_widgets)
+        self.spectra_plot.plot_widget.scene().sigMouseMoved.connect(self.on_motion)
+        self.spectra_plot.plot_widget.scene().sigMouseClicked.connect(self.on_spectra_plot_click)
 
-        # for label, checkbox in self.view_options.checkboxes.items():
         for checkbox in self.view_options.checkboxes.values():
             checkbox.stateChanged.connect(lambda state, cb=checkbox: self.view_option_changed(cb))
 
@@ -116,25 +117,6 @@ class PlotController(QObject):
         state = checkbox.isChecked()
         self.settingChanged.emit(label, state)
         self.update_spectraplot()
-
-    def sync_plot_widgets(self, event):
-        """Synchronize some widgets with the current plot state to reflect changes made within
-        matplotlib internal toolbar."""
-        if not self.view_options:
-            return
-        if not self.model.current_spectra:
-            return
-
-        ax = self.spectra_plot.ax
-
-        x_is_log = ax.get_xscale() == 'log'
-        y_is_log = ax.get_yscale() == 'log'
-
-        for key, val in (('X-log', x_is_log), ('Y-log', y_is_log)):
-            cb = self.view_options.checkboxes.get(key)
-            if cb:
-                with QSignalBlocker(cb):
-                    cb.setChecked(val)
 
     def load_map(self, fname):
         self.model.load_map(fname)
@@ -170,14 +152,15 @@ class PlotController(QObject):
             self.model.current_spectra = [self.model.spectra.get_objects(fname)[0]
                                           for fname in fnames if fname != '']
             if len(self.model.current_spectra) > 0:
-                self.model.ibounds = InteractiveBounds(self.model.current_spectra[0],
-                                                       self.spectra_plot.ax,
-                                                       cmap=DEFAULTS["peaks_cmap"],
-                                                       bind_func=self.model.refresh)
+                # TODO
+                # self.model.ibounds = InteractiveBounds(self.model.current_spectra[0],
+                #                                        self.spectra_plot.ax,
+                #                                        cmap=DEFAULTS["peaks_cmap"],
+                #                                        bind_func=self.model.refresh)
                 self.update_plot_title()
             else:
-                self.spectra_plot.ax.clear()
-                self.spectra_plot.ax.figure.canvas.draw_idle()
+                # self.spectra_plot.ax.clear()
+                self.spectra_plot.ax.draw_idle()
 
     def update_plot_title(self):
         if self.model.current_spectra:
@@ -189,7 +172,7 @@ class PlotController(QObject):
     def update_spectraplot(self):
         ax = self.spectra_plot.ax
         view_options = self.view_options.get_view_options()
-        self.model.update_spectraplot(ax, view_options, self.toolbar.mpl_toolbar)
+        self.model.update_spectraplot(ax, view_options)
 
     def get_spectra(self, fname=None):
         if fname is None:
@@ -209,21 +192,9 @@ class PlotController(QObject):
 
     def on_spectra_plot_click(self, event):
         """Callback for click events on the spectra plot."""
-        # Do not add baseline, peak points or outliers when pan or zoom are selected
-        if self.toolbar.mpl_toolbar.is_pan_active() or self.toolbar.mpl_toolbar.is_zoom_active():
-            self.consecutive_clicks += 1
-            self.click_timer.start()
-            if self.consecutive_clicks > self.click_threshold:
-                self.showToast.emit(
-                    "INFO",
-                    "Pan/Zoom Mode",
-                    "If you want to add baseline, peak points or outliers, disable pan/zoom mode.",
-                )
-            return
-        else:
-            self.consecutive_clicks = 0
-
-        x, y = event.xdata, event.ydata
+        mouse_point = self.view_box.mapSceneToView(event.scenePos())
+        x, y = mouse_point.x(), mouse_point.y()
+        button = event.button()
         point_type = self.toolbar.get_selected_click_mode()
 
         if point_type == "highlight":
@@ -231,13 +202,13 @@ class PlotController(QObject):
             self.highlightSpectrum.emit(fnames, False)
 
         elif point_type == "outliers":
-            if event.button == 1:
+            if button == Qt.LeftButton:
                 self.model.add_outlier(x)
             else:
                 self.model.del_outlier(x)
 
         elif point_type == "baseline":
-            if event.button == 1:
+            if button == Qt.LeftButton:
                 self.model.add_baseline_point(x, y)
             else:
                 self.model.del_baseline_point(x)
@@ -246,7 +217,7 @@ class PlotController(QObject):
             if self.model.ibounds is not None and self.model.ibounds.interact_with_bbox(event):
                 self.model.refresh()
             else:
-                if event.button == 1:
+                if button == Qt.LeftButton:
                     self.model.add_peak_point(self.model.peak_model, x)
                 else:
                     self.model.del_peak_point(x)

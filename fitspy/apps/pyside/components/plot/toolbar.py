@@ -101,21 +101,21 @@ class CustomNavigationToolbar(NavigationToolbar2QT):
 
 
 class Toolbar(QWidget):
-    def __init__(self, canvas, view_options=ViewOptions, parent=None):
+    def __init__(self, plot_widget, view_options=ViewOptions, parent=None):
         super().__init__(parent)
-        self.canvas = canvas
+        self.plot_widget = plot_widget
 
         # Generate checkboxes dynamically from DEFAULTS
         checkboxes = [(to_title_case(key), to_title_case(key))
                       for key in DEFAULTS["view_options"].keys()]  # (text, tooltip)
 
         self.view_options = (None if view_options is None else view_options(checkboxes=checkboxes))
+
         self.initUI()
         self.setup_shortcuts()
 
     def initUI(self):
         hbox = QHBoxLayout()
-        self.mpl_toolbar = CustomNavigationToolbar(self.canvas)
         self.click_mode_combo = QComboBox()
         self.click_mode_combo.addItem("Baseline points", "baseline")
         self.click_mode_combo.addItem("Peaks points", "peaks")
@@ -129,7 +129,6 @@ class Toolbar(QWidget):
         spacer1 = QSpacerItem(0, 0, QSizePolicy.Expanding, QSizePolicy.Minimum)
         spacer2 = QSpacerItem(50, 0, QSizePolicy.Fixed, QSizePolicy.Minimum)
 
-        hbox.addWidget(self.mpl_toolbar)
         hbox.addItem(spacer1)
         hbox.addWidget(QLabel('Click Mode :'))
         hbox.addWidget(self.click_mode_combo)
@@ -153,6 +152,3 @@ class Toolbar(QWidget):
             self.click_mode_combo.setCurrentIndex(idx)
         else:
             print(f"Warning: Click mode '{mode}' not found in combo box.")
-
-    def update_toolbar_icons(self):
-        self.mpl_toolbar.update_icons()

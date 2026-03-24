@@ -780,7 +780,7 @@ class Spectrum:
         linewidth = 1 if getattr(self.result_fit, "success", False) else 0.5
 
         if kwargs is None:
-            kwargs = {'c': 'k', 'lw': 0.5, 'marker': 'o', 'ms': 1}
+            kwargs = {'c': 'k', 'ls': '-', 'lw': 0.5, 'marker': 'o', 'ms': 0.5}
         lines = [ax.plot(x, y, label=f'{label}_Spectrum' if label else "_Spectrum", **kwargs)[0]]
 
         if show_weights and self.weights is not None:
@@ -844,7 +844,7 @@ class Spectrum:
                     color = cmap_peaks(i % cmap_peaks.N)
                     label = f'{label}_Peak_{i}' if label else None
 
-                    line, = ax.plot(x, y_peak, lw=linewidth, color=color, label=label)
+                    line = ax.plot(x, y_peak, lw=linewidth, color=color, label=label)[0]
                     lines.append(line)
 
                     if show_peak_decomposition:

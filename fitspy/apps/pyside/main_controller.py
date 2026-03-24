@@ -278,7 +278,6 @@ class MainController(QObject):
         app.setPalette(palette)
         update_widget_palette(self.view, palette)
         self.update_menu_icons(palette)
-        self.view.toolbar.update_toolbar_icons()
 
     def update_menu_icons(self, palette):
         def update_icon(widget, old_color, new_color):

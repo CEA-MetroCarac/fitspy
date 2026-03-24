@@ -18,8 +18,8 @@ def gui_apply_model_to_all(dirname_res=None, gui='pyside'):
     appli.add_items(fnames=fnames)
 
     # load model and apply it to ALL SPECTRA
-    appli.load_model(fname_json=dirname / 'model.json')
-    appli.apply_model_to_all()
+    # appli.load_model(fname_json=dirname / 'model.json')
+    # appli.apply_model_to_all()
 
     # # save results and figures
     # appli.save_results(dirname_res='results')
