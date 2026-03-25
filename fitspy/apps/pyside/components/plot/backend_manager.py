@@ -11,29 +11,26 @@ MARKERS = set('os^v<>dpx+.')
 LINESTYLES = {'--': Qt.DashLine, '-.': Qt.DashDotLine, ':': Qt.DotLine, '-': Qt.SolidLine}
 
 
-def parse_fmt(fmt):
+def parser(fmt=None, **kwargs):
+    fmt = fmt or ''
     fmt_color = next((c for c in fmt if c in COLORS), None)
     fmt_marker = next((c for c in fmt if c in MARKERS), None)
     fmt_linestyle = next((ls for ls in LINESTYLES.keys() if ls in fmt), '-' if fmt_color else None)
-    return fmt_color, fmt_linestyle, fmt_marker
-
-
-def parser(fmt=None, **kwargs):
-    fmt_color, fmt_linestyle, fmt_marker = parse_fmt(fmt or '')
 
     color = kwargs.pop('color', kwargs.pop('c', fmt_color))
     if isinstance(color, tuple) and max(color) <= 1:
         color = tuple(int(c * 255) for c in color)
 
-    pg_kwargs = {'color': color,
-                 'linewidth': kwargs.pop('linewidth', kwargs.pop('lw', 1)),
-                 'linestyle': kwargs.pop('linestyle', kwargs.pop('ls', None)) or fmt_linestyle,
-                 'symbol': kwargs.pop('marker', None) or fmt_marker,
-                 'symbolBrush': color,
-                 'symbolSize': 4 * kwargs.pop('markersize', kwargs.pop('ms', 2)),
+    linewidth = kwargs.pop('linewidth', kwargs.pop('lw', 1))
+    linestyle = kwargs.pop('linestyle', kwargs.pop('ls', fmt_linestyle))
+
+    pg_kwargs = {'symbol': kwargs.pop('marker', fmt_marker),
+                 'symbolPen': kwargs.pop('markeredgecolor', kwargs.pop('mec', None)),
+                 'symbolBrush': kwargs.pop('markerfacecolor', kwargs.pop('mfc', color)),
+                 'symbolSize': 2 * kwargs.pop('markersize', kwargs.pop('ms', 4)),
                  'name': kwargs.pop('label', None)}
 
-    return pg_kwargs
+    return color, linewidth, linestyle, pg_kwargs
 
 
 class MplLikeAxes:
@@ -43,6 +40,10 @@ class MplLikeAxes:
         self._color_cycle = ['b', 'g', 'r', 'c', 'm', 'y', 'k']
         self._cycle_index = 0
         self.vb = self.plot_item.vb
+        self._legend = pg.LegendItem(offset=(-10, 10))
+        self._legend.setParentItem(self.plot_item)
+
+        self._items = []
         self._lines = []
 
     def next_color(self):
@@ -62,36 +63,30 @@ class MplLikeAxes:
             y = x
             x = list(range(len(y)))
 
-        pg_kwargs = parser(fmt, **kwargs)
+        color, linewidth, linestyle, pg_kwargs = parser(fmt, **kwargs)
 
         pen = None
-        if pg_kwargs['linestyle'] is not None or pg_kwargs['symbol'] is None:
-            pen = pg.mkPen(color=pg_kwargs['color'], width=pg_kwargs['linewidth'])
-            pen.setStyle(LINESTYLES.get(pg_kwargs['linestyle'], Qt.SolidLine))
+        if linestyle is not None or pg_kwargs['symbol'] is None:
+            pen = pg.mkPen(color=color, width=linewidth)
+            pen.setStyle(LINESTYLES.get(linestyle, Qt.SolidLine))
 
         item = self.plot_item.plot(x, y, pen=pen, **pg_kwargs)
         line = item.curve
+        self._items.append(item)
         self._lines.append(line)
         self.draw_idle()
         return line, item
 
     def legend(self, loc=None):
-        if not hasattr(self, '_legend'):
-            self._legend = pg.LegendItem(offset=(30, 30))
-            self._legend.setParentItem(self.plot_item)
-        else:
-            self._legend.clear()
-
-        for item in self._lines:
-            if isinstance(item, pg.PlotDataItem):
-                name = item.opts.get('name', None)
-                if name and name != "_nolegend_":
-                    self._legend.addItem(item, name)
-            else:
-                continue
+        self._legend.clear()
+        for item in self._items:
+            name = item.opts.get('name', None)
+            if name and name not in ["Spectrum", "_nolegend_"]:
+                self._legend.addItem(item, name)
 
     def clear(self):
         self.plot_item.clear()
+        self._items = []
         self._lines = []
 
     def draw_idle(self):
