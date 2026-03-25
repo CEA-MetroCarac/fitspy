@@ -24,7 +24,10 @@ def parser(fmt=None, **kwargs):
     fmt = fmt or ''
     fmt_color = next((c for c in fmt if c in COLORS), None)
     fmt_marker = next((c for c in fmt if c in MARKERS), None)
-    fmt_linestyle = next((ls for ls in LINESTYLES.keys() if ls in fmt), '-' if fmt_color else None)
+    fmt_linestyle = next((ls for ls in LINESTYLES if ls in fmt), None)
+
+    if fmt_linestyle is None and fmt_color and fmt_marker is None:
+        fmt_linestyle = '-'
 
     color = kwargs.pop('color', kwargs.pop('c', fmt_color))
     if isinstance(color, str) and color in MATPLOTLIB_COLORS:
