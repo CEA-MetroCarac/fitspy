@@ -10,6 +10,15 @@ COLORS = set('rgbcmykw')
 MARKERS = set('os^v<>dpx+.')
 LINESTYLES = {'--': Qt.DashLine, '-.': Qt.DashDotLine, ':': Qt.DotLine, '-': Qt.SolidLine}
 
+MATPLOTLIB_COLORS = {'b': (0, 0, 1),
+                     'g': (0, 0.5, 0),
+                     'r': (1, 0, 0),
+                     'c': (0, 0.75, 0.75),
+                     'm': (0.75, 0, 0.75),
+                     'y': (0.75, 0.75, 0),
+                     'k': (0, 0, 0),
+                     'w': (1, 1, 1)}
+
 
 def parser(fmt=None, **kwargs):
     fmt = fmt or ''
@@ -18,17 +27,26 @@ def parser(fmt=None, **kwargs):
     fmt_linestyle = next((ls for ls in LINESTYLES.keys() if ls in fmt), '-' if fmt_color else None)
 
     color = kwargs.pop('color', kwargs.pop('c', fmt_color))
+    if isinstance(color, str) and color in MATPLOTLIB_COLORS:
+        color = MATPLOTLIB_COLORS[color]
     if isinstance(color, tuple) and max(color) <= 1:
         color = tuple(int(c * 255) for c in color)
 
     linewidth = kwargs.pop('linewidth', kwargs.pop('lw', 1))
     linestyle = kwargs.pop('linestyle', kwargs.pop('ls', fmt_linestyle))
 
-    pg_kwargs = {'symbol': kwargs.pop('marker', fmt_marker),
-                 'symbolPen': kwargs.pop('markeredgecolor', kwargs.pop('mec', None)),
-                 'symbolBrush': kwargs.pop('markerfacecolor', kwargs.pop('mfc', color)),
-                 'symbolSize': 2 * kwargs.pop('markersize', kwargs.pop('ms', 4)),
-                 'name': kwargs.pop('label', None)}
+    pg_kwargs = {'name': kwargs.pop('label', None)}
+
+    symbol = kwargs.pop('marker', fmt_marker)
+    if symbol:
+        mfc = kwargs.pop('mfc', color)
+        mec = kwargs.pop('mec', color)
+        symbolBrush = None if str(mfc).lower() == 'none' else pg.mkBrush(mfc)
+        symbolPen = pg.mkPen(None) if str(mec).lower() == 'none' else pg.mkPen(mec)
+        pg_kwargs.update({'symbol': symbol,
+                          'symbolPen': symbolPen,
+                          'symbolBrush': symbolBrush,
+                          'symbolSize': 2 * kwargs.pop('markersize', kwargs.pop('ms', 4))})
 
     return color, linewidth, linestyle, pg_kwargs
 
@@ -91,6 +109,9 @@ class MplLikeAxes:
 
     def draw_idle(self):
         self.plot_item.update()
+
+    def get_title(self):
+        return self.plot_item.getTitle()
 
     def set_title(self, title):
         self.plot_item.setTitle(title)
