@@ -192,7 +192,12 @@ class PlotController(QObject):
 
     def on_spectra_plot_click(self, event):
         """Callback for click events on the spectra plot."""
-        mouse_point = self.view_box.mapSceneToView(event.scenePos())
+        pos = event.scenePos()
+
+        if not self.view_box.sceneBoundingRect().contains(pos):
+            return
+
+        mouse_point = self.view_box.mapSceneToView(pos)
         x, y = mouse_point.x(), mouse_point.y()
         button = event.button()
         point_type = self.toolbar.get_selected_click_mode()
