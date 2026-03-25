@@ -284,7 +284,7 @@ class Model(QObject):
             ax.get_figure().canvas.draw_idle()
             return fnames
 
-    def highlight_peak(self, ax, peak_index, xdata=None, ydata=None):
+    def highlight_peak(self, ax, peak_index):
         """Highlight a peak by its index (for table hover/click)."""
         # Remove previous highlights
         if self.tmp is not None:
@@ -324,10 +324,9 @@ class Model(QObject):
 
         nspectra = len(self.current_spectra)
         lines = self.lines[1:-(nspectra - 1)] if nspectra > 1 else self.lines[1:]
-        items = ax.plot_item.scene().items(event)
-        for item in items:
-            if item in lines:
-                self.highlight_peak(ax, lines.index(item))
+        for line in lines:
+            if line.mouseShape().contains(line.mapFromScene(event)):
+                self.highlight_peak(ax, lines.index(line))
                 return
 
     def preprocess(self):
