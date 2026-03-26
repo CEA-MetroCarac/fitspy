@@ -6,18 +6,11 @@ import pyqtgraph as pg
 
 from PySide6.QtCore import Qt
 
+from fitspy.apps.pyside.utils import convert_color_pg
+
 COLORS = set('rgbcmykw')
 MARKERS = set('os^v<>dpx+.')
 LINESTYLES = {'--': Qt.DashLine, '-.': Qt.DashDotLine, ':': Qt.DotLine, '-': Qt.SolidLine}
-
-MATPLOTLIB_COLORS = {'b': (0, 0, 1),
-                     'g': (0, 0.5, 0),
-                     'r': (1, 0, 0),
-                     'c': (0, 0.75, 0.75),
-                     'm': (0.75, 0, 0.75),
-                     'y': (0.75, 0.75, 0),
-                     'k': (0, 0, 0),
-                     'w': (1, 1, 1)}
 
 
 def parser(fmt=None, **kwargs):
@@ -30,10 +23,7 @@ def parser(fmt=None, **kwargs):
         fmt_linestyle = '-'
 
     color = kwargs.pop('color', kwargs.pop('c', fmt_color))
-    if isinstance(color, str) and color in MATPLOTLIB_COLORS:
-        color = MATPLOTLIB_COLORS[color]
-    if isinstance(color, tuple) and max(color) <= 1:
-        color = tuple(int(c * 255) for c in color)
+    pg_color = convert_color_pg(color)
 
     linewidth = kwargs.pop('linewidth', kwargs.pop('lw', 1))
     linestyle = kwargs.pop('linestyle', kwargs.pop('ls', fmt_linestyle))
@@ -41,17 +31,16 @@ def parser(fmt=None, **kwargs):
     pg_kwargs = {'name': kwargs.pop('label', None)}
 
     symbol = kwargs.pop('marker', fmt_marker)
-    if symbol:
-        mfc = kwargs.pop('mfc', color)
-        mec = kwargs.pop('mec', color)
-        symbolBrush = None if str(mfc).lower() == 'none' else pg.mkBrush(mfc)
-        symbolPen = pg.mkPen(None) if str(mec).lower() == 'none' else pg.mkPen(mec)
-        pg_kwargs.update({'symbol': symbol,
-                          'symbolPen': symbolPen,
-                          'symbolBrush': symbolBrush,
-                          'symbolSize': 2 * kwargs.pop('markersize', kwargs.pop('ms', 4))})
+    mfc = kwargs.pop('mfc', pg_color)
+    mec = kwargs.pop('mec', pg_color)
+    symbolBrush = None if str(mfc).lower() == 'none' else pg.mkBrush(mfc)
+    symbolPen = pg.mkPen(None) if str(mec).lower() == 'none' else pg.mkPen(mec)
+    pg_kwargs.update({'symbol': symbol,
+                      'symbolPen': symbolPen,
+                      'symbolBrush': symbolBrush,
+                      'symbolSize': 2 * kwargs.pop('markersize', kwargs.pop('ms', 4))})
 
-    return color, linewidth, linestyle, pg_kwargs
+    return pg_color, linewidth, linestyle, pg_kwargs
 
 
 class MplLikeAxes:
@@ -154,15 +143,11 @@ class MplLikeAxes:
         self._lines.append(line)
         return line
 
-    def axvline(self, x, **kwargs):
-        pen = kwargs.get('color', 'r')
-        width = kwargs.get('lw', 1)
-        style = kwargs.get('ls', ':')
-        if style == ':':
-            pen_style = Qt.DashLine
-        else:
-            pen_style = Qt.SolidLine
-        line = pg.InfiniteLine(pos=x, angle=90, pen=pg.mkPen(pen, width=width, style=pen_style))
+    def axvline(self, x, fmt=None, **kwargs):
+        color, linewidth, linestyle, pg_kwargs = parser(fmt, **kwargs)
+        pen = pg.mkPen(color=color, width=linewidth)
+        pen.setStyle(LINESTYLES.get(linestyle, Qt.SolidLine))
+        line = pg.InfiniteLine(pos=x, angle=90, pen=pen)
         self.plot_item.addItem(line)
         self._lines.append(line)
         return line

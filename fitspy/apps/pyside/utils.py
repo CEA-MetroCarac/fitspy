@@ -5,6 +5,15 @@ import numpy as np
 from PySide6.QtWidgets import QWidget
 from PySide6.QtGui import QIcon, QPixmap, QImage
 
+MATPLOTLIB_COLORS = {'b': (0, 0, 1),
+                     'g': (0, 0.5, 0),
+                     'r': (1, 0, 0),
+                     'c': (0, 0.75, 0.75),
+                     'm': (0.75, 0, 0.75),
+                     'y': (0.75, 0.75, 0),
+                     'k': (0, 0, 0),
+                     'w': (1, 1, 1)}
+
 
 def replace_icon_colors(icon, old_color, new_color):
     pixmap = icon.pixmap(icon.availableSizes()[0])
@@ -38,6 +47,15 @@ def to_title_case(any_case_str):
     """Convert a string from any case to Title Case with only the first word capitalized."""
     words = re.findall(r'[A-Za-z][^A-Z_\s]*', any_case_str)
     return ' '.join([words[0].capitalize()] + [word.lower() for word in words[1:]])
+
+
+def convert_color_pg(color):
+    """Convert matplotlib to pyqtgraph color"""
+    if isinstance(color, str) and color in MATPLOTLIB_COLORS:
+        color = MATPLOTLIB_COLORS[color]
+    if isinstance(color, tuple) and max(color) <= 1:
+        color = tuple(int(c * 255) for c in color)
+    return color
 
 
 def get_icon_path(icon_name):
