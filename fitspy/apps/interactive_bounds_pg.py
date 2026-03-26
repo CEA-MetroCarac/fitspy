@@ -1,7 +1,6 @@
 """
-module description
+Class dedicated to the interactive bounds with pyqtgraph
 """
-
 import pyqtgraph as pg
 from pyqtgraph.Qt import QtWidgets, QtCore
 
@@ -49,6 +48,8 @@ class InteractiveBounds(QtCore.QObject):
                 if self.model:
                     self.spectrum.add_peak_model(self.model, x)
                     bbox = BBox(self.plot_widget, self.spectrum, self.spectrum.peak_models[-1])
+                    bbox.set_color(self.cmap(len(self.bboxes) % self.cmap.N))
+                    bbox.update()
                     self.bboxes.append(bbox)
 
         elif event.type() == QtCore.QEvent.GraphicsSceneMouseRelease:
@@ -121,6 +122,7 @@ class BBox:
         brush = pg.mkBrush(self.color)
 
         self.line = pg.PlotDataItem([self.x0, self.x0], [0, self.ampli], pen=pen)
+        self.curve = pg.PlotDataItem([], [], pen=pen)
 
         # rectangles
         self.rect_x0 = QtWidgets.QGraphicsRectItem()
@@ -135,7 +137,8 @@ class BBox:
         self.rect_fwhm.setBrush(brush)
         self.rect_fwhm.setOpacity(0.3)
 
-        self.plot_widget.addItem(self.line)
+        self.view.addItem(self.line)
+        self.view.addItem(self.curve)
         self.view.addItem(self.rect_x0)
         self.view.addItem(self.rect_x0_inner)
         self.view.addItem(self.rect_fwhm)
@@ -147,11 +150,10 @@ class BBox:
         pen = pg.mkPen(self.color)
         brush = pg.mkBrush(self.color)
         self.line.setPen(pen)
+        self.curve.setPen(pen)
         for rect in [self.rect_x0, self.rect_x0_inner, self.rect_fwhm]:
             rect.setPen(pen)
             rect.setBrush(brush)
-        if self.tmp is not None:
-            self.tmp.setPen(pen)
 
     def start_drag(self, x, y):
         self.last_x = x
@@ -197,11 +199,10 @@ class BBox:
             if self.symetric:
                 self.dfwhm[0] = self.dfwhm[1]
 
-        self.update_display()
+        self.update()
 
     def contains(self, x, y):
-        return (self.contains_rect(self.rect_x0_inner, x, y) or
-                self.contains_rect(self.rect_x0, x, y) or
+        return (self.contains_rect(self.rect_x0, x, y) or
                 self.contains_rect(self.rect_fwhm, x, y))
 
     def contains_rect(self, rect, x, y):
@@ -235,22 +236,17 @@ class BBox:
                                0.5 * (self.dfwhm[0] + self.dfwhm[1]), (1 - self.ratio) * self.ampli)
 
     def update_profiles(self):
-        if self.tmp is not None:
-            [x.remove() for x in self.tmp]
-        self.tmp = []
-
         x = self.spectrum.x
-
-        with set_tmp_params(self.peak_model):
-            tmp_params = self.peak_model.make_params()
-            y = self.peak_model.eval(tmp_params, x=x)
-            self.tmp.append(self.ax.plot(x, y, c=self.color, lw=0.5)[0])
-
         mask = (self.x0 - 0.5 * self.dfwhm[0] <= x) & (x <= self.x0 + 0.5 * self.dfwhm[1])
         with set_tmp_params(self.peak_model, self.dfwhm):
             tmp_params = self.peak_model.make_params()
             y = self.peak_model.eval(tmp_params, x=x[mask])
-            self.tmp.append(self.ax.plot(x[mask], y, c=self.color, lw=0.5)[0])
+            self.curve.setData(x[mask], y)
+
+    def update(self):
+        self.update_params()
+        self.update_display()
+        self.update_profiles()
 
 
 if __name__ == "__main__":
