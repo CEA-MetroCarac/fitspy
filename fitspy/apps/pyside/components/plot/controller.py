@@ -3,10 +3,8 @@ from PySide6.QtCore import QObject, Signal, QTimer, QSignalBlocker
 from PySide6.QtCore import Qt
 
 from fitspy.core.spectrum import Spectrum
-from fitspy.apps.interactive_bounds import InteractiveBounds
 from fitspy.apps.pyside.utils import to_snake_case
 from fitspy.apps.pyside.components.plot.model import Model
-from fitspy.apps.pyside import DEFAULTS
 
 
 class PlotController(QObject):
@@ -143,7 +141,10 @@ class PlotController(QObject):
         if isinstance(fnames, str):
             fnames = [fnames]
 
-        self.model.ibounds = None
+        ax = self.spectra_plot.ax
+        view_options = self.view_options.get_view_options()
+
+        ax.clear()
 
         if len(fnames) == 1 and fnames[0].endswith('.json'):
             spectrum = Spectrum.create_from_model(fnames[0])  # .json model preview
@@ -152,15 +153,8 @@ class PlotController(QObject):
             self.model.current_spectra = [self.model.spectra.get_objects(fname)[0]
                                           for fname in fnames if fname != '']
             if len(self.model.current_spectra) > 0:
-                # TODO
-                # self.model.ibounds = InteractiveBounds(self.model.current_spectra[0],
-                #                                        self.spectra_plot.ax,
-                #                                        cmap=DEFAULTS["peaks_cmap"],
-                #                                        bind_func=self.model.refresh)
+                self.model.init_ibounds(ax, view_options)
                 self.update_plot_title()
-            else:
-                # self.spectra_plot.ax.clear()
-                self.spectra_plot.ax.draw_idle()
 
     def update_plot_title(self):
         if self.model.current_spectra:
@@ -219,13 +213,10 @@ class PlotController(QObject):
                 self.model.del_baseline_point(x)
 
         else:  # point_type == "peaks":
-            if self.model.ibounds is not None and self.model.ibounds.interact_with_bbox(event):
-                self.model.refresh()
+            if button == Qt.LeftButton:
+                self.model.add_peak_point(self.model.peak_model, x)
             else:
-                if button == Qt.LeftButton:
-                    self.model.add_peak_point(self.model.peak_model, x)
-                else:
-                    self.model.del_peak_point(x)
+                self.model.del_peak_point(x)
 
     def set_spectrum_attr(self, attr, value, fnames=None):
         if fnames is None:

@@ -95,9 +95,9 @@ class MplLikeAxes:
                 self._legend.addItem(item, name)
 
     def clear(self):
-        self.plot_item.clear()
         self._items = []
         self._lines = []
+        self.vb.clear()
 
     def draw_idle(self):
         self.plot_item.update()

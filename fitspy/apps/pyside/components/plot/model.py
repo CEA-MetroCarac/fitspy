@@ -14,6 +14,7 @@ from fitspy.core.spectrum import Spectrum
 from fitspy.core.spectra_map import SpectraMap
 from fitspy.core.utils import closest_index, closest_item, measure_time
 from fitspy.core.baseline_methods import get_baseline_method_meta
+from fitspy.apps.interactive_bounds_pg import InteractiveBounds
 from fitspy.apps.pyside import DEFAULTS
 
 CMAP = matplotlib.colormaps['tab10']
@@ -46,6 +47,7 @@ class Model(QObject):
         self.linewidth = 0.5
         self.lines = []
         self.nearest_lines = []
+        self.ibounds = None
 
     def set_spectrum_attr(self, fname, attr, value):
         # .json model's "dummy spectrum" is not stored in self.spectra
@@ -236,7 +238,7 @@ class Model(QObject):
 
     def refresh(self):
         self.PeaksChanged.emit(self.current_spectra[0])
-        # self.refreshPlot.emit()
+        self.refreshPlot.emit()
 
     def del_peak_point(self, x):
         first_spectrum = self.current_spectra[0]
@@ -350,13 +352,18 @@ class Model(QObject):
         self.original_xlim, self.original_ylim = self.get_view_limits(ax)
 
     def _apply_log_ylimits(self, ax):
-        y_data = np.concatenate([
-            line.get_ydata()[line.get_ydata() > 0]
-            for line in ax.lines
-            if "_Spectrum" in (line.get_label() or "")
-        ])
+        y_data = np.concatenate([line.get_ydata()[line.get_ydata() > 0] for line in ax.lines
+                                 if "_Spectrum" in (line.get_label() or "")])
         if len(y_data):
             ax.set_ylim(y_data.min() * 0.1, y_data.max() * 10)
+
+    def init_ibounds(self, ax, view_options):
+        self.ibounds = InteractiveBounds(ax,
+                                         self.current_spectra[0],
+                                         self.peak_model,
+                                         cmap=DEFAULTS["peaks_cmap"],
+                                         bind_func=self.refresh,
+                                         is_visible=view_options["Interactive bounds"])
 
     # @measure_time
     def update_spectraplot(self, ax, view_options):
@@ -380,8 +387,6 @@ class Model(QObject):
 
         self.lines = []
         first_spectrum = True
-        interactive_bounds = view_options["Interactive bounds"] * (self.ibounds is not None)
-        cmap_peaks = DEFAULTS['peaks_cmap']
         for spectrum in self.current_spectra:
             self.lines += spectrum.plot(
                 ax,
@@ -389,7 +394,7 @@ class Model(QObject):
                 show_outliers=view_options["Outliers"],
                 show_outliers_limit=view_options["Outliers limits"] * first_spectrum,
                 show_negative_values=view_options["Negative values"] * first_spectrum,
-                show_peak_models=view_options["Peaks"] * (not interactive_bounds) * first_spectrum,
+                show_peak_models=view_options["Peaks"] * first_spectrum,
                 show_peak_decomposition=view_options["Peak decomposition"] * first_spectrum,
                 show_noise_level=view_options["Noise level"] * first_spectrum,
                 show_baseline=view_options["Baseline"] * first_spectrum,
@@ -398,7 +403,7 @@ class Model(QObject):
                 subtract_baseline=view_options["Subtract bkg+baseline"],
                 subtract_bkg=view_options["Subtract bkg+baseline"],
                 kwargs=None if first_spectrum else {'c': 'k', 'lw': 0.1, 'zorder': 0},
-                cmap_peaks=cmap_peaks)
+                cmap_peaks=DEFAULTS['peaks_cmap'])
             if first_spectrum:
                 if view_options.get("Residual", False):
                     spectrum.plot_residual(ax)
@@ -409,14 +414,9 @@ class Model(QObject):
         spectrum = self.current_spectra[0]
         self.line_bkg_visible = view_options.get("Background", False) and spectrum.bkg_model
 
-        # TODO
-        # if interactive_bounds:
-        #     self.ibounds.update()
-        #     inds = spectrum.inds_local_minima()
-        #     for ind in inds:
-        #         ax.axvline(spectrum.x[ind], ls=':', lw=0.3)
-        #     if view_options["Peaks"]:
-        #         self.lines += [bbox.tmp[0] for bbox in self.ibounds.bboxes if bbox.tmp]
+        if self.ibounds is not None:
+            self.ibounds.update()  # necessary after ax.clear()
+            self.ibounds.set_visible(view_options["Interactive bounds"])
 
         # Add Peak labels annotations
         if view_options.get("Peak labels", True):

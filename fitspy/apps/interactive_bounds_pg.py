@@ -12,22 +12,23 @@ from fitspy.apps.pyside.utils import convert_color_pg
 
 class InteractiveBounds(QtCore.QObject):
 
-    def __init__(self, vb, spectrum, peak_model_name, cmap=None, bind_func=None):
+    def __init__(self, ax, spectrum, peak_model_name, cmap=None, bind_func=None, is_visible=True):
         super().__init__()
 
-        self.vb = vb
+        self.ax = ax
         self.spectrum = spectrum
         self.peak_model_name = peak_model_name
         self.cmap = cmap or CMAP
         self.bind_func = bind_func
+        self.is_visible = is_visible
 
         self.vlines = None
         self.bboxes = []
 
         self.add_vlines()
 
-        self.vb.scene().installEventFilter(self)
-        self.vb.scene().sigMouseMoved.connect(self.on_move)
+        self.ax.vb.scene().installEventFilter(self)
+        self.ax.vb.scene().sigMouseMoved.connect(self.on_move)
 
     def add_vlines(self):
         xv, yv = [], []
@@ -36,14 +37,28 @@ class InteractiveBounds(QtCore.QObject):
             xv += [xi, xi, np.nan]
             yv += [0, yi, np.nan]
         self.vlines = pg.PlotCurveItem(xv, yv, connect='finite', pen=pg.mkPen(color='k', width=0.2))
-        self.vb.addItem(self.vlines)
+        self.ax.vb.addItem(self.vlines)
+
+    def update(self):
+        self.bboxes = []
+        for k, peak_model in enumerate(self.spectrum.peak_models):
+            bbox = BBox(self.ax, self.spectrum, peak_model, is_visible=False)
+            bbox.set_color(self.cmap(k % self.cmap.N))
+            bbox.update()
+            self.bboxes.append(bbox)
+
+    def set_visible(self, status):
+        self.vlines.setVisible(status)
+        for bbox in self.bboxes:
+            for item in bbox.items:
+                item.setVisible(status)
 
     def eventFilter(self, obj, event):
 
         if event.type() == QtCore.QEvent.GraphicsSceneMousePress:
 
             pos = event.scenePos()
-            mouse_point = self.vb.mapSceneToView(pos)
+            mouse_point = self.ax.vb.mapSceneToView(pos)
 
             x = mouse_point.x()
             y = mouse_point.y()
@@ -54,22 +69,23 @@ class InteractiveBounds(QtCore.QObject):
                 if bbox.contains(x, y):
                     self.active_bbox = bbox
                     bbox.start_drag(x, y)
-                    self.vb.setMouseEnabled(x=False, y=False)
+                    self.ax.vb.setMouseEnabled(x=False, y=False)
                     return True
 
-            if event.button() == QtCore.Qt.MouseButton.RightButton:
+            if event.button() == QtCore.Qt.MouseButton.LeftButton:
                 self.spectrum.add_peak_model(self.peak_model_name, x)
-                bbox = BBox(self.vb, self.spectrum, self.spectrum.peak_models[-1])
+                bbox = BBox(self.ax, self.spectrum, self.spectrum.peak_models[-1], self.is_visible)
                 bbox.set_color(self.cmap(len(self.bboxes) % self.cmap.N))
                 bbox.update()
                 self.bboxes.append(bbox)
+
 
         elif event.type() == QtCore.QEvent.GraphicsSceneMouseRelease:
 
             if hasattr(self, "active_bbox") and self.active_bbox:
                 self.active_bbox.stop_drag()
                 self.active_bbox = None
-                self.vb.setMouseEnabled(x=True, y=True)
+                self.ax.vb.setMouseEnabled(x=True, y=True)
                 if self.bind_func is not None:
                     self.bind_func()
                 return True
@@ -84,22 +100,18 @@ class InteractiveBounds(QtCore.QObject):
         if buttons == QtCore.Qt.MouseButton.NoButton:
             self.active_bbox.stop_drag()
             self.active_bbox = None
-            self.vb.setMouseEnabled(x=True, y=True)
+            self.ax.vb.setMouseEnabled(x=True, y=True)
             return
 
-        mouse_point = self.vb.mapSceneToView(pos)
+        mouse_point = self.ax.vb.mapSceneToView(pos)
         self.active_bbox.on_move(mouse_point.x())
-
-    def update(self):
-        for bbox in self.bboxes:
-            bbox.update()
 
 
 class BBox:
 
-    def __init__(self, vb, spectrum, peak_model, color='b', ratio=0.5):
+    def __init__(self, ax, spectrum, peak_model, is_visible=True, color='b', ratio=0.5):
 
-        self.vb = vb
+        self.ax = ax
         self.spectrum = spectrum
         self.peak_model = peak_model
         self.color = color
@@ -126,7 +138,6 @@ class BBox:
         pen = pg.mkPen(self.color)
         brush = pg.mkBrush(self.color)
 
-        self.profile = pg.PlotDataItem([], [], pen=pen)
         self.profile_fwhm = pg.PlotDataItem([], [], pen=pen)
 
         self.vline = pg.PlotDataItem([self.x0, self.x0], [0, self.ampli], pen=pen)
@@ -144,11 +155,12 @@ class BBox:
         self.rect_fwhm.setBrush(brush)
         self.rect_fwhm.setOpacity(0.3)
 
-        self.items = [self.profile, self.profile_fwhm, self.vline,
+        self.items = [self.profile_fwhm, self.vline,
                       self.rect_x0, self.rect_x0_inner, self.rect_fwhm]
 
         for item in self.items:
-            self.vb.addItem(item)
+            item.setVisible(is_visible)
+            self.ax.vb.addItem(item)
 
         self.update_display()
 
@@ -211,7 +223,7 @@ class BBox:
                 self.contains_rect(self.rect_fwhm, x, y))
 
     def contains_rect(self, rect, x, y):
-        scene_pos = self.vb.mapViewToScene(QtCore.QPointF(x, y))
+        scene_pos = self.ax.vb.mapViewToScene(QtCore.QPointF(x, y))
         local_pos = rect.mapFromScene(scene_pos)
         return rect.rect().contains(local_pos)
 
@@ -239,23 +251,18 @@ class BBox:
         self.rect_fwhm.setRect(self.x0 - 0.5 * self.dfwhm[0], self.ratio * self.ampli,
                                0.5 * (self.dfwhm[0] + self.dfwhm[1]), (1 - self.ratio) * self.ampli)
 
-    def update_profiles(self):
+    def update_profile_fwhm(self):
         x = self.spectrum.x
-
         mask = (self.x0 - 0.5 * self.dfwhm[0] <= x) & (x <= self.x0 + 0.5 * self.dfwhm[1])
         with set_tmp_params(self.peak_model, self.dfwhm):
             tmp_params = self.peak_model.make_params()
             y = self.peak_model.eval(tmp_params, x=x[mask])
             self.profile_fwhm.setData(x[mask], y)
 
-        params = self.peak_model.make_params()
-        y = self.peak_model.eval(params, x=x)
-        self.profile.setData(x, y)
-
     def update(self):
         self.update_params()
         self.update_display()
-        self.update_profiles()
+        self.update_profile_fwhm()
 
 
 if __name__ == "__main__":
@@ -281,6 +288,6 @@ if __name__ == "__main__":
 
     ax.plot(spectrum.x, spectrum.y)
 
-    ib = InteractiveBounds(vb, spectrum, 'Gaussian')
+    ib = InteractiveBounds(ax, spectrum, 'Gaussian')
 
     app.exec()
