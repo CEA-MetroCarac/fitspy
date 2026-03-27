@@ -1,6 +1,7 @@
 """
 Class dedicated to the interactive bounds with pyqtgraph
 """
+import numpy as np
 import pyqtgraph as pg
 from pyqtgraph.Qt import QtWidgets, QtCore
 
@@ -20,10 +21,22 @@ class InteractiveBounds(QtCore.QObject):
         self.cmap = cmap or CMAP
         self.bind_func = bind_func
 
+        self.vlines = None
         self.bboxes = []
+
+        self.add_vlines()
 
         self.vb.scene().installEventFilter(self)
         self.vb.scene().sigMouseMoved.connect(self.on_move)
+
+    def add_vlines(self):
+        xv, yv = [], []
+        for i in self.spectrum.inds_local_minima():
+            xi, yi = self.spectrum.x[i], self.spectrum.y[i]
+            xv += [xi, xi, np.nan]
+            yv += [0, yi, np.nan]
+        self.vlines = pg.PlotCurveItem(xv, yv, connect='finite', pen=pg.mkPen(color='k', width=0.2))
+        self.vb.addItem(self.vlines)
 
     def eventFilter(self, obj, event):
 
@@ -267,9 +280,6 @@ if __name__ == "__main__":
     spectrum.load_profile(fname=fname)
 
     ax.plot(spectrum.x, spectrum.y)
-    inds = spectrum.inds_local_minima()
-    for ind in inds:
-        ax.axvline(spectrum.x[ind], 'b', lw=0.3)
 
     ib = InteractiveBounds(vb, spectrum, 'Gaussian')
 
