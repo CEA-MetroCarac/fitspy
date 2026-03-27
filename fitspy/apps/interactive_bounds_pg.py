@@ -79,12 +79,7 @@ class InteractiveBounds(QtCore.QObject):
 
     def update(self):
         for bbox in self.bboxes:
-            bbox.remove()
-        self.bboxes = []
-        for k, peak_model in enumerate(self.spectrum.peak_models):
-            bbox = BBox(self.vb, self.spectrum, peak_model)
-            bbox.set_color(self.cmap(k % self.cmap.N))
-            self.bboxes.append(bbox)
+            bbox.update()
 
 
 class BBox:
@@ -118,8 +113,10 @@ class BBox:
         pen = pg.mkPen(self.color)
         brush = pg.mkBrush(self.color)
 
-        self.line = pg.PlotDataItem([self.x0, self.x0], [0, self.ampli], pen=pen)
-        self.curve = pg.PlotDataItem([], [], pen=pen)
+        self.profile = pg.PlotDataItem([], [], pen=pen)
+        self.profile_fwhm = pg.PlotDataItem([], [], pen=pen)
+
+        self.vline = pg.PlotDataItem([self.x0, self.x0], [0, self.ampli], pen=pen)
 
         # rectangles
         self.rect_x0 = QtWidgets.QGraphicsRectItem()
@@ -134,11 +131,11 @@ class BBox:
         self.rect_fwhm.setBrush(brush)
         self.rect_fwhm.setOpacity(0.3)
 
-        self.vb.addItem(self.line)
-        self.vb.addItem(self.curve)
-        self.vb.addItem(self.rect_x0)
-        self.vb.addItem(self.rect_x0_inner)
-        self.vb.addItem(self.rect_fwhm)
+        self.items = [self.profile, self.profile_fwhm, self.vline,
+                      self.rect_x0, self.rect_x0_inner, self.rect_fwhm]
+
+        for item in self.items:
+            self.vb.addItem(item)
 
         self.update_display()
 
@@ -146,11 +143,9 @@ class BBox:
         self.color = convert_color_pg(color)
         pen = pg.mkPen(self.color)
         brush = pg.mkBrush(self.color)
-        self.line.setPen(pen)
-        self.curve.setPen(pen)
-        for rect in [self.rect_x0, self.rect_x0_inner, self.rect_fwhm]:
-            rect.setPen(pen)
-            rect.setBrush(brush)
+        for item in self.items:
+            item.setPen(pen)
+            item.setBrush(brush)
 
     def start_drag(self, x, y):
         self.last_x = x
@@ -222,7 +217,7 @@ class BBox:
             self.peak_model.set_param_hint('fwhm', max=self.dfwhm[0])
 
     def update_display(self):
-        self.line.setData([self.x0, self.x0], [0, self.ampli])
+        self.vline.setData([self.x0, self.x0], [0, self.ampli])
 
         w = self.dx0[0] + self.dx0[1]
         h = self.ratio * self.ampli
@@ -233,11 +228,16 @@ class BBox:
 
     def update_profiles(self):
         x = self.spectrum.x
+
         mask = (self.x0 - 0.5 * self.dfwhm[0] <= x) & (x <= self.x0 + 0.5 * self.dfwhm[1])
         with set_tmp_params(self.peak_model, self.dfwhm):
             tmp_params = self.peak_model.make_params()
             y = self.peak_model.eval(tmp_params, x=x[mask])
-            self.curve.setData(x[mask], y)
+            self.profile_fwhm.setData(x[mask], y)
+
+        params = self.peak_model.make_params()
+        y = self.peak_model.eval(params, x=x)
+        self.profile.setData(x, y)
 
     def update(self):
         self.update_params()
