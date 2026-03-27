@@ -78,7 +78,8 @@ class InteractiveBounds(QtCore.QObject):
                 bbox.set_color(self.cmap(len(self.bboxes) % self.cmap.N))
                 bbox.update()
                 self.bboxes.append(bbox)
-
+                if self.bind_func is not None:
+                    self.bind_func()
 
         elif event.type() == QtCore.QEvent.GraphicsSceneMouseRelease:
 

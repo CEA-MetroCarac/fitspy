@@ -103,7 +103,7 @@ class MplLikeAxes:
         self.plot_item.update()
 
     def get_title(self):
-        return self.plot_item.getTitle()
+        return self.plot_item.titleLabel.text
 
     def set_title(self, title):
         self.plot_item.setTitle(title)

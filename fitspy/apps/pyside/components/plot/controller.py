@@ -213,9 +213,9 @@ class PlotController(QObject):
                 self.model.del_baseline_point(x)
 
         else:  # point_type == "peaks":
-            if button == Qt.LeftButton:
-                self.model.add_peak_point(self.model.peak_model, x)
-            else:
+            # if button == Qt.LeftButton: # add_peak_point() is performed by model.ibounds
+            #     self.model.add_peak_point(self.model.peak_model, x)
+            if button == Qt.RightButton:
                 self.model.del_peak_point(x)
 
     def set_spectrum_attr(self, attr, value, fnames=None):
