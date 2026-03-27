@@ -11,26 +11,26 @@ from fitspy.apps.pyside.utils import convert_color_pg
 
 class InteractiveBounds(QtCore.QObject):
 
-    def __init__(self, spectrum, plot_widget, cmap=None, model=None, bind_func=None):
+    def __init__(self, vb, spectrum, peak_model_name, cmap=None, bind_func=None):
         super().__init__()
 
+        self.vb = vb
         self.spectrum = spectrum
-        self.plot_widget = plot_widget
+        self.peak_model_name = peak_model_name
         self.cmap = cmap or CMAP
-        self.model = model
         self.bind_func = bind_func
 
         self.bboxes = []
 
-        self.plot_widget.scene().installEventFilter(self)
-        self.plot_widget.scene().sigMouseMoved.connect(self.on_move)
+        self.vb.scene().installEventFilter(self)
+        self.vb.scene().sigMouseMoved.connect(self.on_move)
 
     def eventFilter(self, obj, event):
 
         if event.type() == QtCore.QEvent.GraphicsSceneMousePress:
 
             pos = event.scenePos()
-            mouse_point = self.plot_widget.getViewBox().mapSceneToView(pos)
+            mouse_point = self.vb.mapSceneToView(pos)
 
             x = mouse_point.x()
             y = mouse_point.y()
@@ -41,23 +41,22 @@ class InteractiveBounds(QtCore.QObject):
                 if bbox.contains(x, y):
                     self.active_bbox = bbox
                     bbox.start_drag(x, y)
-                    self.plot_widget.getViewBox().setMouseEnabled(x=False, y=False)
+                    self.vb.setMouseEnabled(x=False, y=False)
                     return True
 
             if event.button() == QtCore.Qt.MouseButton.RightButton:
-                if self.model:
-                    self.spectrum.add_peak_model(self.model, x)
-                    bbox = BBox(self.plot_widget, self.spectrum, self.spectrum.peak_models[-1])
-                    bbox.set_color(self.cmap(len(self.bboxes) % self.cmap.N))
-                    bbox.update()
-                    self.bboxes.append(bbox)
+                self.spectrum.add_peak_model(self.peak_model_name, x)
+                bbox = BBox(self.vb, self.spectrum, self.spectrum.peak_models[-1])
+                bbox.set_color(self.cmap(len(self.bboxes) % self.cmap.N))
+                bbox.update()
+                self.bboxes.append(bbox)
 
         elif event.type() == QtCore.QEvent.GraphicsSceneMouseRelease:
 
             if hasattr(self, "active_bbox") and self.active_bbox:
                 self.active_bbox.stop_drag()
                 self.active_bbox = None
-                self.plot_widget.getViewBox().setMouseEnabled(x=True, y=True)
+                self.vb.setMouseEnabled(x=True, y=True)
                 if self.bind_func is not None:
                     self.bind_func()
                 return True
@@ -72,10 +71,10 @@ class InteractiveBounds(QtCore.QObject):
         if buttons == QtCore.Qt.MouseButton.NoButton:
             self.active_bbox.stop_drag()
             self.active_bbox = None
-            self.plot_widget.getViewBox().setMouseEnabled(x=True, y=True)
+            self.vb.setMouseEnabled(x=True, y=True)
             return
 
-        mouse_point = self.plot_widget.getViewBox().mapSceneToView(pos)
+        mouse_point = self.vb.mapSceneToView(pos)
         self.active_bbox.on_move(mouse_point.x())
 
     def update(self):
@@ -83,22 +82,20 @@ class InteractiveBounds(QtCore.QObject):
             bbox.remove()
         self.bboxes = []
         for k, peak_model in enumerate(self.spectrum.peak_models):
-            bbox = BBox(self.plot_widget, self.spectrum, peak_model)
+            bbox = BBox(self.vb, self.spectrum, peak_model)
             bbox.set_color(self.cmap(k % self.cmap.N))
             self.bboxes.append(bbox)
 
 
 class BBox:
 
-    def __init__(self, plot_widget, spectrum, peak_model, color='b', ratio=0.5):
+    def __init__(self, vb, spectrum, peak_model, color='b', ratio=0.5):
 
-        self.plot_widget = plot_widget
+        self.vb = vb
         self.spectrum = spectrum
         self.peak_model = peak_model
         self.color = color
         self.ratio = ratio
-
-        self.view = plot_widget.getViewBox()
 
         self.x = spectrum.x
         self.y = spectrum.y
@@ -137,11 +134,11 @@ class BBox:
         self.rect_fwhm.setBrush(brush)
         self.rect_fwhm.setOpacity(0.3)
 
-        self.view.addItem(self.line)
-        self.view.addItem(self.curve)
-        self.view.addItem(self.rect_x0)
-        self.view.addItem(self.rect_x0_inner)
-        self.view.addItem(self.rect_fwhm)
+        self.vb.addItem(self.line)
+        self.vb.addItem(self.curve)
+        self.vb.addItem(self.rect_x0)
+        self.vb.addItem(self.rect_x0_inner)
+        self.vb.addItem(self.rect_fwhm)
 
         self.update_display()
 
@@ -206,8 +203,7 @@ class BBox:
                 self.contains_rect(self.rect_fwhm, x, y))
 
     def contains_rect(self, rect, x, y):
-        vb = self.plot_widget.getViewBox()
-        scene_pos = vb.mapViewToScene(QtCore.QPointF(x, y))
+        scene_pos = self.vb.mapViewToScene(QtCore.QPointF(x, y))
         local_pos = rect.mapFromScene(scene_pos)
         return rect.rect().contains(local_pos)
 
@@ -260,7 +256,8 @@ if __name__ == "__main__":
     win.setBackground('w')
 
     plot = win.addPlot()
-    plot.getViewBox().setMenuEnabled(False)
+    vb = plot.getViewBox()
+    vb.setMenuEnabled(False)
     ax = MplLikeAxes(plot)
 
     DATA = Path(__file__).parents[2] / "examples" / "data"
@@ -274,6 +271,6 @@ if __name__ == "__main__":
     for ind in inds:
         ax.axvline(spectrum.x[ind], 'b', lw=0.3)
 
-    ib = InteractiveBounds(spectrum, plot, model='Gaussian')
+    ib = InteractiveBounds(vb, spectrum, 'Gaussian')
 
     app.exec()
