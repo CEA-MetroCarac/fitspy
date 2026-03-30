@@ -27,6 +27,7 @@ def parser(fmt=None, **kwargs):
 
     linewidth = kwargs.pop('linewidth', kwargs.pop('lw', 1))
     linestyle = kwargs.pop('linestyle', kwargs.pop('ls', fmt_linestyle))
+    zorder = kwargs.pop('zorder', 1)
 
     pg_kwargs = {'name': kwargs.pop('label', None)}
 
@@ -40,7 +41,7 @@ def parser(fmt=None, **kwargs):
                       'symbolBrush': symbolBrush,
                       'symbolSize': 2 * kwargs.pop('markersize', kwargs.pop('ms', 4))})
 
-    return pg_color, linewidth, linestyle, pg_kwargs
+    return pg_color, linewidth, linestyle, zorder, pg_kwargs
 
 
 class MplLikeAxes:
@@ -73,7 +74,7 @@ class MplLikeAxes:
             y = x
             x = list(range(len(y)))
 
-        color, linewidth, linestyle, pg_kwargs = parser(fmt, **kwargs)
+        color, linewidth, linestyle, zorder, pg_kwargs = parser(fmt, **kwargs)
 
         pen = None
         if linestyle is not None or pg_kwargs['symbol'] is None:
@@ -82,6 +83,8 @@ class MplLikeAxes:
 
         item = self.plot_item.plot(x, y, pen=pen, **pg_kwargs)
         line = item.curve
+        item.setZValue(zorder)
+        line.setZValue(zorder)
         self._items.append(item)
         self._lines.append(line)
         self.draw_idle()

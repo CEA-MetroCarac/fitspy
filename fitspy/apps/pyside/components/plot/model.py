@@ -357,13 +357,11 @@ class Model(QObject):
         if len(y_data):
             ax.set_ylim(y_data.min() * 0.1, y_data.max() * 10)
 
-    def init_ibounds(self, ax, view_options):
+    def init_ibounds(self, ax):
         self.ibounds = InteractiveBounds(ax,
                                          self.current_spectra[0],
                                          self.peak_model,
-                                         cmap=DEFAULTS["peaks_cmap"],
-                                         bind_func=self.refresh,
-                                         is_visible=view_options["Interactive bounds"])
+                                         cmap=DEFAULTS["peaks_cmap"])
 
     # @measure_time
     def update_spectraplot(self, ax, view_options):
@@ -386,32 +384,48 @@ class Model(QObject):
             baseline.plot(ax, spectrum.x, spectrum.y, attached=baseline.attached, label="_Baseline")
 
         self.lines = []
-        first_spectrum = True
-        for spectrum in self.current_spectra:
-            self.lines += spectrum.plot(
-                ax,
-                show_weights=view_options["Weights"] * first_spectrum,
-                show_outliers=view_options["Outliers"],
-                show_outliers_limit=view_options["Outliers limits"] * first_spectrum,
-                show_negative_values=view_options["Negative values"] * first_spectrum,
-                show_peak_models=view_options["Peaks"] * first_spectrum,
-                show_peak_decomposition=view_options["Peak decomposition"] * first_spectrum,
-                show_noise_level=view_options["Noise level"] * first_spectrum,
-                show_baseline=view_options["Baseline"] * first_spectrum,
-                show_background=view_options["Background"] * first_spectrum,
-                show_result=view_options["Fit"] * first_spectrum,
-                subtract_baseline=view_options["Subtract bkg+baseline"],
-                subtract_bkg=view_options["Subtract bkg+baseline"],
-                kwargs=None if first_spectrum else {'c': 'k', 'lw': 0.1, 'zorder': 0},
-                cmap_peaks=DEFAULTS['peaks_cmap'])
-            if first_spectrum:
-                if view_options.get("Residual", False):
-                    spectrum.plot_residual(ax)
-                if view_options.get("Legend", False):
-                    ax.legend(loc=1)
-            first_spectrum = False
+        spectrum = self.current_spectra[0]
+        self.lines += spectrum.plot(
+            ax,
+            show_weights=view_options["Weights"],
+            show_outliers=view_options["Outliers"],
+            show_outliers_limit=view_options["Outliers limits"],
+            show_negative_values=view_options["Negative values"],
+            show_peak_models=view_options["Peaks"],
+            show_peak_decomposition=view_options["Peak decomposition"],
+            show_noise_level=view_options["Noise level"],
+            show_baseline=view_options["Baseline"],
+            show_background=view_options["Background"],
+            show_result=view_options["Fit"],
+            subtract_baseline=view_options["Subtract bkg+baseline"],
+            subtract_bkg=view_options["Subtract bkg+baseline"],
+            cmap_peaks=DEFAULTS['peaks_cmap'])
+        if view_options.get("Residual", False):
+            spectrum.plot_residual(ax)
+        if view_options.get("Legend", False):
+            ax.legend(loc=1)
+
+        if len(self.current_spectra) > 1:
+            subtract_baseline = subtract_bkg = view_options["Subtract bkg+baseline"],
+            xs, ys = [], []
+            for spectrum in self.current_spectra:
+                x, y = spectrum.eval_xy(subtract_baseline, subtract_bkg)
+                xs.extend(x)
+                ys.extend(y)
+                xs.append(np.nan)
+                ys.append(np.nan)
+            self.lines.append(ax.plot(xs, ys, lw=0.5, zorder=0, connect='finite')[0])
+
+            if view_options["Outliers"]:
+                x_outliers, y_outliers = [], []
+                for spectrum in self.current_spectra:
+                    xo, yo = spectrum.eval_outliers(subtract_baseline)
+                    x_outliers.extend(xo)
+                    y_outliers.extend(yo)
+                ax.plot(x_outliers, y_outliers, 'o', c='lime', mec='k', label='Outliers')
 
         spectrum = self.current_spectra[0]
+
         self.line_bkg_visible = view_options.get("Background", False) and spectrum.bkg_model
 
         if self.ibounds is not None:

@@ -756,15 +756,19 @@ class Spectrum:
             if y.max() < 0.1 * y0.max():
                 is_ok = False
 
-    def plot(self, ax,
-             show_weights=True,
-             show_outliers=True, show_outliers_limit=True,
-             show_negative_values=True, show_noise_level=True,
-             show_baseline=True, show_background=True,
-             show_peak_models=True, show_peak_decomposition=True, show_result=True,
-             subtract_baseline=True, subtract_bkg=True,
-             label=None, kwargs=None, cmap_peaks=None):
-        """ Plot the spectrum with the peak models """
+    def eval_outliers(self, subtract_baseline=False):
+        """ Return outliers points (x,y) coordinates for plotting """
+        x_outliers, y_outliers = self.calculate_outliers()
+        if x_outliers is not None:
+            inds = [list(self.x).index(x_outlier) for x_outlier in x_outliers]
+            if subtract_baseline and self.baseline.y_eval is not None:
+                y_outliers = y_outliers - self.baseline.y_eval[inds]
+        else:
+            x_outliers = y_outliers = []
+        return x_outliers, y_outliers
+
+    def eval_xy(self, subtract_baseline=False, subtract_bkg=False):
+        """ Return spectrum (x,y) coordinates for plotting """
         x, y = self.x.copy(), self.y.copy()
 
         if self.baseline.y_eval is not None:
@@ -777,23 +781,31 @@ class Spectrum:
             with empty_expr(self.bkg_model):
                 y = y - self.bkg_model.eval(self.bkg_model.make_params(), x=x)
 
+        return x, y
+
+    def plot(self, ax,
+             show_weights=True,
+             show_outliers=True, show_outliers_limit=True,
+             show_negative_values=True, show_noise_level=True,
+             show_baseline=True, show_background=True,
+             show_peak_models=True, show_peak_decomposition=True, show_result=True,
+             subtract_baseline=True, subtract_bkg=True,
+             label=None, kwargs=None, cmap_peaks=None):
+        """ Plot the spectrum with the peak models """
+
+        x, y = self.eval_xy()
+
         linewidth = 1 if getattr(self.result_fit, "success", False) else 0.5
 
         if kwargs is None:
-            kwargs = {'c': 'k', 'ls': '-', 'lw': 0.5, 'marker': 'o', 'ms': 0.5}
+            kwargs = {'c': 'k', 'ls': '-', 'lw': 0.5, 'marker': 'o', 'ms': 0.5, 'zorder': 2}
         lines = [ax.plot(x, y, label=f'{label}_Spectrum' if label else "_Spectrum", **kwargs)[0]]
 
         if show_weights and self.weights is not None:
             ax.plot(x, self.weights, 'b', lw=2, label=f'{label}_Weights' if label else 'Weights')
 
         if show_outliers:
-            x_outliers, y_outliers = self.calculate_outliers()
-            if x_outliers is not None:
-                inds = [list(x).index(x_outlier) for x_outlier in x_outliers]
-                if subtract_baseline and self.baseline.y_eval is not None:
-                    y_outliers = y_outliers - self.baseline.y_eval[inds]
-            else:
-                x_outliers = y_outliers = []
+            x_outliers, y_outliers = self.eval_outliers(subtract_baseline)
             ax.plot(x_outliers, y_outliers, 'o',
                     c='lime', mec='k', label=f'{label}_Outliers' if label else 'Outliers')
 
