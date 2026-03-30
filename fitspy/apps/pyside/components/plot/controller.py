@@ -142,8 +142,6 @@ class PlotController(QObject):
             fnames = [fnames]
 
         ax = self.spectra_plot.ax
-        view_options = self.view_options.get_view_options()
-
         ax.clear()
 
         if len(fnames) == 1 and fnames[0].endswith('.json'):
@@ -153,7 +151,7 @@ class PlotController(QObject):
             self.model.current_spectra = [self.model.spectra.get_objects(fname)[0]
                                           for fname in fnames if fname != '']
             if len(self.model.current_spectra) > 0:
-                self.model.init_ibounds(ax, view_options)
+                self.model.init_ibounds(ax)
                 self.update_plot_title()
 
     def update_plot_title(self):
@@ -213,8 +211,8 @@ class PlotController(QObject):
                 self.model.del_baseline_point(x)
 
         else:  # point_type == "peaks":
-            # if button == Qt.LeftButton: # add_peak_point() is performed by model.ibounds
-            #     self.model.add_peak_point(self.model.peak_model, x)
+            if button == Qt.LeftButton:
+                self.model.add_peak_point(self.model.peak_model, x)
             if button == Qt.RightButton:
                 self.model.del_peak_point(x)
 

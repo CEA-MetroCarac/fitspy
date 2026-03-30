@@ -12,15 +12,14 @@ from fitspy.apps.pyside.utils import convert_color_pg
 
 class InteractiveBounds(QtCore.QObject):
 
-    def __init__(self, ax, spectrum, peak_model_name, cmap=None, bind_func=None, is_visible=True):
+    def __init__(self, ax, spectrum, peak_model_name, cmap=None, enable_add_peak=False):
         super().__init__()
 
         self.ax = ax
         self.spectrum = spectrum
         self.peak_model_name = peak_model_name
         self.cmap = cmap or CMAP
-        self.bind_func = bind_func
-        self.is_visible = is_visible
+        self.enable_add_peak = enable_add_peak
 
         self.vlines = None
         self.bboxes = []
@@ -39,13 +38,17 @@ class InteractiveBounds(QtCore.QObject):
         self.vlines = pg.PlotCurveItem(xv, yv, connect='finite', pen=pg.mkPen(color='k', width=0.2))
         self.ax.vb.addItem(self.vlines)
 
+    def add_bbox(self, k, peak_model, is_visible=False):
+        bbox = BBox(self.ax, self.spectrum, peak_model, is_visible=is_visible)
+        bbox.set_color(self.cmap(k % self.cmap.N))
+        bbox.update()
+        self.bboxes.append(bbox)
+
     def update(self):
+        self.add_vlines()
         self.bboxes = []
         for k, peak_model in enumerate(self.spectrum.peak_models):
-            bbox = BBox(self.ax, self.spectrum, peak_model, is_visible=False)
-            bbox.set_color(self.cmap(k % self.cmap.N))
-            bbox.update()
-            self.bboxes.append(bbox)
+            self.add_bbox(k, peak_model)
 
     def set_visible(self, status):
         self.vlines.setVisible(status)
@@ -57,12 +60,8 @@ class InteractiveBounds(QtCore.QObject):
 
         if event.type() == QtCore.QEvent.GraphicsSceneMousePress:
 
-            pos = event.scenePos()
-            mouse_point = self.ax.vb.mapSceneToView(pos)
-
-            x = mouse_point.x()
-            y = mouse_point.y()
-
+            mouse_point = self.ax.vb.mapSceneToView(event.scenePos())
+            x, y = mouse_point.x(), mouse_point.y()
             self.active_bbox = None
 
             for bbox in reversed(self.bboxes):
@@ -72,23 +71,16 @@ class InteractiveBounds(QtCore.QObject):
                     self.ax.vb.setMouseEnabled(x=False, y=False)
                     return True
 
-            if event.button() == QtCore.Qt.MouseButton.LeftButton:
+            if event.button() == QtCore.Qt.MouseButton.LeftButton and self.enable_add_peak:
                 self.spectrum.add_peak_model(self.peak_model_name, x)
-                bbox = BBox(self.ax, self.spectrum, self.spectrum.peak_models[-1], self.is_visible)
-                bbox.set_color(self.cmap(len(self.bboxes) % self.cmap.N))
-                bbox.update()
-                self.bboxes.append(bbox)
-                if self.bind_func is not None:
-                    self.bind_func()
+                k = len(self.spectrum.peak_models) - 1
+                self.add_bbox(k, self.spectrum.peak_models[-1], is_visible=True)
 
         elif event.type() == QtCore.QEvent.GraphicsSceneMouseRelease:
-
-            if hasattr(self, "active_bbox") and self.active_bbox:
+            if self.active_bbox:
                 self.active_bbox.stop_drag()
                 self.active_bbox = None
                 self.ax.vb.setMouseEnabled(x=True, y=True)
-                if self.bind_func is not None:
-                    self.bind_func()
                 return True
 
         return False
@@ -289,6 +281,6 @@ if __name__ == "__main__":
 
     ax.plot(spectrum.x, spectrum.y)
 
-    ib = InteractiveBounds(ax, spectrum, 'Gaussian')
+    ib = InteractiveBounds(ax, spectrum, 'Gaussian', enable_add_peak=True)
 
     app.exec()
