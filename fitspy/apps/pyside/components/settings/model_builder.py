@@ -129,7 +129,7 @@ class Baseline(QCollapsible):
         for method_id in BASELINE_METHODS:
             meta = get_baseline_method_meta(method_id)
             self.method.addItem(meta["label"], method_id)
-            
+
             idx = self.method.count() - 1
             if "help" in meta:
                 self.method.setItemData(idx, meta["help"], Qt.ToolTipRole)
@@ -168,6 +168,7 @@ class Baseline(QCollapsible):
     def _on_method_changed(self, _index):
         self.apply_method_controls(self.method.currentData())
 
+
 class Normalization(QCollapsible):
     def __init__(self, parent=None):
         super().__init__("Normalization", parent)
@@ -192,6 +193,30 @@ class Normalization(QCollapsible):
         h_layout.addWidget(slash_label)
         h_layout.addWidget(self.range_max)
         h_layout.addWidget(self.normalize)
+
+        self.setContent(content_widget)
+        self.expand(animate=False)
+
+
+class Outliers(QCollapsible):
+    def __init__(self, parent=None):
+        super().__init__("Outliers", parent)
+        self.initUI()
+
+    def initUI(self):
+        content_widget = QWidget()
+        h_layout = QHBoxLayout(content_widget)
+        h_layout.setContentsMargins(0, 0, 0, 0)
+
+        h_layout.addWidget(QLabel("Coef. bounding limit:"))
+        self.outliers_coef = DoubleSpinBox()
+        self.outliers_coef.setRange(0.0, 10.0)
+        self.outliers_coef.setSingleStep(0.1)
+        h_layout.addWidget(self.outliers_coef)
+
+        self.outliers_calculation = QPushButton("Apply")
+        self.outliers_calculation.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        h_layout.addWidget(self.outliers_calculation)
 
         self.setContent(content_widget)
         self.expand(animate=False)
@@ -282,10 +307,12 @@ class ModelSettings(QWidget):
 
         # Add the widgets to the main layout
         self.spectral_range = SpectralRange(self)
+        self.outliers = Outliers(self)
         self.baseline = Baseline(self)
         self.normalization = Normalization(self)
         self.fitting = Fitting(self)
         main_layout.addWidget(self.spectral_range)
+        main_layout.addWidget(self.outliers)
         main_layout.addWidget(self.baseline)
         main_layout.addWidget(self.normalization)
         main_layout.addWidget(self.fitting)

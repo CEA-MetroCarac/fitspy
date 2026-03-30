@@ -65,127 +65,69 @@ class MainController(QObject):
         self.model.mapCmapChanged.connect(self.update_map_cmap)
 
         self.files_controller.showToast.connect(self.show_toast)
-        self.files_controller.askConfirmation.connect(
-            self.show_confirmation_dialog
-        )
-        self.files_controller.loadSpectra.connect(
-            self.plot_controller.load_spectra
-        )
-        self.files_controller.loadSpectrum.connect(
-            self.plot_controller.load_spectrum
-        )
-        self.files_controller.loadSpectraMap.connect(
-            self.plot_controller.load_map
-        )
-        self.files_controller.delSpectrum.connect(
-            self.plot_controller.del_spectrum
-        )
-        self.files_controller.delSpectraMap.connect(
-            self.plot_controller.del_map
-        )
+        self.files_controller.askConfirmation.connect(self.show_confirmation_dialog)
+        self.files_controller.loadSpectra.connect(self.plot_controller.load_spectra)
+        self.files_controller.loadSpectrum.connect(self.plot_controller.load_spectrum)
+        self.files_controller.loadSpectraMap.connect(self.plot_controller.load_map)
+        self.files_controller.delSpectrum.connect(self.plot_controller.del_spectrum)
+        self.files_controller.delSpectraMap.connect(self.plot_controller.del_map)
         self.files_controller.reinitSpectra.connect(
-            lambda fnames: (
-                self.plot_controller.reinit_spectra(fnames),
-                self.change_current_fit_model(fnames),
-                self.update_fit_stats(),
-            )
-        )
+            lambda fnames: (self.plot_controller.reinit_spectra(fnames),
+                            self.change_current_fit_model(fnames),
+                            self.update_fit_stats()))
         self.files_controller.spectraChanged.connect(
             lambda fnames: self.plot_controller.set_current_spectra(
-                fnames or self.settings_controller.get_model_fname()
-            )
-        )
-        self.files_controller.spectraChanged.connect(
-            self.change_current_fit_model
-        )
+                fnames or self.settings_controller.get_model_fname()))
+        self.files_controller.spectraChanged.connect(self.change_current_fit_model)
         self.files_controller.spectraChanged.connect(self.update_fit_stats)
-        self.files_controller.mapChanged.connect(
-            self.plot_controller.switch_map
-        )
+        self.files_controller.mapChanged.connect(self.plot_controller.switch_map)
         self.files_controller.mapChanged2.connect(self.change_map)
         self.files_controller.addMarker.connect(self.plot_controller.set_marker)
         self.files_controller.loadState.connect(self.load_state)
-        self.files_controller.saveResults.connect(
-            lambda fnames: self.save_results(fnames=fnames)
-        )
+        self.files_controller.saveResults.connect(lambda fnames: self.save_results(fnames=fnames))
 
         self.plot_controller.showToast.connect(self.show_toast)
-        self.plot_controller.askConfirmation.connect(
-            self.show_confirmation_dialog
-        )
-        self.plot_controller.spectrumLoaded.connect(
-            self.files_controller.add_spectrum
-        )
-        self.plot_controller.spectrumDeleted.connect(
-            self.files_controller.del_spectrum
-        )
-        self.plot_controller.spectraMapDeleted.connect(
-            self.files_controller.del_map
-        )
+        self.plot_controller.askConfirmation.connect(self.show_confirmation_dialog)
+        self.plot_controller.spectrumLoaded.connect(self.files_controller.add_spectrum)
+        self.plot_controller.spectrumDeleted.connect(self.files_controller.del_spectrum)
+        self.plot_controller.spectraMapDeleted.connect(self.files_controller.del_map)
         # could be simplified : self.files_controller.model.update_spectramap
-        self.plot_controller.decodedSpectraMap.connect(
-            self.files_controller.update_spectramap
-        )
+        self.plot_controller.decodedSpectraMap.connect(self.files_controller.update_spectramap)
         self.plot_controller.settingChanged.connect(self.model.update_setting)
-        self.plot_controller.highlightSpectrum.connect(
-            self.files_controller.highlight_spectrum
-        )
+        self.plot_controller.highlightSpectrum.connect(self.files_controller.highlight_spectrum)
         self.plot_controller.baselinePointsChanged.connect(
-            self.settings_controller.set_baseline_points
-        )
-        self.plot_controller.PeaksChanged.connect(
-            self.settings_controller.update_peaks_table
-        )
-        self.plot_controller.BkgChanged.connect(
-            self.settings_controller.update_bkg_table
-        )
+            self.settings_controller.set_baseline_points)
+        self.plot_controller.PeaksChanged.connect(self.settings_controller.update_peaks_table)
+        self.plot_controller.BkgChanged.connect(self.settings_controller.update_bkg_table)
         self.plot_controller.progressUpdated.connect(self.update_progress)
         self.plot_controller.colorizeFromFitStatus.connect(
-            self.files_controller.colorize_from_fit_status
-        )
+            self.files_controller.colorize_from_fit_status)
         self.plot_controller.exportCSV.connect(self.export_to_csv)
 
         self.settings_controller.showToast.connect(self.show_toast)
         self.settings_controller.settingChanged.connect(self.set_setting)
-        self.settings_controller.calculateOutliers.connect(
-            self.outliers_calculation
-        )
-        self.settings_controller.setSpectrumAttr.connect(
-            self.plot_controller.set_spectrum_attr
-        )
+        self.settings_controller.calculateOutliers.connect(self.outliers_calculation)
+        self.settings_controller.setSpectrumAttr.connect(self.plot_controller.set_spectrum_attr)
         self.settings_controller.baselinePointsChanged.connect(
-            self.plot_controller.set_baseline_points
-        )
+            self.plot_controller.set_baseline_points)
         self.settings_controller.setModel.connect(self.apply_model)
         self.settings_controller.importBaseline.connect(self.import_baseline)
         self.settings_controller.applyBaseline.connect(self.apply_baseline)
         self.settings_controller.applySpectralRange.connect(
-            self.plot_controller.apply_spectral_range
-        )
+            self.plot_controller.apply_spectral_range)
         self.settings_controller.applyNormalization.connect(
-            self.plot_controller.apply_normalization
-        )
-        self.settings_controller.updatePeakModel.connect(
-            self.plot_controller.update_peak_model
-        )
+            self.plot_controller.apply_normalization)
+        self.settings_controller.updatePeakModel.connect(self.plot_controller.update_peak_model)
         self.settings_controller.updatePeakModel.emit(
-            self.view.fit_model_editor.model_settings.fitting.peak_model.currentText()
-        )
-        self.settings_controller.setBkgModel.connect(
-            self.plot_controller.set_bkg_model
-        )
-        self.settings_controller.setPeaks.connect(
-            self.plot_controller.set_peaks
-        )
+            self.view.fit_model_editor.model_settings.fitting.peak_model.currentText())
+        self.settings_controller.setBkgModel.connect(self.plot_controller.set_bkg_model)
+        self.settings_controller.setPeaks.connect(self.plot_controller.set_peaks)
         self.settings_controller.setBkg.connect(self.plot_controller.set_bkg)
         self.settings_controller.saveModels.connect(self.save_models)
         self.settings_controller.fitRequested.connect(self.fit)
-        self.settings_controller.modelSelectionChanged.connect(
-            self.on_model_selection_changed
-        )
-        self.settings_controller.peakSelected.connect(
-            self.plot_controller.highlight_peak
-        )
+        self.settings_controller.modelSelectionChanged.connect(self.on_model_selection_changed)
+        self.settings_controller.peakSelected.connect(self.plot_controller.highlight_peak)
+
         app = QApplication.instance()
         app.aboutToQuit.connect(
             lambda: self.set_setting(
@@ -196,32 +138,22 @@ class MainController(QObject):
     def apply_settings(self):
         self.view.statusBox.ncpus.setCurrentText(self.model.ncpus)
         self.view.spectra_plot.ax.set_title(self.model.figure_options_title)
+
+        self.view.fit_model_editor.model_settings.outliers.outliers_coef.setValue(
+            self.model.outliers_coef)
+
         self.view.more_settings.other_settings.cb_bichromatic.setChecked(
-            self.model.bichromatic_models_enable
-        )
-        for (
-                button
-        ) in self.view.more_settings.other_settings.bichromatic_group.buttons():
+            self.model.bichromatic_models_enable)
+        for button in self.view.more_settings.other_settings.bichromatic_group.buttons():
             if button.text() == self.model.bichromatic_models_mode:
                 button.setChecked(True)
                 models_bichromatic.MODE = button.text()
                 break
-        self.view.more_settings.other_settings.outliers_coef.setValue(
-            self.model.outliers_coef
-        )
-        self.view.more_settings.other_settings.peaks_cmap.setCurrentText(
-            self.model.peaks_cmap
-        )
-        self.view.more_settings.other_settings.map_cmap.setCurrentText(
-            self.model.map_cmap
-        )
+        self.view.more_settings.other_settings.peaks_cmap.setCurrentText(self.model.peaks_cmap)
+        self.view.more_settings.other_settings.map_cmap.setCurrentText(self.model.map_cmap)
 
         self.view.toolbar.set_click_mode(self.model.click_mode)
-
-        for (
-                label,
-                checkbox,
-        ) in self.view.toolbar.view_options.checkboxes.items():
+        for (label, checkbox,) in self.view.toolbar.view_options.checkboxes.items():
             setting = f"view_options_{to_snake_case(label)}"
             state = getattr(self.model, setting)
             checkbox.setChecked(state)

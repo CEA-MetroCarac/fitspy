@@ -51,6 +51,11 @@ class SettingsController(QObject):
         spectral_range = model_settings.spectral_range
         spectral_range.apply.clicked.connect(self.apply_spectral_range)
 
+        # Outliers removal settings
+        model_settings.outliers.outliers_coef.valueChanged.connect(
+            lambda value: self.settingChanged.emit("outliers_coef", value))
+        model_settings.outliers.outliers_calculation.clicked.connect(self.calculateOutliers)
+
         # Baseline settings
         baseline = model_settings.baseline
         baseline.method.currentIndexChanged.connect(self._on_baseline_method_changed)
@@ -124,9 +129,6 @@ class SettingsController(QObject):
 
         self.other_settings.cb_bichromatic.toggled.connect(self.toggle_bichromatic_models)
         self.other_settings.bichromatic_group.buttonClicked.connect(self.update_bichromatic_mode)
-        self.other_settings.outliers_coef.valueChanged.connect(
-            lambda value: self.settingChanged.emit("outliers_coef", value))
-        self.other_settings.outliers_calculation.clicked.connect(self.calculateOutliers)
         self.other_settings.peaks_cmap.currentColormapChanged.connect(
             lambda cmap: self.settingChanged.emit("peaks_cmap", cmap.name.split(":")[1]))
         self.other_settings.map_cmap.currentColormapChanged.connect(

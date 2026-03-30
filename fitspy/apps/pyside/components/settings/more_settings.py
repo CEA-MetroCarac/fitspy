@@ -148,27 +148,27 @@ class OtherSettings(QGroupBox):
         hbox.addWidget(theta_radio)
         vbox.addLayout(hbox)
 
-        # Outliers Removal
-        hbox = QHBoxLayout()
-
-        hbox.addWidget(QLabel("Outliers Removal:"))
-
-        container = QHBoxLayout()
-        container.setContentsMargins(0, 0, 0, 0)
-        container.setSpacing(0)
-        container.addWidget(QLabel("Coef. bounding limit:"))
-        self.outliers_coef = DoubleSpinBox()
-        self.outliers_coef.setRange(0.0, 10.0)
-        self.outliers_coef.setSingleStep(0.1)
-        container.addWidget(self.outliers_coef)
-        hbox.addLayout(container)
-
-        self.outliers_calculation = QPushButton("Apply")
-        self.outliers_calculation.setSizePolicy(
-            QSizePolicy.Fixed, QSizePolicy.Fixed
-        )
-        hbox.addWidget(self.outliers_calculation)
-        vbox.addLayout(hbox)
+        # # Outliers Removal
+        # hbox = QHBoxLayout()
+        #
+        # hbox.addWidget(QLabel("Outliers Removal:"))
+        #
+        # container = QHBoxLayout()
+        # container.setContentsMargins(0, 0, 0, 0)
+        # container.setSpacing(0)
+        # container.addWidget(QLabel("Coef. bounding limit:"))
+        # self.outliers_coef = DoubleSpinBox()
+        # self.outliers_coef.setRange(0.0, 10.0)
+        # self.outliers_coef.setSingleStep(0.1)
+        # container.addWidget(self.outliers_coef)
+        # hbox.addLayout(container)
+        #
+        # self.outliers_calculation = QPushButton("Apply")
+        # self.outliers_calculation.setSizePolicy(
+        #     QSizePolicy.Fixed, QSizePolicy.Fixed
+        # )
+        # hbox.addWidget(self.outliers_calculation)
+        # vbox.addLayout(hbox)
 
         # Peaks Colormap Selection
         hbox = QHBoxLayout()
