@@ -343,11 +343,6 @@ class Model(QObject):
         ylim = ax.get_ylim()
         return xlim, ylim
 
-    def set_view_limits(self, ax, xlim, ylim):
-        if xlim and ylim:
-            ax.set_xlim(xlim)
-            ax.set_ylim(ylim)
-
     def store_original_view_limits(self, ax):
         self.original_xlim, self.original_ylim = self.get_view_limits(ax)
 
@@ -472,12 +467,6 @@ class Model(QObject):
 
         ax.plot_item.setLogMode(x=view_options.get("X-log", False),
                                 y=view_options.get("Y-log", False))
-
-        # TODO
-        # if view_options.get("Preserve axes", False):
-        #     self.set_view_limits(ax, xlim, ylim)
-        # elif view_options.get("Y-log", False):
-        #     self._apply_log_ylimits(ax)
 
         ax.draw_idle()
 
