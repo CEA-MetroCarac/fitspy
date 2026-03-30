@@ -1,8 +1,8 @@
 from matplotlib.backends.backend_qtagg import NavigationToolbar2QT
 from matplotlib import cbook
 
-from PySide6.QtCore import QSize, Qt, QPoint, QEvent
-from PySide6.QtGui import QIcon, QPixmap, QColor, QKeySequence, QShortcut, QCursor
+from PySide6.QtCore import QSize, Qt
+from PySide6.QtGui import QIcon, QPixmap, QColor, QKeySequence, QShortcut
 from PySide6.QtWidgets import (QToolButton, QMenu, QCheckBox, QWidgetAction, QComboBox,
                                QPushButton, QSpacerItem, QSizePolicy, QHBoxLayout, QWidget, QLabel)
 
@@ -21,8 +21,6 @@ class ViewOptions(QToolButton):
     def initUI(self):
         self.menu = QMenu(self)
         self.setMenu(self.menu)
-        self.menu.setContentsMargins(3, 3, 3, 3)
-        self.menu.installEventFilter(self)
 
         self.checkboxes = {}
         for text, tooltip in self.checkboxes_definitions:
@@ -32,23 +30,6 @@ class ViewOptions(QToolButton):
             action.setDefaultWidget(checkbox)
             self.menu.addAction(action)
             self.checkboxes[text] = checkbox
-
-    def showMenu(self):
-        if not self.menu.isVisible():
-            self.menu.popup(self.mapToGlobal(QPoint(0, self.height())))
-
-    def enterEvent(self, event):
-        self.showMenu()
-        super().enterEvent(event)
-
-    def eventFilter(self, obj, event):
-        if obj is self.menu and event.type() in (QEvent.Leave, QEvent.MouseMove):
-            cursor_pos = QCursor.pos()
-            in_button = self.rect().contains(self.mapFromGlobal(cursor_pos))
-            in_menu = self.menu.rect().contains(self.menu.mapFromGlobal(cursor_pos))
-            if not in_button and not in_menu:
-                self.menu.close()
-        return super().eventFilter(obj, event)
 
     def get_view_options(self):
         return {text: checkbox.isChecked() for text, checkbox in self.checkboxes.items()}
