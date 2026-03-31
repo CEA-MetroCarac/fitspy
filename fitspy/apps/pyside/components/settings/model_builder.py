@@ -1,19 +1,14 @@
 from PySide6.QtCore import Qt, Signal, QSize
 from PySide6.QtGui import QIcon
-from PySide6.QtWidgets import (QSlider, QVBoxLayout, QHBoxLayout, QScrollArea,
-                               QPushButton, QCheckBox, QLabel, QWidget, QSpacerItem,
-                               QSizePolicy, QTabWidget)
+from PySide6.QtWidgets import (QSlider, QVBoxLayout, QHBoxLayout, QScrollArea, QPushButton,
+                               QCheckBox, QLabel, QWidget, QSpacerItem, QSizePolicy, QTabWidget)
 from superqt import QCollapsible
 
 from fitspy import PEAK_MODELS, BKG_MODELS
 from fitspy.apps.pyside.utils import get_icon_path
 from fitspy.apps.pyside.components import FitStats
-from fitspy.apps.pyside.components.custom_widgets import (
-    SpinBox,
-    DoubleSpinBox,
-    DragNDropCombo,
-    CategorizedComboBox,
-)
+from fitspy.apps.pyside.components.custom_widgets import (SpinBox, DoubleSpinBox, DragNDropCombo,
+                                                          CategorizedComboBox)
 from fitspy.apps.pyside.components.settings.peaks_table import PeaksTable
 from fitspy.apps.pyside.components.settings.bkg_table import BkgTable
 from fitspy.apps.pyside.components.settings.baseline_table import BaselineTable
@@ -52,6 +47,30 @@ class SpectralRange(QCollapsible):
         self.expand(animate=False)
 
 
+class Outliers(QCollapsible):
+    def __init__(self, parent=None):
+        super().__init__("Outliers", parent)
+        self.initUI()
+
+    def initUI(self):
+        content_widget = QWidget()
+        h_layout = QHBoxLayout(content_widget)
+        h_layout.setContentsMargins(0, 0, 0, 0)
+
+        h_layout.addWidget(QLabel("Coef. bounding limit:"))
+        self.outliers_coef = DoubleSpinBox()
+        self.outliers_coef.setRange(0.0, 10.0)
+        self.outliers_coef.setSingleStep(0.1)
+        h_layout.addWidget(self.outliers_coef)
+
+        self.outliers_calculation = QPushButton("Apply")
+        self.outliers_calculation.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        h_layout.addWidget(self.outliers_calculation)
+
+        self.setContent(content_widget)
+        self.expand(animate=False)
+
+
 class Baseline(QCollapsible):
     def __init__(self, parent=None):
         super().__init__("Baseline", parent)
@@ -76,46 +95,36 @@ class Baseline(QCollapsible):
         self.slider = QSlider(Qt.Horizontal)
         self.slider.setRange(0, 10)
         self.slider.wheelEvent = lambda event: event.ignore()
-        self.import_btn = QPushButton("Import")
+        self.apply = QPushButton("Apply")
 
         self.HLayout1.addWidget(self.label_method)
         self.HLayout1.addWidget(self.method)
         self.HLayout1.addWidget(self.label_coef)
         self.HLayout1.addWidget(self.slider)
-        self.HLayout1.addWidget(self.import_btn)
+        self.HLayout1.addWidget(self.apply)
 
         self.HLayout2 = QHBoxLayout()
-        self.HLayout2.setSpacing(5)
+        self.HLayout2.setSpacing(8)
         self.HLayout2.setContentsMargins(0, 0, 0, 0)
 
         self.label_order = QLabel("Order:")
         self.order = SpinBox()
+        self.order.setMaximumWidth(38)
+        self.attached = QCheckBox("Attached")
+        self.label_sigma = QLabel("Sigma:")
+        self.sigma = SpinBox()
+        self.sigma.setMaximumWidth(38)
+        self.import_btn = QPushButton("Import")
 
         self.HLayout2.addWidget(self.label_order)
         self.HLayout2.addWidget(self.order)
-        spacer2 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
-        self.HLayout2.addItem(spacer2)
-
-        self.HLayout3 = QHBoxLayout()
-        self.HLayout3.setSpacing(5)
-        self.HLayout3.setContentsMargins(0, 0, 0, 0)
-
-        self.attached = QCheckBox("Attached")
-        self.label_sigma = QLabel("Sigma (smoothing):")
-        self.sigma = SpinBox()
-
-        self.HLayout3.addWidget(self.attached)
-        spacer3 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
-        self.HLayout3.addItem(spacer3)
-        self.HLayout3.addWidget(self.label_sigma)
-        self.HLayout3.addWidget(self.sigma)
+        self.HLayout2.addWidget(self.attached)
+        self.HLayout2.addWidget(self.label_sigma)
+        self.HLayout2.addWidget(self.sigma)
+        self.HLayout2.addWidget(self.import_btn)
 
         vbox_layout.addLayout(self.HLayout1)
         vbox_layout.addLayout(self.HLayout2)
-        vbox_layout.addLayout(self.HLayout3)
-
-        self.apply = QPushButton("Apply")
-        vbox_layout.addWidget(self.apply)
 
         self.setContent(content_widget)
         self.expand(animate=False)
@@ -193,30 +202,6 @@ class Normalization(QCollapsible):
         h_layout.addWidget(slash_label)
         h_layout.addWidget(self.range_max)
         h_layout.addWidget(self.normalize)
-
-        self.setContent(content_widget)
-        self.expand(animate=False)
-
-
-class Outliers(QCollapsible):
-    def __init__(self, parent=None):
-        super().__init__("Outliers", parent)
-        self.initUI()
-
-    def initUI(self):
-        content_widget = QWidget()
-        h_layout = QHBoxLayout(content_widget)
-        h_layout.setContentsMargins(0, 0, 0, 0)
-
-        h_layout.addWidget(QLabel("Coef. bounding limit:"))
-        self.outliers_coef = DoubleSpinBox()
-        self.outliers_coef.setRange(0.0, 10.0)
-        self.outliers_coef.setSingleStep(0.1)
-        h_layout.addWidget(self.outliers_coef)
-
-        self.outliers_calculation = QPushButton("Apply")
-        self.outliers_calculation.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
-        h_layout.addWidget(self.outliers_calculation)
 
         self.setContent(content_widget)
         self.expand(animate=False)
