@@ -48,6 +48,7 @@ class Model(QObject):
         self.lines = []
         self.nearest_lines = []
         self.ibounds = None
+        self._Y = []
 
     def set_spectrum_attr(self, fname, attr, value):
         # .json model's "dummy spectrum" is not stored in self.spectra
@@ -254,37 +255,14 @@ class Model(QObject):
         self.refreshPlot.emit()
 
     def highlight_spectrum(self, ax, event):
-        """Highlight all spectrum under the cursor"""
-
-        if self.lines:
-            # reassign standard properties to the previous nearest lines
-            for line in self.nearest_lines:
-                line.set(linewidth=0.2, color='k', zorder=0)
-
-            title = None
-            self.nearest_lines, fnames, labels = [], [], []
-            num_secondary = len(self.current_spectra) - 1
-            # spectrum_lines = [self.lines[0]] + self.lines[-num_secondary:]
-            spectrum_lines = [self.lines[0]]
-            if num_secondary > 0:
-                spectrum_lines += self.lines[-num_secondary:]
-
-            for i, line in enumerate(spectrum_lines):
-                if line.contains(event)[0]:
-                    if len(self.nearest_lines) < 10:
-                        color = CMAP(len(self.nearest_lines))
-                        line.set(linewidth=1, color=color, zorder=1)
-                        self.nearest_lines.append(line)
-                        fname = self.current_spectra[i].fname
-                        fnames.append(fname)
-                        labels.append(Path(fname).name)
-                    else:
-                        title = "The nearest lines exceed 10.\n"
-                        title += "  Show the first 10 ones"
-
-            ax.legend(self.nearest_lines, labels, title=title, loc=1)
-            ax.get_figure().canvas.draw_idle()
-            return fnames
+        """Select the spectrum closest to the cursor among several spectra."""
+        mouse_point = ax.vb.mapSceneToView(event.scenePos())
+        Y = np.asarray(self._Y)
+        X = np.tile(self.current_spectra[0].x, (Y.shape[0], 1))
+        dist = np.sqrt((X - mouse_point.x()) ** 2 + (Y - mouse_point.y()) ** 2)
+        ind, _ = np.unravel_index(np.argmin(dist), dist.shape)
+        spectrum = self.current_spectra[ind]
+        return [spectrum.fname]
 
     def highlight_peak(self, ax, peak_index):
         """Highlight a peak by its index (for table hover/click)."""
@@ -380,35 +358,36 @@ class Model(QObject):
 
         self.lines = []
         spectrum = self.current_spectra[0]
-        self.lines += spectrum.plot(
-            ax,
-            show_weights=view_options["Weights"],
-            show_outliers=view_options["Outliers"],
-            show_outliers_limit=view_options["Outliers limits"],
-            show_negative_values=view_options["Negative values"],
-            show_peak_models=view_options["Peaks"],
-            show_peak_decomposition=view_options["Peak decomposition"],
-            show_noise_level=view_options["Noise level"],
-            show_baseline=view_options["Baseline"],
-            show_background=view_options["Background"],
-            show_result=view_options["Fit"],
-            subtract_baseline=view_options["Subtract bkg+baseline"],
-            subtract_bkg=view_options["Subtract bkg+baseline"],
-            cmap_peaks=DEFAULTS['peaks_cmap'])
+        self.lines += spectrum.plot(ax,
+                                    show_weights=view_options["Weights"],
+                                    show_outliers=view_options["Outliers"],
+                                    show_outliers_limit=view_options["Outliers limits"],
+                                    show_negative_values=view_options["Negative values"],
+                                    show_peak_models=view_options["Peaks"],
+                                    show_peak_decomposition=view_options["Peak decomposition"],
+                                    show_noise_level=view_options["Noise level"],
+                                    show_baseline=view_options["Baseline"],
+                                    show_background=view_options["Background"],
+                                    show_result=view_options["Fit"],
+                                    subtract_baseline=view_options["Subtract bkg+baseline"],
+                                    subtract_bkg=view_options["Subtract bkg+baseline"],
+                                    cmap_peaks=DEFAULTS['peaks_cmap'])
         if view_options.get("Residual", False):
             spectrum.plot_residual(ax)
         if view_options.get("Legend", False):
             ax.legend(loc=1)
 
+        subtract_baseline = subtract_bkg = view_options["Subtract bkg+baseline"]
+        self._Y = [spectrum.eval_xy(subtract_baseline, subtract_bkg)[1]]
         if len(self.current_spectra) > 1:
-            subtract_baseline = subtract_bkg = view_options["Subtract bkg+baseline"],
             xs, ys = [], []
-            for spectrum in self.current_spectra:
+            for spectrum in self.current_spectra[1:]:
                 x, y = spectrum.eval_xy(subtract_baseline, subtract_bkg)
                 xs.extend(x)
                 ys.extend(y)
                 xs.append(np.nan)
                 ys.append(np.nan)
+                self._Y.append(y)
             self.lines.append(ax.plot(xs, ys, lw=0.5, zorder=0, connect='finite')[0])
 
             if view_options["Outliers"]:

@@ -196,7 +196,7 @@ class PlotController(QObject):
 
         if point_type == "highlight":
             fnames = self.model.highlight_spectrum(self.spectra_plot.ax, event)
-            self.highlightSpectrum.emit(fnames, False)
+            self.highlightSpectrum.emit(fnames, True)
 
         elif point_type == "outliers":
             if button == Qt.LeftButton:
