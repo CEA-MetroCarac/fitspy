@@ -147,7 +147,7 @@ class MplLikeAxes:
         return line
 
     def axvline(self, x, fmt=None, **kwargs):
-        color, linewidth, linestyle, pg_kwargs = parser(fmt, **kwargs)
+        color, linewidth, linestyle, zorder, pg_kwargs = parser(fmt, **kwargs)
         pen = pg.mkPen(color=color, width=linewidth)
         pen.setStyle(LINESTYLES.get(linestyle, Qt.SolidLine))
         line = pg.InfiniteLine(pos=x, angle=90, pen=pen)
