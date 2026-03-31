@@ -93,10 +93,10 @@ class FilesController(QObject):
         """Refresh the list widget with the files and update the label."""
         # Save current selection texts
         old_selection = set(list_widget.get_selected_fnames())
-        
+
         current_items = list_widget.get_all_fnames()
         new_items = files  # New items list, order preserved
-        
+
         # Determine items to add and remove using set operations
         current_items_set = set(current_items)
         new_items_set = set(new_items)
@@ -123,7 +123,7 @@ class FilesController(QObject):
         # Auto select the first item if none are selected
         if not list_widget.get_selected_fnames() and list_widget.count():
             list_widget.setCurrentRow(0)
-        
+
         # Compare new selection against the old selection and emit signal only if changed
         new_selection = set(item for item in list_widget.get_selected_fnames())
         if old_selection != new_selection:
@@ -197,7 +197,7 @@ class FilesController(QObject):
         list_widget.blockSignals(False)
 
         if plot_highlighted:
-            self.update_selection(list_widget, self.spectrum_list.count_label, emit_marker=False)
+            self.update_selection(list_widget, self.spectrum_list.count_label, emit_marker=True)
         else:
             self.update_count(list_widget, self.spectrum_list.count_label)
             if fnames and self.model.current_map:
