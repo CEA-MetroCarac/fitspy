@@ -278,7 +278,7 @@ class ModelSettings(QWidget):
     def initUI(self):
         self.setObjectName("fit_model_editor")
         self.setEnabled(True)
-        self.setFixedWidth(346)
+        self.setFixedWidth(371)
 
         # Create a scroll area
         scroll_area = QScrollArea(self)
