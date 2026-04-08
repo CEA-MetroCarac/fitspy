@@ -1,6 +1,25 @@
 Release Notes
 =============
 
+Version 2026.3 (April 04, 2026)
+--------------------------------
+
+**Enhancements:**
+
+- Replaced the Matplotlib backend with PyQtGraph in the PySide GUI to improve spectra visualization performance and capabilities.
+
+**Bug fixes:**
+
+- Fixed `#96 <https://github.com/CEA-MetroCarac/fitspy/issues/96>`_ Error when loading custom peak model
+- Fixed `#99 <https://github.com/CEA-MetroCarac/fitspy/issues/99>`_ Error when reopening json model with 'arpls' baseline
+- Fixed `#100 <https://github.com/CEA-MetroCarac/fitspy/issues/100>`_ Baseline => import in the pyside gui does nothing
+- Fixed `#101 <https://github.com/CEA-MetroCarac/fitspy/issues/101>`_ Import Baseline : Automatic method selection
+- Fixed `#102 <https://github.com/CEA-MetroCarac/fitspy/issues/102>`_ Import Baseline : setting an X-range makes the baseline disappear
+- Fixed `#103 <https://github.com/CEA-MetroCarac/fitspy/issues/103>`_ Import Baseline : bad log displaying
+- Fixed `#104 <https://github.com/CEA-MetroCarac/fitspy/issues/104>`_ Zoom requires double click
+- Fixed `#105 <https://github.com/CEA-MetroCarac/fitspy/issues/105>`_ Y-Log option is not saved (?)
+
+
 Version 2026.2 (January 29, 2026)
 --------------------------------
 
