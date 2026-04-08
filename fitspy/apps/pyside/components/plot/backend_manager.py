@@ -158,7 +158,7 @@ class MplLikeAxes:
     def annotate(self, text, xy, **kwargs):
         x, y = xy
 
-        xytext = kwargs.get('xytext', (0, 0))
+        xytext = kwargs.get('xytext', (0, 0.01 * y))
         textcoords = kwargs.get('textcoords', 'offset points')
         if textcoords == 'offset points':
             offset_x, offset_y = xytext
@@ -189,6 +189,7 @@ class MplLikeAxes:
         color = kwargs.get('color', 'k')
         item = pg.TextItem(text=text, color=color, anchor=anchor, fill=fill, border=border)
         item.setPos(x + offset_x, y + offset_y)
+        item.setZValue(100)
         self.plot_item.addItem(item)
         self._lines.append(item)
 

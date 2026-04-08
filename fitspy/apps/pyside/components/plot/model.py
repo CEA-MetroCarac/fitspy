@@ -10,7 +10,7 @@ from PySide6.QtWidgets import QMessageBox
 
 # import fitspy
 from fitspy.core.spectra import Spectra
-from fitspy.core.spectrum import Spectrum
+from fitspy.core.spectrum import Spectrum, empty_expr
 from fitspy.core.spectra_map import SpectraMap
 from fitspy.core.utils import closest_index, closest_item, measure_time
 from fitspy.core.baseline_methods import get_baseline_method_meta
@@ -414,9 +414,10 @@ class Model(QObject):
                 if not label:
                     continue
                 model = spectrum.peak_models[i]
-                x0 = model.param_hints["x0"]["value"]
-                ind = closest_index(spectrum.x, x0)
-                x_label, y_label = spectrum.x[ind], spectrum.y[ind]
+                x_label = model.param_hints["x0"]["value"]
+                with empty_expr(model):
+                    params = model.make_params()
+                y_label = model.eval(params, x=x_label)
 
                 if view_options.get("Subtract bkg+baseline") and spectrum.bkg_model is not None:
                     bkg_model = spectrum.bkg_model
@@ -424,18 +425,15 @@ class Model(QObject):
 
                 xy = (x_label, y_label + dy_label)
                 annotation_y.append(y_label + 2 * dy_label)
-                ax.annotate(
-                    label,
-                    xy=xy,
-                    xytext=(0, 20),
-                    xycoords="data",
-                    textcoords="offset points",
-                    ha="center",
-                    va="top",
-                    size=14,
-                    arrowprops={"fc": 'k', "arrowstyle": '->'},
-                    annotation_clip=True,
-                )
+                ax.annotate(label,
+                            xy=xy,
+                            xycoords="data",
+                            textcoords="offset points",
+                            ha="center",
+                            va="top",
+                            size=14,
+                            arrowprops={"fc": 'k', "arrowstyle": '->'},
+                            annotation_clip=True)
 
             # Adjust y-axis to contain peak labels
             if annotation_y:
