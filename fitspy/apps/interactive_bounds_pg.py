@@ -23,22 +23,10 @@ class InteractiveBounds(QtCore.QObject):
         self.bind_func = bind_func
         self.enable_add_peak = enable_add_peak
 
-        self.vlines = None
         self.bboxes = []
-
-        self.add_vlines()
 
         self.ax.vb.scene().installEventFilter(self)
         self.ax.vb.scene().sigMouseMoved.connect(self.on_move)
-
-    def add_vlines(self):
-        xv, yv = [], []
-        for i in self.spectrum.inds_local_minima():
-            xi, yi = self.spectrum.x[i], self.spectrum.y[i]
-            xv += [xi, xi, np.nan]
-            yv += [0, yi, np.nan]
-        self.vlines = pg.PlotCurveItem(xv, yv, connect='finite', pen=pg.mkPen(color='k', width=0.2))
-        self.ax.vb.addItem(self.vlines)
 
     def add_bbox(self, k, peak_model, is_visible=False):
         bbox = BBox(self.ax, self.spectrum, peak_model, is_visible=is_visible)
@@ -47,13 +35,11 @@ class InteractiveBounds(QtCore.QObject):
         self.bboxes.append(bbox)
 
     def update(self):
-        self.add_vlines()
         self.bboxes = []
         for k, peak_model in enumerate(self.spectrum.peak_models):
             self.add_bbox(k, peak_model)
 
     def set_visible(self, status):
-        self.vlines.setVisible(status)
         for bbox in self.bboxes:
             for item in bbox.items:
                 item.setVisible(status)

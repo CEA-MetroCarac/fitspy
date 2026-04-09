@@ -405,18 +405,12 @@ class Spectrum:
                 param = self.result_fit.params[key]
                 self.bkg_model.set_param_hint(key, value=param.value)
 
-    def params_from_profile(self, x0):
-        """ Return model with parameters estimated from the local spectrum profile """
-        inds = self.inds_local_minima()
-        i = np.searchsorted(self.x[inds], x0, side='right') - 1
-        x0min, x0max = self.x[inds[i]], self.x[inds[i + 1]]
-        dx0 = (x0 - x0min, x0max - x0)
-        dfwhm = x0max - x0min
-        # fwhm, fwhm_l, fwhm_r = max(dx0), dx0[0], dx0[1]
-
+    def estimate_params(self, x0):
+        """ Return model parameters estimated from the local spectrum profile """
         ampli = self.y_no_outliers[closest_index(self.x, x0)]
-        fwhm = fwhm_l = fwhm_r = self.dx(x0=x0)
-
+        dx = fwhm = fwhm_l = fwhm_r = self.dx(x0=x0)
+        dx0 = (min(10 * dx, x0), min(10 * dx, self.x.max() - x0))
+        dfwhm = 20 * dx
         return ampli, fwhm, fwhm_l, fwhm_r, dx0, dfwhm
 
     def add_peak_model(self, model_name, x0, ampli=None,
@@ -447,7 +441,7 @@ class Spectrum:
             Upper bound allowed for fwhm / fwhm_l /fwhm_r. fwhm_ in [0; dfwhm]
             Default value are based on local estimations related to the spectrum profile.
         """
-        ampli_, fwhm_, fwhm_l_, fwhm_r_, dx0_, dfwhm_ = self.params_from_profile(x0)
+        ampli_, fwhm_, fwhm_l_, fwhm_r_, dx0_, dfwhm_ = self.estimate_params(x0)
         ampli = ampli or ampli_
         fwhm = fwhm or fwhm_
         fwhm_l = fwhm_l or fwhm_l_
