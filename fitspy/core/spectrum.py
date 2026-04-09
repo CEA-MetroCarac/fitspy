@@ -793,7 +793,7 @@ class Spectrum:
              label=None, kwargs=None, cmap_peaks=None):
         """ Plot the spectrum with the peak models """
 
-        x, y = self.eval_xy()
+        x, y = self.eval_xy(subtract_baseline=subtract_baseline, subtract_bkg=subtract_bkg)
 
         linewidth = 1 if getattr(self.result_fit, "success", False) else 0.5
 
