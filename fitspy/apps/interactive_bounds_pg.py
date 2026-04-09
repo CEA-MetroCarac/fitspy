@@ -12,13 +12,15 @@ from fitspy.apps.pyside.utils import convert_color_pg
 
 class InteractiveBounds(QtCore.QObject):
 
-    def __init__(self, ax, spectrum, peak_model_name, cmap=None, enable_add_peak=False):
+    def __init__(self, ax, spectrum, peak_model_name,
+                 cmap=None, bind_func=None, enable_add_peak=False):
         super().__init__()
 
         self.ax = ax
         self.spectrum = spectrum
         self.peak_model_name = peak_model_name
         self.cmap = cmap or CMAP
+        self.bind_func = bind_func
         self.enable_add_peak = enable_add_peak
 
         self.vlines = None
@@ -81,6 +83,8 @@ class InteractiveBounds(QtCore.QObject):
                 self.active_bbox.stop_drag()
                 self.active_bbox = None
                 self.ax.vb.setMouseEnabled(x=True, y=True)
+                if self.bind_func is not None:
+                    self.bind_func()
                 return True
 
         return False

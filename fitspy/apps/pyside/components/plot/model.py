@@ -334,7 +334,8 @@ class Model(QObject):
         self.ibounds = InteractiveBounds(ax,
                                          self.current_spectra[0],
                                          self.peak_model,
-                                         cmap=DEFAULTS["peaks_cmap"])
+                                         cmap=DEFAULTS["peaks_cmap"],
+                                         bind_func=self.refresh)
 
     # @measure_time
     def update_spectraplot(self, ax, view_options):
