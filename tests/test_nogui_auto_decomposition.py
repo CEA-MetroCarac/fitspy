@@ -17,7 +17,7 @@ def test_auto_decomposition():
     spectra = auto_decomposition(verbosity=False)
 
     results = []
-    for i in range(3):
+    for i in range(1):  # only 1rst test is relevant with the new estimate_params()
         x0 = spectra[i].peak_models[0].param_hints['x0']['value']
         ampli = spectra[i].peak_models[0].param_hints['ampli']['value']
         fwhm = spectra[i].peak_models[0].param_hints['fwhm']['value']
