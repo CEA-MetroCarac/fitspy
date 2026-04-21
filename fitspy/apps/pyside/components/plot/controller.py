@@ -1,5 +1,5 @@
 from pathlib import Path
-from PySide6.QtCore import QObject, Signal, QTimer, QSignalBlocker
+from PySide6.QtCore import QObject, Signal, QTimer
 from PySide6.QtCore import Qt
 
 from fitspy.core.spectrum import Spectrum

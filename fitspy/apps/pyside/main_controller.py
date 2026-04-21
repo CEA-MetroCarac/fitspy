@@ -297,7 +297,7 @@ class MainController(QObject):
     def show_toast(self, preset, title, text, duration=3000):
         try:  # https://github.com/niklashenning/pyqttoast/issues/23
             from pyqttoast import Toast, ToastPreset
-        except:
+        except Exception:
             print(f"[{preset.upper()}] {title}: {text}")
             return
 
@@ -411,10 +411,10 @@ class MainController(QObject):
         DEFAULTS["peaks_cmap"] = (
             self.view.more_settings.other_settings.peaks_cmap.currentColormap().to_mpl()
         )
-        if self.plot_controller.get_spectra():
-            self.settings_controller.update_peaks_table(
-                self.plot_controller.get_spectra()[0], block_signals=False
-            )
+        spectra = self.plot_controller.get_spectra()
+        if spectra:
+            self.settings_controller.update_peaks_table(spectra[0], block_signals=True)
+            self.plot_controller.update_spectraplot()
 
     def update_map_cmap(self):
         DEFAULTS["map_cmap"] = (

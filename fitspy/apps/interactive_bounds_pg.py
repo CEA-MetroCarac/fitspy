@@ -28,6 +28,9 @@ class InteractiveBounds(QtCore.QObject):
         self.ax.vb.scene().installEventFilter(self)
         self.ax.vb.scene().sigMouseMoved.connect(self.on_move)
 
+    def set_cmap(self, cmap):
+        self.cmap = cmap
+
     def add_bbox(self, k, peak_model, is_visible=False):
         bbox = BBox(self.ax, self.spectrum, peak_model, is_visible=is_visible)
         bbox.set_color(self.cmap(k % self.cmap.N))

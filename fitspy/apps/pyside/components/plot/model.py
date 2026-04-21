@@ -12,7 +12,7 @@ from PySide6.QtWidgets import QMessageBox
 from fitspy.core.spectra import Spectra
 from fitspy.core.spectrum import Spectrum, empty_expr
 from fitspy.core.spectra_map import SpectraMap
-from fitspy.core.utils import closest_index, closest_item, measure_time
+from fitspy.core.utils import closest_index, closest_item
 from fitspy.core.baseline_methods import get_baseline_method_meta
 from fitspy.apps.interactive_bounds_pg import InteractiveBounds
 from fitspy.apps.pyside import DEFAULTS
@@ -87,7 +87,7 @@ class Model(QObject):
                 spectrum.load_profile(fname)
                 self.spectra.append(spectrum)
                 self.spectrumLoaded.emit(fname)
-            except:
+            except Exception:
                 self.showToast.emit("ERROR", "Failed to load spectrum", fname)
 
     def del_spectrum(self, items):
@@ -123,7 +123,7 @@ class Model(QObject):
 
             fnames = [spectrum.fname for spectrum in spectra_map]
             self.decodedSpectraMap.emit(fname, fnames)
-        except:
+        except Exception:
             QMessageBox.warning(None, "Warning", f"FAILED to load: {Path(fname).name}")
 
     def del_map(self, fname):
@@ -404,6 +404,7 @@ class Model(QObject):
         self.line_bkg_visible = view_options.get("Background", False) and spectrum.bkg_model
 
         if self.ibounds is not None:
+            self.ibounds.set_cmap(DEFAULTS["peaks_cmap"])
             self.ibounds.update()  # necessary after ax.clear()
             self.ibounds.set_visible(view_options["Interactive bounds"])
 

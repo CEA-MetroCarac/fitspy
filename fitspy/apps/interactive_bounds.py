@@ -59,6 +59,9 @@ class InteractiveBounds:
         if bind_func is not None:
             self.canvas.mpl_connect('button_release_event', lambda _: bind_func())
 
+    def set_cmap(self, cmap):
+        self.cmap = cmap
+
     def update(self):
         self.bboxes = []
         for k, peak_model in enumerate(self.spectrum.peak_models):
