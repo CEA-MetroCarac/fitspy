@@ -830,8 +830,8 @@ class Spectrum:
                 y_bkg = self.bkg_model.eval(self.bkg_model.make_params(), x=x)
 
         if show_background and self.bkg_model is not None:
-            line,_ = ax.plot(x, y_bkg, 'k--', lw=linewidth,
-                            label=f'{label}_Background' if label else "Background")
+            line = ax.plot(x, y_bkg, 'k--', lw=linewidth,
+                            label=f'{label}_Background' if label else "Background")[0]
             lines.append(line)
 
         cmap_peaks = cmap_peaks or CMAP_PEAKS
@@ -848,7 +848,7 @@ class Spectrum:
 
                 if show_peak_models:
                     color = cmap_peaks(i % cmap_peaks.N)
-                    label = f'{label}_Peak_{i}' if label else None
+                    label = f'{label}_Peak_{i}' if label else f'Peak {i}'
 
                     line = ax.plot(x, y_peak, lw=linewidth, color=color, label=label)[0]
                     lines.append(line)

@@ -83,6 +83,7 @@ class MplLikeAxes:
 
         item = self.plot_item.plot(x, y, pen=pen, **pg_kwargs)
         line = item.curve
+        line.opts['name'] = pg_kwargs['name']
         item.setZValue(zorder)
         line.setZValue(zorder)
         self._items.append(item)

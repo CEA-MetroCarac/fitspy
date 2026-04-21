@@ -264,27 +264,10 @@ class Model(QObject):
         spectrum = self.current_spectra[ind]
         return [spectrum.fname]
 
-    def highlight_peak(self, ax, peak_index):
+    def highlight_peak(self, ax, peak_index, color):
         """Highlight a peak by its index (for table hover/click)."""
-        # Remove previous highlights
-        if self.tmp is not None:
-            [ax.plot_item.removeItem(x) for x in self.tmp]
-            self.tmp = None
-
-        nspectra = len(self.current_spectra)
-        lines = self.lines[1:-(nspectra - 1)] if nspectra > 1 else self.lines[1:]
-        line = lines[peak_index]
-        pen = line.opts['pen']
-        color = pen.color().name()
-
-        # Highlight the line
-        self.tmp = [ax.plot(*line.getData(), c=color, ls=pen.style(), lw=3)[1]]
-
         spectrum = self.current_spectra[0]
-        if self.line_bkg_visible:
-            model = spectrum.bkg_model if peak_index == 0 else spectrum.peak_models[peak_index - 1]
-        else:
-            model = spectrum.peak_models[peak_index]
+        model = spectrum.peak_models[peak_index]
         text = []
         for key in ['x0', 'ampli', 'fwhm', 'fwhm_l', 'fwhm_r']:
             if key in model.param_hints:
@@ -297,21 +280,37 @@ class Model(QObject):
 
         ax.draw_idle()
 
+    def highlight(self, ax, event):
+        """Highlight peaks and secondaries spectra."""
+        peaks = self.get_peaks_lines()
+        secondaries = self.get_secondaries_lines()
+
+        for line in peaks + secondaries:
+            if hasattr(line, 'mouseShape') and line.mouseShape().contains(line.mapFromScene(event)):
+                pen = line.opts['pen']
+                color = pen.color().name()
+                self.tmp = [ax.plot(*line.getData(), c=color, ls=pen.style(), lw=3)[1]]
+
+                if line in peaks:
+                    self.highlight_peak(ax, peaks.index(line), color)
+                ax.draw_idle()
+
     def on_motion(self, ax, event):
         if self.tmp is not None:
             [ax.plot_item.removeItem(x) for x in self.tmp]
             self.tmp = None
 
-        nspectra = len(self.current_spectra)
-        lines = self.lines[1:-(nspectra - 1)] if nspectra > 1 else self.lines[1:]
-        for line in lines:
-            if line.mouseShape().contains(line.mapFromScene(event)):
-                self.highlight_peak(ax, lines.index(line))
-                return
+        self.highlight(ax, event)
 
     def preprocess(self):
         for spectrum in self.current_spectra:
             spectrum.preprocess()
+
+    def get_peaks_lines(self):
+        return [line for line in self.lines if "Peak" in (line.opts['name'] or "")]
+
+    def get_secondaries_lines(self):
+        return [line for line in self.lines if "secondaries_spectra" in (line.opts['name'] or "")]
 
     def get_view_limits(self, ax):
         """Get the current view limits of the plot."""
@@ -389,7 +388,7 @@ class Model(QObject):
                 xs.append(np.nan)
                 ys.append(np.nan)
                 self._Y.append(y)
-            self.lines.append(ax.plot(xs, ys, lw=0.5, zorder=0, connect='finite')[0])
+            self.lines.append(ax.plot(xs, ys, lw=0.5, zorder=0, connect='finite', label="secondaries_spectra")[0])
 
             if view_options["Outliers"]:
                 x_outliers, y_outliers = [], []
