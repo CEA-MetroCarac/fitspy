@@ -326,7 +326,7 @@ class Model(QObject):
 
     def _apply_log_ylimits(self, ax):
         y_data = np.concatenate([line.get_ydata()[line.get_ydata() > 0] for line in ax.lines
-                                 if "_Spectrum" in (line.get_label() or "")])
+                                 if "Spectrum" in (line.get_label() or "")])
         if len(y_data):
             ax.set_ylim(y_data.min() * 0.1, y_data.max() * 10)
 

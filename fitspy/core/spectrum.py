@@ -793,7 +793,7 @@ class Spectrum:
 
         if kwargs is None:
             kwargs = {'c': 'k', 'ls': '-', 'lw': 0.5, 'marker': 'o', 'ms': 0.5, 'zorder': 2}
-        lines = [ax.plot(x, y, label=f'{label}_Spectrum' if label else "_Spectrum", **kwargs)[0]]
+        lines = [ax.plot(x, y, label=f'{label}_Spectrum' if label else "Spectrum", **kwargs)[0]]
 
         if show_weights and self.weights is not None:
             ax.plot(x, self.weights, 'b', lw=2, label=f'{label}_Weights' if label else 'Weights')
@@ -830,7 +830,7 @@ class Spectrum:
                 y_bkg = self.bkg_model.eval(self.bkg_model.make_params(), x=x)
 
         if show_background and self.bkg_model is not None:
-            line, = ax.plot(x, y_bkg, 'k--', lw=linewidth,
+            line,_ = ax.plot(x, y_bkg, 'k--', lw=linewidth,
                             label=f'{label}_Background' if label else "Background")
             lines.append(line)
 

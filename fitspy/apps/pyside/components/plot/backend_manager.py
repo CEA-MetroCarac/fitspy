@@ -94,7 +94,7 @@ class MplLikeAxes:
         self._legend.clear()
         for item in self._items:
             name = item.opts.get('name', None)
-            if name and name not in ["_Spectrum", "_Baseline", "_nolegend_"]:
+            if name and name not in ["Spectrum", "Baseline", "_nolegend_"]:
                 self._legend.addItem(item, name)
 
     def clear(self):
