@@ -189,7 +189,7 @@ class SettingsController(QObject):
 
         if "peak_models" in model_dict or "peak_label" in model_dict:
             self.setPeaks.emit(model_dict)
-        if "bkg_model" in model_dict:
+        if "bkg_model" in model_dict or "bkg_models" in model_dict:
             self.setBkg.emit(model_dict)
 
     def clear_current_model(self):
@@ -378,6 +378,10 @@ class SettingsController(QObject):
 
         param_hints = bkg_payload
         if isinstance(bkg_payload, dict) and "param_hints" in bkg_payload:
+            model_name = bkg_payload.get("model_name")
+            if model_name:
+                self.model_builder.bkg_table.bkg_model = model_name
+                self.model_builder.bkg_table.update_columns_based_on_model()
             param_hints = bkg_payload["param_hints"]
 
         if isinstance(param_hints, dict):

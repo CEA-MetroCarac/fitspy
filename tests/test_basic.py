@@ -187,3 +187,26 @@ def test_multiple_background_models_roundtrip(basic_spectrum):
     assert len(restored.bkg_models) == 2
     assert restored.bkg_models[0].name2 == 'Linear'
     assert restored.bkg_models[1].name2 == 'Constant'
+
+
+def test_set_and_remove_background_models(basic_spectrum):
+    basic_spectrum.set_bkg_models([
+        {
+            'id': 'b01',
+            'model_name': 'Linear',
+            'order': 1,
+            'param_hints': {},
+        },
+        {
+            'id': 'b02',
+            'model_name': 'Constant',
+            'order': 2,
+            'param_hints': {},
+        },
+    ])
+
+    assert len(list(basic_spectrum.iter_bkg_models())) == 2
+
+    basic_spectrum.remove_bkg_model('b01')
+    assert len(basic_spectrum.bkg_models) == 1
+    assert basic_spectrum.bkg_models[0].name2 == 'Constant'

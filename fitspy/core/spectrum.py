@@ -242,6 +242,30 @@ class Spectrum:
     def clear_bkg_models(self):
         self.bkg_models = []
 
+    def remove_bkg_model(self, component_id):
+        self._bkg_models = [
+            model for model in self.bkg_models
+            if getattr(model, 'component_id', None) != component_id
+        ]
+
+    def iter_bkg_models(self):
+        return iter(self.bkg_models)
+
+    def set_bkg_models(self, components_payload):
+        self.clear_bkg_models()
+        for i, component in enumerate(components_payload or [], start=1):
+            if not isinstance(component, dict):
+                continue
+            model_name = component.get('model_name')
+            if not model_name:
+                continue
+            self.add_bkg_model(
+                model_name,
+                component_id=component.get('id'),
+                order=component.get('order', i),
+                param_hints=component.get('param_hints', {}),
+            )
+
     def add_bkg_model(self, bkg_name, component_id=None, order=None, param_hints=None):
         if bkg_name == 'None':
             return None
@@ -300,18 +324,7 @@ class Spectrum:
             components = bkg_models
             if isinstance(components, dict):
                 components = components.values()
-            for i, component in enumerate(components, start=1):
-                if not isinstance(component, dict):
-                    continue
-                model_name = component.get('model_name')
-                param_hints = component.get('param_hints', {})
-                if model_name:
-                    self.add_bkg_model(
-                        model_name,
-                        component_id=component.get('id'),
-                        order=component.get('order', i),
-                        param_hints=param_hints,
-                    )
+            self.set_bkg_models(list(components))
             return
 
         bkg_model = model_dict.get('bkg_model')

@@ -400,7 +400,7 @@ class Model(QObject):
 
         spectrum = self.current_spectra[0]
 
-        self.line_bkg_visible = view_options.get("Background", False) and spectrum.bkg_model
+        self.line_bkg_visible = view_options.get("Background", False) and bool(spectrum.bkg_models)
 
         if self.ibounds is not None:
             self.ibounds.set_cmap(DEFAULTS["peaks_cmap"])
@@ -420,9 +420,9 @@ class Model(QObject):
                     params = model.make_params()
                 y_label = model.eval(params, x=x_label)
 
-                if view_options.get("Subtract bkg+baseline") and spectrum.bkg_model is not None:
-                    bkg_model = spectrum.bkg_model
-                    y_label -= bkg_model.eval(bkg_model.make_params(), x=x_label)
+                if view_options.get("Subtract bkg+baseline") and spectrum.bkg_models:
+                    for bkg_model in spectrum.bkg_models:
+                        y_label -= bkg_model.eval(bkg_model.make_params(), x=x_label)
 
                 xy = (x_label, y_label + dy_label)
                 annotation_y.append(y_label + 2 * dy_label)

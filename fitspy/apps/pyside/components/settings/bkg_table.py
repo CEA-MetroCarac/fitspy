@@ -69,13 +69,21 @@ class BkgTable(QWidget):
                         "vary": not get_widget_value(row, f"{param_name}_fixed"),
                         "expr": param_dict["expr"]}
 
+        bkg_model["bkg_models"] = [{
+            "id": "b01",
+            "model_name": self.bkg_model,
+            "order": 1,
+            "param_hints": bkg_model["bkg_model"][self.bkg_model],
+        }]
+
         return bkg_model
 
     def emit_bkg_changed(self):
         bkg_model = self.get_bkg_model()
 
         # if there is a peak with incorrect bounds, show a warning and return
-        for param in bkg_model["bkg_model"][self.bkg_model].values():
+        params = bkg_model["bkg_models"][0]["param_hints"]
+        for param in params.values():
             if param["min"] > param["max"]:
                 self.showToast.emit(
                     "WARNING",
@@ -144,7 +152,7 @@ class BkgTable(QWidget):
         """del all columns of self.table without deleting rows"""
         for column in list(self.table.columns.keys()):
             self.table.remove_column(column)
-        self.bkgChanged.emit({"bkg_model": None})
+        self.bkgChanged.emit({"bkg_model": None, "bkg_models": []})
 
     def add_row(self, show_bounds, show_expr, **params):
         self.show_bounds_state = show_bounds
