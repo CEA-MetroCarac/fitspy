@@ -98,7 +98,7 @@ class MainController(QObject):
         self.plot_controller.baselinePointsChanged.connect(
             self.settings_controller.set_baseline_points)
         self.plot_controller.PeaksChanged.connect(self.settings_controller.update_peaks_table)
-        self.plot_controller.BkgChanged.connect(self.settings_controller.update_bkg_table)
+        self.plot_controller.BkgsChanged.connect(self.settings_controller.update_bkgs_table)
         self.plot_controller.progressUpdated.connect(self.update_progress)
         self.plot_controller.colorizeFromFitStatus.connect(
             self.files_controller.colorize_from_fit_status)
@@ -117,12 +117,21 @@ class MainController(QObject):
             self.plot_controller.apply_spectral_range)
         self.settings_controller.applyNormalization.connect(
             self.plot_controller.apply_normalization)
+        
+        # Peak model
         self.settings_controller.updatePeakModel.connect(self.plot_controller.update_peak_model)
         self.settings_controller.updatePeakModel.emit(
             self.view.fit_model_editor.model_settings.fitting.peak_model.currentText())
-        self.settings_controller.setBkgModel.connect(self.plot_controller.set_bkg_model)
         self.settings_controller.setPeaks.connect(self.plot_controller.set_peaks)
-        self.settings_controller.setBkg.connect(self.plot_controller.set_bkg)
+        self.settings_controller.addPeak.connect(self.plot_controller.add_peak)
+
+        # Background model
+        self.settings_controller.updateBkgModel.connect(self.plot_controller.update_bkg_model)
+        self.settings_controller.updateBkgModel.emit(
+            self.view.fit_model_editor.model_settings.fitting.bkg_model.currentText())
+        self.settings_controller.setBkgs.connect(self.plot_controller.set_bkgs)
+        self.settings_controller.addBkg.connect(self.plot_controller.add_bkg)
+
         self.settings_controller.saveModels.connect(self.save_models)
         self.settings_controller.fitRequested.connect(self.fit)
         self.settings_controller.modelSelectionChanged.connect(self.on_model_selection_changed)

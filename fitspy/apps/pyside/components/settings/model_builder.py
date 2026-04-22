@@ -210,6 +210,8 @@ class Normalization(QCollapsible):
 class Fitting(QCollapsible):
     loadPeakModel = Signal(object)
     loadBkgModel = Signal(object)
+    addBkg = Signal(str)
+    addPeak = Signal(str)
 
     def __init__(self, parent=None):
         super().__init__("Fitting", parent)
@@ -234,15 +236,19 @@ class Fitting(QCollapsible):
         spacer = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
         combo_box = DragNDropCombo()
         combo_box.addItems(items)
-        add = QPushButton("Add Model", icon=QIcon(get_icon_path("add.png")),
-                          toolTip="Load .txt/.py file and add it to the list of models")
+        import_btn = QPushButton("Import", icon=QIcon(get_icon_path("import.png")),
+                  toolTip="Import a .txt/.py file and add it to the list of models")
+        add_btn = QPushButton("Add", icon=QIcon(get_icon_path("add.png")),
+                      toolTip="Add a background model row with the selected model")
 
         if model_type == "peak":
-            add.clicked.connect(lambda: self.loadPeakModel.emit(None))
+            import_btn.clicked.connect(lambda: self.loadPeakModel.emit(None))
             combo_box.itemAdded.connect(lambda fname: self.loadPeakModel.emit(fname))
+            add_btn.clicked.connect(lambda: self.addPeak.emit(combo_box.currentText()))
         elif model_type == "bkg":
-            add.clicked.connect(lambda: self.loadBkgModel.emit(None))
+            import_btn.clicked.connect(lambda: self.loadBkgModel.emit(None))
             combo_box.itemAdded.connect(lambda fname: self.loadBkgModel.emit(fname))
+            add_btn.clicked.connect(lambda: self.addBkg.emit(combo_box.currentText()))
 
         h_layout = QHBoxLayout()
         h_layout.setSpacing(5)
@@ -250,7 +256,8 @@ class Fitting(QCollapsible):
         h_layout.addWidget(label)
         h_layout.addItem(spacer)
         h_layout.addWidget(combo_box)
-        h_layout.addWidget(add)
+        h_layout.addWidget(add_btn)
+        h_layout.addWidget(import_btn)
         h_layout.setStretch(2, 1)
 
         layout.addLayout(h_layout)
@@ -345,12 +352,12 @@ class ModelSelector(QWidget):
             toolTip="Set the first model of file to selection, no preprocessing/fitting",
         )
 
-        self.add = QPushButton("Add Model", icon=QIcon(get_icon_path("add.png")),
-                               toolTip="Load .json file and add it to the list of models")
+        self.import_btn = QPushButton("Import", icon=QIcon(get_icon_path("import.png")),
+                               toolTip="Import .json file and add it to the list of models")
 
         h_layout.addWidget(self.combo_box)
         h_layout.addWidget(self.set)
-        h_layout.addWidget(self.add)
+        h_layout.addWidget(self.import_btn)
 
         h_layout.setStretch(0, 1)
         h_layout.setStretch(1, 0)
@@ -364,7 +371,7 @@ class ModelSelector(QWidget):
         """Override setDisabled to keep preview checkbox enabled"""
         self.combo_box.setDisabled(state)
         self.set.setDisabled(state)
-        self.add.setDisabled(state)
+        self.import_btn.setDisabled(state)
 
     def setEnabled(self, state):
         self.setDisabled(not state)

@@ -22,9 +22,11 @@ class SettingsController(QObject):
     applySpectralRange = Signal(object, object)
     applyNormalization = Signal(bool, object, object)
     updatePeakModel = Signal(str)
-    setBkgModel = Signal(str)
+    updateBkgModel = Signal(str)
     setPeaks = Signal(dict)
-    setBkg = Signal(dict)
+    addPeak = Signal(str)
+    setBkgs = Signal(dict)
+    addBkg = Signal(str)
     saveModels = Signal()
     fitRequested = Signal(object)
     replayModels = Signal(object)  # dict doesnt work with json serialization
@@ -83,6 +85,8 @@ class SettingsController(QObject):
         fitting.bkg_model.currentTextChanged.connect(self.switch_bkg_model)
         fitting.loadPeakModel.connect(lambda fname: self.load_user_models(PEAK_MODELS, fname))
         fitting.loadBkgModel.connect(lambda fname: self.load_user_models(BKG_MODELS, fname))
+        fitting.addPeak.connect(self.addPeak)
+        fitting.addBkg.connect(self.addBkg)
 
         # Save model
         model_settings.save.clicked.connect(self.saveModels)
@@ -98,7 +102,7 @@ class SettingsController(QObject):
         model_builder.peaks_table.peaksChanged.connect(self.update_model_dict)
         model_builder.peaks_table.showToast.connect(self.showToast)
         model_builder.peaks_table.peakSelected.connect(self.peakSelected)
-        model_builder.bkg_table.bkgChanged.connect(self.update_model_dict)
+        model_builder.bkg_table.bkgsChanged.connect(self.update_model_dict)
         model_builder.bkg_table.showToast.connect(self.showToast)
         self.model.baselinePointsChanged.connect(self.baselinePointsChanged)
         self.model.baselinePointsChanged.connect(model_builder.baseline_table.set_points)
@@ -106,7 +110,7 @@ class SettingsController(QObject):
         # Model selector
         model_selector.combo_box.itemAdded.connect(
             lambda fname: self.load_model(fname))
-        model_selector.add.clicked.connect(self.load_model)
+        model_selector.import_btn.clicked.connect(self.load_model)
         model_selector.set.clicked.connect(
             lambda: self.select_model(model_selector.combo_box.currentText()))
         model_selector.combo_box.currentTextChanged.connect(self.modelSelectionChanged)
@@ -190,7 +194,7 @@ class SettingsController(QObject):
         if "peak_models" in model_dict or "peak_label" in model_dict:
             self.setPeaks.emit(model_dict)
         if "bkg_model" in model_dict or "bkg_models" in model_dict:
-            self.setBkg.emit(model_dict)
+            self.setBkgs.emit(model_dict)
 
     def clear_current_model(self):
         self.model.current_fit_model = {}
@@ -248,11 +252,11 @@ class SettingsController(QObject):
         bkg_models = fit_model.get("bkg_models") or []
         if bkg_models:
             first_bkg = bkg_models[0]
-            self.update_bkg_table(first_bkg)
+            self.update_bkgs_table(first_bkg)
         else:
             bkg_model_dict = fit_model.get("bkg_model") or {}
             bkg_model = next(iter(bkg_model_dict), "None")
-            self.update_bkg_table(bkg_model_dict.get(bkg_model, {}))
+            self.update_bkgs_table(bkg_model_dict.get(bkg_model, {}))
 
     def set_baseline_points(self, points=[[], []]):
         self.model.baseline_points = points
@@ -358,6 +362,51 @@ class SettingsController(QObject):
         if block_signals:
             self.model.blockSignals(False)
 
+    def update_bkgs_table(self, spectrum, block_signals=True):
+        self.model_builder.bkg_table.clear()
+        if not spectrum:
+            return
+
+        if block_signals:
+            self.model.blockSignals(True)
+
+
+        def add_row_from_params(id, name, params):
+            row_params = {
+                "id": id,
+                "model_name": name,
+            }
+
+            for param_name, param_data in params.items():
+                param_values = {
+                    "min": param_data.get("min"),
+                    "value": param_data.get("value"),
+                    "max": param_data.get("max"),
+                    "vary": param_data.get("vary"),
+                    "expr": param_data.get("expr"),
+                }
+                param_key = param_name.lower()
+                row_params[f"{param_key}_min"] = param_values.get("min")
+                row_params[param_key] = param_values.get("value")
+                row_params[f"{param_key}_max"] = param_values.get("max")
+                row_params[f"{param_key}_fixed"] = not param_values.get("vary")
+                row_params[f"{param_key}_expr"] = param_values.get("expr")
+
+            show_bounds = self.model_builder.bounds_chbox.isChecked()
+            show_expr = self.model_builder.expr_chbox.isChecked()
+            self.model_builder.bkg_table.add_row(show_bounds, show_expr, **row_params)
+
+
+        models = spectrum._serialize_bkg_models()
+        for m in models:
+            id = m["id"]
+            name = m["model_name"]
+            params = m["param_hints"]
+            add_row_from_params(id, name, params)
+        
+        if block_signals:
+            self.model.blockSignals(False)
+
     def request_fit(self):
         model_dict = self.model.current_fit_model
         self.fitRequested.emit(model_dict)
@@ -368,24 +417,7 @@ class SettingsController(QObject):
 
     def switch_bkg_model(self, model_name):
         self.model_builder.tab_widget.setCurrentIndex(1)
-        self.model_builder.bkg_table.bkg_model = model_name
-        self.model_builder.bkg_table.update_columns_based_on_model()
-        self.setBkgModel.emit(model_name)
-
-    def update_bkg_table(self, bkg_payload):
-        if not bkg_payload:
-            return
-
-        param_hints = bkg_payload
-        if isinstance(bkg_payload, dict) and "param_hints" in bkg_payload:
-            model_name = bkg_payload.get("model_name")
-            if model_name:
-                self.model_builder.bkg_table.bkg_model = model_name
-                self.model_builder.bkg_table.update_columns_based_on_model()
-            param_hints = bkg_payload["param_hints"]
-
-        if isinstance(param_hints, dict):
-            self.model_builder.bkg_table.update_row(param_hints)
+        self.updateBkgModel.emit(model_name)
 
     def get_baseline_mode(self):
         return self.model.current_fit_model["baseline"]["mode"]

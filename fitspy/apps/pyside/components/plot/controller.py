@@ -18,7 +18,7 @@ class PlotController(QObject):
     highlightSpectrum = Signal(list, bool)
     baselinePointsChanged = Signal(list)
     PeaksChanged = Signal(object)
-    BkgChanged = Signal(dict)
+    BkgsChanged = Signal(object)
     progressUpdated = Signal(object, int, int)
     colorizeFromFitStatus = Signal(dict)
     exportCSV = Signal(object)
@@ -96,7 +96,7 @@ class PlotController(QObject):
     def highlight_peak(self, index):
         """Highlight the peak at the given index in the spectrum plot."""
         ax = self.spectra_plot.ax
-        self.model.highlight_peak(ax, index)
+        self.model.highlight(ax, index=index)
 
     def on_motion(self, event):
         view_options = self.view_options.get_view_options()
@@ -263,6 +263,9 @@ class PlotController(QObject):
     def update_peak_model(self, model):
         self.model.peak_model = model
 
+    def update_bkg_model(self, model):
+        self.model.bkg_model = model
+
     def set_peaks(self, peaks):
         if not self.model.current_spectra:
             return
@@ -270,22 +273,34 @@ class PlotController(QObject):
         spectrum.set_attributes(peaks)
         self.update_spectraplot()
 
-    def set_bkg_model(self, model):
-        for i, spectrum in enumerate(self.model.current_spectra):
-            spectrum.set_bkg_model(model)
-            spectrum.result_fit = lambda: None
-            if i == 0 and spectrum.bkg_models:
-                payload = spectrum.save().get("bkg_models", [])
-                if payload:
-                    self.BkgChanged.emit(payload[0])
-        self.update_spectraplot()
-
-    def set_bkg(self, bkg):
+    def add_peak(self, model_name):
+        # TODO: SHOULD BE IN MODEL just like add_peak_point
         if not self.model.current_spectra:
             return
-        for spectrum in self.model.current_spectra:
-            spectrum.set_attributes(bkg)
 
+        spectrum = self.model.current_spectra[0]
+        x0 = spectrum.x.mean() if spectrum.x is not None else 0
+        spectrum.add_peak_model(model_name, x0)
+
+        self.PeaksChanged.emit(spectrum)
+        self.update_spectraplot()
+
+    def set_bkgs(self, bkgs):
+        if not self.model.current_spectra:
+            return
+        spectrum = self.model.current_spectra[0]
+        spectrum.set_attributes(bkgs)
+        self.update_spectraplot()
+
+    def add_bkg(self, bkg):
+        # TODO: SHOULD BE IN MODEL just like add_peak_point
+        if not self.model.current_spectra:
+            return
+
+        spectrum = self.model.current_spectra[0]
+        spectrum.add_bkg_model(bkg)
+        
+        self.BkgsChanged.emit(spectrum)
         self.update_spectraplot()
 
     def set_spectra_attributes(self, models):

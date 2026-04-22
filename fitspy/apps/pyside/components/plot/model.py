@@ -280,26 +280,39 @@ class Model(QObject):
 
         ax.draw_idle()
 
-    def highlight(self, ax, event):
+    def highlight(self, ax, event=None, index=None):
         """Highlight peaks and secondaries spectra."""
-        peaks = self.get_peaks_lines()
-        secondaries = self.get_secondaries_lines()
-
-        for line in peaks + secondaries:
-            if hasattr(line, 'mouseShape') and line.mouseShape().contains(line.mapFromScene(event)):
-                pen = line.opts['pen']
-                color = pen.color().name()
-                self.tmp = [ax.plot(*line.getData(), c=color, ls=pen.style(), lw=3)[1]]
-
-                if line in peaks:
-                    self.highlight_peak(ax, peaks.index(line), color)
-                ax.draw_idle()
-
-    def on_motion(self, ax, event):
+        # Remove previous highlights
         if self.tmp is not None:
             [ax.plot_item.removeItem(x) for x in self.tmp]
             self.tmp = None
 
+        peaks = self.get_peaks_lines()
+        secondaries = self.get_secondaries_lines()
+        if index is not None and 0 <= index < len(peaks):
+            peak = peaks[index]
+            pen = peak.opts['pen']
+            color = pen.color().name()
+            if self.tmp is None:
+                self.tmp = []
+            self.tmp.append(ax.plot(*peak.getData(), c=color, ls=pen.style(), lw=3)[1])
+            self.highlight_peak(ax, index, color)
+            ax.draw_idle()
+
+        if event:
+            for line in peaks + secondaries:
+                if hasattr(line, 'mouseShape') and line.mouseShape().contains(line.mapFromScene(event)):
+                    pen = line.opts['pen']
+                    color = pen.color().name()
+                    if self.tmp is None:
+                        self.tmp = []
+                    self.tmp.append(ax.plot(*line.getData(), c=color, ls=pen.style(), lw=3)[1])
+
+                    if line in peaks:
+                        self.highlight_peak(ax, peaks.index(line), color)
+                    ax.draw_idle()
+
+    def on_motion(self, ax, event):
         self.highlight(ax, event)
 
     def preprocess(self):
