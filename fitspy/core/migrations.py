@@ -3,7 +3,7 @@ from typing import Any, Dict, Iterable, Optional, Tuple
 
 from fitspy import FIT_PARAMS, FIT_METHODS, VERSION
 
-CURRENT_MODEL_SCHEMA_VERSION = 1
+CURRENT_MODEL_SCHEMA_VERSION = 2
 CURRENT_QSETTINGS_SCHEMA_VERSION = VERSION
 
 
@@ -200,6 +200,26 @@ def _migrate_0_to_1(data: Dict[str, Any], spectrum=None) -> Dict[str, Any]:
     return data
 
 
+def _migrate_1_to_2(data: Dict[str, Any], spectrum=None) -> Dict[str, Any]:
+    bkg_model = data.get("bkg_model")
+    if bkg_model:
+        bkg_models = []
+        for i, (model_name, param_hints) in enumerate(bkg_model.items(), start=1):
+            bkg_models.append(
+                {
+                    "id": f"b{i:02d}",
+                    "model_name": model_name,
+                    "order": i,
+                    "param_hints": param_hints,
+                }
+            )
+        data["bkg_models"] = bkg_models
+
+    data["schema_version"] = 2
+    return data
+
+
 MODEL_MIGRATIONS = {
     0: _migrate_0_to_1,
+    1: _migrate_1_to_2,
 }

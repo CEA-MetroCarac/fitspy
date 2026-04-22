@@ -90,6 +90,25 @@ def test_migrate_model_dict_norm_mode_maximum():
     assert migrated["normalize"] is True
 
 
+def test_migrate_model_dict_bkg_model_to_bkg_models():
+    legacy = {
+        "schema_version": 1,
+        "bkg_model": {
+            "Linear": {
+                "slope": {"min": -1, "value": 0.1, "max": 1, "vary": True, "expr": ""},
+                "intercept": {"min": -10, "value": 1, "max": 10, "vary": True, "expr": ""},
+            }
+        },
+    }
+
+    migrated = migrate_model_dict(legacy)
+    assert migrated["schema_version"] == CURRENT_MODEL_SCHEMA_VERSION
+    assert "bkg_models" in migrated
+    assert migrated["bkg_models"][0]["id"] == "b01"
+    assert migrated["bkg_models"][0]["model_name"] == "Linear"
+    assert "slope" in migrated["bkg_models"][0]["param_hints"]
+
+
 def test_migrate_spectra_dict_applies_to_each_item():
     legacy = {
         0: {"models": {0: {"Gaussian": {"x0": {"value": 1}}}}},

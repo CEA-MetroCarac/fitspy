@@ -245,9 +245,14 @@ class SettingsController(QObject):
         self.set_baseline_points(points)
         self.update_peaks_table(fit_model)
 
-        bkg_model_dict = fit_model.get("bkg_model") or {}
-        bkg_model = next(iter(bkg_model_dict), "None")
-        self.update_bkg_table(bkg_model_dict.get(bkg_model, {}))
+        bkg_models = fit_model.get("bkg_models") or []
+        if bkg_models:
+            first_bkg = bkg_models[0]
+            self.update_bkg_table(first_bkg)
+        else:
+            bkg_model_dict = fit_model.get("bkg_model") or {}
+            bkg_model = next(iter(bkg_model_dict), "None")
+            self.update_bkg_table(bkg_model_dict.get(bkg_model, {}))
 
     def set_baseline_points(self, points=[[], []]):
         self.model.baseline_points = points
@@ -367,8 +372,16 @@ class SettingsController(QObject):
         self.model_builder.bkg_table.update_columns_based_on_model()
         self.setBkgModel.emit(model_name)
 
-    def update_bkg_table(self, param_hints):
-        self.model_builder.bkg_table.update_row(param_hints)
+    def update_bkg_table(self, bkg_payload):
+        if not bkg_payload:
+            return
+
+        param_hints = bkg_payload
+        if isinstance(bkg_payload, dict) and "param_hints" in bkg_payload:
+            param_hints = bkg_payload["param_hints"]
+
+        if isinstance(param_hints, dict):
+            self.model_builder.bkg_table.update_row(param_hints)
 
     def get_baseline_mode(self):
         return self.model.current_fit_model["baseline"]["mode"]

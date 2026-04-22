@@ -453,7 +453,11 @@ class ModelBuilder(QWidget):
         normalization.normalize.blockSignals(False)
 
         # Fitting
-        bkg_model = next(iter(model.get("bkg_model") or {}), "None")
+        bkg_models = model.get("bkg_models") or []
+        if bkg_models:
+            bkg_model = bkg_models[0].get("model_name", "None")
+        else:
+            bkg_model = next(iter(model.get("bkg_model") or {}), "None")
         self.model_settings.fitting.bkg_model.setCurrentText(bkg_model)
 
 

@@ -170,3 +170,20 @@ def test_reorder(basic_spectrum):
     assert reordered_models[0].param_hints['x0']['value'] == 50
     reordered_models_reversed = basic_spectrum.reorder(reverse=True)
     assert reordered_models_reversed[0].param_hints['x0']['value'] == 150
+
+
+def test_multiple_background_models_roundtrip(basic_spectrum):
+    basic_spectrum.add_bkg_model('Linear', component_id='b01', order=1)
+    basic_spectrum.add_bkg_model('Constant', component_id='b02', order=2)
+
+    model_dict = basic_spectrum.save()
+    assert 'bkg_models' in model_dict
+    assert len(model_dict['bkg_models']) == 2
+    assert model_dict['bkg_models'][0]['model_name'] == 'Linear'
+    assert model_dict['bkg_models'][1]['model_name'] == 'Constant'
+
+    restored = Spectrum()
+    restored.set_attributes(model_dict)
+    assert len(restored.bkg_models) == 2
+    assert restored.bkg_models[0].name2 == 'Linear'
+    assert restored.bkg_models[1].name2 == 'Constant'

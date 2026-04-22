@@ -58,7 +58,13 @@ def create_model(model, model_name, prefix=None):
             for name in param_names:  # reassign model.param_names with prefix
                 model.param_names.append(prefix + name)
     elif isinstance(model, type):
-        model = model()
+        if prefix is not None:
+            try:
+                model = model(prefix=prefix)
+            except TypeError:
+                model = model()
+        else:
+            model = model()
     else:
         independent_vars = getattr(model, '_independent_vars', ['x'])
         model = Model(model, independent_vars=independent_vars, prefix=prefix)
@@ -155,12 +161,163 @@ class Spectrum:
         self.normalize = False
         self.normalize_range_min = None
         self.normalize_range_max = None
-        self.bkg_model = None
+        self._bkg_models = []
         self.peak_models = []
         self.peak_labels = []
         self.peak_index = itertools.count(start=1)
         self.fit_params = FIT_PARAMS
         self.result_fit = lambda: None
+
+    @property
+    def bkg_models(self):
+        return self._bkg_models
+
+    @bkg_models.setter
+    def bkg_models(self, models):
+        self._bkg_models = list(models) if models else []
+
+    @property
+    def bkg_model(self):
+        return self._bkg_models[0] if self._bkg_models else None
+
+    @bkg_model.setter
+    def bkg_model(self, model):
+        if model is None:
+            self._bkg_models = []
+        else:
+            self._bkg_models = [model]
+
+    @staticmethod
+    def _strip_bkg_prefix(name, prefix):
+        if prefix and name.startswith(prefix):
+            return name[len(prefix):]
+        return name
+
+    @staticmethod
+    def _add_bkg_prefix(name, prefix):
+        if prefix and not name.startswith(prefix):
+            return f"{prefix}{name}"
+        return name
+
+    def _next_bkg_component_id(self):
+        used = set()
+        for model in self.bkg_models:
+            used.add(getattr(model, "component_id", None))
+        i = 1
+        while True:
+            cid = f"b{i:02d}"
+            if cid not in used:
+                return cid
+            i += 1
+
+    def _create_bkg_component_model(self, bkg_name, prefix=None, use_guess=True):
+        assert bkg_name in BKG_MODELS.keys(), f"{bkg_name} not in {BKG_MODELS}"
+        bkg_model = BKG_MODELS[bkg_name]
+        model = create_model(bkg_model, bkg_name, prefix=prefix)
+
+        if bkg_name == 'None':
+            return None
+
+        if isinstance(bkg_model, type):
+            if use_guess and self.x is not None and self.y is not None and bkg_name == 'PowerLaw':
+                mask = self.y > 0
+                params = model.guess(self.y[mask], self.x[mask])
+            elif use_guess and self.x is not None and self.y is not None:
+                params = model.guess(self.y, self.x)
+            else:
+                params = model.make_params()
+        else:
+            params = model.make_params()
+            for val in params.values():
+                val.value = 1
+
+        for key, val in params.items():
+            model.set_param_hint(key, value=val.value,
+                                 min=-np.inf, max=np.inf,
+                                 vary=True, expr=None)
+
+        model.name2 = bkg_name
+        return model
+
+    def clear_bkg_models(self):
+        self.bkg_models = []
+
+    def add_bkg_model(self, bkg_name, component_id=None, order=None, param_hints=None):
+        if bkg_name == 'None':
+            return None
+
+        component_id = component_id or self._next_bkg_component_id()
+        order = order if order is not None else len(self.bkg_models) + 1
+        prefix = f"{component_id}_"
+        model = self._create_bkg_component_model(
+            bkg_name,
+            prefix=prefix,
+            use_guess=param_hints is None,
+        )
+        model.component_id = component_id
+        model.component_order = order
+        model.bkg_prefix = prefix
+
+        if param_hints:
+            for key, hints in param_hints.items():
+                key2 = self._add_bkg_prefix(key, prefix)
+                model.set_param_hint(
+                    key2,
+                    value=hints.get('value', 0),
+                    min=hints.get('min', -np.inf),
+                    max=hints.get('max', np.inf),
+                    vary=hints.get('vary', True),
+                    expr=hints.get('expr', None),
+                )
+
+        self._bkg_models.append(model)
+        self._bkg_models.sort(key=lambda m: getattr(m, 'component_order', 0))
+        return model
+
+    def _serialize_bkg_models(self):
+        serialized = []
+        for i, model in enumerate(self.bkg_models, start=1):
+            prefix = getattr(model, 'bkg_prefix', f"b{i:02d}_")
+            param_hints = {}
+            for key, hints in model.param_hints.items():
+                key2 = self._strip_bkg_prefix(key, prefix)
+                param_hints[key2] = deepcopy(hints)
+
+            serialized.append({
+                'id': getattr(model, 'component_id', f"b{i:02d}"),
+                'model_name': model.name2,
+                'order': getattr(model, 'component_order', i),
+                'param_hints': param_hints,
+            })
+
+        return serialized
+
+    def _load_bkg_models_from_dict(self, model_dict):
+        self.clear_bkg_models()
+
+        bkg_models = model_dict.get('bkg_models')
+        if bkg_models:
+            components = bkg_models
+            if isinstance(components, dict):
+                components = components.values()
+            for i, component in enumerate(components, start=1):
+                if not isinstance(component, dict):
+                    continue
+                model_name = component.get('model_name')
+                param_hints = component.get('param_hints', {})
+                if model_name:
+                    self.add_bkg_model(
+                        model_name,
+                        component_id=component.get('id'),
+                        order=component.get('order', i),
+                        param_hints=param_hints,
+                    )
+            return
+
+        bkg_model = model_dict.get('bkg_model')
+        if bkg_model:
+            for model_name, param_hints in bkg_model.items():
+                self.add_bkg_model(model_name, param_hints=param_hints)
 
     def reinit(self):
         """ Reinitialize the main attributes """
@@ -210,12 +367,8 @@ class Spectrum:
                     model.param_hints = deepcopy(param_hints)
                     self.peak_models.append(model)
 
-        if 'bkg_model' in keys and model_dict['bkg_model']:
-            model_name, param_hints = list(model_dict['bkg_model'].items())[0]
-            bkg_model = BKG_MODELS[model_name]
-            self.bkg_model = create_model(bkg_model, model_name)
-            self.bkg_model.name2 = model_name
-            self.bkg_model.param_hints = deepcopy(param_hints)
+        if 'bkg_models' in keys or ('bkg_model' in keys and model_dict.get('bkg_model')):
+            self._load_bkg_models_from_dict(model_dict)
 
         if 'baseline' in keys:
             for key in vars(self.baseline).keys():
@@ -400,10 +553,10 @@ class Spectrum:
                 param = self.result_fit.params[key]
                 name = key[4:]  # remove prefix 'mXX_'
                 peak_model.set_param_hint(name, value=param.value)
-        if self.bkg_model is not None:
-            for key in self.bkg_model.param_names:
+        for bkg_model in self.bkg_models:
+            for key in bkg_model.param_names:
                 param = self.result_fit.params[key]
-                self.bkg_model.set_param_hint(key, value=param.value)
+                bkg_model.set_param_hint(key, value=param.value)
 
     def estimate_params(self, x0):
         """ Return model parameters estimated from the local spectrum profile """
@@ -490,38 +643,14 @@ class Spectrum:
         self.peak_models = []
         self.peak_labels = []
         self.peak_index = itertools.count(start=1)
-        self.bkg_model = None
+        self.clear_bkg_models()
         self.result_fit = lambda: None
 
     def set_bkg_model(self, bkg_name):
         """ Set the 'bkg_model' attribute from 'bkg_name' """
-        assert bkg_name in BKG_MODELS.keys(), f"{bkg_name} not in {BKG_MODELS}"
-        if bkg_name == 'None':
-            self.bkg_model = None
-        else:
-            bkg_model = BKG_MODELS[bkg_name]
-            if isinstance(bkg_model, type):
-                self.bkg_model = bkg_model()
-                if bkg_name == 'PowerLaw':
-                    mask = self.y > 0
-                    params = self.bkg_model.guess(self.y[mask], self.x[mask])
-                else:
-                    params = self.bkg_model.guess(self.y, self.x)
-            elif isinstance(bkg_model, Model):
-                self.bkg_model = bkg_model
-                params = self.bkg_model.make_params()
-                for val in params.values():
-                    val.value = 1
-            else:
-                self.bkg_model = Model(bkg_model, independent_vars=['x'])
-                params = self.bkg_model.make_params()
-                for val in params.values():
-                    val.value = 1
-            for key, val in params.items():
-                self.bkg_model.set_param_hint(key, value=val.value,
-                                              min=-np.inf, max=np.inf,
-                                              vary=True, expr=None)
-            self.bkg_model.name2 = bkg_name
+        self.clear_bkg_models()
+        if bkg_name != 'None':
+            self.add_bkg_model(bkg_name, component_id='b01', order=1)
 
     def fit(self, fit_method=None, fit_negative=None, fit_outliers=None, independent_models=None,
             max_ite=None, coef_noise=None, xtol=None, reinit_guess=True,
@@ -562,7 +691,7 @@ class Spectrum:
         kwargs: dict, optional
             Dictionary of optional arguments passed to lmfit.fit()
         """
-        if len(self.peak_models) == 0 and self.bkg_model is None:
+        if len(self.peak_models) == 0 and len(self.bkg_models) == 0:
             return
 
         # update class attributes
@@ -638,12 +767,12 @@ class Spectrum:
                             params[key]['value'] = 0
                         params[key]['vary'] = False
 
-        # bkg_model addition
-        if self.bkg_model is not None:
-            if len(self.peak_models) > 0:
-                comp_model += self.bkg_model
+        # bkg_model(s) addition
+        for bkg_model in self.bkg_models:
+            if comp_model is not None:
+                comp_model += bkg_model
             else:
-                comp_model = self.bkg_model
+                comp_model = bkg_model
 
         params = comp_model.make_params()
 
@@ -699,7 +828,10 @@ class Spectrum:
                 # model parameters reassignment
                 for key in model.param_names:
                     param = result_fit.params[key]
-                    name = key[4:]  # remove prefix 'mXX_'
+                    if key.startswith('m') and len(key) > 3 and key[3] == '_':
+                        name = key[4:]  # remove prefix 'mXX_'
+                    else:
+                        name = key
                     model.set_param_hint(name, value=param.value)
 
             self.result_fit.best_fit = np.sum(np.asarray(best_fits), axis=0)
@@ -713,9 +845,7 @@ class Spectrum:
         # reassign initial 'vary' values
         if vary_init is not None:
             i = itertools.count()
-            components = comp_model.components
-            if self.bkg_model is not None:
-                components = components[:-1]
+            components = self.peak_models
             for component in components:
                 for param in component.param_hints.values():
                     param['vary'] = vary_init[next(i)]
@@ -771,9 +901,10 @@ class Spectrum:
             elif not subtract_baseline and self.baseline.is_subtracted:
                 y = y + self.baseline.y_eval
 
-        if subtract_bkg and self.bkg_model is not None:
-            with empty_expr(self.bkg_model):
-                y = y - self.bkg_model.eval(self.bkg_model.make_params(), x=x)
+        if subtract_bkg and self.bkg_models:
+            for bkg_model in self.bkg_models:
+                with empty_expr(bkg_model):
+                    y = y - bkg_model.eval(bkg_model.make_params(), x=x)
 
         return x, y
 
@@ -825,11 +956,11 @@ class Spectrum:
                     label=f'{label}_Baseline' if label else "Baseline")
 
         y_bkg = np.zeros_like(x)
-        if self.bkg_model is not None:
-            with empty_expr(self.bkg_model):
-                y_bkg = self.bkg_model.eval(self.bkg_model.make_params(), x=x)
+        for bkg_model in self.bkg_models:
+            with empty_expr(bkg_model):
+                y_bkg += bkg_model.eval(bkg_model.make_params(), x=x)
 
-        if show_background and self.bkg_model is not None:
+        if show_background and self.bkg_models:
             line = ax.plot(x, y_bkg, 'k--', lw=linewidth,
                             label=f'{label}_Background' if label else "Background")[0]
             lines.append(line)
@@ -872,8 +1003,7 @@ class Spectrum:
         for peak_model in self.peak_models:
             with empty_expr(peak_model):
                 y_fit += peak_model.eval(peak_model.make_params(), x=x)
-        if self.bkg_model is not None:
-            bkg_model = self.bkg_model
+        for bkg_model in self.bkg_models:
             with empty_expr(bkg_model):
                 y_fit += bkg_model.eval(bkg_model.make_params(), x=x)
         residual = y - y_fit
@@ -900,9 +1030,9 @@ class Spectrum:
             baseline = self.baseline.y_eval
 
         bkg = np.zeros_like(x)
-        if self.bkg_model is not None:
-            with empty_expr(self.bkg_model):
-                bkg = self.bkg_model.eval(self.bkg_model.make_params(), x=x)
+        for bkg_model in self.bkg_models:
+            with empty_expr(bkg_model):
+                bkg += bkg_model.eval(bkg_model.make_params(), x=x)
 
         y_raw = y_subtract + bkg if not self.baseline.is_subtracted else y_subtract + baseline
 
@@ -971,7 +1101,7 @@ class Spectrum:
             Save it if a 'fname_json' is given """
 
         excluded_keys = ['x0', 'y0', 'weights0', 'x', 'y', 'weights', 'outliers_limit',
-                         'peak_models', 'peak_index', 'bkg_model',
+                 'peak_models', 'peak_index', '_bkg_models',
                          'result_fit', 'baseline']
         model_dict = {}
         for key, val in vars(self).items():
@@ -986,9 +1116,13 @@ class Spectrum:
         model_dict['baseline'] = dict(vars(self.baseline).items())
         model_dict['schema_version'] = CURRENT_MODEL_SCHEMA_VERSION
 
-        bkg_model = self.bkg_model
-        if bkg_model is not None:
-            model_dict['bkg_model'] = {bkg_model.name2: bkg_model.param_hints}
+        serialized_bkg_models = self._serialize_bkg_models()
+        if serialized_bkg_models:
+            model_dict['bkg_models'] = serialized_bkg_models
+            first_bkg = serialized_bkg_models[0]
+            model_dict['bkg_model'] = {
+                first_bkg['model_name']: first_bkg['param_hints']
+            }
 
         peak_models = {}
         for i, peak_model in enumerate(self.peak_models):

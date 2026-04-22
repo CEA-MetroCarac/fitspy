@@ -274,8 +274,10 @@ class PlotController(QObject):
         for i, spectrum in enumerate(self.model.current_spectra):
             spectrum.set_bkg_model(model)
             spectrum.result_fit = lambda: None
-            if i == 0 and spectrum.bkg_model:
-                self.BkgChanged.emit(spectrum.bkg_model.param_hints)
+            if i == 0 and spectrum.bkg_models:
+                payload = spectrum.save().get("bkg_models", [])
+                if payload:
+                    self.BkgChanged.emit(payload[0])
         self.update_spectraplot()
 
     def set_bkg(self, bkg):
