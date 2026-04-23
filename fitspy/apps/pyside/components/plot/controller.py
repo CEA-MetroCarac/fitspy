@@ -81,6 +81,7 @@ class PlotController(QObject):
         self.model.baselinePointsChanged.connect(self.baselinePointsChanged)
         self.model.refreshPlot.connect(self.update_spectraplot)
         self.model.PeaksChanged.connect(self.PeaksChanged)
+        self.model.BkgsChanged.connect(self.BkgsChanged)
         self.model.progressUpdated.connect(self.progressUpdated)
         self.model.colorizeFromFitStatus.connect(self.colorizeFromFitStatus)
         self.model.askConfirmation.connect(self.askConfirmation)
@@ -274,16 +275,7 @@ class PlotController(QObject):
         self.update_spectraplot()
 
     def add_peak(self, model_name):
-        # TODO: SHOULD BE IN MODEL just like add_peak_point
-        if not self.model.current_spectra:
-            return
-
-        spectrum = self.model.current_spectra[0]
-        x0 = spectrum.x.mean() if spectrum.x is not None else 0
-        spectrum.add_peak_model(model_name, x0)
-
-        self.PeaksChanged.emit(spectrum)
-        self.update_spectraplot()
+        self.model.add_peak_model(model_name)
 
     def set_bkgs(self, bkgs):
         if not self.model.current_spectra:
@@ -293,15 +285,7 @@ class PlotController(QObject):
         self.update_spectraplot()
 
     def add_bkg(self, bkg):
-        # TODO: SHOULD BE IN MODEL just like add_peak_point
-        if not self.model.current_spectra:
-            return
-
-        spectrum = self.model.current_spectra[0]
-        spectrum.add_bkg_model(bkg)
-        
-        self.BkgsChanged.emit(spectrum)
-        self.update_spectraplot()
+        self.model.add_bkg_model(bkg)
 
     def set_spectra_attributes(self, models):
         self.model.spectra.set_attributes(models, preprocess=True)

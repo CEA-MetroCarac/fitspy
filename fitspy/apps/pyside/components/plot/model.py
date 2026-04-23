@@ -32,6 +32,7 @@ class Model(QObject):
     refreshPlot = Signal()
     askConfirmation = Signal(str, object, tuple, dict)
     PeaksChanged = Signal(object)
+    BkgsChanged = Signal(object)
     progressUpdated = Signal(object, int, int)
     colorizeFromFitStatus = Signal(dict)
     showToast = Signal(str, str, str)
@@ -43,7 +44,7 @@ class Model(QObject):
         self.current_spectra = []
         self.current_mode = None  # plot click mode
         self.peak_model = None
-        self.tmp = None
+        self.tmp = []
         self.linewidth = 0.5
         self.lines = []
         self.nearest_lines = []
@@ -234,7 +235,25 @@ class Model(QObject):
         spectrum = self.current_spectra[0]
         x0 = closest_item(spectrum.x, x)
         spectrum.add_peak_model(model, x0=x0)
-        self.PeaksChanged.emit(spectrum)
+    def add_peak_model(self, model_name):
+        if not self.current_spectra:
+            return
+
+        spectrum = self.current_spectra[0]
+        x0 = spectrum.x.mean() if spectrum.x is not None else 0
+        spectrum.add_peak_model(model_name, x0)
+
+        self.PeaksChanged.emit(self.get_peak_models_payload())
+        self.refreshPlot.emit()
+
+    def add_bkg_model(self, bkg_name):
+        if not self.current_spectra:
+            return
+
+        spectrum = self.current_spectra[0]
+        spectrum.add_bkg_model(bkg_name)
+
+        self.BkgsChanged.emit(self.get_bkg_models_payload())
         self.refreshPlot.emit()
 
     def refresh(self):
@@ -283,9 +302,7 @@ class Model(QObject):
     def highlight(self, ax, event=None, index=None):
         """Highlight peaks and secondaries spectra."""
         # Remove previous highlights
-        if self.tmp is not None:
-            [ax.plot_item.removeItem(x) for x in self.tmp]
-            self.tmp = None
+        self.clear_highlight(ax)
 
         peaks = self.get_peaks_lines()
         secondaries = self.get_secondaries_lines()
@@ -293,8 +310,6 @@ class Model(QObject):
             peak = peaks[index]
             pen = peak.opts['pen']
             color = pen.color().name()
-            if self.tmp is None:
-                self.tmp = []
             self.tmp.append(ax.plot(*peak.getData(), c=color, ls=pen.style(), lw=3)[1])
             self.highlight_peak(ax, index, color)
             ax.draw_idle()
@@ -304,13 +319,16 @@ class Model(QObject):
                 if hasattr(line, 'mouseShape') and line.mouseShape().contains(line.mapFromScene(event)):
                     pen = line.opts['pen']
                     color = pen.color().name()
-                    if self.tmp is None:
-                        self.tmp = []
                     self.tmp.append(ax.plot(*line.getData(), c=color, ls=pen.style(), lw=3)[1])
 
                     if line in peaks:
                         self.highlight_peak(ax, peaks.index(line), color)
                     ax.draw_idle()
+
+    def clear_highlight(self, ax):
+        for item in self.tmp:
+            ax.plot_item.removeItem(item)
+        self.tmp = []
 
     def on_motion(self, ax, event):
         self.highlight(ax, event)
@@ -352,12 +370,11 @@ class Model(QObject):
     # @measure_time
     def update_spectraplot(self, ax, view_options):
         """Update the plot with the current spectra"""
-        xlim, ylim = self.get_view_limits(ax)
         if not hasattr(self, "original_xlim") or not hasattr(self, "original_ylim"):
             self.store_original_view_limits(ax)
 
         ax.clear()
-        self.tmp = None
+        self.tmp = []
 
         if not self.current_spectra:
             ax.draw_idle()
