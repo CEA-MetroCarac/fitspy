@@ -240,6 +240,8 @@ class Fitting(QCollapsible):
                   toolTip="Import a .txt/.py file and add it to the list of models")
         add_btn = QPushButton("Add", icon=QIcon(get_icon_path("add.png")),
                       toolTip="Add a background model row with the selected model")
+        for btn in (add_btn, import_btn):
+            btn.setMaximumWidth(70)
 
         if model_type == "peak":
             import_btn.clicked.connect(lambda: self.loadPeakModel.emit(None))
