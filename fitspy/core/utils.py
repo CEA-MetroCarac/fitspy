@@ -320,6 +320,18 @@ def get_1d_profile(fname):
     #  - then, 2-column ascii file like .csv, .txt, .xy, ...
     #  - finally, proprietary format as .dm3, .dm4, ...
 
+    def is_numeric_line(line):
+        # Accept lines like: "0, 0", "0.01 0", "1e-3, 5"
+        parts = re.split(r'[,\s]+', line.strip())
+        if len(parts) < 2:
+            return False
+        try:
+            float(parts[0])
+            float(parts[1])
+            return True
+        except:
+            return False
+
     if Path(fname).suffix[:4] in ['.h5', '.h4', '.hdf']:
         try:
             x0, y0 = get_x_data_from_nxcansas(fname)
@@ -332,8 +344,9 @@ def get_1d_profile(fname):
         with open(fname, encoding="utf-8", errors="ignore") as fid:
             lines = fid.readlines()[1:]  # skip first line safely
 
-        dfr = pd.read_csv(StringIO("".join(lines)),
-                          sep=r'\s+|\t|,|;| ', engine='python', header=None).dropna()
+        clean_lines = [line for line in lines if is_numeric_line(line)]
+        dfr = pd.read_csv(StringIO("".join(clean_lines)),
+                          sep=r'\s*,\s*|\s+', engine='python', header=None).dropna()
         if dfr.shape[1] == 2:
             dfr.columns = ['x0', 'y0']
             weights = None
