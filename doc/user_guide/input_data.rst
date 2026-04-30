@@ -20,7 +20,11 @@ The input data file format for a single spectrum is based on 2 columns represent
 
 The separators between the columns can be tabulation :code:`\t`, comma :code:`,`, semicolon :code:`;` or space :code:`\ `.
 
-Note that **the first row is skipped** and the (x, y) rows can be unordered.
+.. note::
+    When reading 1D-spectrum files, only lines where the first two tokens are numeric are
+    retained. Tokens are split on commas or any whitespace (spaces, tabs). Decimal and
+    scientific notation (for example, ``1e-3``) are accepted. Header lines, comments, or
+    any line with fewer than two numeric values are ignored by the reader.
 
 Example of input data file::
 

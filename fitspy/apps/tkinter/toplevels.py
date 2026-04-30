@@ -243,7 +243,8 @@ class ParamsView(ResultView):
             self.add_combobox_bkg_model(row, 3)
             return
 
-        if model.prefix:
+        is_peak = i < len(self.spectrum.peak_models)
+        if is_peak and model.prefix:
             var = BooleanVar(value=False)
             add(Checkbutton(self.frame, variable=var), row, 0)
             self.peak_models_delete.append(var)
