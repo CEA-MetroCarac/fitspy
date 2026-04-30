@@ -992,9 +992,9 @@ class Spectrum:
 
                 if show_peak_models:
                     color = cmap_peaks(i % cmap_peaks.N)
-                    label = f'{label}_Peak_{i}' if label else f'Peak {i}'
-
-                    line = ax.plot(x, y_peak, lw=linewidth, color=color, label=label)[0]
+                    name = f'{label}_Peak_{i}' if label else f'Peak {i}'
+                    line = ax.plot(x, y_peak, lw=linewidth, color=color, label='')[0]
+                    line.opts['name'] = name
                     lines.append(line)
 
                     if show_peak_decomposition:
