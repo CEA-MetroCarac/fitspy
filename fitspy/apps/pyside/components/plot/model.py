@@ -314,6 +314,7 @@ class Model(QObject):
                     if line in peaks:
                         self.highlight_peak(ax, peaks.index(line), color)
                     ax.draw_idle()
+                    break
 
     def clear_highlight(self, ax):
         for item in self.tmp:
