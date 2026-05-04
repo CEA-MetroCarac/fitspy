@@ -5,12 +5,15 @@ Version 2026.4 (April 30, 2026)
 --------------------------------
 
 **New features:**
-- Added Multi background models capability in the GUI (PySide).
+
+- Added Multi-background models capability in the GUI (PySide).
 
 **Bug fixes:**
+
 - missing argument passed to eval_xy() (9fd8294)
 - fix x_label, y_label misplacement (f83f187)
 - Various others minor bug fixes and code refactoring.
+
 
 Version 2026.3 (April 04, 2026)
 --------------------------------
