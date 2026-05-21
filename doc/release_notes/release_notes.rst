@@ -1,6 +1,14 @@
 Release Notes
 =============
 
+Version XXXXX (YYYY, ZZZZ)
+--------------------------------
+
+**New features:**
+
+- Added pandas.DataFrame results exportation as an API function (532c605).
+
+
 Version 2026.4 (April 30, 2026)
 --------------------------------
 
