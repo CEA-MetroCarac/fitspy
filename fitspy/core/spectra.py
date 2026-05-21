@@ -111,36 +111,32 @@ class Spectra(list):
         for spectrum in self.all:
             spectrum.outliers_limit = outliers_limit[:len(spectrum.y0)]
 
-    def save_results(self, dirname_res, fnames=None):
+    def get_results(self, fnames=None):
         """
-        Save spectra results (peaks parameters and statistics) in .csv files
+        Return spectra results (peaks parameters)
 
         Parameters
         ----------
-        dirname_res: str or pathlib.Path object
-            Dirname where to save the .csv files
         fnames: list of str, optional
             List of the spectrum 'fnames' to save. If None, consider all the
             spectrum contained in the 'spectra' list
+
+        Return
+        ------
+        dfr: pandas.DataFrame
         """
-        dirname_res = Path(dirname_res)
-        dirname_res.mkdir(parents=True, exist_ok=True)
+        from fitspy.core.spectra_map import SpectraMap
 
         if fnames is None:
             fnames = self.fnames
 
-        from fitspy.core.spectra_map import SpectraMap
-
         results = []
         for fname in fnames:
-            spectrum, spectra = self.get_objects(fname)
+            spectrum, _ = self.get_objects(fname)
             if hasattr(spectrum.result_fit, "success"):
-                spectrum.save_profiles(dirname_res)
-                spectrum.save_params(dirname_res)
-                spectrum.save_stats(dirname_res)
                 name = Path(spectrum.fname).name
                 success = spectrum.result_fit.success
-                x, y = SpectraMap.spectrum_coords(spectrum) if "  X=" in fname else (None, None)
+                x, y = SpectraMap.spectrum_coords(spectrum) if "  X=" in str(fname) else (None,) * 2
                 result_fit = spectrum.result_fit
                 res = result_fit.best_values if hasattr(result_fit, 'best_values') else {}
                 res.update({'name': name, 'success': success, 'x': x, 'y': y})
@@ -159,8 +155,35 @@ class Spectra(list):
             names.append(name)
         dfr = dfr.iloc[:, list(np.argsort(names, kind='stable'))]
 
-        fname = dirname_res / "results.csv"
-        dfr.to_csv(fname, sep=';', index=False)
+        return dfr
+
+    def save_results(self, dirname_res, fnames=None):
+        """
+        Save spectra results (peaks parameters and statistics) in .csv files
+
+        Parameters
+        ----------
+        dirname_res: str or pathlib.Path object
+            Dirname where to save the .csv files
+        fnames: list of str, optional
+            List of the spectrum 'fnames' to save. If None, consider all the
+            spectrum contained in the 'spectra' list
+        """
+        dirname_res = Path(dirname_res)
+        dirname_res.mkdir(parents=True, exist_ok=True)
+
+        if fnames is None:
+            fnames = self.fnames
+
+        for fname in fnames:
+            spectrum, _ = self.get_objects(fname)
+            if hasattr(spectrum.result_fit, "success"):
+                spectrum.save_profiles(dirname_res)
+                spectrum.save_params(dirname_res)
+                spectrum.save_stats(dirname_res)
+
+        dfr = self.get_results(fnames=fnames)
+        dfr.to_csv(dirname_res / "results.csv", sep=';', index=False)
 
     def save_figures(self, dirname_fig, fnames=None, bounds=None):
         """
