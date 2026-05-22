@@ -342,7 +342,7 @@ def get_1d_profile(fname):
 
     try:
         with open(fname, encoding="utf-8", errors="ignore") as fid:
-            lines = fid.readlines()[1:]  # skip first line safely
+            lines = fid.readlines()
 
         clean_lines = [line for line in lines if is_numeric_line(line)]
         dfr = pd.read_csv(StringIO("".join(clean_lines)),

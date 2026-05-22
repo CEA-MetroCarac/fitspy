@@ -89,6 +89,12 @@ class MplLikeAxes:
         self._items.append(item)
         self._lines.append(line)
         self.draw_idle()
+
+        def set_label(label):  # compat with matplotlib's Line2D
+            line.opts['name'] = label
+
+        line.set_label = set_label
+
         return line, item
 
     def legend(self, loc=None):

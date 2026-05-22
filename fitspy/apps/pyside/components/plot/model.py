@@ -231,30 +231,20 @@ class Model(QObject):
             self.current_spectra[0].baseline.load_baseline(fname)
             self.refreshPlot.emit()
 
-    def add_peak_point(self, model, x):
-        spectrum = self.current_spectra[0]
-        x0 = closest_item(spectrum.x, x)
-        spectrum.add_peak_model(model, x0=x0)
-    def add_peak_model(self, model_name):
-        if not self.current_spectra:
-            return
-
-        spectrum = self.current_spectra[0]
-        x0 = spectrum.x.mean() if spectrum.x is not None else 0
-        spectrum.add_peak_model(model_name, x0)
-
-        self.PeaksChanged.emit(self.get_peak_models_payload())
-        self.refreshPlot.emit()
+    def add_peak_model(self, model, x0=None):
+        if self.current_spectra:
+            spectrum = self.current_spectra[0]
+            x0 = x0 if x0 is not None else spectrum.x.mean()
+            spectrum.add_peak_model(model, x0=x0)
+            self.PeaksChanged.emit(spectrum)
+            self.refreshPlot.emit()
 
     def add_bkg_model(self, bkg_name):
-        if not self.current_spectra:
-            return
-
-        spectrum = self.current_spectra[0]
-        spectrum.add_bkg_model(bkg_name)
-
-        self.BkgsChanged.emit(self.get_bkg_models_payload())
-        self.refreshPlot.emit()
+        if self.current_spectra:
+            spectrum = self.current_spectra[0]
+            spectrum.add_bkg_model(bkg_name)
+            self.BkgsChanged.emit(spectrum)
+            self.refreshPlot.emit()
 
     def refresh(self):
         self.PeaksChanged.emit(self.current_spectra[0])
@@ -324,6 +314,7 @@ class Model(QObject):
                     if line in peaks:
                         self.highlight_peak(ax, peaks.index(line), color)
                     ax.draw_idle()
+                    break
 
     def clear_highlight(self, ax):
         for item in self.tmp:

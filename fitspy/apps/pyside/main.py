@@ -35,14 +35,12 @@ class Appli:
         self.controller.settings_controller.load_model(fname_json)
 
     def apply_model(self, fnames=None, ncpus=None):
-        """Apply the model to a list of 'fnames' considering 'ncpu' as the number of threads
-        to be used. if fnames is None, apply the model to all the spectra"""
+        """Apply the model to a list of strings 'fnames' considering 'ncpus' as the number of
+        threads to be used. if fnames is None, apply the model to all the spectra"""
         fnames = fnames or self.fnames
         if ncpus:
             self.model.ncpus = ncpus
-        self.controller.files_controller.set_selection(
-            self.view.spectrum_list.list, fnames
-        )
+        self.controller.files_controller.set_selection(self.view.spectrum_list.list, fnames)
         self.view.fit_model_editor.model_selector.set.click()
         self.view.fit_model_editor.model_settings.fit.click()
 
@@ -73,6 +71,10 @@ class Appli:
         self.controller.files_controller.colorize_from_fit_status(fit_status)
         self.controller.plot_controller.update_spectraplot()
         self.controller.update_fit_stats()
+
+    def get_results(self, fnames=None):
+        """Return pd.DataFrame results related to 'fnames'"""
+        return self.controller.get_results(fnames=fnames)
 
     def save_results(self, dirname_res=None, fnames=None):
         """Save spectra related to 'fnames' into 'dirname_res'"""

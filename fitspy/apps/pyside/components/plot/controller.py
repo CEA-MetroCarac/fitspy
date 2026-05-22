@@ -213,7 +213,7 @@ class PlotController(QObject):
 
         else:  # point_type == "peaks":
             if button == Qt.LeftButton:
-                self.model.add_peak_point(self.model.peak_model, x)
+                self.model.add_peak_model(self.model.peak_model, x)
             if button == Qt.RightButton:
                 self.model.del_peak_point(x)
 

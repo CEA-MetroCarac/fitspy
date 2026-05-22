@@ -117,7 +117,7 @@ class MainController(QObject):
             self.plot_controller.apply_spectral_range)
         self.settings_controller.applyNormalization.connect(
             self.plot_controller.apply_normalization)
-        
+
         # Peak model
         self.settings_controller.updatePeakModel.connect(self.plot_controller.update_peak_model)
         self.settings_controller.updatePeakModel.emit(
@@ -379,6 +379,15 @@ class MainController(QObject):
         if fname:
             spectramap.export_to_csv(fname)
             # self.show_toast("SUCCESS", "Exported", f"{fname} has been saved.")
+
+    def get_results(self, fnames=None):
+        list_widget = self.view.spectrum_list.list
+        selected_items = fnames or list_widget.get_all_fnames()
+        if not selected_items:
+            # self.show_toast("ERROR", "No Selection", "No spectrum selected.")
+            return None
+        else:
+            return self.plot_controller.model.spectra.get_results(selected_items)
 
     def save_results(self, dirname_res=None, fnames=None):
         list_widget = self.view.spectrum_list.list
