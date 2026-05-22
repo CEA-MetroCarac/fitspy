@@ -7,6 +7,7 @@ from fitspy import FIT_METHODS, BKG_MODELS, PEAK_MODELS
 from fitspy.core import models_bichromatic
 from fitspy.core.utils import load_from_json, load_models_from_txt, load_models_from_py
 from fitspy.apps.pyside.components.settings.model import Model
+from fitspy.apps.pyside.components.settings.model_adapter import fit_model_view_from
 
 TYPES = "JSON Files (*.json);;All Files (*)"
 
@@ -177,14 +178,8 @@ class SettingsController(QObject):
 
     def set_model(self, spectrum):
         """Set the current model to the spectrum model"""
-        if isinstance(spectrum, dict):
-            model = spectrum
-        else:
-            model = spectrum.save()
-            model["baseline"].pop("y_eval")
-            model.pop("fname", None)  # TODO: what happens for fit_results=None with success as attr
-
-        self.model.current_fit_model = copy.deepcopy(model)
+        view = fit_model_view_from(spectrum)
+        self.model.current_fit_model = copy.deepcopy(view.model_dict)
 
     def update_model_dict(self, model_dict):
         # Unnecessary to block signals as the update occurs key by key
@@ -243,20 +238,12 @@ class SettingsController(QObject):
 
     def apply_model(self, fit_model):
         """Reflects the changes in the model to the GUI"""
-        self.model_builder.update_model(fit_model)
-        self.solver_settings.update_settings(fit_model.get("fit_params", {}))
-        points = fit_model.get("baseline", {}).get("points", [[], []])
-        self.set_baseline_points(points)
-        self.update_peaks_table(fit_model)
-
-        bkg_models = fit_model.get("bkg_models") or []
-        if bkg_models:
-            first_bkg = bkg_models[0]
-            self.update_bkgs_table(first_bkg)
-        else:
-            bkg_model_dict = fit_model.get("bkg_model") or {}
-            bkg_model = next(iter(bkg_model_dict), "None")
-            self.update_bkgs_table(bkg_model_dict.get(bkg_model, {}))
+        view = fit_model_view_from(fit_model)
+        self.model_builder.update_model(view.model_dict)
+        self.solver_settings.update_settings(view.model_dict.get("fit_params", {}))
+        self.set_baseline_points(view.baseline_points)
+        self.update_peaks_table(view.peak_rows)
+        self.update_bkgs_table(view.bkg_rows)
 
     def set_baseline_points(self, points=[[], []]):
         self.model.baseline_points = points
@@ -303,9 +290,9 @@ class SettingsController(QObject):
                                 "normalize_range_max": range_max})
         self.applyNormalization.emit(checked, range_min, range_max)
 
-    def update_peaks_table(self, spectrum, block_signals=True):
+    def update_peaks_table(self, source, block_signals=True):
         self.model_builder.peaks_table.clear()
-        if not spectrum:
+        if not source:
             return
 
         if block_signals:
@@ -340,31 +327,24 @@ class SettingsController(QObject):
             show_expr = self.model_builder.expr_chbox.isChecked()
             self.model_builder.peaks_table.add_row(show_bounds, show_expr, **row_params)
 
-        if isinstance(spectrum, dict):
-            fit_model = spectrum
-            peak_models = fit_model.get("peak_models", fit_model.get("models"))
-            peak_labels = fit_model.get("peak_labels", fit_model.get("models_labels"))
-
-            for key, model_dict in peak_models.items():
-                label = peak_labels[key]
-                prefix = f"m{key + 1:02d}_"
-                for model_name, params in model_dict.items():
-                    add_row_from_params(prefix, label, model_name, params)
-
-            self.update_model_dict(fit_model)
+        if isinstance(source, list):
+            rows = source
         else:
-            for label, model in zip(spectrum.peak_labels, spectrum.peak_models):
-                x0 = model.param_hints['x0']['value']
-                self.model_builder.peaks_table.fwhm = spectrum.dx(x0=x0)
-                add_row_from_params(model._prefix, label, model.name2, model.param_hints)
-            self.set_model(spectrum)
+            view = fit_model_view_from(source)
+            rows = view.peak_rows
+            self.model.current_fit_model = copy.deepcopy(view.model_dict)
+
+        for row in rows:
+            if row.fwhm is not None:
+                self.model_builder.peaks_table.fwhm = row.fwhm
+            add_row_from_params(row.prefix, row.label, row.model_name, row.param_hints)
 
         if block_signals:
             self.model.blockSignals(False)
 
-    def update_bkgs_table(self, spectrum, block_signals=True):
+    def update_bkgs_table(self, source, block_signals=True):
         self.model_builder.bkg_table.clear()
-        if not spectrum:
+        if not source:
             return
 
         if block_signals:
@@ -396,13 +376,15 @@ class SettingsController(QObject):
             show_expr = self.model_builder.expr_chbox.isChecked()
             self.model_builder.bkg_table.add_row(show_bounds, show_expr, **row_params)
 
+        if isinstance(source, list):
+            rows = source
+        else:
+            view = fit_model_view_from(source)
+            rows = view.bkg_rows
+            self.model.current_fit_model = copy.deepcopy(view.model_dict)
 
-        models = spectrum._serialize_bkg_models()
-        for m in models:
-            id = m["id"]
-            name = m["model_name"]
-            params = m["param_hints"]
-            add_row_from_params(id, name, params)
+        for row in rows:
+            add_row_from_params(row.id, row.model_name, row.param_hints)
         
         if block_signals:
             self.model.blockSignals(False)
