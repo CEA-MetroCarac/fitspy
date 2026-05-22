@@ -1,5 +1,6 @@
 import sys
 from PySide6.QtWidgets import QApplication
+import matplotlib.pyplot as plt
 
 from fitspy.apps.pyside.main_controller import MainController
 from fitspy.apps.pyside.main_model import MainModel
@@ -111,6 +112,10 @@ def end_app(appli, qapp, dirname_res=None):
     """Quit properly the appli after saving the results if 'dirname_res' is given (for pytest)"""
     if dirname_res is not None:
         appli.save_results(dirname_res=dirname_res)
+        appli.view.hide()
+        appli.view.deleteLater()
+        plt.close('all')
+        qapp.processEvents()
         qapp.quit()
     else:
         appli.view.show()

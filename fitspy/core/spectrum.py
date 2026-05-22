@@ -165,7 +165,7 @@ class Spectrum:
         self.peak_models = []
         self.peak_labels = []
         self.peak_index = itertools.count(start=1)
-        self.fit_params = FIT_PARAMS
+        self.fit_params = FIT_PARAMS.copy()
         self.result_fit = lambda: None
 
     @property

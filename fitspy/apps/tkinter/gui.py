@@ -567,6 +567,8 @@ def end_app(appli, root, dirname_res=None):
     """ Quit properly the appli after saving the results if 'dirname_res' is given (for pytest) """
     if dirname_res is not None:
         appli.save_results(dirname_res=dirname_res)
+        plt.close('all')
+        root.update_idletasks()
         root.destroy()
         return
     else:

@@ -5,6 +5,7 @@ import os
 import glob
 import tkinter
 import pandas as pd
+from functools import lru_cache
 
 from fitspy.core.utils import hsorted
 
@@ -21,10 +22,17 @@ def extract_results(dirname_res):
     return results
 
 
+@lru_cache(maxsize=1)
 def display_is_ok():
     """ Check that Tkinter can be launched """
+    root = None
     try:
-        tkinter.Tk()
+        root = tkinter.Tk()
+        root.withdraw()
+        root.update_idletasks()
         return True
     except tkinter.TclError:
         return False
+    finally:
+        if root is not None:
+            root.destroy()
