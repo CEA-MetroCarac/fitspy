@@ -11,12 +11,11 @@ import glob
 from pathlib import Path
 from copy import deepcopy
 import numpy as np
-import matplotlib.cm as cm
 
 from fitspy.core.spectra import Spectra
 from fitspy.core.spectrum import Spectrum
 from fitspy.core.spectra_map import SpectraMap
-from fitspy.core.utils import get_dim, closest_index, check_or_rename
+from fitspy.core.utils import get_dim, closest_index, check_or_rename, auto_ncpus
 from fitspy.core.utils import load_models_from_txt, load_models_from_py
 from fitspy.apps.interactive_bounds import InteractiveBounds
 
@@ -209,10 +208,22 @@ class Callbacks:
     def get_ncpus(self, nfiles):
         """ Return the number of CPUs to work with """
         ncpus = self.ncpus or self.fit_settings.params['ncpus'].get()
+        # TODO: unify the 'auto'/'Auto' sentinel with the pyside app (get_ncpus)
         if ncpus == "auto":
-            return max(1, min(int(nfiles / 8), int(os.cpu_count() / 2)))
+            return auto_ncpus(nfiles)
         else:
             return int(ncpus)
+
+    def _selected_fnames(self):
+        """ Return the file names currently selected in the file selector """
+        fnames = self.fileselector.filenames
+        return [fnames[i] for i in self.fileselector.lbox.curselection()]
+
+    def _clear_views_and_replot(self):
+        """ Clear the params/stats tab views and refresh the plot """
+        self.paramsview.delete()
+        self.statsview.delete()
+        self.plot()
 
     def apply_model(self, model_dict=None, fnames=None, fit_params=None, ncpus=None):
         """ Apply model to the selected spectra """
@@ -226,8 +237,7 @@ class Callbacks:
             model_dict['fit_params'] = fit_params
 
         if fnames is None:
-            fnames = self.fileselector.filenames
-            fnames = [fnames[i] for i in self.fileselector.lbox.curselection()]
+            fnames = self._selected_fnames()
 
         nfiles = len(fnames)
         ncpus = ncpus or self.get_ncpus(nfiles=nfiles)
@@ -565,8 +575,7 @@ class Callbacks:
             setattr(self.current_spectrum.baseline, key, val)
 
         if fnames is None:
-            fnames = self.fileselector.filenames
-            fnames = [fnames[i] for i in self.fileselector.lbox.curselection()]
+            fnames = self._selected_fnames()
 
         for fname in fnames:
             spectrum, _ = self.spectra.get_objects(fname)
@@ -576,9 +585,7 @@ class Callbacks:
         self.colorize_from_fit_status(fnames)  # reassign white
 
         self.current_spectrum.preprocess()
-        self.paramsview.delete()
-        self.statsview.delete()
-        self.plot()
+        self._clear_views_and_replot()
 
     def apply_baseline_settings_to_all(self):
         """ Apply baseline settings to all the spectra """
@@ -723,8 +730,7 @@ class Callbacks:
                 return
 
         if fnames is None:
-            fnames = self.fileselector.filenames
-            fnames = [fnames[i] for i in self.fileselector.lbox.curselection()]
+            fnames = self._selected_fnames()
 
         for fname in fnames:
             spectrum, _ = self.spectra.get_objects(fname)
@@ -735,9 +741,7 @@ class Callbacks:
 
         self.current_spectrum.preprocess()
         self.set_range()
-        self.paramsview.delete()
-        self.statsview.delete()
-        self.plot()
+        self._clear_views_and_replot()
 
     def apply_range_to_all(self):
         """ Set and apply range to all the spectra """
@@ -754,9 +758,7 @@ class Callbacks:
         self.colorize_from_fit_status(self.spectra.fnames)  # reassign white
 
         self.current_spectrum.preprocess()
-        self.paramsview.delete()
-        self.statsview.delete()
-        self.plot()
+        self._clear_views_and_replot()
 
     def get_value(self, name):
         """ Return the float value related to the 'name' attribute """
@@ -784,9 +786,7 @@ class Callbacks:
         self.colorize_from_fit_status(self.spectra.fnames)  # reassign white
 
         self.current_spectrum.preprocess()
-        self.paramsview.delete()
-        self.statsview.delete()
-        self.plot()
+        self._clear_views_and_replot()
 
     def set_normalize_settings(self):
         """ Set normalize settings from the spectrum to the appli """
@@ -797,8 +797,7 @@ class Callbacks:
     def reinit(self, fnames=None):
         """ Reinitialize the spectrum """
         if fnames is None:
-            fnames = self.fileselector.filenames
-            fnames = [fnames[i] for i in self.fileselector.lbox.curselection()]
+            fnames = self._selected_fnames()
 
         for fname in fnames:
             spectrum, _ = self.spectra.get_objects(fname)
@@ -840,8 +839,7 @@ class Callbacks:
     def auto_eval(self, model_name=None, fnames=None):
         """ Fit spectrum after evaluating baseline and peaks automatically """
         if fnames is None:
-            fnames = self.fileselector.filenames
-            fnames = [fnames[i] for i in self.fileselector.lbox.curselection()]
+            fnames = self._selected_fnames()
 
         self.show_plot = False
         current_fname = self.current_spectrum.fname

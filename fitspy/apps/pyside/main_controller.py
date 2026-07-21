@@ -4,9 +4,9 @@ from PySide6.QtCore import QObject, QUrl
 from PySide6.QtGui import QColor, QDesktopServices
 from PySide6.QtWidgets import QApplication, QFileDialog, QMessageBox
 
-from fitspy.core.utils import load_from_json, save_to_json
+from fitspy.core.utils import load_from_json, save_to_json, auto_ncpus
 from fitspy.core import models_bichromatic
-from fitspy.apps.pyside import DEFAULTS
+from fitspy.apps.pyside import DEFAULTS, JSON_FILTER
 from fitspy.apps.pyside.main_model import MainModel
 from fitspy.apps.pyside.main_view import MainView
 from fitspy.apps.pyside.utils import (
@@ -191,7 +191,7 @@ class MainController(QObject):
 
     def save(self, save_data=False):
         fname_json = QFileDialog.getSaveFileName(
-            None, "Save File", "", "JSON Files (*.json);;All Files (*)"
+            None, "Save File", "", JSON_FILTER
         )[0]
         if fname_json:
             self.plot_controller.model.spectra.save(
@@ -334,8 +334,9 @@ class MainController(QObject):
     def get_ncpus(self, nfiles):
         """Return the number of CPUs to work with"""
         ncpus = self.model.ncpus  # or self.fit_settings.params['ncpus'].get()
+        # TODO: unify the 'Auto'/'auto' sentinel with the tkinter app (get_ncpus)
         if ncpus == "Auto":
-            return max(1, min(int(nfiles / 8), int(os.cpu_count() / 2)))
+            return auto_ncpus(nfiles)
         else:
             return int(ncpus)
 
@@ -445,7 +446,7 @@ class MainController(QObject):
 
     def save_models(self, fnames=None):
         fname_json = QFileDialog.getSaveFileName(
-            None, "Save File", "", "JSON Files (*.json);;All Files (*)"
+            None, "Save File", "", JSON_FILTER
         )[0]
         if fname_json:
             if fnames is None:

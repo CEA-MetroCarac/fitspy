@@ -6,7 +6,7 @@ import pyqtgraph as pg
 from pyqtgraph.Qt import QtWidgets, QtCore
 
 from fitspy.core.utils import closest_index
-from fitspy.apps.interactive_bounds import set_tmp_params, CMAP
+from fitspy.apps.interactive_bounds import set_tmp_params, CMAP, BBoxParamsMixin
 from fitspy.apps.pyside.utils import convert_color_pg
 
 
@@ -93,7 +93,7 @@ class InteractiveBounds(QtCore.QObject):
         self.active_bbox.on_move(mouse_point.x())
 
 
-class BBox:
+class BBox(BBoxParamsMixin):
 
     def __init__(self, ax, spectrum, peak_model, is_visible=True, color='b', ratio=0.5):
 
@@ -212,20 +212,6 @@ class BBox:
         scene_pos = self.ax.vb.mapViewToScene(QtCore.QPointF(x, y))
         local_pos = rect.mapFromScene(scene_pos)
         return rect.rect().contains(local_pos)
-
-    def update_params(self):
-        self.peak_model.set_param_hint('ampli', value=self.ampli)
-        self.peak_model.set_param_hint('x0', value=self.x0)
-        self.peak_model.set_param_hint('x0', min=self.x0 - self.dx0[0])
-        self.peak_model.set_param_hint('x0', max=self.x0 + self.dx0[1])
-        if 'fwhm_l' in self.peak_model.param_hints.keys():
-            self.peak_model.set_param_hint('fwhm_l', value=self.fwhm[0])
-            self.peak_model.set_param_hint('fwhm_r', value=self.fwhm[1])
-            self.peak_model.set_param_hint('fwhm_l', max=self.dfwhm[0])
-            self.peak_model.set_param_hint('fwhm_r', max=self.dfwhm[1])
-        else:
-            self.peak_model.set_param_hint('fwhm', value=self.fwhm[0])
-            self.peak_model.set_param_hint('fwhm', max=self.dfwhm[0])
 
     def update_display(self):
         self.vline.setData([self.x0, self.x0], [0, self.ampli])

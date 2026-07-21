@@ -9,8 +9,6 @@ from io import StringIO
 import importlib
 import itertools
 import runpy
-import time
-from functools import wraps
 import inspect
 import numpy as np
 import pandas as pd
@@ -21,18 +19,9 @@ import zlib
 import h5py
 
 
-def measure_time(func):
-    @wraps(func)
-    def wrapper(*args, **kwargs):
-        start_time = time.time()
-        print(f"{func.__name__}", end=" ")
-        result = func(*args, **kwargs)
-        end_time = time.time()
-        elapsed_time = end_time - start_time
-        print(f"{elapsed_time:.2f}s")
-        return result
-
-    return wrapper
+def auto_ncpus(nfiles):
+    """ Return the number of CPUs to use in 'Auto' mode for 'nfiles' spectra """
+    return max(1, min(int(nfiles / 8), int(os.cpu_count() / 2)))
 
 
 def closest_item(element_list, value):

@@ -6,7 +6,6 @@ import re
 import csv
 import itertools
 import contextlib
-import warnings
 from copy import deepcopy
 import numpy as np
 import pandas as pd
@@ -17,10 +16,7 @@ from scipy.signal import find_peaks
 
 from lmfit import Model, fit_report
 from lmfit.model import ModelResult
-from lmfit.models import (ConstantModel, LinearModel, ParabolicModel,
-                          ExponentialModel, PowerLawModel,
-                          ExpressionModel  # pylint:disable=unused-import
-                          )
+from lmfit.models import ExpressionModel
 
 from fitspy import FIT_PARAMS, PEAK_PARAMS, PEAK_MODELS, BKG_MODELS
 from fitspy.core.utils import get_1d_profile
@@ -904,6 +900,22 @@ class Spectrum:
             x_outliers = y_outliers = []
         return x_outliers, y_outliers
 
+    def eval_bkg(self, x):
+        """ Return the summed background models evaluated over 'x' """
+        y_bkg = np.zeros_like(x)
+        for bkg_model in self.bkg_models:
+            with empty_expr(bkg_model):
+                y_bkg += bkg_model.eval(bkg_model.make_params(), x=x)
+        return y_bkg
+
+    def eval_peaks(self, x):
+        """ Return the summed peak models evaluated over 'x' """
+        y_peaks = np.zeros_like(x)
+        for peak_model in self.peak_models:
+            with empty_expr(peak_model):
+                y_peaks += peak_model.eval(peak_model.make_params(), x=x)
+        return y_peaks
+
     def eval_xy(self, subtract_baseline=False, subtract_bkg=False):
         """ Return spectrum (x,y) coordinates for plotting """
         x, y = self.x.copy(), self.y.copy()
@@ -915,9 +927,7 @@ class Spectrum:
                 y = y + self.baseline.y_eval
 
         if subtract_bkg and self.bkg_models:
-            for bkg_model in self.bkg_models:
-                with empty_expr(bkg_model):
-                    y = y - bkg_model.eval(bkg_model.make_params(), x=x)
+            y = y - self.eval_bkg(x)
 
         return x, y
 
@@ -968,10 +978,7 @@ class Spectrum:
             ax.plot(x, self.baseline.y_eval, 'g',
                     label=f'{label}_Baseline' if label else "Baseline")
 
-        y_bkg = np.zeros_like(x)
-        for bkg_model in self.bkg_models:
-            with empty_expr(bkg_model):
-                y_bkg += bkg_model.eval(bkg_model.make_params(), x=x)
+        y_bkg = self.eval_bkg(x)
 
         if show_background and self.bkg_models:
             line = ax.plot(x, y_bkg, 'k--', lw=linewidth,
@@ -1012,13 +1019,7 @@ class Spectrum:
     def plot_residual(self, ax, factor=1):
         """ Plot the residual x factor obtained after fitting """
         x, y = self.x, self.y
-        y_fit = np.zeros_like(x)
-        for peak_model in self.peak_models:
-            with empty_expr(peak_model):
-                y_fit += peak_model.eval(peak_model.make_params(), x=x)
-        for bkg_model in self.bkg_models:
-            with empty_expr(bkg_model):
-                y_fit += bkg_model.eval(bkg_model.make_params(), x=x)
+        y_fit = self.eval_peaks(x) + self.eval_bkg(x)
         residual = y - y_fit
         label = "residual" if factor == 1 else f"residual (x{factor})"
         ax.plot(x, factor * residual, 'r', label=label)
@@ -1042,10 +1043,7 @@ class Spectrum:
         if self.baseline.y_eval is not None:
             baseline = self.baseline.y_eval
 
-        bkg = np.zeros_like(x)
-        for bkg_model in self.bkg_models:
-            with empty_expr(bkg_model):
-                bkg += bkg_model.eval(bkg_model.make_params(), x=x)
+        bkg = self.eval_bkg(x)
 
         y_raw = y_subtract + bkg if not self.baseline.is_subtracted else y_subtract + baseline
 

@@ -96,7 +96,25 @@ class InteractiveBounds:
                 self.bboxes.append(bbox)
 
 
-class BBox:
+class BBoxParamsMixin:
+    """ Shared 'update_params' behavior for the matplotlib and pyqtgraph BBox """
+
+    def update_params(self):
+        self.peak_model.set_param_hint('ampli', value=self.ampli)
+        self.peak_model.set_param_hint('x0', value=self.x0)
+        self.peak_model.set_param_hint('x0', min=self.x0 - self.dx0[0])
+        self.peak_model.set_param_hint('x0', max=self.x0 + self.dx0[1])
+        if 'fwhm_l' in self.peak_model.param_hints.keys():
+            self.peak_model.set_param_hint('fwhm_l', value=self.fwhm[0])
+            self.peak_model.set_param_hint('fwhm_r', value=self.fwhm[1])
+            self.peak_model.set_param_hint('fwhm_l', max=self.dfwhm[0])
+            self.peak_model.set_param_hint('fwhm_r', max=self.dfwhm[1])
+        else:
+            self.peak_model.set_param_hint('fwhm', value=self.fwhm[0])
+            self.peak_model.set_param_hint('fwhm', max=self.dfwhm[0])
+
+
+class BBox(BBoxParamsMixin):
 
     def __init__(self, ax, spectrum, peak_model, color='blue', ratio=0.5):
 
@@ -183,20 +201,6 @@ class BBox:
         # self.rect_fwhm_inner.set_facecolor(color)
         if self.tmp is not None:
             self.tmp.set_color(color)
-
-    def update_params(self):
-        self.peak_model.set_param_hint('ampli', value=self.ampli)
-        self.peak_model.set_param_hint('x0', value=self.x0)
-        self.peak_model.set_param_hint('x0', min=self.x0 - self.dx0[0])
-        self.peak_model.set_param_hint('x0', max=self.x0 + self.dx0[1])
-        if 'fwhm_l' in self.peak_model.param_hints.keys():
-            self.peak_model.set_param_hint('fwhm_l', value=self.fwhm[0])
-            self.peak_model.set_param_hint('fwhm_r', value=self.fwhm[1])
-            self.peak_model.set_param_hint('fwhm_l', max=self.dfwhm[0])
-            self.peak_model.set_param_hint('fwhm_r', max=self.dfwhm[1])
-        else:
-            self.peak_model.set_param_hint('fwhm', value=self.fwhm[0])
-            self.peak_model.set_param_hint('fwhm', max=self.dfwhm[0])
 
     def update_display(self):
 

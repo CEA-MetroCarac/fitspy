@@ -69,8 +69,6 @@ class GUI(Callbacks):
     baseline_sigma: Tkinter.IntVar
         Smoothing gaussian coefficient applied to the spectra when calculating
         the attached baseline points
-    baseline_distance: Tkinter.DoubleVar
-        Minimum distance used by 'spectrum.auto_baseline'
     baseline_mode: Tkinter.StringVar
         Type of baseline ('Linear' or 'Polynomial')
     baseline_order_max: Tkinter.IntVar
@@ -85,8 +83,6 @@ class GUI(Callbacks):
     bkg_name: Tkinter.StringVar
         Background model name among 'None', 'Constant', 'Linear', 'Parabolic'
         and 'Exponential'
-    asym: Tkinter.BooleanVar
-        Activation keyword to consider asymetric spectrum model
     ax: Matplotlib.Axes object
         Current axis to work with
     canvas: FigureCanvasTkAgg object
@@ -112,7 +108,6 @@ class GUI(Callbacks):
         # Baseline parameters
         self.baseline_attached = BooleanVar(value=True)
         self.baseline_sigma = IntVar(value=0)
-        self.baseline_distance = IntVar(value=500)
         self.baseline_mode = StringVar(value="arpls")
         self.baseline_coef = IntVar(value=5)
         self.baseline_order_max = IntVar(value=2)
@@ -125,7 +120,6 @@ class GUI(Callbacks):
         # Peaks parameters
         self.model = StringVar(value='Lorentzian')
         self.bkg_name = StringVar(value='None')
-        self.asym = BooleanVar(value=False)
 
         # Frames creation
         #################

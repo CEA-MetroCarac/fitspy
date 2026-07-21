@@ -1,5 +1,7 @@
 from fitspy import VERSION
 
+JSON_FILTER = "JSON Files (*.json);;All Files (*)"
+
 DEFAULTS = {
     'version': VERSION,
     'theme': 'dark',

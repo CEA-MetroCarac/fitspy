@@ -8,8 +8,23 @@ from fitspy.core import models_bichromatic
 from fitspy.core.utils import load_from_json, load_models_from_txt, load_models_from_py
 from fitspy.apps.pyside.components.settings.model import Model
 from fitspy.apps.pyside.components.settings.model_adapter import fit_model_view_from
+from fitspy.apps.pyside import JSON_FILTER
 
-TYPES = "JSON Files (*.json);;All Files (*)"
+TYPES = JSON_FILTER
+
+
+def expand_param_hints(params):
+    """ Flatten lmfit-style param_hints into table row fields:
+    '<key>', '<key>_min', '<key>_max', '<key>_fixed', '<key>_expr' """
+    row_fields = {}
+    for param_name, param_data in params.items():
+        param_key = param_name.lower()
+        row_fields[f"{param_key}_min"] = param_data.get("min")
+        row_fields[param_key] = param_data.get("value")
+        row_fields[f"{param_key}_max"] = param_data.get("max")
+        row_fields[f"{param_key}_fixed"] = not param_data.get("vary")
+        row_fields[f"{param_key}_expr"] = param_data.get("expr")
+    return row_fields
 
 
 class SettingsController(QObject):
@@ -298,30 +313,13 @@ class SettingsController(QObject):
         if block_signals:
             self.model.blockSignals(True)
 
-        def extract_params(param_dict):
-            return {
-                "min": param_dict.get("min"),
-                "value": param_dict.get("value"),
-                "max": param_dict.get("max"),
-                "vary": param_dict.get("vary"),
-                "expr": param_dict.get("expr"),
-            }
-
         def add_row_from_params(prefix, label, model_name, params):
             row_params = {
                 "prefix": prefix,
                 "label": label,
                 "model_name": model_name,
             }
-
-            for param_name, param_data in params.items():
-                param_values = extract_params(param_data)
-                param_key = param_name.lower()
-                row_params[f"{param_key}_min"] = param_values.get("min")
-                row_params[param_key] = param_values.get("value")
-                row_params[f"{param_key}_max"] = param_values.get("max")
-                row_params[f"{param_key}_fixed"] = not param_values.get("vary")
-                row_params[f"{param_key}_expr"] = param_values.get("expr")
+            row_params.update(expand_param_hints(params))
 
             show_bounds = self.model_builder.bounds_chbox.isChecked()
             show_expr = self.model_builder.expr_chbox.isChecked()
@@ -356,21 +354,7 @@ class SettingsController(QObject):
                 "id": id,
                 "model_name": name,
             }
-
-            for param_name, param_data in params.items():
-                param_values = {
-                    "min": param_data.get("min"),
-                    "value": param_data.get("value"),
-                    "max": param_data.get("max"),
-                    "vary": param_data.get("vary"),
-                    "expr": param_data.get("expr"),
-                }
-                param_key = param_name.lower()
-                row_params[f"{param_key}_min"] = param_values.get("min")
-                row_params[param_key] = param_values.get("value")
-                row_params[f"{param_key}_max"] = param_values.get("max")
-                row_params[f"{param_key}_fixed"] = not param_values.get("vary")
-                row_params[f"{param_key}_expr"] = param_values.get("expr")
+            row_params.update(expand_param_hints(params))
 
             show_bounds = self.model_builder.bounds_chbox.isChecked()
             show_expr = self.model_builder.expr_chbox.isChecked()
