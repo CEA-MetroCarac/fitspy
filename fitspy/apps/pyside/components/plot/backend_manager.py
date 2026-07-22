@@ -200,6 +200,10 @@ class MplLikeAxes:
         self.plot_item.addItem(item)
         self._lines.append(item)
 
+        # keep track of every scene item this annotation created so a caller can
+        # remove the whole annotation later (e.g. to reposition it during a drag)
+        item.annotation_items = [item]
+
         arrowprops = kwargs.get('arrowprops')
         if arrowprops:
             arrow = pg.ArrowItem(pos=(x + offset_x, y + offset_y),
@@ -209,6 +213,7 @@ class MplLikeAxes:
             arrow.setStyle(angle=math.degrees(math.atan2(dy, dx)))
             self.plot_item.addItem(arrow)
             self._lines.append(arrow)
+            item.annotation_items.append(arrow)
 
         return item
 
