@@ -255,10 +255,54 @@ class PeaksTable(QWidget):
         self.update_columns_based_on_model()
         self.peaksChanged.emit(self.get_peaks())
 
-    def create_spin_box_group_with_expr(self, min=None, value=None, max=None, expr="",
-                                        param_name=None):
+    def _snapshot_param_values(self):
+        """Capture current {param_name: {min, value, max}} for every row.
 
-        if param_name in ['fwhm', 'fwhm_l', 'fwhm_r']:
+        Read before any widget teardown so old-model values remain available
+        for carry-over when the model changes.
+        """
+        snapshot = {}
+        for row in range(self.table.rowCount()):
+            row_vals = {}
+            for column_name in self.table.columns:
+                if is_bound_param(column_name):
+                    widget = self.table.cellWidget(
+                        row, self.table.get_column_index(column_name))
+                    if isinstance(widget, SpinBoxGroupWithExpression):
+                        vals = widget.get_values()
+                        row_vals[extract_param_name(column_name)] = {
+                            "min": vals["min"],
+                            "value": vals["value"],
+                            "max": vals["max"],
+                        }
+            snapshot[row] = row_vals
+        return snapshot
+
+    def _seed_from_snapshot(self, row_snapshot, param_name):
+        """Return {min, value, max} to seed a freshly created param widget,
+        mapping across the fwhm family; None when no mapping applies."""
+        if param_name in ("fwhm_l", "fwhm_r"):
+            src = row_snapshot.get("fwhm")
+            if src is not None:
+                return dict(src)
+        elif param_name == "fwhm":
+            left = row_snapshot.get("fwhm_l")
+            right = row_snapshot.get("fwhm_r")
+            if left is not None and right is not None:
+                return {k: (left[k] + right[k]) / 2
+                        for k in ("min", "value", "max")}
+            if left is not None:
+                return dict(left)
+            if right is not None:
+                return dict(right)
+        return None
+
+    def create_spin_box_group_with_expr(self, min=None, value=None, max=None, expr="",
+                                        param_name=None, seed=None):
+
+        if seed is not None:
+            min, value, max = seed["min"], seed["value"], seed["max"]
+        elif param_name in ['fwhm', 'fwhm_l', 'fwhm_r']:
             min = 0
             value = self.fwhm
             max = 1.5 * value
@@ -278,6 +322,7 @@ class PeaksTable(QWidget):
         return widget
 
     def update_columns_based_on_model(self):
+        snapshot = self._snapshot_param_values()
         required_columns = ["Prefix", "Label", "Model"]
 
         cellWidget = self.table.cellWidget
@@ -315,8 +360,11 @@ class PeaksTable(QWidget):
                 if widget is None or isinstance(widget, QWidget) and not widget.children():
                     if is_bound_param(param):
                         if not isinstance(widget, SpinBoxGroupWithExpression):
+                            param_name = extract_param_name(param)
+                            seed = self._seed_from_snapshot(
+                                snapshot.get(row, {}), param_name)
                             widget = self.create_spin_box_group_with_expr(
-                                param_name=extract_param_name(param)
+                                param_name=param_name, seed=seed
                             )
                             self.table.setCellWidget(row, col, widget)
                     elif param.endswith("_fixed"):
