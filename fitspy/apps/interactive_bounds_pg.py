@@ -13,7 +13,7 @@ from fitspy.apps.pyside.utils import convert_color_pg
 class InteractiveBounds(QtCore.QObject):
 
     def __init__(self, ax, spectrum, peak_model_name,
-                 cmap=None, bind_func=None, enable_add_peak=False):
+                 cmap=None, bind_func=None, move_func=None, enable_add_peak=False):
         super().__init__()
 
         self.ax = ax
@@ -21,6 +21,7 @@ class InteractiveBounds(QtCore.QObject):
         self.peak_model_name = peak_model_name
         self.cmap = cmap or CMAP
         self.bind_func = bind_func
+        self.move_func = move_func
         self.enable_add_peak = enable_add_peak
 
         self.bboxes = []
@@ -32,7 +33,8 @@ class InteractiveBounds(QtCore.QObject):
         self.cmap = cmap
 
     def add_bbox(self, k, peak_model, is_visible=False):
-        bbox = BBox(self.ax, self.spectrum, peak_model, is_visible=is_visible)
+        bbox = BBox(self.ax, self.spectrum, peak_model, is_visible=is_visible,
+                    on_change=self.move_func)
         bbox.set_color(self.cmap(k % self.cmap.N))
         bbox.update()
         self.bboxes.append(bbox)
@@ -95,13 +97,15 @@ class InteractiveBounds(QtCore.QObject):
 
 class BBox(BBoxParamsMixin):
 
-    def __init__(self, ax, spectrum, peak_model, is_visible=True, color='b', ratio=0.5):
+    def __init__(self, ax, spectrum, peak_model, is_visible=True, color='b', ratio=0.5,
+                 on_change=None):
 
         self.ax = ax
         self.spectrum = spectrum
         self.peak_model = peak_model
         self.color = color
         self.ratio = ratio
+        self.on_change = on_change
 
         self.x = spectrum.x
         self.y = spectrum.y
@@ -203,6 +207,10 @@ class BBox(BBoxParamsMixin):
                 self.dfwhm[0] = self.dfwhm[1]
 
         self.update()
+
+        # notify listeners (e.g. to keep the peak label following the peak live)
+        if self.on_change is not None:
+            self.on_change()
 
     def contains(self, x, y):
         return (self.contains_rect(self.rect_x0, x, y) or

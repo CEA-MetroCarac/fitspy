@@ -50,6 +50,9 @@ class Model(QObject):
         self.nearest_lines = []
         self.ibounds = None
         self._Y = []
+        self.peak_label_items = []  # scene items of the peak-label annotations
+        self._ax = None  # last axes used, for live (drag-time) label refresh
+        self._view_options = {}  # last view options, for live label refresh
 
     def set_spectrum_attr(self, fname, attr, value):
         # .json model's "dummy spectrum" is not stored in self.spectra
@@ -356,7 +359,8 @@ class Model(QObject):
                                          self.current_spectra[0],
                                          self.peak_model,
                                          cmap=DEFAULTS["peaks_cmap"],
-                                         bind_func=self.refresh)
+                                         bind_func=self.refresh,
+                                         move_func=self.refresh_peak_labels)
 
     # @measure_time
     def update_spectraplot(self, ax, view_options):
@@ -366,6 +370,9 @@ class Model(QObject):
 
         ax.clear()
         self.tmp = []
+        self.peak_label_items = []  # cleared by ax.clear(); drop stale references
+        self._ax = ax
+        self._view_options = view_options
 
         if not self.current_spectra:
             ax.draw_idle()
@@ -429,45 +436,71 @@ class Model(QObject):
             self.ibounds.set_visible(view_options["Interactive bounds"])
 
         # Add Peak labels annotations
-        if view_options.get("Peak labels", True):
-            dy_label = LABEL_OFFSET_RATIO * spectrum.y.max()
-            annotation_y = []
-            for i, label in enumerate(spectrum.peak_labels):
-                if not label:
-                    continue
-                model = spectrum.peak_models[i]
-                x_label = model.param_hints["x0"]["value"]
-                with empty_expr(model):
-                    params = model.make_params()
-                y_label = model.eval(params, x=x_label)
-
-                if view_options.get("Subtract bkg+baseline") and spectrum.bkg_models:
-                    for bkg_model in spectrum.bkg_models:
-                        y_label -= bkg_model.eval(bkg_model.make_params(), x=x_label)
-
-                xy = (x_label, y_label + dy_label)
-                annotation_y.append(y_label + 2 * dy_label)
-                ax.annotate(label,
-                            xy=xy,
-                            xycoords="data",
-                            textcoords="offset points",
-                            ha="center",
-                            va="top",
-                            size=14,
-                            arrowprops={"fc": 'k', "arrowstyle": '->'},
-                            annotation_clip=True)
-
-            # Adjust y-axis to contain peak labels
-            if annotation_y:
-                max_annotation_y = max(annotation_y)
-                current_ylim = ax.get_ylim()
-                if max_annotation_y > current_ylim[1]:
-                    ax.set_ylim(top=max_annotation_y + YLIM_BUFFER_RATIO * spectrum.y.max())
+        self.draw_peak_labels(ax, spectrum, view_options)
 
         ax.plot_item.setLogMode(x=view_options.get("X-log", False),
                                 y=view_options.get("Y-log", False))
 
         ax.draw_idle()
+
+    def draw_peak_labels(self, ax, spectrum, view_options, adjust_ylim=True):
+        """(Re)draw the peak-label annotations for `spectrum`.
+
+        Any previously drawn peak labels are removed first, so this can be called
+        repeatedly (e.g. while a peak is dragged) to keep labels on their peaks.
+        """
+        for item in self.peak_label_items:
+            if item in ax.plot_item.items:
+                ax.plot_item.removeItem(item)
+            if item in ax._lines:
+                ax._lines.remove(item)
+        self.peak_label_items = []
+
+        if not view_options.get("Peak labels", True):
+            return
+
+        dy_label = LABEL_OFFSET_RATIO * spectrum.y.max()
+        annotation_y = []
+        for i, label in enumerate(spectrum.peak_labels):
+            if not label:
+                continue
+            model = spectrum.peak_models[i]
+            x_label = model.param_hints["x0"]["value"]
+            with empty_expr(model):
+                params = model.make_params()
+            y_label = model.eval(params, x=x_label)
+
+            if view_options.get("Subtract bkg+baseline") and spectrum.bkg_models:
+                for bkg_model in spectrum.bkg_models:
+                    y_label -= bkg_model.eval(bkg_model.make_params(), x=x_label)
+
+            xy = (x_label, y_label + dy_label)
+            annotation_y.append(y_label + 2 * dy_label)
+            annotation = ax.annotate(label,
+                                     xy=xy,
+                                     xycoords="data",
+                                     textcoords="offset points",
+                                     ha="center",
+                                     va="top",
+                                     size=14,
+                                     arrowprops={"fc": 'k', "arrowstyle": '->'},
+                                     annotation_clip=True)
+            self.peak_label_items.extend(annotation.annotation_items)
+
+        # Adjust y-axis to contain peak labels
+        if adjust_ylim and annotation_y:
+            max_annotation_y = max(annotation_y)
+            current_ylim = ax.get_ylim()
+            if max_annotation_y > current_ylim[1]:
+                ax.set_ylim(top=max_annotation_y + YLIM_BUFFER_RATIO * spectrum.y.max())
+
+    def refresh_peak_labels(self):
+        """Reposition peak labels in place, without a full replot (used on drag)."""
+        if self._ax is None or not self.current_spectra:
+            return
+        self.draw_peak_labels(self._ax, self.current_spectra[0], self._view_options,
+                              adjust_ylim=False)
+        self._ax.draw_idle()
 
     def apply_model(self, model_dict=None, fnames=None, ncpus=None):
         """Apply model to the selected spectra"""
