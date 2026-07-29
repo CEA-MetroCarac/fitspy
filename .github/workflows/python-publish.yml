@@ -1,10 +1,20 @@
 on:
   release:
-    types: [published]
+    types: [published, released]
 
 jobs:
   pypi-publish:
     name: Upload release to PyPI
+    # 'published' fires for releases and pre-releases, 'released' fires for full
+    # releases only - including when a pre-release is promoted to one, which
+    # 'published' does not catch. Keeping 'published' for pre-releases only gives
+    # exactly one upload per transition:
+    #   pre-release published        -> published (prerelease) -> Test PyPI
+    #   pre-release promoted         -> released               -> PyPI
+    #   release published directly   -> released               -> PyPI
+    # (the 'published' event of that last case is skipped, otherwise the release
+    #  would be uploaded twice and the second run would fail on PyPI)
+    if: github.event.action == 'released' || github.event.release.prerelease
     runs-on: ubuntu-latest
     environment:
       name: release
