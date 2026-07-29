@@ -7,9 +7,10 @@ that a model applied to a map produces the expected values in the per-spectrum
 in the application and that are not exercised elsewhere:
 
   - the results table returned by Spectra.get_results(),
-  - the parameter colormap displayed in the 'Measurement sites' widget
-    (SpectraMap.plot_map_update with var='x0'), which stays fully NaN if the
-    peak labels and the fitted models get out of sync.
+  - the parameter colormap of the 'Measurement sites' widget. Selecting the
+    'x0' tab before fitting used to leave its peak-label combo empty, and
+    nothing refreshed the map once the fit was done: the map stayed blank
+    until the user switched tabs back and forth.
 """
 from pathlib import Path
 
@@ -32,8 +33,16 @@ def test_gui_2d_maps_results_exploitation(tmp_path):
     appli.add_items(fnames=[DIRNAME / "ordered_map.txt"])
     appli.load_model(fname_json=DIRNAME / "model.json")
 
+    # the user undocks the map widget and selects the 'x0' tab before fitting
+    sites = appli.view.measurement_sites
+    sites.dock_widget.setFloating(True)
+    tabs = [sites.tab_widget.tabText(i) for i in range(sites.tab_widget.count())]
+    sites.tab_widget.setCurrentIndex(tabs.index("x0"))
+    app.processEvents()
+
     fnames = appli.fnames[:NSPECTRA]
     appli.apply_model(fnames=fnames, ncpus=1)
+    app.processEvents()
 
     # the results table holds one row per fitted spectrum
     dfr = appli.get_results(fnames=fnames)
@@ -41,11 +50,12 @@ def test_gui_2d_maps_results_exploitation(tmp_path):
     assert dfr["success"].all()
     assert dfr["m01_x0"].values == pytest.approx(520.0, abs=1.0)
 
-    # the map displays the fitted 'x0' of the first peak label
+    # the peak labels are proposed and the map displays the fitted 'x0',
+    # without the user having to touch the widget again
+    combo = sites.tab_widget.currentWidget().combo
+    assert [combo.itemText(i) for i in range(combo.count())] == ["1", "2", "3", "4", "5"]
+
     spectra_map = appli.controller.plot_controller.model.spectra.spectra_maps[0]
-    label = sorted({lab for spectrum in spectra_map for lab in spectrum.peak_labels})[0]
-    spectra_map.plot_map(appli.view.measurement_sites.ax)
-    spectra_map.plot_map_update(var="x0", label=label)
     assert np.count_nonzero(~np.isnan(spectra_map.arr)) == NSPECTRA
     assert np.nanmean(spectra_map.arr) == pytest.approx(520.0, abs=1.0)
 

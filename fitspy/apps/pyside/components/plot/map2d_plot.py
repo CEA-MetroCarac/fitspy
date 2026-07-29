@@ -217,15 +217,31 @@ class Map2DPlot(QMainWindow):
 
     def update_labels(self, spectramap):
         labels = self.collect_unique_labels(spectramap)
-        if labels:
-            spectramap.label = labels[0]
         self.update_combo_box(labels)
+
+        current_tab = self.tab_widget.currentWidget()
+        label = current_tab.combo.currentText() if hasattr(current_tab, "combo") else ""
+        if label:
+            spectramap.label = label
+        elif labels:
+            spectramap.label = labels[0]
 
     def update_combo_box(self, labels):
         current_tab = self.tab_widget.currentWidget()
-        if hasattr(current_tab, "combo"):
-            current_tab.combo.clear()
-            current_tab.combo.addItems(labels)
+        if not hasattr(current_tab, "combo"):
+            return
+
+        combo = current_tab.combo
+        if [combo.itemText(i) for i in range(combo.count())] == labels:
+            return  # nothing new, keep the label selected by the user
+
+        label = combo.currentText()
+        combo.blockSignals(True)
+        combo.clear()
+        combo.addItems(labels)
+        if label in labels:
+            combo.setCurrentText(label)
+        combo.blockSignals(False)
 
     def update_vrange_slider(self, spectramap, current_tab=None):
         if current_tab is None:

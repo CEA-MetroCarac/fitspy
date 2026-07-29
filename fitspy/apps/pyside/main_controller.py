@@ -345,6 +345,13 @@ class MainController(QObject):
         ncpus = self.get_ncpus(nfiles=nfiles)
         self.plot_controller.fit(model_dict, ncpus)
         self.update_fit_stats()
+        self.update_measurement_sites()
+
+    def update_measurement_sites(self):
+        """ Refresh the 2D map so that the parameters just fitted are displayed """
+        current_map = self.plot_controller.model.current_map
+        if current_map:
+            self.view.measurement_sites.onTabWidgetCurrentChanged(current_map)
 
     def update_progress(self, spectra, nfiles, ncpu=None):
         if ncpu:
