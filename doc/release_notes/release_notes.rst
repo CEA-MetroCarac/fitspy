@@ -4,9 +4,27 @@ Release Notes
 Version XXXXX (YYYY, ZZZZ)
 --------------------------------
 
+
+Version 2026.5 (July 29, 2026)
+--------------------------------
+
 **New features:**
 
 - Added pandas.DataFrame results exportation as an API function (532c605).
+- `#108 <https://github.com/CEA-MetroCarac/fitspy/issues/108>`_ Header lines are now automatically skipped when loading 1D profiles.
+
+**Bug fixes:**
+
+- Fixed `#25 <https://github.com/CEA-MetroCarac/fitspy/issues/25>`_ Process finished with a non-zero exit code (:code:`superqt>=0.7.2` is now required to avoid a QLabeledRangeSlider teardown segfault).
+- Fixed `#71 <https://github.com/CEA-MetroCarac/fitspy/issues/71>`_ Peak label not following the peak when dragging it interactively.
+- Fixed `#74 <https://github.com/CEA-MetroCarac/fitspy/issues/74>`_ The fwhm value and bounds are now carried over when changing a peak model in the peaks table.
+- Fixed the 2D map remaining blank after a fit: the peak labels of the x0/fwhm/alpha tabs were not refreshed, so the fitted parameters could not be displayed until the user switched tabs back and forth.
+- Fixed "Save figures" in the PySide GUI saving results instead of figures (and :code:`Spectra.save_figures()` raising a TypeError).
+- Fixed :code:`AttributeError` when loading a .json model containing background models.
+
+**Code changes:**
+
+- Dead code removal and behavior-preserving deduplication, background models normalization moved to a dedicated model adapter, and GUI tests made independent from each other.
 
 
 Version 2026.4 (April 30, 2026)
