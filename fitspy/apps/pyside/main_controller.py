@@ -417,7 +417,7 @@ class MainController(QObject):
             None, "Select Save Directory"
         )
         if directory:
-            self.plot_controller.model.spectra.save_results(
+            self.plot_controller.model.spectra.save_figures(
                 directory, selected_items
             )
             # self.show_toast("SUCCESS", "Saved", f"Figures saved into {directory}")

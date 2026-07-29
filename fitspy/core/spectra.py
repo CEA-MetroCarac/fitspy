@@ -207,14 +207,15 @@ class Spectra(list):
 
         for fname in fnames:
             spectrum, _ = self.get_objects(fname)
-            _, ax = plt.subplots()
-            spectrum.plot(ax, show_peaks=False)
+            fig, ax = plt.subplots()
+            spectrum.plot(ax, show_peak_models=False)
             if bounds is not None:
                 ax.set_xlim(bounds[0])
                 ax.set_ylim(bounds[1])
             _, name, _ = fileparts(fname)
             fname_fig = dirname_fig / (name + '.png')
-            plt.savefig(fname_fig)
+            fig.savefig(fname_fig)
+            plt.close(fig)
 
     @staticmethod
     def load_model(fname_json, ind=0):
